@@ -96,8 +96,10 @@ public class EstateSceneManager : MonoBehaviour
         currencyPanel.onCurrencyDecreased += exchangePanel.CurrencyUpdated;
 
         DarkestDungeonManager.Instanse.UpdateSceneOverlay(GameObject.FindGameObjectWithTag("Main UI Camera").GetComponent<Camera>());
-        DarkestDungeonManager.Instanse.mainMenu.uiCanvasGroup = GameObject.Find("UI_Shared").GetComponent<CanvasGroup>();
+        
+        DarkestDungeonManager.Instanse.mainMenu.UICanvasGroupSet(GameObject.Find("UI_Shared").GetComponent<CanvasGroup>());
     }
+
     void Start()
     {
         if (Instanse != this)
@@ -193,6 +195,7 @@ public class EstateSceneManager : MonoBehaviour
 
         DarkestSoundManager.StartTownSoundtrack();
     }
+
     void OnDestroy()
     {
         DarkestDungeonManager.MainMenu.onWindowClose -= MainMenuClose;
@@ -479,6 +482,7 @@ public class EstateSceneManager : MonoBehaviour
             ActivityLogClose();
         }
     }
+
     public void MainMenuClick()
     {
         menuOpened = !menuOpened;
@@ -495,6 +499,7 @@ public class EstateSceneManager : MonoBehaviour
         }
 
     }
+
     public void ActivityLogClick()
     {
         activityLogOpened = !activityLogOpened;

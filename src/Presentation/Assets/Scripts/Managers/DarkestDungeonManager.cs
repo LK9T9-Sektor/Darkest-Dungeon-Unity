@@ -192,6 +192,7 @@ public class DarkestDungeonManager : MonoBehaviour
             LoadSave();
         }
     }
+
     void Start()
     {
         if (database == null)
@@ -211,16 +212,18 @@ public class DarkestDungeonManager : MonoBehaviour
             //SaveLoadManager.WriteStartingPlusSave(new SaveCampaignData(3, "Map"));
             //SaveLoadManager.WriteTownInvasionSave(new SaveCampaignData(3, "Map"));
             //SaveLoadManager.WriteTutorialCryptsSave(new SaveCampaignData(3, "Map"));
-            SaveData = SaveLoadManager.ReadSave(2);
+            SaveData = SaveLoadManager.ReadSave(1);
             //SaveLoadManager.WriteDungeonMap(SaveData, "tutorial_crypts");
         }
         campaign = new Campaign();
         campaign.Load(SaveData);
     }
+
     public void SaveGame()
     {
         SaveLoadManager.WriteSave(SaveData);
     }
+
     public void UpdateSceneOverlay(Camera screenOverlayCam)
     {
         var screenOverlayRect = MainMenuUI.GetComponent<RectTransform>();
@@ -233,4 +236,5 @@ public class DarkestDungeonManager : MonoBehaviour
         MainMenuUI.worldCamera = screenOverlayCam;
         MainUICamera = screenOverlayCam;
     }
+
 }

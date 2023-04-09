@@ -63,7 +63,7 @@ public class RaidSceneManager : MonoBehaviour
         }
     }
     public static RaidEvents RaidEvents
-    { 
+    {
         get
         {
             return Instanse.raidEvents;
@@ -222,7 +222,7 @@ public class RaidSceneManager : MonoBehaviour
 
     protected void CharacterWindow_onWindowClose()
     {
-        if(BattleGround.BattleStatus != BattleStatus.Fighting)
+        if (BattleGround.BattleStatus != BattleStatus.Fighting)
             RaidPanel.UpdateSelection();
     }
     protected void CharacterWindow_onNextButtonClick()
@@ -259,7 +259,7 @@ public class RaidSceneManager : MonoBehaviour
             escapeButton.gameObject.SetActive(false);
 #endif
 
-            if(DarkestDungeonManager.SaveData.InRaid)
+            if (DarkestDungeonManager.SaveData.InRaid)
             {
                 currentRaid = new RaidInfo(DarkestDungeonManager.SaveData);
                 DarkestDungeonManager.RaidManager.Quest = currentRaid.Quest;
@@ -270,7 +270,7 @@ public class RaidSceneManager : MonoBehaviour
 
                 currentRaid = new RaidInfo();
                 currentRaid.Quest = DarkestDungeonManager.Instanse.RaidingManager.Quest;
-                if(currentRaid.Quest.IsPlotQuest && (currentRaid.Quest as PlotQuest).RaidMap != null)
+                if (currentRaid.Quest.IsPlotQuest && (currentRaid.Quest as PlotQuest).RaidMap != null)
                     currentRaid.Dungeon = SaveLoadManager.LoadDungeonMap((currentRaid.Quest as PlotQuest).RaidMap, currentRaid.Quest);
                 else
                     currentRaid.Dungeon = DungeonGenerator.GenerateDungeon(currentRaid.Quest);
@@ -279,7 +279,7 @@ public class RaidSceneManager : MonoBehaviour
                 if (currentRaid.Quest.IsPlotQuest)
                     DarkestSoundManager.ExecuteNarration("quest_start", NarrationPlace.Raid, currentRaid.Quest.Id);
                 else
-                    DarkestSoundManager.ExecuteNarration("quest_start", NarrationPlace.Raid, 
+                    DarkestSoundManager.ExecuteNarration("quest_start", NarrationPlace.Raid,
                         currentRaid.Quest.Type, currentRaid.Quest.Dungeon);
             }
 
@@ -300,7 +300,7 @@ public class RaidSceneManager : MonoBehaviour
         CharacterWindow.onWindowClose += CharacterWindow_onWindowClose;
         CharacterWindow.onNextButtonClick += CharacterWindow_onNextButtonClick;
         CharacterWindow.onPreviousButtonClick += CharacterWindow_onPreviousButtonClick;
-        
+
         if (DarkestDungeonManager.SaveData.InRaid)
         {
             RaidInterface.UpdateRaidScene();
@@ -326,7 +326,7 @@ public class RaidSceneManager : MonoBehaviour
             DarkestSoundManager.StartDungeonSoundtrack(currentRaid.Dungeon.Name);
 
             if (currentRaid.CurrentLocation is DungeonRoom)
-                currentEvent = RoomLoadingEvent(currentRaid.CurrentLocation as DungeonRoom, 
+                currentEvent = RoomLoadingEvent(currentRaid.CurrentLocation as DungeonRoom,
                     DarkestDungeonManager.SaveData.inBattle ? RoomTransitionType.CombatLoad : RoomTransitionType.PeacefulLoad);
             else
                 currentEvent = HallwayLoadingEvent(currentRaid.CurrentLocation as HallSector,
@@ -386,10 +386,11 @@ public class RaidSceneManager : MonoBehaviour
             StartCoroutine(currentEvent);
         }
     }
+
     protected virtual void Update()
     {
-        if (Input.GetKeyUp(KeyCode.Escape))
-            OnEscapePressed();
+        //if (Input.GetKeyUp(KeyCode.Escape))
+        //    OnEscapePressed();
 
         if (DarkestDungeonManager.GamePaused || AnyWindowOpened)
             return;
@@ -406,11 +407,11 @@ public class RaidSceneManager : MonoBehaviour
             }
         }
 
-        if(Input.GetKeyDown(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.W))
         {
             if (BattleGround.BattleStatus == BattleStatus.Peace && currentRaid.CurrentLocation != null)
             {
-                if(sceneState == DungeonSceneState.Hall)
+                if (sceneState == DungeonSceneState.Hall)
                 {
                     if (HallwayView.CurrentSector.Area.Type == AreaType.Curio)
                     {
@@ -428,7 +429,7 @@ public class RaidSceneManager : MonoBehaviour
                     }
                     else if (HallwayView.CurrentSector.Area.Type == AreaType.Door)
                         ActivateDoor(HallwayView.CurrentSector);
-                }  
+                }
                 else if (sceneState == DungeonSceneState.Room)
                 {
                     if (RoomView.raidRoom.Area.Type == AreaType.BattleCurio
@@ -443,9 +444,9 @@ public class RaidSceneManager : MonoBehaviour
             }
         }
 
-        if(sceneState == DungeonSceneState.Room && currentEvent == null)
+        if (sceneState == DungeonSceneState.Room && currentEvent == null)
         {
-            if(Input.GetKeyDown(KeyCode.UpArrow))
+            if (Input.GetKeyDown(KeyCode.UpArrow))
             {
                 Door door = (roomView.raidRoom.Area as DungeonRoom).Doors.Find(item => item.Direction == Direction.Top);
                 if (door != null)
@@ -493,9 +494,9 @@ public class RaidSceneManager : MonoBehaviour
         ResetExtraStackLimit();
 
         for (int i = 0; i < currentRaid.RaidParty.HeroInfo.Count; i++)
-            if(currentRaid.RaidParty.HeroInfo[i].Hero.HeroClass.ExtraStackLimit != null)
+            if (currentRaid.RaidParty.HeroInfo[i].Hero.HeroClass.ExtraStackLimit != null)
             {
-                switch(currentRaid.RaidParty.HeroInfo[i].Hero.HeroClass.ExtraStackLimit)
+                switch (currentRaid.RaidParty.HeroInfo[i].Hero.HeroClass.ExtraStackLimit)
                 {
                     case "antiquarian_gold":
                         DarkestDungeonManager.Data.Items["gold"][""].ExtraStackLimit += 500;
@@ -510,7 +511,7 @@ public class RaidSceneManager : MonoBehaviour
         DarkestDungeonManager.Data.Items["gold"][""].ExtraStackLimit = 0;
     }
 
-#region Transitions
+    #region Transitions
     public static Vector3 DungeonPositionToScreen(Vector3 position)
     {
         Vector3 screenPoint;
@@ -527,6 +528,7 @@ public class RaidSceneManager : MonoBehaviour
         else
             DarkestDungeonManager.Instanse.mainMenu.OpenMenu();
     }
+
     public void OnSceneLeave()
     {
         DarkestSoundManager.StopDungeonSoundtrack();
@@ -541,7 +543,7 @@ public class RaidSceneManager : MonoBehaviour
             case CampEffectType.Buff:
                 var campBuff = DarkestDungeonManager.Data.Buffs[currentEffect.Subtype];
                 target.Character.AddBuff(new BuffInfo(campBuff, currentEffect.Amount, BuffSourceType.Adventure));
-                if(!skipNotification)
+                if (!skipNotification)
                     RaidEvents.ShowPopupMessage(target, PopupMessageType.Buff);
                 break;
             case CampEffectType.HealthHealMaxHealthPercent:
@@ -643,16 +645,16 @@ public class RaidSceneManager : MonoBehaviour
     }
     protected virtual IEnumerator HallwayLoadingEvent(HallSector hallSector, HallTransitionType transitionType, Direction direction, DungeonRoom fromRoom = null)
     {
-#region Set restrictions
+        #region Set restrictions
         QuestPanel.DisableRetreat(false);
         RaidPanel.SwitchBlocked = true;
         Inventory.SetDeactivated();
         Formations.LockSelections();
         RaidPanel.heroPanel.equipmentPanel.SetDisabled();
         Formations.HideHeroOverlay();
-#endregion
+        #endregion
 
-#region If from room : fade screen
+        #region If from room : fade screen
         if (transitionType == HallTransitionType.FromRoom)
         {
             DarkestDungeonManager.Instanse.screenFader.Fade(1);
@@ -660,9 +662,9 @@ public class RaidSceneManager : MonoBehaviour
         }
         else
             DarkestDungeonManager.Instanse.screenFader.StartFaded();
-#endregion
+        #endregion
 
-#region Switch hallway state
+        #region Switch hallway state
         SceneState = DungeonSceneState.Hall;
 
         RoomView.SetActive(false);
@@ -692,7 +694,7 @@ public class RaidSceneManager : MonoBehaviour
             HallwayView.CurrentSector = targetRaidSector;
             targetRaidSector.SetInside(true);
 
-            if(transitionType == HallTransitionType.CombatLoad || transitionType == HallTransitionType.PeacefulLoad)
+            if (transitionType == HallTransitionType.CombatLoad || transitionType == HallTransitionType.PeacefulLoad)
             {
                 if (Raid.CurrentLocation is DungeonRoom)
                 {
@@ -718,27 +720,27 @@ public class RaidSceneManager : MonoBehaviour
             HeroParty.Units[i].OverlaySlot.RectTransform.pivot = new Vector2(0.5f, 0.1f);
         for (int i = 0; i < Formations.monsters.overlay.OverlaySlots.Count; i++)
             Formations.monsters.overlay.OverlaySlots[i].RectTransform.pivot = new Vector2(0.5f, 0.1f);
-#endregion
+        #endregion
 
-#region Load combat save
+        #region Load combat save
         if (transitionType == HallTransitionType.CombatLoad)
         {
             currentEvent = LoadEncounterEvent(targetRaidSector);
             StartCoroutine(currentEvent);
             yield break;
         }
-#endregion
+        #endregion
 
-#region Show dungeon
+        #region Show dungeon
         DarkestDungeonManager.Instanse.screenFader.Appear(2);
         yield return new WaitForSeconds(0.1f);
-        if(transitionType != HallTransitionType.Retreat)
+        if (transitionType != HallTransitionType.Retreat)
             EnablePartyMovement();
         Formations.ShowHeroOverlay();
         yield return new WaitForSeconds(0.4f);
-#endregion
+        #endregion
 
-#region Apply retreat effects
+        #region Apply retreat effects
         if (transitionType == HallTransitionType.Retreat)
         {
             for (int i = 0; i < HeroParty.Units.Count; i++)
@@ -757,9 +759,9 @@ public class RaidSceneManager : MonoBehaviour
             }
             EnablePartyMovement();
         }
-#endregion
+        #endregion
 
-#region Remove restrictions
+        #region Remove restrictions
         QuestPanel.EnableRetreat();
         RaidPanel.SwitchBlocked = false;
         Formations.UnlockSelections();
@@ -767,20 +769,20 @@ public class RaidSceneManager : MonoBehaviour
         Inventory.SetPeacefulState(false);
         RaidPanel.heroPanel.equipmentPanel.SetActive();
         currentEvent = null;
-#endregion
+        #endregion
     }
     protected virtual IEnumerator RoomLoadingEvent(DungeonRoom room, RoomTransitionType transitionType, RaidHallSector fromRaidSector = null)
     {
-#region Set restrictions
+        #region Set restrictions
         QuestPanel.DisableRetreat(false);
         RaidPanel.SwitchBlocked = true;
         Inventory.SetDeactivated();
         Formations.LockSelections();
         RaidPanel.heroPanel.equipmentPanel.SetDisabled();
-#endregion
+        #endregion
 
-#region From hallway : open and close doors
-        if(transitionType == RoomTransitionType.FromHallway)
+        #region From hallway : open and close doors
+        if (transitionType == RoomTransitionType.FromHallway)
         {
             if (fromRaidSector != null)
             {
@@ -816,9 +818,9 @@ public class RaidSceneManager : MonoBehaviour
         {
             DarkestDungeonManager.Instanse.screenFader.StartFaded();
         }
-#endregion
+        #endregion
 
-#region Switch room scene
+        #region Switch room scene
         SceneState = DungeonSceneState.Room;
 
         HallwayView.SetActive(false);
@@ -836,11 +838,11 @@ public class RaidSceneManager : MonoBehaviour
             Raid.LastSector = null;
 
         roomView.LoadRoom(room, fromRaidSector != null ?
-            fromRaidSector.HallSector : null, 
+            fromRaidSector.HallSector : null,
             (transitionType == RoomTransitionType.CombatLoad ||
             transitionType == RoomTransitionType.Teleport));
 
-        if(transitionType == RoomTransitionType.FromHallway)
+        if (transitionType == RoomTransitionType.FromHallway)
             MapPanel.FocusTarget();
         else
         {
@@ -853,26 +855,26 @@ public class RaidSceneManager : MonoBehaviour
             HeroParty.Units[i].OverlaySlot.RectTransform.pivot = new Vector2(0.5f, 0);
         for (int i = 0; i < Formations.monsters.overlay.OverlaySlots.Count; i++)
             Formations.monsters.overlay.OverlaySlots[i].RectTransform.pivot = new Vector2(0.5f, 0f);
-#endregion
+        #endregion
 
-#region Load combat save
+        #region Load combat save
         if (transitionType == RoomTransitionType.CombatLoad)
         {
             currentEvent = LoadEncounterEvent(RoomView.raidRoom);
             StartCoroutine(currentEvent);
             yield break;
         }
-#endregion
+        #endregion
 
-#region Show dungeon
+        #region Show dungeon
         DarkestDungeonManager.Instanse.screenFader.Appear(2);
-#region Check for teleport actions
+        #region Check for teleport actions
         if (transitionType == RoomTransitionType.Teleport && !room.HasActiveBattle)
         {
             if (RaidPanel.SelectedUnit != null)
                 RaidPanel.SelectedUnit.OverlaySlot.UnitSelected();
 
-#region Execute Hero Transformations
+            #region Execute Hero Transformations
             for (int i = 0; i < Formations.heroes.party.Units.Count; i++)
             {
                 var hero = Formations.heroes.party.Units[i].Character as Hero;
@@ -891,7 +893,7 @@ public class RaidSceneManager : MonoBehaviour
                     }
                 }
             }
-#endregion
+            #endregion
 
             foreach (var hero in Formations.heroes.party.Units)
                 hero.SetCombatAnimation(false);
@@ -913,7 +915,7 @@ public class RaidSceneManager : MonoBehaviour
         }
         else
             yield return new WaitForSeconds(0.5f);
-#endregion
+        #endregion
 
         RaidPanel.SwitchBlocked = false;
         if (fromRaidSector == null)
@@ -922,9 +924,9 @@ public class RaidSceneManager : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         Formations.ShowHeroOverlay();
-#endregion
+        #endregion
 
-#region Apply retreat effects
+        #region Apply retreat effects
         if (transitionType == RoomTransitionType.Retreat)
         {
             for (int i = 0; i < HeroParty.Units.Count; i++)
@@ -943,9 +945,9 @@ public class RaidSceneManager : MonoBehaviour
             }
         }
         EnablePartyMovement();
-#endregion
+        #endregion
 
-#region Battle encounter and scouting
+        #region Battle encounter and scouting
         if (room.HasActiveBattle)
         {
             DisablePartyMovement();
@@ -982,22 +984,22 @@ public class RaidSceneManager : MonoBehaviour
             if (!Raid.QuestCompleted && Raid.CheckQuestGoals())
                 yield return StartCoroutine(CompletionCrestEvent());
         }
-#endregion
+        #endregion
 
-#region Remove restrictions
+        #region Remove restrictions
         QuestPanel.EnableRetreat();
         MapPanel.ShowAvailableRooms(room);
         Inventory.SetPeacefulState(false);
         RaidPanel.heroPanel.equipmentPanel.SetActive();
         currentEvent = null;
-#endregion
+        #endregion
     }
     protected virtual IEnumerator CampingEvent(DungeonRoom room)
     {
         if (SceneState != DungeonSceneState.Room)
             yield break;
 
-#region Transition To Camping
+        #region Transition To Camping
         DarkestSoundManager.StartCampingSoundtrack();
         DisableEnviroment();
         RaidPanel.SwitchBlocked = true;
@@ -1029,7 +1031,7 @@ public class RaidSceneManager : MonoBehaviour
 
         DarkestDungeonManager.Instanse.screenFader.Appear(2);
         yield return new WaitForSeconds(0.5f);
-#endregion
+        #endregion
 
         DarkestSoundManager.ExecuteNarration("camp", NarrationPlace.Raid);
 
@@ -1045,7 +1047,7 @@ public class RaidSceneManager : MonoBehaviour
         }
 #endif
 
-#region Meal Phase
+        #region Meal Phase
         RaidEvents.LoadCampingMeal();
         yield return new WaitForEndOfFrame();
         RaidEvents.MealEvent.Show();
@@ -1077,7 +1079,7 @@ public class RaidSceneManager : MonoBehaviour
 
                     HeroParty.Units[i].OverlaySlot.UpdateOverlay();
 
-#region Damage Activation
+                    #region Damage Activation
                     if (Mathf.RoundToInt(HeroParty.Units[i].Character.Health.CurrentValue) != 0)
                     {
                         RaidEvents.ShowPopupMessage(HeroParty.Units[i], PopupMessageType.Damage, starveDamage.ToString());
@@ -1100,7 +1102,7 @@ public class RaidSceneManager : MonoBehaviour
                             RaidEvents.ShowPopupMessage(HeroParty.Units[i], PopupMessageType.Damage, starveDamage.ToString());
                         }
                     }
-#endregion
+                    #endregion
                 }
                 if (someOneStarved)
                 {
@@ -1177,9 +1179,9 @@ public class RaidSceneManager : MonoBehaviour
         }
 
         yield return new WaitForSeconds(0.1f);
-#endregion
+        #endregion
 
-#region Skill Phase
+        #region Skill Phase
         RaidEvents.LoadCampingSkillEvent();
         yield return new WaitForSeconds(0.1f);
         RaidEvents.CampEvent.Show();
@@ -1219,17 +1221,17 @@ public class RaidSceneManager : MonoBehaviour
                 FMODUnity.RuntimeManager.PlayOneShot("event:/camp/skill/" + skill.Id, DungeonCamera.Transform.position);
                 yield return new WaitForSeconds(0.5f);
 
-#region Damage Effect
+                #region Damage Effect
                 var damageEffect = campEffects.Find(effect => effect.Type == CampEffectType.HealthDamageMaxHealthPercent);
                 bool someOneDied = false;
 
                 while (damageEffect != null)
                 {
                     campEffects.Remove(damageEffect);
-                    BattleSolver.GetTargetsForCampEffect(RaidPanel.SelectedUnit, 
+                    BattleSolver.GetTargetsForCampEffect(RaidPanel.SelectedUnit,
                         RaidEvents.CampEvent.SelectedTarget, damageEffect, tempList);
 
-#region Damage Activation
+                    #region Damage Activation
                     for (int i = 0; i < tempList.Count; i++)
                     {
                         int effectDamage = Mathf.RoundToInt(tempList[i].Character.Health.ModifiedValue * 0.2f);
@@ -1259,9 +1261,9 @@ public class RaidSceneManager : MonoBehaviour
                             }
                         }
                     }
-#endregion
+                    #endregion
 
-#region Death Execution
+                    #region Death Execution
                     if (someOneDied)
                     {
                         yield return new WaitForSeconds(1.4f);
@@ -1277,15 +1279,15 @@ public class RaidSceneManager : MonoBehaviour
                     }
                     else
                         yield return new WaitForSeconds(0.6f);
-#endregion
+                    #endregion
 
                     damageEffect = campEffects.Find(effect => effect.Type == CampEffectType.HealthDamageMaxHealthPercent);
                 }
-#endregion
+                #endregion
 
                 while (campEffects.Count > 0)
                 {
-#region Choose Effect and Targets
+                    #region Choose Effect and Targets
                     chosenEffects.Clear();
                     chosenEffects.Add(campEffects[0]);
                     campEffects.RemoveAt(0);
@@ -1297,9 +1299,9 @@ public class RaidSceneManager : MonoBehaviour
                     }
                     BattleSolver.GetTargetsForCampEffect(RaidPanel.SelectedUnit,
                         RaidEvents.CampEvent.SelectedTarget, chosenEffects[0], tempList);
-#endregion
+                    #endregion
 
-#region Effect Execution
+                    #region Effect Execution
                     CampEffect currentEffect = null;
                     bool skipNotification = false;
 
@@ -1308,7 +1310,7 @@ public class RaidSceneManager : MonoBehaviour
                         case CampEffectType.Buff:
                         case CampEffectType.HealthHealMaxHealthPercent:
                         case CampEffectType.RemoveDisease:
-#region Standard Wait Effects
+                            #region Standard Wait Effects
                             while (true)
                             {
                                 for (int j = 0; j < tempList.Count; j++)
@@ -1316,7 +1318,7 @@ public class RaidSceneManager : MonoBehaviour
                                     currentEffect = RandomSolver.ChooseBySingleRandom(chosenEffects);
 
                                     if (chosenEffects.Count == 1 && chosenEffects[0].Chance != 1)
-                                        if(!RandomSolver.CheckSuccess(chosenEffects[0].Chance))
+                                        if (!RandomSolver.CheckSuccess(chosenEffects[0].Chance))
                                             continue;
 
                                     if (!BattleSolver.IsRequirementFulfilled(tempList[j], currentEffect.Requirement))
@@ -1361,18 +1363,18 @@ public class RaidSceneManager : MonoBehaviour
                                 }
                             }
                             break;
-#endregion
+                        #endregion
                         case CampEffectType.Loot:
                         case CampEffectType.ReduceAmbushChance:
                         case CampEffectType.ReduceTorch:
                         case CampEffectType.RemoveDeathRecovery:
-#region Instant Effects
+                            #region Instant Effects
                             for (int j = 0; j < tempList.Count; j++)
                             {
                                 currentEffect = RandomSolver.ChooseBySingleRandom(chosenEffects);
 
                                 if (chosenEffects.Count == 1 && chosenEffects[0].Chance != 1)
-                                    if(!RandomSolver.CheckSuccess(chosenEffects[0].Chance))
+                                    if (!RandomSolver.CheckSuccess(chosenEffects[0].Chance))
                                         continue;
 
                                 if (!BattleSolver.IsRequirementFulfilled(tempList[j], currentEffect.Requirement))
@@ -1381,10 +1383,10 @@ public class RaidSceneManager : MonoBehaviour
                                 yield return ExecuteCampEffect(currentEffect, tempList[j], skipNotification);
                             }
                             break;
-#endregion
+                        #endregion
                         case CampEffectType.RemoveBleed:
                         case CampEffectType.RemovePoison:
-#region Combined Effects
+                            #region Combined Effects
                             while (true)
                             {
                                 for (int j = 0; j < tempList.Count; j++)
@@ -1392,7 +1394,7 @@ public class RaidSceneManager : MonoBehaviour
                                     currentEffect = RandomSolver.ChooseBySingleRandom(chosenEffects);
 
                                     if (chosenEffects.Count == 1 && chosenEffects[0].Chance != 1)
-                                        if(!RandomSolver.CheckSuccess(chosenEffects[0].Chance))
+                                        if (!RandomSolver.CheckSuccess(chosenEffects[0].Chance))
                                             continue;
 
                                     if (!BattleSolver.IsRequirementFulfilled(tempList[j], currentEffect.Requirement))
@@ -1401,7 +1403,7 @@ public class RaidSceneManager : MonoBehaviour
                                     yield return ExecuteCampEffect(currentEffect, tempList[j], skipNotification);
                                 }
 
-                                currentEffect = campEffects.Find(effect => (effect.Type == CampEffectType.RemoveBleed 
+                                currentEffect = campEffects.Find(effect => (effect.Type == CampEffectType.RemoveBleed
                                     || effect.Type == CampEffectType.RemovePoison)
                                     && effect.Selection == currentEffect.Selection && effect.Chance == 1);
 
@@ -1437,10 +1439,10 @@ public class RaidSceneManager : MonoBehaviour
                                 }
                             }
                             break;
-#endregion
+                        #endregion
                         case CampEffectType.StressDamageAmount:
                         case CampEffectType.StressHealAmount:
-#region Effects with Stress
+                            #region Effects with Stress
                             while (true)
                             {
                                 for (int j = 0; j < tempList.Count; j++)
@@ -1448,7 +1450,7 @@ public class RaidSceneManager : MonoBehaviour
                                     currentEffect = RandomSolver.ChooseBySingleRandom(chosenEffects);
 
                                     if (chosenEffects.Count == 1 && chosenEffects[0].Chance != 1)
-                                        if(!RandomSolver.CheckSuccess(chosenEffects[0].Chance))
+                                        if (!RandomSolver.CheckSuccess(chosenEffects[0].Chance))
                                             continue;
 
                                     if (!BattleSolver.IsRequirementFulfilled(tempList[j], currentEffect.Requirement))
@@ -1498,25 +1500,25 @@ public class RaidSceneManager : MonoBehaviour
                                 yield break;
                             }
                             break;
-#endregion
+                        #endregion
                         default:
                             break;
                     }
-#endregion
+                    #endregion
                 }
                 RaidEvents.CampEvent.Show();
 
-#region Post Skill Usage
+                #region Post Skill Usage
                 Formations.HeroOverlay.UpdateOverlay();
                 Formations.UnlockSelections();
                 RaidEvents.CampEvent.SkillExecuted();
                 RaidPanel.SelectedUnit.SetPerformerStatus();
-#endregion
+                #endregion
             }
         }
-#endregion
+        #endregion
 
-#region Transition From Camping
+        #region Transition From Camping
         DarkestSoundManager.StopCampingSoundtrack();
         Formations.ResetSelections();
         DarkestDungeonManager.Instanse.screenFader.Fade(1);
@@ -1535,10 +1537,10 @@ public class RaidSceneManager : MonoBehaviour
         }
         CampController.SwitchCamping(false);
 
-        if(RandomSolver.CheckSuccess(0.5f - Raid.NightAmbushReduced))
+        if (RandomSolver.CheckSuccess(0.5f - Raid.NightAmbushReduced))
         {
             var battleEncounter = RandomSolver.ChooseByRandom(Raid.Dungeon.DungeonMash.RoomEncounters);
-            if(battleEncounter != null)
+            if (battleEncounter != null)
             {
                 RaidPanel.SwitchBlocked = false;
                 Raid.NightAmbushReduced = 0;
@@ -1571,7 +1573,7 @@ public class RaidSceneManager : MonoBehaviour
         currentEvent = null;
         Raid.NightAmbushReduced = 0;
         yield break;
-#endregion
+        #endregion
     }
     protected virtual IEnumerator RaidResultsEvent()
     {
@@ -1633,9 +1635,9 @@ public class RaidSceneManager : MonoBehaviour
         DarkestDungeonManager.LoadingInfo.SetNextScene("EstateManagement", "Screen/loading_screen.town_visit");
         SceneManager.LoadScene("LoadingScreen");
     }
-#endregion
+    #endregion
 
-#region Encounters and Activations
+    #region Encounters and Activations
     public void AdvanceThroughDungeon()
     {
         StartCoroutine(ExecuteRoundAdvance());
@@ -1705,9 +1707,9 @@ public class RaidSceneManager : MonoBehaviour
         currentEvent = RoomLoadingEvent(currentRaid.Dungeon.Rooms[door.TargetArea], RoomTransitionType.FromHallway, sector);
         StartCoroutine(currentEvent);
     }
-#endregion
+    #endregion
 
-#region Player Actions
+    #region Player Actions
     public virtual void NextRaidResultButtonClicked()
     {
         if (resultWindow.State == ResultWindowState.Items)
@@ -1770,7 +1772,7 @@ public class RaidSceneManager : MonoBehaviour
         {
             Formations.monsters.overlay.ResetSelections();
 
-            if(skillSlot.Skill.TargetRanks.IsSelfTarget)
+            if (skillSlot.Skill.TargetRanks.IsSelfTarget)
             {
                 BattleGround.Round.SelectedUnit.SetFriendlyPerformerStatus(true);
                 Formations.heroes.overlay.ResetSelectionsExcept(BattleGround.Round.SelectedUnit);
@@ -1779,16 +1781,16 @@ public class RaidSceneManager : MonoBehaviour
             {
                 for (int i = 0; i < Formations.heroes.party.Units.Count; i++)
                 {
-                    if(Formations.heroes.party.Units[i] == BattleGround.Round.SelectedUnit)
+                    if (Formations.heroes.party.Units[i] == BattleGround.Round.SelectedUnit)
                     {
-                        if(skillSlot.Skill.IsSelfValid)
+                        if (skillSlot.Skill.IsSelfValid)
                         {
                             if (skillSlot.Skill.Heal != null && BattleGround.Round.SelectedUnit.CombatInfo.
                                 BlockedHealUnitIds.Contains(BattleGround.Round.SelectedUnit.CombatInfo.CombatId))
-                                    BattleGround.Round.SelectedUnit.SetPerformerStatus();
+                                BattleGround.Round.SelectedUnit.SetPerformerStatus();
                             else if (skillSlot.Skill.IsBuffSkill && BattleGround.Round.SelectedUnit.CombatInfo.
                                 BlockedBuffUnitIds.Contains(BattleGround.Round.SelectedUnit.CombatInfo.CombatId))
-                                    BattleGround.Round.SelectedUnit.SetPerformerStatus();
+                                BattleGround.Round.SelectedUnit.SetPerformerStatus();
                             else if (skillSlot.Skill.TargetRanks.IsTargetableUnit(BattleGround.Round.SelectedUnit))
                                 BattleGround.Round.SelectedUnit.SetFriendlyPerformerStatus(true);
                             else
@@ -1799,10 +1801,10 @@ public class RaidSceneManager : MonoBehaviour
                     {
                         if (skillSlot.Skill.Heal != null && BattleGround.Round.SelectedUnit.CombatInfo.
                             BlockedHealUnitIds.Contains(Formations.heroes.party.Units[i].CombatInfo.CombatId))
-                                Formations.heroes.party.Units[i].SetDeactivatedStatus();
+                            Formations.heroes.party.Units[i].SetDeactivatedStatus();
                         else if (skillSlot.Skill.IsBuffSkill && BattleGround.Round.SelectedUnit.CombatInfo.
                             BlockedBuffUnitIds.Contains(Formations.heroes.party.Units[i].CombatInfo.CombatId))
-                                Formations.heroes.party.Units[i].SetDeactivatedStatus();
+                            Formations.heroes.party.Units[i].SetDeactivatedStatus();
                         else if (skillSlot.Skill.TargetRanks.IsTargetableUnit(Formations.heroes.party.Units[i]))
                             Formations.heroes.party.Units[i].SetFriendlyTargetStatus(true);
                         else
@@ -1848,12 +1850,12 @@ public class RaidSceneManager : MonoBehaviour
                 else
                 {
                     int distance = BattleGround.Round.SelectedUnit.Rank - Formations.heroes.party.Units[i].Rank;
-                    if(BattleGround.Round.SelectedUnit.CombatInfo.BlockedMoveUnitIds.
+                    if (BattleGround.Round.SelectedUnit.CombatInfo.BlockedMoveUnitIds.
                         Contains(Formations.heroes.party.Units[i].CombatInfo.CombatId))
                     {
                         Formations.heroes.party.Units[i].SetDeactivatedStatus();
                     }
-                    else if(distance < 0)
+                    else if (distance < 0)
                     {
                         if (skillSlot.Skill.MoveBackward >= -distance && !Formations.heroes.party.Units[i].CombatInfo.IsImmobilized)
                             Formations.heroes.party.Units[i].SetMoveTargetStatus(true);
@@ -1912,9 +1914,9 @@ public class RaidSceneManager : MonoBehaviour
     {
         var primaryTarget = overlaySlot.TargetUnit;
 
-        if(BattleGround.BattleStatus == BattleStatus.Fighting)
+        if (BattleGround.BattleStatus == BattleStatus.Fighting)
         {
-            if(RaidPanel.bannerPanel.skillPanel.SelectedSkill is MoveSkill)
+            if (RaidPanel.bannerPanel.skillPanel.SelectedSkill is MoveSkill)
             {
                 BattleGround.Round.HeroActionSelected(HeroTurnAction.Move, primaryTarget);
             }
@@ -1947,7 +1949,7 @@ public class RaidSceneManager : MonoBehaviour
     }
     public virtual void HeroCharacterWindowOpened(FormationOverlaySlot overlaySlot)
     {
-        if(BattleGround.BattleStatus == BattleStatus.Fighting)
+        if (BattleGround.BattleStatus == BattleStatus.Fighting)
         {
             if (BattleGround.Round.HeroAction == HeroTurnAction.Waiting && BattleGround.Round.TurnStatus == TurnStatus.Progress)
             {
@@ -1970,9 +1972,9 @@ public class RaidSceneManager : MonoBehaviour
         {
             Door door = null;
             var currentRoom = roomView.raidRoom.Area as DungeonRoom;
-            for(int i = 0; i < currentRoom.Doors.Count; i++)
-                for(int j = 0; j < room.Doors.Count; j++)
-                    if(currentRoom.Doors[i].TargetArea == room.Doors[j].TargetArea)
+            for (int i = 0; i < currentRoom.Doors.Count; i++)
+                for (int j = 0; j < room.Doors.Count; j++)
+                    if (currentRoom.Doors[i].TargetArea == room.Doors[j].TargetArea)
                         door = currentRoom.Doors[i];
 
             if (door != null)
@@ -1993,7 +1995,7 @@ public class RaidSceneManager : MonoBehaviour
             FMODUnity.RuntimeManager.PlayOneShot("event:/general/combat/round");
             yield return new WaitForSeconds(1f);
 
-#region Stalling
+            #region Stalling
             if (BattleGround.MonsterFormation.IsStallingActive())
             {
                 BattleGround.StallingRoundNumber++;
@@ -2029,9 +2031,9 @@ public class RaidSceneManager : MonoBehaviour
             }
             else
                 BattleGround.StallingRoundNumber = 0;
-#endregion
+            #endregion
 
-#region LifeTime Activations
+            #region LifeTime Activations
             tempList.Clear();
             for (int i = 0; i < battleGround.MonsterParty.Units.Count; i++)
                 if (battleGround.MonsterParty.Units[i].Character.LifeTime != null)
@@ -2060,9 +2062,9 @@ public class RaidSceneManager : MonoBehaviour
                 }
                 tempList.Clear();
             }
-#endregion
+            #endregion
 
-#region Control Activations
+            #region Control Activations
             for (int i = BattleGround.Controls.Count - 1; i >= 0; i--)
             {
                 if (--BattleGround.Controls[i].DurationLeft < 0 || BattleGround.IsBattleOnesided())
@@ -2078,7 +2080,7 @@ public class RaidSceneManager : MonoBehaviour
                     continue;
                 }
 
-#region Stress Dealing
+                #region Stress Dealing
                 if (BattleGround.Controls[i].ControllComponent.StressPerTurn != 0)
                 {
                     float initialDamage = BattleGround.Controls[i].ControllComponent.StressPerTurn;
@@ -2093,9 +2095,9 @@ public class RaidSceneManager : MonoBehaviour
                         if (BattleGround.Controls[i].PrisonerUnit.Character.IsVirtued)
                             BattleGround.Controls[i].PrisonerUnit.Character.Stress.CurrentValue =
                                 Mathf.Clamp(BattleGround.Controls[i].PrisonerUnit.Character.Stress.CurrentValue, 0, 100);
-                        else if (!BattleGround.Controls[i].PrisonerUnit.Character.IsAfflicted && 
+                        else if (!BattleGround.Controls[i].PrisonerUnit.Character.IsAfflicted &&
                             BattleGround.Controls[i].PrisonerUnit.Character.IsOverstressed)
-                                AddResolveCheck(BattleGround.Controls[i].PrisonerUnit);
+                            AddResolveCheck(BattleGround.Controls[i].PrisonerUnit);
 
                         if (BattleGround.Controls[i].PrisonerUnit.Character.Stress.CurrentValue == 200)
                             RaidSceneManager.Instanse.AddHeartAttackCheck(BattleGround.Controls[i].PrisonerUnit);
@@ -2109,11 +2111,11 @@ public class RaidSceneManager : MonoBehaviour
 
                     yield return StartCoroutine(ExecuteEffectEvents(true));
                 }
-#endregion
+                #endregion
             }
-#endregion
+            #endregion
 
-#region Round Start Desires
+            #region Round Start Desires
             tempList.AddRange(battleGround.MonsterParty.Units);
             while (tempList.Count > 0)
             {
@@ -2140,9 +2142,9 @@ public class RaidSceneManager : MonoBehaviour
                 }
             }
             tempList.Clear();
-#endregion
+            #endregion
 
-#region Mutation Activation
+            #region Mutation Activation
             if (BattleGround.Round.RoundNumber != 1)
             {
                 for (int k = 0; k < 1; k++)
@@ -2164,7 +2166,7 @@ public class RaidSceneManager : MonoBehaviour
                         yield return new WaitForSeconds(0.05f);
                         List<string> mutations = new List<string>();
                         List<MonsterData> mutationData = new List<MonsterData>();
-#region Transformation
+                        #region Transformation
                         foreach (var targetUnit in tempList)
                         {
                             var monster = targetUnit.Character as Monster;
@@ -2194,13 +2196,13 @@ public class RaidSceneManager : MonoBehaviour
                                 break;
                             }
                         }
-#endregion
+                        #endregion
                         bool mutated = false;
                         for (int i = 0; i < tempList.Count; i++)
                         {
                             if (tempList[i].Character.Class != mutationData[i].TypeId)
                             {
-                                tempList[i].SetTargetEffect(tempList[i], "formless_mutate", "root", 
+                                tempList[i].SetTargetEffect(tempList[i], "formless_mutate", "root",
                                     tempList[i].Character.Class + "_to_" + mutations[i]);
                                 mutated = true;
                             }
@@ -2220,7 +2222,7 @@ public class RaidSceneManager : MonoBehaviour
                         DungeonCamera.SwitchBlur(false);
                         foreach (var targetUnit in tempList)
                             Formations.UnitBuffedOutro(targetUnit);
-#region Transformation
+                        #region Transformation
                         for (int i = 0; i < tempList.Count; i++)
                         {
                             if (tempList[i].Character.Class != mutationData[i].TypeId)
@@ -2229,7 +2231,7 @@ public class RaidSceneManager : MonoBehaviour
                                 BattleGround.ReplaceUnit(mutationData[i], tempList[i], summonObject, true);
                             }
                         }
-#endregion
+                        #endregion
                         yield return new WaitForSeconds(0.175f);
                         Formations.ShowUnitOverlay();
                         Formations.ResetSelections();
@@ -2237,17 +2239,17 @@ public class RaidSceneManager : MonoBehaviour
                     tempList.Clear();
                 }
             }
-#endregion
+            #endregion
         }
 
         while (BattleGround.Round.OrderedUnits.Count != 0)
         {
             if (fromBattleSave == false)
             {
-#region Captor Activations
+                #region Captor Activations
                 for (int i = BattleGround.Captures.Count - 1; i >= 0; i--)
                 {
-#region Damage Dealing
+                    #region Damage Dealing
                     if (BattleGround.Captures[i].Component.PerTurnDamagePercent != 0)
                     {
                         var captorMonster = BattleGround.Captures[i].CaptorUnit.Character as Monster;
@@ -2313,11 +2315,11 @@ public class RaidSceneManager : MonoBehaviour
                             }
                         }
                     }
-#endregion
+                    #endregion
                 }
                 for (int i = BattleGround.Captures.Count - 1; i >= 0; i--)
                 {
-#region Stress Dealing
+                    #region Stress Dealing
                     if (BattleGround.Captures[i].Component.PerTurnStress != 0)
                     {
                         if (RandomSolver.CheckSuccess(0.33f))
@@ -2338,14 +2340,14 @@ public class RaidSceneManager : MonoBehaviour
                         if (BattleGround.Captures[i].PrisonerUnit.Character.IsOverstressed)
                         {
                             if (BattleGround.Captures[i].PrisonerUnit.Character.IsVirtued)
-                                BattleGround.Captures[i].PrisonerUnit.Character.Stress.CurrentValue = 
+                                BattleGround.Captures[i].PrisonerUnit.Character.Stress.CurrentValue =
                                     Mathf.Clamp(BattleGround.Captures[i].PrisonerUnit.Character.Stress.CurrentValue, 0, 100);
                             else if (!BattleGround.Captures[i].PrisonerUnit.Character.IsAfflicted &&
                                 BattleGround.Captures[i].PrisonerUnit.Character.IsOverstressed)
-                                    AddResolveCheck(BattleGround.Captures[i].PrisonerUnit);
+                                AddResolveCheck(BattleGround.Captures[i].PrisonerUnit);
 
                             if (BattleGround.Captures[i].PrisonerUnit.Character.Stress.CurrentValue == 200)
-                                    AddHeartAttackCheck(BattleGround.Captures[i].PrisonerUnit);
+                                AddHeartAttackCheck(BattleGround.Captures[i].PrisonerUnit);
                         }
                         BattleGround.Captures[i].PrisonerUnit.OverlaySlot.UpdateOverlay();
 
@@ -2370,14 +2372,14 @@ public class RaidSceneManager : MonoBehaviour
                         yield return new WaitForSeconds(0.075f);
                         yield return StartCoroutine(ExecuteEffectEvents(true));
                     }
-#endregion
+                    #endregion
                 }
-#endregion
+                #endregion
 
-#region Companion Activations
+                #region Companion Activations
                 for (int i = BattleGround.Companions.Count - 1; i >= 0; i--)
                 {
-#region Healing
+                    #region Healing
                     if (!Mathf.Approximately(BattleGround.Companions[i].CompanionComponent.HealPerTurn, 0))
                     {
                         int health = Mathf.RoundToInt(BattleGround.Companions[i].TargetUnit.Character.Health.ModifiedValue
@@ -2388,11 +2390,11 @@ public class RaidSceneManager : MonoBehaviour
                         RaidEvents.ShowPopupMessage(BattleGround.Companions[i].TargetUnit, PopupMessageType.Heal, health.ToString());
                         yield return new WaitForSeconds(0.4f);
                     }
-#endregion
+                    #endregion
                 }
-#endregion
+                #endregion
 
-#region Life Link Activations
+                #region Life Link Activations
                 for (int i = BattleGround.MonsterParty.Units.Count - 1; i >= 0; i--)
                 {
                     if (BattleGround.MonsterParty.Units[i].Character.IsMonster)
@@ -2410,9 +2412,9 @@ public class RaidSceneManager : MonoBehaviour
                 }
                 if (BattleGround.IsBattleEnded())
                     break;
-#endregion
+                #endregion
 
-#region Next Unit Turn Action
+                #region Next Unit Turn Action
                 FormationUnit unit = BattleGround.Round.OrderedUnits[0];
                 if (unit.Team == Team.Heroes)
                 {
@@ -2428,7 +2430,7 @@ public class RaidSceneManager : MonoBehaviour
                     if (BattleGround.Round.HeroAction == HeroTurnAction.Retreat)
                         yield break;
                 }
-#endregion
+                #endregion
             }
             else
             {
@@ -2451,7 +2453,7 @@ public class RaidSceneManager : MonoBehaviour
             if (BattleGround.IsBattleEnded())
                 break;
 
-#region Turn End Desires
+            #region Turn End Desires
             tempList.AddRange(battleGround.MonsterParty.Units);
             while (tempList.Count > 0)
             {
@@ -2480,7 +2482,7 @@ public class RaidSceneManager : MonoBehaviour
                 }
             }
             tempList.Clear();
-#endregion
+            #endregion
 
             if (BattleGround.IsBattleEnded())
                 break;
@@ -2488,7 +2490,7 @@ public class RaidSceneManager : MonoBehaviour
             yield return waitForZeroThree;
         }
 
-#region Round Finish Desires
+        #region Round Finish Desires
         tempList.AddRange(battleGround.MonsterParty.Units);
         while (tempList.Count > 0)
         {
@@ -2506,7 +2508,7 @@ public class RaidSceneManager : MonoBehaviour
 
                 if (currentDesire.CheckBonusInitiative(monsterUnit))
                 {
-                    if(currentDesire.CombatSkillOverride == "")
+                    if (currentDesire.CombatSkillOverride == "")
                         yield return StartCoroutine(MonsterTurn(monsterUnit));
                     else
                         yield return StartCoroutine(MonsterOverriddenTurn(monsterUnit, currentDesire.CombatSkillOverride));
@@ -2515,14 +2517,14 @@ public class RaidSceneManager : MonoBehaviour
             }
         }
         tempList.Clear();
-#endregion
+        #endregion
 
-#region Idle units status effects
+        #region Idle units status effects
         tempList.AddRange(BattleGround.MonsterParty.Units.FindAll(targetUnit => targetUnit.CombatInfo.TotalInitiatives == 0));
         bool hasIdleDamage = false, hasIdleDeath = false;
         foreach (var idleUnit in tempList)
         {
-#region Status Effect and Buffs
+            #region Status Effect and Buffs
             if (idleUnit.Character.GetStatusEffect(StatusType.Bleeding).IsApplied)
             {
                 var bleedEffect = idleUnit.Character.GetStatusEffect(StatusType.Bleeding) as BleedingStatusEffect;
@@ -2531,7 +2533,7 @@ public class RaidSceneManager : MonoBehaviour
                 FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/bleed_dot");
                 idleUnit.OverlaySlot.UpdateOverlay();
 
-#region Damage Activation
+                #region Damage Activation
                 if (Mathf.RoundToInt(idleUnit.Character.Health.CurrentValue) != 0)
                 {
                     RaidEvents.ShowPopupMessage(idleUnit, PopupMessageType.Damage, damage.ToString());
@@ -2542,7 +2544,7 @@ public class RaidSceneManager : MonoBehaviour
                     PrepareDeath(idleUnit);
                     hasIdleDeath = true;
                 }
-#endregion
+                #endregion
             }
 
             if (idleUnit.Character.GetStatusEffect(StatusType.Poison).IsApplied)
@@ -2554,7 +2556,7 @@ public class RaidSceneManager : MonoBehaviour
                 FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/poison_dot");
                 idleUnit.OverlaySlot.UpdateOverlay();
 
-#region Damage Activation
+                #region Damage Activation
                 if (Mathf.RoundToInt(idleUnit.Character.Health.CurrentValue) != 0)
                 {
                     RaidEvents.ShowPopupMessage(idleUnit, PopupMessageType.Damage, damage.ToString());
@@ -2565,7 +2567,7 @@ public class RaidSceneManager : MonoBehaviour
                     PrepareDeath(idleUnit);
                     hasIdleDeath = true;
                 }
-#endregion
+                #endregion
             }
 
             if (idleUnit.CombatInfo.IsSurprised)
@@ -2585,7 +2587,7 @@ public class RaidSceneManager : MonoBehaviour
                 idleUnit.Character.UpdateRound();
                 idleUnit.OverlaySlot.UpdateOverlay();
             }
-#endregion
+            #endregion
         }
         if (hasIdleDeath)
         {
@@ -2599,13 +2601,13 @@ public class RaidSceneManager : MonoBehaviour
             yield return new WaitForSeconds(0.3f);
         }
         tempList.Clear();
-#endregion
+        #endregion
 
         yield break;
     }
     protected virtual IEnumerator HeroTurn(FormationUnit actionUnit, bool fromBattleSave = false)
     {
-        if(fromBattleSave == false)
+        if (fromBattleSave == false)
         {
             FMODUnity.RuntimeManager.PlayOneShot("event:/general/char/ally_turn");
             RaidPanel.SetDisabledState();
@@ -2615,7 +2617,7 @@ public class RaidSceneManager : MonoBehaviour
             yield return new WaitForEndOfFrame();
             actionUnit.OverlaySlot.UnitSelected();
 
-#region Status Effect and Buffs
+            #region Status Effect and Buffs
             if (actionUnit.Character.GetStatusEffect(StatusType.Bleeding).IsApplied)
             {
                 var bleedEffect = actionUnit.Character.GetStatusEffect(StatusType.Bleeding) as BleedingStatusEffect;
@@ -2623,7 +2625,7 @@ public class RaidSceneManager : MonoBehaviour
                 FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/bleed_dot");
                 actionUnit.OverlaySlot.UpdateOverlay();
 
-#region Damage Activation
+                #region Damage Activation
                 if (Mathf.RoundToInt(actionUnit.Character.Health.CurrentValue) != 0)
                 {
                     RaidEvents.ShowPopupMessage(actionUnit, PopupMessageType.Damage, bleedEffect.CurrentTickDamage.ToString());
@@ -2668,7 +2670,7 @@ public class RaidSceneManager : MonoBehaviour
                                     deathDamageTarget.Character.Health.DecreaseValue(deathDamage.TargetDamage);
                                     if (Mathf.RoundToInt(deathDamageTarget.Character.Health.CurrentValue) != 0)
                                     {
-                                        RaidEvents.ShowPopupMessage(deathDamageTarget, 
+                                        RaidEvents.ShowPopupMessage(deathDamageTarget,
                                             PopupMessageType.Damage, deathDamage.TargetDamage.ToString());
                                         yield return new WaitForSeconds(0.4f);
                                     }
@@ -2684,7 +2686,7 @@ public class RaidSceneManager : MonoBehaviour
                         }
                     }
                 }
-#endregion
+                #endregion
             }
 
             if (actionUnit.Character.GetStatusEffect(StatusType.Poison).IsApplied)
@@ -2695,7 +2697,7 @@ public class RaidSceneManager : MonoBehaviour
                 FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/poison_dot");
                 actionUnit.OverlaySlot.UpdateOverlay();
 
-#region Damage Activation
+                #region Damage Activation
                 if (Mathf.RoundToInt(actionUnit.Character.Health.CurrentValue) != 0)
                 {
                     RaidEvents.ShowPopupMessage(actionUnit, PopupMessageType.Damage, poisonEffect.CurrentTickDamage.ToString());
@@ -2756,7 +2758,7 @@ public class RaidSceneManager : MonoBehaviour
                         }
                     }
                 }
-#endregion
+                #endregion
             }
 
             if (actionUnit.CombatInfo.IsSurprised)
@@ -2785,9 +2787,9 @@ public class RaidSceneManager : MonoBehaviour
                 actionUnit.Character.UpdateRound();
                 actionUnit.OverlaySlot.UpdateOverlay();
             }
-#endregion
+            #endregion
 
-#region Mode Stress
+            #region Mode Stress
             if (actionUnit.Character.Mode != null && actionUnit.Character.Mode.StressPerTurn != 0)
             {
                 float initialDamage = actionUnit.Character.Mode.StressPerTurn;
@@ -2834,9 +2836,9 @@ public class RaidSceneManager : MonoBehaviour
                 yield return new WaitForSeconds(0.075f);
                 yield return StartCoroutine(ExecuteEffectEvents(true));
             }
-#endregion
+            #endregion
 
-#region Trait Start Turn Act Out
+            #region Trait Start Turn Act Out
             Hero actionHero = actionUnit.Character as Hero;
             //if (actionHero.Trait == null || actionHero.Trait.Id != "selfish")
             //    actionHero.ApplyTrait(DarkestDangeonManager.Data.Traits.Find(trait => trait.Id == "selfish"));
@@ -2847,7 +2849,7 @@ public class RaidSceneManager : MonoBehaviour
                 switch (actOut.ActType)
                 {
                     case StartTurnActType.AttackSelf:
-#region Attack Self
+                        #region Attack Self
                         yield return new WaitForSeconds(1f);
                         if (actionHero.AtDeathsDoor)
                         {
@@ -2895,9 +2897,9 @@ public class RaidSceneManager : MonoBehaviour
                             yield return StartCoroutine(ExecuteEffectEvents(false));
                         }
                         break;
-#endregion
+                    #endregion
                     case StartTurnActType.BarkStress:
-#region Bark Stress
+                        #region Bark Stress
                         var barkStressEffect = DarkestDungeonManager.Data.Effects[actOut.StringParameter];
                         if (actionUnit.Party.Units.Count < 2) break;
                         yield return new WaitForSeconds(1f);
@@ -2911,9 +2913,9 @@ public class RaidSceneManager : MonoBehaviour
                         yield return new WaitForSeconds(0.1f);
                         yield return StartCoroutine(ExecuteEffectEvents(false));
                         break;
-#endregion
+                    #endregion
                     case StartTurnActType.BuffAlly:
-#region Buff Ally
+                        #region Buff Ally
                         var buffAllyEffect = DarkestDungeonManager.Data.Effects[actOut.StringParameter];
                         if (actionUnit.Party.Units.Count < 2) break;
                         yield return new WaitForSeconds(1f);
@@ -2927,9 +2929,9 @@ public class RaidSceneManager : MonoBehaviour
                         yield return new WaitForSeconds(0.1f);
                         yield return StartCoroutine(ExecuteEffectEvents(false));
                         break;
-#endregion
+                    #endregion
                     case StartTurnActType.BuffParty:
-#region Buff Party
+                        #region Buff Party
                         var buffPartyEffect = DarkestDungeonManager.Data.Effects[actOut.StringParameter];
                         if (actionUnit.Party.Units.Count < 2) break;
                         yield return new WaitForSeconds(1f);
@@ -2941,9 +2943,9 @@ public class RaidSceneManager : MonoBehaviour
                         yield return new WaitForSeconds(0.1f);
                         yield return StartCoroutine(ExecuteEffectEvents(false));
                         break;
-#endregion
+                    #endregion
                     case StartTurnActType.ChangePosition:
-#region Change Position
+                        #region Change Position
                         if (actionUnit.Party.Units.Count < 2) break;
                         if (actionHero.Trait.Id == "masochistic" && actionUnit.Rank == 1) break;
                         if (actionHero.Trait.Id == "fearful" && actionUnit.Rank == actionUnit.Party.Units.Count) break;
@@ -2980,9 +2982,9 @@ public class RaidSceneManager : MonoBehaviour
                         yield return new WaitForSeconds(0.2f);
                         BattleGround.Round.PostHeroTurn();
                         yield break;
-#endregion
+                    #endregion
                     case StartTurnActType.HealSelf:
-#region Heal Self
+                        #region Heal Self
                         if (actionHero.Health.ValueRatio == 11) break;
                         yield return new WaitForSeconds(1f);
                         float healAmount = Mathf.RoundToInt(actOut.NumberParameter * actionHero.Health.ModifiedValue);
@@ -2998,16 +3000,16 @@ public class RaidSceneManager : MonoBehaviour
                         actionUnit.OverlaySlot.UpdateOverlay();
                         yield return new WaitForSeconds(0.5f);
                         break;
-#endregion
+                    #endregion
                     case StartTurnActType.IgnoreCommand:
-#region Ignore
+                        #region Ignore
                         yield return new WaitForSeconds(1f);
                         RaidEvents.ShowPopupMessage(actionUnit, PopupMessageType.Pass);
                         yield return new WaitForSeconds(0.8f);
                         yield break;
-#endregion
+                    #endregion
                     case StartTurnActType.MarkSelf:
-#region Mark Self
+                        #region Mark Self
                         var markSelfEffect = DarkestDungeonManager.Data.Effects[actOut.StringParameter];
                         yield return new WaitForSeconds(1f);
                         for (int i = 0; i < markSelfEffect.SubEffects.Count; i++)
@@ -3015,9 +3017,9 @@ public class RaidSceneManager : MonoBehaviour
                         yield return new WaitForSeconds(0.1f);
                         yield return StartCoroutine(ExecuteEffectEvents(false));
                         break;
-#endregion
+                    #endregion
                     case StartTurnActType.RandomCommand:
-#region Random Command
+                        #region Random Command
                         yield return new WaitForSeconds(1f);
                         var brainDesicion = BattleSolver.UseMonsterBrain(actionUnit);
                         Formations.ShowUnitOverlay();
@@ -3051,9 +3053,9 @@ public class RaidSceneManager : MonoBehaviour
                                 yield break;
                         }
                         break;
-#endregion
+                    #endregion
                     case StartTurnActType.StressHealParty:
-#region Stress Heal Party
+                        #region Stress Heal Party
                         var stressHealPartyEffect = DarkestDungeonManager.Data.Effects[actOut.StringParameter];
                         yield return new WaitForSeconds(1f);
 
@@ -3064,9 +3066,9 @@ public class RaidSceneManager : MonoBehaviour
                         yield return new WaitForSeconds(0.1f);
                         yield return StartCoroutine(ExecuteEffectEvents(false));
                         break;
-#endregion
+                    #endregion
                     case StartTurnActType.StressHealSelf:
-#region Stress Heal Self
+                        #region Stress Heal Self
                         var stressHealSelfEffect = DarkestDungeonManager.Data.Effects[actOut.StringParameter];
                         yield return new WaitForSeconds(1f);
                         for (int i = 0; i < stressHealSelfEffect.SubEffects.Count; i++)
@@ -3074,12 +3076,12 @@ public class RaidSceneManager : MonoBehaviour
                         yield return new WaitForSeconds(0.1f);
                         yield return StartCoroutine(ExecuteEffectEvents(false));
                         break;
-#endregion
+                    #endregion
                     default:
                         break;
                 }
             }
-#endregion
+            #endregion
         }
         else
         {
@@ -3102,7 +3104,7 @@ public class RaidSceneManager : MonoBehaviour
             RaidPanel.SetCombatState();
             Inventory.SetCombatState();
 
-#region Hero Action
+            #region Hero Action
             QuestPanel.UpdateCombatRetreat(true);
             while (BattleGround.Round.HeroAction == HeroTurnAction.Waiting)
             {
@@ -3126,11 +3128,11 @@ public class RaidSceneManager : MonoBehaviour
 
             switch (BattleGround.Round.HeroAction)
             {
-#region Move
+                #region Move
                 case HeroTurnAction.Move:
                     if (usedSkill is MoveSkill)
                     {
-#region Trait Block
+                        #region Trait Block
                         if (targetUnit.Character.Trait != null)
                         {
                             if (RandomSolver.CheckSuccess(targetUnit.Character.Trait.Reactions[ReactionType.BlockMove].Chance))
@@ -3146,7 +3148,7 @@ public class RaidSceneManager : MonoBehaviour
                                 continue;
                             }
                         }
-#endregion
+                        #endregion
 
                         FMODUnity.RuntimeManager.PlayOneShot("event:/general/party/combat_move");
 
@@ -3158,8 +3160,8 @@ public class RaidSceneManager : MonoBehaviour
                         actionUnit.Formation.UpdateBuffRule(BuffRule.InRank);
                     }
                     break;
-#endregion
-#region Combat Skill
+                #endregion
+                #region Combat Skill
                 case HeroTurnAction.Skill:
                     if (usedSkill is CombatSkill)
                     {
@@ -3167,7 +3169,7 @@ public class RaidSceneManager : MonoBehaviour
                         SkillTargetInfo targetInfo = BattleSolver.SelectSkillTargets(actionUnit,
                             targetUnit, usedCombatSkill).UpdateSkillInfo(actionUnit, usedCombatSkill);
 
-#region Trait Block
+                        #region Trait Block
                         if (targetInfo.Type != SkillTargetType.Enemy)
                         {
                             if (usedCombatSkill.Heal != null)
@@ -3210,7 +3212,7 @@ public class RaidSceneManager : MonoBehaviour
                                     yield return new WaitForSeconds(1f);
                             }
                         }
-                        if(targetInfo.Targets.Count == 0)
+                        if (targetInfo.Targets.Count == 0)
                         {
                             Formations.ResetSelections();
                             yield return new WaitForEndOfFrame();
@@ -3220,7 +3222,7 @@ public class RaidSceneManager : MonoBehaviour
                             usedSkill = null;
                             continue;
                         }
-#endregion
+                        #endregion
 
                         yield return StartCoroutine(ExecuteHeroSkill(actionUnit, targetInfo, usedCombatSkill));
 
@@ -3236,20 +3238,20 @@ public class RaidSceneManager : MonoBehaviour
                         }
                     }
                     break;
-#endregion
-#region Pass
+                #endregion
+                #region Pass
                 case HeroTurnAction.Pass:
                     Formations.heroes.overlay.ResetSelectionsExcept(actionUnit);
                     RaidEvents.ShowPopupMessage(actionUnit, PopupMessageType.Pass);
                     yield return new WaitForSeconds(0.8f);
                     break;
-#endregion
+                #endregion
                 case HeroTurnAction.Retreat:
                     Formations.ResetSelections();
                     bool retreatFailed = RandomSolver.CheckSuccess(0.2f);
-                    for(int i = 0; i < HeroParty.Units.Count; i++)
+                    for (int i = 0; i < HeroParty.Units.Count; i++)
                     {
-#region Trait Block
+                        #region Trait Block
                         if (HeroParty.Units[i].Character.Trait != null)
                         {
                             if (RandomSolver.CheckSuccess(HeroParty.Units[i].
@@ -3264,7 +3266,7 @@ public class RaidSceneManager : MonoBehaviour
                                 break;
                             }
                         }
-#endregion
+                        #endregion
                     }
 
                     if (retreatFailed)
@@ -3279,11 +3281,11 @@ public class RaidSceneManager : MonoBehaviour
                         FMODUnity.RuntimeManager.PlayOneShot("event:/general/combat/retreat");
                         DarkestSoundManager.ExecuteNarration("battle_retreat", NarrationPlace.Raid);
 
-#region Execute Hero Transformations
+                        #region Execute Hero Transformations
                         for (int i = 0; i < Formations.heroes.party.Units.Count; i++)
                         {
                             var hero = Formations.heroes.party.Units[i].Character as Hero;
-                            if (Formations.heroes.party.Units[i].Character.Mode != null 
+                            if (Formations.heroes.party.Units[i].Character.Mode != null
                                 && Formations.heroes.party.Units[i].Character.Mode.AfflictionSkillId != null)
                             {
                                 var battleFinishSkill = hero.SelectedCombatSkills.Find(skill => skill.Id ==
@@ -3298,7 +3300,7 @@ public class RaidSceneManager : MonoBehaviour
                                 }
                             }
                         }
-#endregion
+                        #endregion
 
                         DarkestDungeonManager.ScreenFader.Fade(2);
                         yield return new WaitForSeconds(0.5f);
@@ -3307,15 +3309,15 @@ public class RaidSceneManager : MonoBehaviour
                         DarkestSoundManager.StopBattleSoundtrack();
                         DarkestSoundManager.ContinueDungeonSoundtrack(Raid.Quest.Dungeon);
 
-#region Destroy Remains
+                        #region Destroy Remains
                         Formations.HideMonsterOverlay();
                         RaidEvents.roundIndicator.Disappear();
                         RaidEvents.roundIndicator.End();
                         BattleGround.RetreatFromBattle();
                         yield return new WaitForSeconds(0.2f);
-#endregion
+                        #endregion
 
-#region Reset Hero Statuses
+                        #region Reset Hero Statuses
                         foreach (var hero in Formations.heroes.party.Units)
                         {
                             hero.ResetHalo();
@@ -3325,18 +3327,18 @@ public class RaidSceneManager : MonoBehaviour
                             hero.Character.UpdateDurations(BuffDurationType.Combat);
                             hero.OverlaySlot.UpdateOverlay();
                         }
-#endregion
+                        #endregion
 
-#region Reset Animation and Selection
+                        #region Reset Animation and Selection
                         foreach (var hero in Formations.heroes.party.Units)
                             hero.SetCombatAnimation(false);
                         RaidEvents.MonsterTooltip.Hide();
-#endregion
+                        #endregion
 
-                        if(SceneState == DungeonSceneState.Hall)
+                        if (SceneState == DungeonSceneState.Hall)
                         {
                             HallwayView.CurrentSector.SetInside(false);
-                            currentEvent = RoomLoadingEvent(HallwayView.StartingRoom, 
+                            currentEvent = RoomLoadingEvent(HallwayView.StartingRoom,
                                 RoomTransitionType.Retreat, HallwayView.CurrentSector);
                         }
                         else if (SceneState == DungeonSceneState.Room)
@@ -3347,7 +3349,7 @@ public class RaidSceneManager : MonoBehaviour
                             currentEvent = HallwayLoadingEvent(Raid.LastSector, HallTransitionType.Retreat, direction, currentRoom);
                         }
 
-#region Remove Combat States and Restrictions
+                        #region Remove Combat States and Restrictions
                         QuestPanel.SetPeacefulState();
                         Formations.ShowHeroOverlay();
                         RaidPanel.SetPeacefulState();
@@ -3355,13 +3357,13 @@ public class RaidSceneManager : MonoBehaviour
                         BattleGround.LeaveBattleGround();
                         Inventory.SetPeacefulState(false);
                         StartCoroutine(currentEvent);
-#endregion
+                        #endregion
                         yield break;
                     }
                     break;
             }
             break;
-#endregion
+            #endregion
         }
 
         BattleGround.Round.PostHeroTurn();
@@ -3377,7 +3379,7 @@ public class RaidSceneManager : MonoBehaviour
         yield return new WaitForEndOfFrame();
         actionUnit.SetPerformerStatus();
 
-#region Status Effects and Buffs
+        #region Status Effects and Buffs
         if (actionUnit.Character.GetStatusEffect(StatusType.Bleeding).IsApplied)
         {
             var bleedEffect = actionUnit.Character.GetStatusEffect(StatusType.Bleeding) as BleedingStatusEffect;
@@ -3385,7 +3387,7 @@ public class RaidSceneManager : MonoBehaviour
             FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/bleed_dot");
             actionUnit.OverlaySlot.UpdateOverlay();
 
-#region Damage Activation
+            #region Damage Activation
             if (Mathf.RoundToInt(actionUnit.Character.Health.CurrentValue) != 0)
             {
                 RaidEvents.ShowPopupMessage(actionUnit,
@@ -3412,7 +3414,7 @@ public class RaidSceneManager : MonoBehaviour
                 }
                 else
                 {
-                    if(PrepareDeath(actionUnit, DeathFactor.BleedMonster))
+                    if (PrepareDeath(actionUnit, DeathFactor.BleedMonster))
                     {
                         DeathDamage deathDamage = actionUnit.Character.DeathDamage;
                         if (actionUnit.Character is Hero)
@@ -3445,7 +3447,7 @@ public class RaidSceneManager : MonoBehaviour
                     }
                 }
             }
-#endregion
+            #endregion
         }
 
         if (actionUnit.Character.GetStatusEffect(StatusType.Poison).IsApplied)
@@ -3456,7 +3458,7 @@ public class RaidSceneManager : MonoBehaviour
             FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/poison_dot");
             actionUnit.OverlaySlot.UpdateOverlay();
 
-#region Damage Activation
+            #region Damage Activation
             if (Mathf.RoundToInt(actionUnit.Character.Health.CurrentValue) != 0)
             {
                 RaidEvents.ShowPopupMessage(actionUnit, PopupMessageType.Damage, poisonEffect.CurrentTickDamage.ToString());
@@ -3515,10 +3517,10 @@ public class RaidSceneManager : MonoBehaviour
                     }
                 }
             }
-#endregion
+            #endregion
         }
 
-        
+
 
         if (actionUnit.CombatInfo.IsSurprised)
             actionUnit.SetSurprised(false);
@@ -3546,12 +3548,12 @@ public class RaidSceneManager : MonoBehaviour
             actionUnit.Character.UpdateRound();
             actionUnit.OverlaySlot.UpdateOverlay();
         }
-#endregion
+        #endregion
 
         BattleGround.Round.OnMonsterTurn();
-        
+
         yield return StartCoroutine(ExecuteMonsterSkill(actionUnit));
-        if(BattleGround.Round.HeroAction != HeroTurnAction.Retreat)
+        if (BattleGround.Round.HeroAction != HeroTurnAction.Retreat)
             BattleGround.Round.PostMonsterTurn();
     }
     protected virtual IEnumerator MonsterOverriddenTurn(FormationUnit actionUnit, string combatSkillOverride)
@@ -3642,7 +3644,7 @@ public class RaidSceneManager : MonoBehaviour
             }
         }
 
-        for(int i = 0; i < BattleGround.MonsterParty.Units.Count; i++)
+        for (int i = 0; i < BattleGround.MonsterParty.Units.Count; i++)
             if (BattleGround.MonsterParty.Units[i].CombatInfo.MarkedForDeath)
                 PrepareDeath(BattleGround.MonsterParty.Units[i]);
 
@@ -3650,7 +3652,7 @@ public class RaidSceneManager : MonoBehaviour
     }
     protected virtual void ExecuteSlidingSetup(FormationUnit performer, SkillTargetInfo targetInfo)
     {
-        if(performer.Team == Team.Monsters)
+        if (performer.Team == Team.Monsters)
         {
             if (targetInfo.Type == SkillTargetType.Party)
                 Formations.partyBuffPositions.SetSpacing(120, 1f);
@@ -3698,11 +3700,11 @@ public class RaidSceneManager : MonoBehaviour
 
             if (targetInfo.Targets.Contains(performer))
             {
-                if(performer.Team == Team.Heroes)
+                if (performer.Team == Team.Heroes)
                     Formations.partyBuffPositions.SetUnitTargets(targetInfo.Targets.OrderByDescending(unit =>
                     unit == performer ? 5 : unit.Rank).ToList(), 0.01f, Vector2.zero);
                 else
-                    Formations.partyBuffPositions.SetUnitTargets(targetInfo.Targets.OrderBy(unit => 
+                    Formations.partyBuffPositions.SetUnitTargets(targetInfo.Targets.OrderBy(unit =>
                     unit == performer ? 5 : unit.Rank).ToList(), 0.01f, Vector2.zero);
             }
             else
@@ -3722,7 +3724,7 @@ public class RaidSceneManager : MonoBehaviour
             foreach (var targetUnit in targetInfo.Targets)
                 Formations.UnitDefendIntro(targetUnit);
 
-            if(performer.Team == Team.Monsters)
+            if (performer.Team == Team.Monsters)
             {
                 if (targetInfo.Skill.Type == "melee")
                     Formations.monstersAttackMeleePosition.SetUnitTargets(performer, 0.01f, targetInfo.SkillArtInfo.AreaOffset);
@@ -3742,7 +3744,7 @@ public class RaidSceneManager : MonoBehaviour
                 Formations.monstersDefencePositions.SetUnitTargets(targetInfo.Targets.OrderBy(unit =>
                     unit.Rank).ToList(), 0.01f, targetInfo.SkillArtInfo.TargetAreaOffset);
             }
-            
+
         }
         else if (targetInfo.Type == SkillTargetType.Self)
         {
@@ -3811,7 +3813,7 @@ public class RaidSceneManager : MonoBehaviour
         {
             playSkillEvent = "event:/char/ally/" + performer.Character.Class + "_" +
                 targetInfo.Skill.Id + "_" + performer.Character.Mode.Id;
-            playSkillMissEvent = "event:/char/ally/" + performer.Character.Class + "_" + 
+            playSkillMissEvent = "event:/char/ally/" + performer.Character.Class + "_" +
                 targetInfo.Skill.Id + "_miss" + "_" + performer.Character.Mode.Id;
         }
         else
@@ -3820,7 +3822,7 @@ public class RaidSceneManager : MonoBehaviour
             playSkillMissEvent = playSkillEvent + "_miss";
         }
 
-        if(skillResult.HasHit && FMODUnity.RuntimeManager.GetEventDescription(playSkillEvent) != null)
+        if (skillResult.HasHit && FMODUnity.RuntimeManager.GetEventDescription(playSkillEvent) != null)
             FMODUnity.RuntimeManager.PlayOneShot(playSkillEvent, DungeonCamera.Transform.position);
         else if (FMODUnity.RuntimeManager.GetEventDescription(playSkillMissEvent) != null)
             FMODUnity.RuntimeManager.PlayOneShot(playSkillMissEvent, DungeonCamera.Transform.position);
@@ -3832,27 +3834,27 @@ public class RaidSceneManager : MonoBehaviour
     {
         RaidEvents.MonsterTooltip.IsDisabled = true;
         RaidEvents.MonsterTooltip.Hide();
-        if(actionUnit.Character.IsMonster == false)
+        if (actionUnit.Character.IsMonster == false)
         {
             actionUnit.OverlaySlot.StartDialog(LocalizationManager.GetString("str_control_before_turn_siren"));
             while (actionUnit.OverlaySlot.IsDoingDialog)
                 yield return null;
         }
-#region Get Brain Decision
+        #region Get Brain Decision
         var brainDecision = BattleSolver.UseMonsterBrain(actionUnit);
-        if(brainDecision.Decision == BrainDecisionType.Pass)
+        if (brainDecision.Decision == BrainDecisionType.Pass)
         {
             RaidEvents.ShowPopupMessage(actionUnit, PopupMessageType.Pass);
             yield return new WaitForSeconds(0.9f);
             yield break;
         }
-#endregion
+        #endregion
         yield return new WaitForSeconds(0.1f);
         SetBrainDecisionMarkings(actionUnit, brainDecision);
         ExecuteGuardRedirection(actionUnit, brainDecision.TargetInfo);
         yield return new WaitForSeconds(0.1f);
         brainDecision.TargetInfo.UpdateSkillInfo(actionUnit, brainDecision.SelectedSkill);
-#region Dipslay Announcment
+        #region Dipslay Announcment
         if (!(brainDecision.TargetInfo.SkillArtInfo.CanDisplaySelection == false))
         {
             if (actionUnit.Character.IsMonster)
@@ -3868,19 +3870,19 @@ public class RaidSceneManager : MonoBehaviour
                 RaidEvents.ShowAnnouncment(LocalizationManager.GetString("combat_skill_name_"
                     + actionUnit.Character.Class + "_" + brainDecision.TargetInfo.SkillArtInfo.SkillId), AnnouncmentPosition.Right);
         }
-#endregion
+        #endregion
         yield return new WaitForSeconds(0.75f);
         Formations.HideUnitOverlay();
         TorchMeter.Hide();
 
-#region Hide Announcment
+        #region Hide Announcment
         if (!(brainDecision.TargetInfo.SkillArtInfo.CanDisplaySelection == false))
             RaidEvents.HideAnnouncment();
-#endregion
+        #endregion
         yield return new WaitForSeconds(0.2f);
         DungeonCamera.Zoom(50, 0.05f);
         var skillResult = ExecuteSkillBase(actionUnit, brainDecision.TargetInfo);
-        if(skillResult.HasCritEffect && brainDecision.TargetInfo.Type == SkillTargetType.Enemy)
+        if (skillResult.HasCritEffect && brainDecision.TargetInfo.Type == SkillTargetType.Enemy)
             DarkestSoundManager.ExecuteNarration("crit_hero", NarrationPlace.Raid);
         yield return new WaitForSeconds(0.05f);
         DungeonCamera.SwitchBlur(true);
@@ -3891,8 +3893,8 @@ public class RaidSceneManager : MonoBehaviour
         ExecuteSlidingSetup(actionUnit, brainDecision.TargetInfo);
         yield return new WaitForSeconds(0.70f);
 
-#region Teleport Skill
-        if(brainDecision.SelectedSkill.Type == "teleport")
+        #region Teleport Skill
+        if (brainDecision.SelectedSkill.Type == "teleport")
         {
             DarkestDungeonManager.ScreenFader.Fade(2);
             yield return new WaitForSeconds(0.6f);
@@ -3901,15 +3903,15 @@ public class RaidSceneManager : MonoBehaviour
             DarkestSoundManager.StopBattleSoundtrack();
             DarkestSoundManager.ContinueDungeonSoundtrack(Raid.Quest.Dungeon);
 
-#region Destroy Remains
+            #region Destroy Remains
             Formations.HideMonsterOverlay();
             RaidEvents.roundIndicator.Disappear();
             RaidEvents.roundIndicator.End();
             BattleGround.RetreatFromBattle();
             Formations.ResetSelections();
-#endregion
+            #endregion
 
-#region Reset Hero Statuses
+            #region Reset Hero Statuses
             foreach (var hero in Formations.heroes.party.Units)
             {
                 hero.ResetHalo();
@@ -3919,11 +3921,11 @@ public class RaidSceneManager : MonoBehaviour
                 hero.Character.UpdateDurations(BuffDurationType.Combat);
                 hero.OverlaySlot.UpdateOverlay();
             }
-#endregion
+            #endregion
 
-#region Reset Animation and Selection
+            #region Reset Animation and Selection
             RaidEvents.MonsterTooltip.Hide();
-#endregion
+            #endregion
 
             if (brainDecision.TargetInfo.Type == SkillTargetType.Party)
             {
@@ -3948,7 +3950,7 @@ public class RaidSceneManager : MonoBehaviour
                 targetRooms = Raid.Dungeon.Rooms.Values.ToList().
                 FindAll(targetRoom => targetRoom.Doors.Count == 2 && targetRoom != Raid.CurrentLocation);
 
-            if(targetRooms.Count == 0)
+            if (targetRooms.Count == 0)
                 targetRooms.Add(Raid.Dungeon.StartingRoom);
             if (SceneState == DungeonSceneState.Hall)
             {
@@ -3961,7 +3963,7 @@ public class RaidSceneManager : MonoBehaviour
                 currentEvent = RoomLoadingEvent(targetRooms[RandomSolver.Next(targetRooms.Count)],
                     RoomTransitionType.Teleport);
             }
-#region Remove Combat States and Restrictions
+            #region Remove Combat States and Restrictions
             QuestPanel.SetPeacefulState();
             Formations.ShowHeroOverlay();
             RaidPanel.SetPeacefulState();
@@ -3969,12 +3971,12 @@ public class RaidSceneManager : MonoBehaviour
             BattleGround.LeaveBattleGround();
             Inventory.SetPeacefulState(false);
             StartCoroutine(currentEvent);
-#endregion
+            #endregion
             yield break;
         }
-#endregion
+        #endregion
 
-#region Riposte Skill Activation
+        #region Riposte Skill Activation
         List<FormationUnit> riposters = new List<FormationUnit>();
         List<SkillResult> riposteResults = new List<SkillResult>();
         if (brainDecision.TargetInfo.Type == SkillTargetType.Enemy)
@@ -3991,33 +3993,33 @@ public class RaidSceneManager : MonoBehaviour
                             var riposteArt = target.Character.SkillArtInfo.Find(art => art.SkillId == riposteSkill.Id);
                             if (riposteArt != null)
                             {
-#region Skill Execution
+                                #region Skill Execution
                                 BattleSolver.SkillResult.Reset();
                                 BattleSolver.ExecuteSkill(target, actionUnit, riposteSkill, riposteArt);
 
                                 riposters.Add(target);
                                 riposteResults.Add(BattleSolver.SkillResult.Copy());
 
-                                if(target.Character is Hero)
+                                if (target.Character is Hero)
                                 {
-                                        FMODUnity.RuntimeManager.PlayOneShot("event:/char/ally/" +
-                                            target.Character.Class + "_" + riposteSkill.Id);
+                                    FMODUnity.RuntimeManager.PlayOneShot("event:/char/ally/" +
+                                        target.Character.Class + "_" + riposteSkill.Id);
                                 }
                                 else
                                 {
-                                        FMODUnity.RuntimeManager.PlayOneShot("event:/char/enemy/" +
-                                            target.Character.Class + "_" + riposteSkill.Id);
+                                    FMODUnity.RuntimeManager.PlayOneShot("event:/char/enemy/" +
+                                        target.Character.Class + "_" + riposteSkill.Id);
                                 }
-#endregion
+                                #endregion
                             }
 
                         }
                     }
                 }
             }
-#endregion
+        #endregion
         yield return new WaitForSeconds(0.05f);
-#region Riposte Animation Intro
+        #region Riposte Animation Intro
         if (riposteResults.Count > 0)
         {
             actionUnit.SetPerformerSkillAnimation(brainDecision.TargetInfo.SkillArtInfo, false);
@@ -4029,9 +4031,9 @@ public class RaidSceneManager : MonoBehaviour
                 riposters[i].SetPerformerSkillAnimation(riposteResults[i].ArtInfo, true);
             }
         }
-#endregion
+        #endregion
         yield return new WaitForSeconds(0.05f);
-#region Execute Riposte Instants
+        #region Execute Riposte Instants
         for (int i = 0; i < riposters.Count; i++)
         {
             foreach (var skillEntry in riposteResults[i].SkillEntries)
@@ -4066,14 +4068,14 @@ public class RaidSceneManager : MonoBehaviour
                             if (skillEntry.Amount < 1)
                                 RaidEvents.ShowPopupMessage(skillEntry.Target, PopupMessageType.ZeroDamage, "", 40 * i);
                             else
-                                RaidEvents.ShowPopupMessage(skillEntry.Target, 
+                                RaidEvents.ShowPopupMessage(skillEntry.Target,
                                     PopupMessageType.Damage, skillEntry.Amount.ToString(), 40 * i);
                             break;
                         case SkillResultType.Crit:
                             if (skillEntry.Amount < 1)
                                 RaidEvents.ShowPopupMessage(skillEntry.Target, PopupMessageType.ZeroDamage, "", 40 * i);
                             else
-                                RaidEvents.ShowPopupMessage(skillEntry.Target, 
+                                RaidEvents.ShowPopupMessage(skillEntry.Target,
                                     PopupMessageType.CritDamage, skillEntry.Amount.ToString(), 40 * i);
                             break;
                         case SkillResultType.Heal:
@@ -4094,7 +4096,7 @@ public class RaidSceneManager : MonoBehaviour
             }
             actionUnit.OverlaySlot.UpdateOverlay();
         }
-#endregion
+        #endregion
         if (riposters.Count > 0)
             yield return new WaitForSeconds(1.2f);
         else
@@ -4145,7 +4147,7 @@ public class RaidSceneManager : MonoBehaviour
             ExecuteDeath(BattleGround.MonsterParty.Units[i]);
         }
 
-#region Execute Death Damages
+        #region Execute Death Damages
         for (int i = 0; i < deathDamages.Count; i++)
         {
             var deathDamageTarget = BattleGround.MonsterParty.Units.Find(unit =>
@@ -4155,18 +4157,18 @@ public class RaidSceneManager : MonoBehaviour
             {
                 deathDamageTarget.Character.Health.DecreaseValue(deathDamages[i].TargetDamage);
                 deathDamageTarget.OverlaySlot.UpdateOverlay();
-                RaidEvents.ShowPopupMessage(deathDamageTarget, 
+                RaidEvents.ShowPopupMessage(deathDamageTarget,
                     PopupMessageType.Damage, deathDamages[i].TargetDamage.ToString());
                 deathDamageTarget.SetDefendAnimation(true);
                 yield return new WaitForSeconds(0.8f);
                 deathDamageTarget.SetDefendAnimation(false);
             }
         }
-#endregion
+        #endregion
 
         riposteResults.Clear();
         riposters.Clear();
-#endregion
+        #endregion
         yield return new WaitForSeconds(0.175f);
         Formations.ShowUnitOverlay();
         TorchMeter.Show();
@@ -4183,19 +4185,19 @@ public class RaidSceneManager : MonoBehaviour
             BattleSolver.RemoveConditions(brainDecision.TargetInfo.Targets[i]);
         BattleSolver.RemoveConditions(actionUnit);
         RaidEvents.MonsterTooltip.IsDisabled = false;
-#region Trait Comment Self and Ally
-        if(brainDecision.TargetInfo.Type == SkillTargetType.Enemy)
+        #region Trait Comment Self and Ally
+        if (brainDecision.TargetInfo.Type == SkillTargetType.Enemy)
         {
             foreach (var skillEntry in skillResult.SkillEntries)
             {
                 if (skillEntry.Target.CombatInfo.IsDead == false)
                 {
-#region Comment on Self
+                    #region Comment on Self
                     if (skillEntry.Target.Character.Trait != null)
                     {
                         if (skillEntry.IsTargetHit)
                         {
-#region Self Hit
+                            #region Self Hit
                             if (RandomSolver.CheckSuccess(skillEntry.Target.Character.
                                 Trait.Reactions[ReactionType.CommentSelfHit].Chance))
                             {
@@ -4216,11 +4218,11 @@ public class RaidSceneManager : MonoBehaviour
                                     break;
                                 }
                             }
-#endregion
+                            #endregion
                         }
                         else
                         {
-#region Self Miss
+                            #region Self Miss
                             if (RandomSolver.CheckSuccess(skillEntry.Target.Character.
                                 Trait.Reactions[ReactionType.CommentSelfMissed].Chance))
                             {
@@ -4241,24 +4243,24 @@ public class RaidSceneManager : MonoBehaviour
                                     break;
                                 }
                             }
-#endregion
+                            #endregion
                         }
                     }
-#endregion
+                    #endregion
 
-#region Comment on Ally
+                    #region Comment on Ally
                     if (skillEntry.Target.Party.Units.Count > 1)
                     {
-                        foreach(var ally in skillEntry.Target.Party.Units)
+                        foreach (var ally in skillEntry.Target.Party.Units)
                         {
                             if (ally == skillEntry.Target)
                                 continue;
 
-                            if(ally.Character.Trait != null)
+                            if (ally.Character.Trait != null)
                             {
                                 if (skillEntry.IsTargetHit)
                                 {
-#region Ally Hit
+                                    #region Ally Hit
                                     if (RandomSolver.CheckSuccess(ally.Character.
                                         Trait.Reactions[ReactionType.CommentAllyHit].Chance))
                                     {
@@ -4274,11 +4276,11 @@ public class RaidSceneManager : MonoBehaviour
                                             break;
                                         }
                                     }
-#endregion
+                                    #endregion
                                 }
                                 else
                                 {
-#region Ally Miss
+                                    #region Ally Miss
                                     if (RandomSolver.CheckSuccess(ally.Character.
                                         Trait.Reactions[ReactionType.CommentAllyMissed].Chance))
                                     {
@@ -4294,22 +4296,22 @@ public class RaidSceneManager : MonoBehaviour
                                             break;
                                         }
                                     }
-#endregion
+                                    #endregion
                                 }
                             }
                         }
                     }
-#endregion
+                    #endregion
                 }
             }
         }
-#endregion
+        #endregion
     }
     protected virtual IEnumerator ExecuteMonsterOverridenSkill(FormationUnit actionUnit, string combatSkillOverride)
     {
         RaidEvents.MonsterTooltip.IsDisabled = true;
         RaidEvents.MonsterTooltip.Hide();
-#region Get Brain Decision
+        #region Get Brain Decision
         var brainDecision = BattleSolver.UseMonsterBrain(actionUnit, combatSkillOverride);
         if (brainDecision.Decision == BrainDecisionType.Pass)
         {
@@ -4317,17 +4319,17 @@ public class RaidSceneManager : MonoBehaviour
             yield return new WaitForSeconds(0.9f);
             yield break;
         }
-#endregion
+        #endregion
         yield return new WaitForSeconds(0.1f);
         SetBrainDecisionMarkings(actionUnit, brainDecision);
         yield return new WaitForSeconds(0.1f);
         brainDecision.TargetInfo.UpdateSkillInfo(actionUnit, brainDecision.SelectedSkill);
-#region Dipslay Announcment
+        #region Dipslay Announcment
         if (!(brainDecision.TargetInfo.SkillArtInfo.CanDisplaySelection == false))
         {
             if (actionUnit.Character.IsMonster)
             {
-                if(actionUnit.Character.DisplayModifier != null &&
+                if (actionUnit.Character.DisplayModifier != null &&
                     actionUnit.Character.DisplayModifier.UseCentreSkillAnnouncment)
                     RaidEvents.ShowAnnouncment(LocalizationManager.GetString("str_monster_skill_" +
                         brainDecision.TargetInfo.SkillArtInfo.SkillId), AnnouncmentPosition.Top);
@@ -4339,14 +4341,14 @@ public class RaidSceneManager : MonoBehaviour
                 RaidEvents.ShowAnnouncment(LocalizationManager.GetString("combat_skill_name_"
                     + actionUnit.Character.Class + "_" + brainDecision.TargetInfo.SkillArtInfo.SkillId), AnnouncmentPosition.Right);
         }
-#endregion
+        #endregion
         yield return new WaitForSeconds(0.75f);
         Formations.HideUnitOverlay();
         TorchMeter.Hide();
-#region Hide Announcment
+        #region Hide Announcment
         if (!(brainDecision.TargetInfo.SkillArtInfo.CanDisplaySelection == false))
             RaidEvents.HideAnnouncment();
-#endregion
+        #endregion
         yield return new WaitForSeconds(0.2f);
         DungeonCamera.Zoom(50, 0.05f);
         var skillResult = ExecuteSkillBase(actionUnit, brainDecision.TargetInfo);
@@ -4411,7 +4413,7 @@ public class RaidSceneManager : MonoBehaviour
             ExecuteDeath(BattleGround.MonsterParty.Units[i]);
         }
 
-#region Execute Death Damages
+        #region Execute Death Damages
         for (int i = 0; i < deathDamages.Count; i++)
         {
             var deathDamageTarget = BattleGround.MonsterParty.Units.Find(unit =>
@@ -4428,9 +4430,9 @@ public class RaidSceneManager : MonoBehaviour
                 deathDamageTarget.SetDefendAnimation(false);
             }
         }
-#endregion
+        #endregion
 
-#endregion
+        #endregion
         yield return new WaitForSeconds(0.175f);
         Formations.ShowUnitOverlay();
         TorchMeter.Show();
@@ -4462,10 +4464,10 @@ public class RaidSceneManager : MonoBehaviour
         yield return new WaitForSeconds(0.01f);
         ExecuteSlidingSetup(actionUnit, targetInfo);
         yield return new WaitForSeconds(0.70f);
-#region Riposte Skill Activation
+        #region Riposte Skill Activation
         List<FormationUnit> riposters = new List<FormationUnit>();
         List<SkillResult> riposteResults = new List<SkillResult>();
-        if(targetInfo.Type == SkillTargetType.Enemy)
+        if (targetInfo.Type == SkillTargetType.Enemy)
             foreach (var target in targetInfo.Targets)
             {
                 if (target.Character.GetStatusEffect(StatusType.Riposte).IsApplied)
@@ -4479,7 +4481,7 @@ public class RaidSceneManager : MonoBehaviour
                             var riposteArt = target.Character.SkillArtInfo.Find(art => art.SkillId == riposteSkill.Id);
                             if (riposteArt != null)
                             {
-#region Skill Execution
+                                #region Skill Execution
                                 BattleSolver.SkillResult.Reset();
                                 BattleSolver.ExecuteSkill(target, actionUnit, riposteSkill, riposteArt);
 
@@ -4489,7 +4491,7 @@ public class RaidSceneManager : MonoBehaviour
                                 if (target.Character is Hero)
                                 {
                                     if (target.Character.Mode != null)
-                                        FMODUnity.RuntimeManager.PlayOneShot("event:/char/ally/" + 
+                                        FMODUnity.RuntimeManager.PlayOneShot("event:/char/ally/" +
                                             target.Character.Class + "_" + riposteSkill.Id + "_" + target.Character.Mode.Id);
                                     else
                                         FMODUnity.RuntimeManager.PlayOneShot("event:/char/ally/" +
@@ -4500,29 +4502,29 @@ public class RaidSceneManager : MonoBehaviour
                                     FMODUnity.RuntimeManager.PlayOneShot("event:/char/enemy/" +
                                         target.Character.Class + "_" + riposteSkill.Id);
                                 }
-#endregion
+                                #endregion
                             }
                         }
                     }
                 }
             }
-#endregion
+        #endregion
         yield return new WaitForSeconds(0.05f);
-#region Riposte Animation Intro
-        if(riposteResults.Count > 0)
+        #region Riposte Animation Intro
+        if (riposteResults.Count > 0)
         {
             actionUnit.SetPerformerSkillAnimation(targetInfo.SkillArtInfo, false);
             actionUnit.SetDefendAnimation(true);
 
-            for(int i = 0; i < riposteResults.Count; i++)
+            for (int i = 0; i < riposteResults.Count; i++)
             {
                 riposters[i].SetDefendAnimation(false);
                 riposters[i].SetPerformerSkillAnimation(riposteResults[i].ArtInfo, true);
             }
         }
-#endregion
+        #endregion
         yield return new WaitForSeconds(0.05f);
-#region Execute Riposte Instants
+        #region Execute Riposte Instants
         for (int i = 0; i < riposters.Count; i++)
         {
             foreach (var skillEntry in riposteResults[i].SkillEntries)
@@ -4585,7 +4587,7 @@ public class RaidSceneManager : MonoBehaviour
             }
             actionUnit.OverlaySlot.UpdateOverlay();
         }
-#endregion
+        #endregion
         if (riposters.Count > 0)
             yield return new WaitForSeconds(1.2f);
         else
@@ -4605,16 +4607,16 @@ public class RaidSceneManager : MonoBehaviour
                 riposters[i].SetPerformerSkillAnimation(riposteResults[i].ArtInfo, false);
             }
         }
-#endregion
+        #endregion
 
-#region Skill Outro
+        #region Skill Outro
         if (skill.ValidModes.Count > 1 && targetInfo.Mode != null)
             Formations.UnitSkillOutroOverriden(actionUnit, targetInfo.SkillArtInfo, targetInfo.Mode.Id);
         else
             Formations.UnitSkillOutro(actionUnit, targetInfo.SkillArtInfo);
-#endregion
+        #endregion
 
-#region Defend Outro
+        #region Defend Outro
         if (targetInfo.Type == SkillTargetType.Party)
         {
             foreach (var targetUnit in targetInfo.Targets)
@@ -4626,9 +4628,9 @@ public class RaidSceneManager : MonoBehaviour
             foreach (var targetUnit in targetInfo.Targets)
                 Formations.UnitDefendOutro(targetUnit);
         }
-#endregion
+        #endregion
 
-#region Execute Deaths
+        #region Execute Deaths
         List<DeathDamage> deathDamages = new List<DeathDamage>();
         for (int i = BattleGround.MonsterParty.Units.Count - 1; i >= 0; i--)
         {
@@ -4639,9 +4641,9 @@ public class RaidSceneManager : MonoBehaviour
             ExecuteDeath(BattleGround.MonsterParty.Units[i]);
         }
         ExecuteDeath(actionUnit);
-#endregion
+        #endregion
 
-#region Execute Death Damages
+        #region Execute Death Damages
         for (int i = 0; i < deathDamages.Count; i++)
         {
             var deathDamageTarget = BattleGround.MonsterParty.Units.Find(unit =>
@@ -4658,11 +4660,11 @@ public class RaidSceneManager : MonoBehaviour
                 deathDamageTarget.SetDefendAnimation(false);
             }
         }
-#endregion
+        #endregion
 
         riposteResults.Clear();
         riposters.Clear();
-#endregion
+        #endregion
         yield return new WaitForSeconds(0.175f);
         Formations.ShowUnitOverlay();
         TorchMeter.Show();
@@ -4689,7 +4691,7 @@ public class RaidSceneManager : MonoBehaviour
 
         RaidEvents.MonsterTooltip.IsDisabled = false;
 
-#region Trait Comment Attack Result
+        #region Trait Comment Attack Result
         if (BattleGround.HeroParty.Units.Contains(actionUnit)
             && BattleGround.HeroParty.Units.Count > 1)
         {
@@ -4730,7 +4732,7 @@ public class RaidSceneManager : MonoBehaviour
                 }
             }
         }
-#endregion
+        #endregion
     }
     protected virtual IEnumerator ExecuteHeroItemUsage(FormationUnit actionUnit, InventorySlot slot)
     {
@@ -4763,7 +4765,7 @@ public class RaidSceneManager : MonoBehaviour
                 switch (slot.SlotItem.ItemData.Id)
                 {
                     case "firewood":
-                        if(SceneState == DungeonSceneState.Room && currentEvent == null)
+                        if (SceneState == DungeonSceneState.Room && currentEvent == null)
                         {
                             Inventory.DiscardSingleItem(slot);
                             FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/discard");
@@ -4774,7 +4776,7 @@ public class RaidSceneManager : MonoBehaviour
                     case "bandage":
                         if (actionUnit.Character[StatusType.Bleeding].IsApplied)
                         {
-#region Trait Block
+                            #region Trait Block
                             if (actionUnit.Character.Trait != null)
                             {
                                 if (RandomSolver.CheckSuccess(actionUnit.Character.Trait.Reactions[ReactionType.BlockItem].Chance))
@@ -4785,7 +4787,7 @@ public class RaidSceneManager : MonoBehaviour
                                     break;
                                 }
                             }
-#endregion
+                            #endregion
                             Inventory.DiscardSingleItem(slot);
                             FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/discard");
                             yield return new WaitForSeconds(0.1f);
@@ -4800,7 +4802,7 @@ public class RaidSceneManager : MonoBehaviour
                     case "antivenom":
                         if (actionUnit.Character[StatusType.Poison].IsApplied)
                         {
-#region Trait Block
+                            #region Trait Block
                             if (actionUnit.Character.Trait != null)
                             {
                                 if (RandomSolver.CheckSuccess(actionUnit.Character.Trait.Reactions[ReactionType.BlockItem].Chance))
@@ -4811,7 +4813,7 @@ public class RaidSceneManager : MonoBehaviour
                                     break;
                                 }
                             }
-#endregion
+                            #endregion
                             Inventory.DiscardSingleItem(slot);
                             FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/discard");
                             yield return new WaitForSeconds(0.1f);
@@ -4826,7 +4828,7 @@ public class RaidSceneManager : MonoBehaviour
                     case "medicinal_herbs":
                         if (actionUnit.Character.HasDebuffs())
                         {
-#region Trait Block
+                            #region Trait Block
                             if (actionUnit.Character.Trait != null)
                             {
                                 if (RandomSolver.CheckSuccess(actionUnit.Character.Trait.Reactions[ReactionType.BlockItem].Chance))
@@ -4837,7 +4839,7 @@ public class RaidSceneManager : MonoBehaviour
                                     break;
                                 }
                             }
-#endregion
+                            #endregion
                             Inventory.DiscardSingleItem(slot);
                             FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/discard");
                             yield return new WaitForSeconds(0.1f);
@@ -4863,7 +4865,7 @@ public class RaidSceneManager : MonoBehaviour
                         }
                         break;
                     case "holy_water":
-#region Trait Block
+                        #region Trait Block
                         if (actionUnit.Character.Trait != null)
                         {
                             if (RandomSolver.CheckSuccess(actionUnit.Character.Trait.Reactions[ReactionType.BlockItem].Chance))
@@ -4874,7 +4876,7 @@ public class RaidSceneManager : MonoBehaviour
                                 break;
                             }
                         }
-#endregion
+                        #endregion
                         Inventory.DiscardSingleItem(slot);
                         FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/discard");
                         yield return new WaitForSeconds(0.1f);
@@ -4892,7 +4894,7 @@ public class RaidSceneManager : MonoBehaviour
                     case "dog_treats":
                         if (actionUnit.Character.Class == "hound_master")
                         {
-#region Trait Block
+                            #region Trait Block
                             if (actionUnit.Character.Trait != null)
                             {
                                 if (RandomSolver.CheckSuccess(actionUnit.Character.Trait.Reactions[ReactionType.BlockItem].Chance))
@@ -4903,7 +4905,7 @@ public class RaidSceneManager : MonoBehaviour
                                     break;
                                 }
                             }
-#endregion
+                            #endregion
                             FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/discard");
                             yield return new WaitForSeconds(0.1f);
 
@@ -4932,7 +4934,7 @@ public class RaidSceneManager : MonoBehaviour
 
     protected virtual IEnumerator ExecuteResolveChecks()
     {
-        while(resolveCheckQueue.Count > 0)
+        while (resolveCheckQueue.Count > 0)
         {
             var resolveUnit = resolveCheckQueue[0];
             var resolveHero = resolveUnit.Character as Hero;
@@ -4956,7 +4958,7 @@ public class RaidSceneManager : MonoBehaviour
                 skill.Id == resolveUnit.Character.Mode.AfflictionSkillId);
                 if (resolveSkill != null)
                 {
-                    SkillTargetInfo targetInfo = BattleSolver.SelectSkillTargets(resolveUnit, 
+                    SkillTargetInfo targetInfo = BattleSolver.SelectSkillTargets(resolveUnit,
                         resolveUnit, resolveSkill).UpdateSkillInfo(resolveUnit, resolveSkill);
                     yield return StartCoroutine(ExecuteHeroSkill(resolveUnit, targetInfo, resolveSkill));
                 }
@@ -4977,7 +4979,7 @@ public class RaidSceneManager : MonoBehaviour
             resolveHero.ApplySingleBuffRule(Rules, BuffRule.Afflicted);
             resolveHero.ApplySingleBuffRule(Rules, BuffRule.Virtued);
 
-            if(isVirtue)
+            if (isVirtue)
             {
                 DarkestSoundManager.ExecuteNarration("virtue", NarrationPlace.Raid, resolveTrait.Id);
                 FMODUnity.RuntimeManager.PlayOneShot("event:/general/char/resolve_virtue");
@@ -4990,14 +4992,14 @@ public class RaidSceneManager : MonoBehaviour
 
             Formations.HeroResolveCheckIntro(resolveUnit, isVirtue);
             Formations.partyBuffPositions.SetUnitTarget(resolveUnit, 0.05f, Vector2.zero);
-            RaidEvents.ShowAnnouncment(isVirtue ? 
-                LocalizationManager.GetString("str_virtue_name_" + resolveTrait.Id):
+            RaidEvents.ShowAnnouncment(isVirtue ?
+                LocalizationManager.GetString("str_virtue_name_" + resolveTrait.Id) :
                 LocalizationManager.GetString("str_affliction_name_" + resolveTrait.Id), AnnouncmentPosition.Bottom);
-            if(!Rules.IsDoingCamping)
+            if (!Rules.IsDoingCamping)
                 DungeonCamera.Zoom(45, 0.1f);
 
             yield return new WaitForSeconds(2.45f);
-            if(!Rules.IsDoingCamping)
+            if (!Rules.IsDoingCamping)
                 DungeonCamera.Zoom(DungeonCamera.StandardFOV, 0.1f);
 
             Formations.HeroResolveCheckOutro(resolveUnit, isVirtue);
@@ -5029,14 +5031,14 @@ public class RaidSceneManager : MonoBehaviour
         bool executedPoison = false;
         bool movementStopped = false;
 
-#region Bleeding
+        #region Bleeding
         for (int i = unitEventQueue.Count - 1; i >= 0; i--)
         {
             if (unitEventQueue[i].CombatInfo.IsDead)
                 continue;
 
             var bleedEffect = unitEventQueue[i].Character.GetStatusEffect(StatusType.Bleeding) as BleedingStatusEffect;
-            if(bleedEffect.IsApplied)
+            if (bleedEffect.IsApplied)
             {
                 int damage = bleedEffect.CurrentTickDamage;
                 unitEventQueue[i].Character.Health.DecreaseValue(damage);
@@ -5072,7 +5074,7 @@ public class RaidSceneManager : MonoBehaviour
             }
         }
 
-        if(executedBleed)
+        if (executedBleed)
         {
             yield return new WaitForSeconds(0.6f);
             timeWasted += 0.6f;
@@ -5082,9 +5084,9 @@ public class RaidSceneManager : MonoBehaviour
             unitEventQueue.AddRange(Formations.heroes.party.Units);
             timeWasted += Time.time - coroutineTime;
         }
-#endregion
+        #endregion
 
-#region Poisoning
+        #region Poisoning
         for (int i = unitEventQueue.Count - 1; i >= 0; i--)
         {
             if (unitEventQueue[i].CombatInfo.IsDead)
@@ -5137,16 +5139,16 @@ public class RaidSceneManager : MonoBehaviour
             unitEventQueue.AddRange(Formations.heroes.party.Units);
             timeWasted += Time.time - coroutineTime;
         }
-#endregion
+        #endregion
 
-#region Deaths
+        #region Deaths
         for (int i = 0; i < unitEventQueue.Count; i++)
         {
             unitEventQueue[i].Character.UpdateRound();
             unitEventQueue[i].OverlaySlot.UpdateOverlay();
         }
 
-        if(bleedDeaths.Count > 0)
+        if (bleedDeaths.Count > 0)
         {
             yield return new WaitForSeconds(1.4f - timeWasted);
             timeWasted += 1.4f - timeWasted;
@@ -5154,7 +5156,7 @@ public class RaidSceneManager : MonoBehaviour
                 ExecuteDeath(bleedDeaths[i]);
             bleedDeaths.Clear();
         }
-        if(poisonDeaths.Count > 0)
+        if (poisonDeaths.Count > 0)
         {
             yield return new WaitForSeconds(2 - timeWasted);
             for (int i = 0; i < poisonDeaths.Count; i++)
@@ -5166,7 +5168,7 @@ public class RaidSceneManager : MonoBehaviour
         yield return StartCoroutine(ExecuteEffectEvents(false));
         unitEventQueue.Clear();
 
-#region Comment on Movement
+        #region Comment on Movement
         if (Formations.heroes.party.Units.Count > 1)
         {
             foreach (var heroBarker in Formations.heroes.party.Units)
@@ -5191,7 +5193,7 @@ public class RaidSceneManager : MonoBehaviour
                 }
             }
         }
-#endregion
+        #endregion
 
         if (movementStopped)
             EnablePartyMovement();
@@ -5212,7 +5214,7 @@ public class RaidSceneManager : MonoBehaviour
 
         do
         {
-#region Death Doors
+            #region Death Doors
             if (deathDoorEnterQueue.Count > 0)
             {
                 if (RaidEvents.CampEvent.ActionType == CampUsageResultType.Skill)
@@ -5266,9 +5268,9 @@ public class RaidSceneManager : MonoBehaviour
                 yield return new WaitForSeconds(1.6f);
                 RaidEvents.HideAnnouncment();
             }
-#endregion
+            #endregion
 
-#region Effects
+            #region Effects
             do
             {
                 executedEvent = false;
@@ -5302,11 +5304,11 @@ public class RaidSceneManager : MonoBehaviour
 
                 if (executedEvent)
                     yield return new WaitForSeconds(1f);
-            } 
+            }
             while (executedEvent);
-#endregion
+            #endregion
 
-#region Resolve Checks
+            #region Resolve Checks
             if (resolveCheckQueue.Count != 0)
             {
                 executedEvent = true;
@@ -5314,9 +5316,9 @@ public class RaidSceneManager : MonoBehaviour
                     RaidEvents.CampEvent.Hide();
                 yield return StartCoroutine(ExecuteResolveChecks());
             }
-#endregion
+            #endregion
 
-#region Heart Attacks
+            #region Heart Attacks
             while (heartAttackCheckQueue.Count > 0)
             {
                 executedEvent = true;
@@ -5344,11 +5346,11 @@ public class RaidSceneManager : MonoBehaviour
                     deathDoorEnterQueue.Add(heartAttackedUnit);
                 }
             }
-#endregion
+            #endregion
 
             if (deathDoorEnterQueue.Count != 0 || resolveCheckQueue.Count != 0 || heartAttackCheckQueue.Count != 0)
                 executedEvent = true;
-        } 
+        }
         while (executedEvent);
 
         for (int i = 0; i < BattleGround.HeroParty.Units.Count; i++)
@@ -5387,18 +5389,18 @@ public class RaidSceneManager : MonoBehaviour
                 break;
         }
 
-        if(RaidEvents.HungerEvent.ActionType == HungerResultType.Eat)
+        if (RaidEvents.HungerEvent.ActionType == HungerResultType.Eat)
             Inventory.DiscardItemType("provision", RaidEvents.HungerEvent.MealAmount);
 
         RaidEvents.HungerEvent.Hide();
         yield return new WaitForSeconds(0.2f);
         RaidEvents.HungerEvent.ScrollClosed();
 
-        if(RaidEvents.HungerEvent.ActionType == HungerResultType.Starve)
+        if (RaidEvents.HungerEvent.ActionType == HungerResultType.Starve)
         {
             DarkestSoundManager.ExecuteNarration("hunger_starve", NarrationPlace.Raid);
 
-#region Starving
+            #region Starving
             bool someOneStarved = false;
             FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/bleed_dot");
             for (int i = 0; i < HeroParty.Units.Count; i++)
@@ -5409,7 +5411,7 @@ public class RaidSceneManager : MonoBehaviour
 
                 HeroParty.Units[i].OverlaySlot.UpdateOverlay();
 
-#region Damage Activation
+                #region Damage Activation
                 if (Mathf.RoundToInt(HeroParty.Units[i].Character.Health.CurrentValue) != 0)
                 {
                     RaidEvents.ShowPopupMessage(HeroParty.Units[i], PopupMessageType.Damage, starveDamage.ToString());
@@ -5432,7 +5434,7 @@ public class RaidSceneManager : MonoBehaviour
                         RaidEvents.ShowPopupMessage(HeroParty.Units[i], PopupMessageType.Damage, starveDamage.ToString());
                     }
                 }
-#endregion
+                #endregion
             }
             if (someOneStarved)
             {
@@ -5452,11 +5454,11 @@ public class RaidSceneManager : MonoBehaviour
                 StartCoroutine(RaidResultsEvent());
                 yield break;
             }
-#endregion
+            #endregion
         }
         else if (RaidEvents.HungerEvent.ActionType == HungerResultType.Eat)
         {
-#region Eating
+            #region Eating
             FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_ally");
             FMODUnity.RuntimeManager.PlayOneShot("event:/general/party/eat");
 
@@ -5478,7 +5480,7 @@ public class RaidSceneManager : MonoBehaviour
                 StartCoroutine(RaidResultsEvent());
                 yield break;
             }
-#endregion
+            #endregion
         }
 
         yield return new WaitForSeconds(0.1f);
@@ -5542,7 +5544,7 @@ public class RaidSceneManager : MonoBehaviour
     }
     protected virtual IEnumerator LoadEncounterEvent(IRaidArea areaView)
     {
-#region Set Combat States and Restrictions
+        #region Set Combat States and Restrictions
         QuestPanel.UpdateEncounterRetreat();
         QuestPanel.SetCombatState();
         DisableEnviroment();
@@ -5555,14 +5557,14 @@ public class RaidSceneManager : MonoBehaviour
 
         foreach (var hero in Formations.heroes.party.Units)
             hero.SetCombatAnimation(true);
-#endregion
+        #endregion
 
-#region Switch Soundtrack
+        #region Switch Soundtrack
         DarkestSoundManager.PauseDungeonSoundtrack();
         DarkestSoundManager.StartBattleSoundtrack(Raid.Dungeon.Name, SceneState == DungeonSceneState.Room);
-#endregion
+        #endregion
 
-#region Battle Loop
+        #region Battle Loop
         BattleGround.LoadBattle(DarkestDungeonManager.SaveData.battleGroundSaveData);
         yield return new WaitForEndOfFrame();
         BattleGround.LoadEffects(DarkestDungeonManager.SaveData.battleGroundSaveData);
@@ -5586,7 +5588,7 @@ public class RaidSceneManager : MonoBehaviour
                 yield break;
         }
 
-#region Execute Hero Transformations
+        #region Execute Hero Transformations
         for (int i = 0; i < Formations.heroes.party.Units.Count; i++)
         {
             var hero = Formations.heroes.party.Units[i].Character as Hero;
@@ -5604,25 +5606,25 @@ public class RaidSceneManager : MonoBehaviour
                 }
             }
         }
-#endregion
+        #endregion
 
         BattleGround.ResetTargetRanks();
 
-#region Stop Soundtrack
+        #region Stop Soundtrack
         DarkestSoundManager.StopBattleSoundtrack();
         FMODUnity.RuntimeManager.PlayOneShot("event:/general/combat/victory");
         DarkestSoundManager.ContinueDungeonSoundtrack(Raid.Quest.Dungeon);
-#endregion
+        #endregion
 
-#region Check Game Over
+        #region Check Game Over
         if (Formations.heroes.party.Units.Count == 0)
         {
             StartCoroutine(RaidResultsEvent());
             yield break;
         }
-#endregion
+        #endregion
 
-#region Destroy Remains
+        #region Destroy Remains
         Formations.HideMonsterOverlay();
 
         if (BattleGround.MonsterParty.Units.Count > 0)
@@ -5651,13 +5653,13 @@ public class RaidSceneManager : MonoBehaviour
         RaidEvents.MonsterTooltip.Hide();
         RaidEvents.roundIndicator.Disappear();
         yield return new WaitForSeconds(0.4f);
-#endregion
+        #endregion
 
         RaidEvents.roundIndicator.End();
         BattleGround.FinishBattle();
-#endregion
+        #endregion
 
-#region Reset Hero Statuses
+        #region Reset Hero Statuses
         foreach (var hero in Formations.heroes.party.Units)
         {
             hero.ResetHalo();
@@ -5667,16 +5669,16 @@ public class RaidSceneManager : MonoBehaviour
             hero.Character.UpdateDurations(BuffDurationType.Combat);
             hero.OverlaySlot.UpdateOverlay();
         }
-#endregion
+        #endregion
 
-#region Reset Animation and Selection
+        #region Reset Animation and Selection
         RaidPanel.SelectedUnit.SetPerformerStatus();
         foreach (var hero in Formations.heroes.party.Units)
             hero.SetCombatAnimation(false);
         RaidEvents.MonsterTooltip.Hide();
-#endregion
+        #endregion
 
-#region Provide Loot
+        #region Provide Loot
         if (BattleGround.BattleLoot.Count > 0)
         {
             Formations.UnlockSelections();
@@ -5684,16 +5686,16 @@ public class RaidSceneManager : MonoBehaviour
             if (RaidEvents.loot.partyInventory.HasSomething())
                 yield return StartCoroutine(LootEvent());
         }
-#endregion
+        #endregion
 
-#region Check Quest Completion
+        #region Check Quest Completion
         areaView.Area.BattleEncounter.Cleared = true;
 
         if (!Raid.QuestCompleted && Raid.CheckQuestGoals())
             yield return StartCoroutine(CompletionCrestEvent());
-#endregion
+        #endregion
 
-#region Force Curio Tag
+        #region Force Curio Tag
         if (areaView.Area.Type == AreaType.BattleCurio || areaView.Area.Type == AreaType.BattleTresure)
         {
             Curio curio = areaView.Area.Prop as Curio;
@@ -5734,18 +5736,18 @@ public class RaidSceneManager : MonoBehaviour
             }
 
         }
-#endregion
+        #endregion
 
-#region Remove Combat States and Restrictions
+        #region Remove Combat States and Restrictions
         QuestPanel.SetPeacefulState();
         Formations.UnlockSelections();
         Formations.ShowHeroOverlay();
         RaidPanel.SetPeacefulState();
         EnablePartyMovement();
         EnableEnviroment();
-#endregion
+        #endregion
 
-#region Scouting and Room Updates
+        #region Scouting and Room Updates
         if (sceneState == DungeonSceneState.Room && Raid.Quest.IsScoutingEnabled)
         {
             DungeonRoom room = RoomView.raidRoom.Area as DungeonRoom;
@@ -5753,9 +5755,9 @@ public class RaidSceneManager : MonoBehaviour
         }
         if (sceneState == DungeonSceneState.Room)
             MapPanel.ShowAvailableRooms(RoomView.raidRoom.Area as DungeonRoom);
-#endregion
+        #endregion
 
-#region Complete Area Info
+        #region Complete Area Info
         if (areaView is RaidHallSector)
             areaView.CompleteArea();
         else
@@ -5765,7 +5767,7 @@ public class RaidSceneManager : MonoBehaviour
 
             MapPanel.UpdateArea(areaView.Area);
         }
-#endregion
+        #endregion
 
         QuestPanel.EnableRetreat();
         BattleGround.LeaveBattleGround();
@@ -5777,7 +5779,7 @@ public class RaidSceneManager : MonoBehaviour
     }
     protected virtual IEnumerator EncounterEvent(IRaidArea areaView, bool campfireAmbush = false)
     {
-#region Set Combat States and Restrictions
+        #region Set Combat States and Restrictions
         QuestPanel.UpdateEncounterRetreat();
         QuestPanel.SetCombatState();
         DisableEnviroment();
@@ -5790,18 +5792,18 @@ public class RaidSceneManager : MonoBehaviour
 
         foreach (var hero in Formations.heroes.party.Units)
             hero.SetCombatAnimation(true);
-#endregion
+        #endregion
 
-#region Wait For Events
+        #region Wait For Events
         while (IsUnitEventInProgress)
             yield return null;
-#endregion
+        #endregion
 
-#region Switch Soundtrack
+        #region Switch Soundtrack
         DarkestSoundManager.PauseDungeonSoundtrack();
         DarkestSoundManager.StartBattleSoundtrack(Raid.Dungeon.Name, SceneState == DungeonSceneState.Room);
 
-        if(areaView.Area.Type == AreaType.Boss || Raid.Quest.Id == "tutorial")
+        if (areaView.Area.Type == AreaType.Boss || Raid.Quest.Id == "tutorial")
         {
             if (areaView.Area.BattleEncounter.Monsters.Count > 0)
             {
@@ -5809,14 +5811,14 @@ public class RaidSceneManager : MonoBehaviour
                     areaView.Area.BattleEncounter.Monsters.Select(monster => monster.Class).ToArray());
             }
         }
-#endregion
+        #endregion
 
-#region Battle Loop
+        #region Battle Loop
         BattleGround.InitiateBattle();
         yield return new WaitForSeconds(1f);
         BattleGround.SpawnEncounter(areaView.Area.BattleEncounter, campfireAmbush);
 
-#region Starting Sound Effects
+        #region Starting Sound Effects
         var oneShotStart = FMODUnity.RuntimeManager.CreateInstance("event:/general/combat/start");
         if (oneShotStart != null)
         {
@@ -5831,16 +5833,16 @@ public class RaidSceneManager : MonoBehaviour
             oneShotStart.release();
         }
 
-        foreach(var unit in Formations.monsters.party.Units)
+        foreach (var unit in Formations.monsters.party.Units)
             FMODUnity.RuntimeManager.PlayOneShot("event:/char/enemy/" + unit.Character.Class + "_vo_aggro");
-#endregion
+        #endregion
 
         RaidEvents.ShowBattleAnnouncment();
         yield return new WaitForSeconds(1.8f);
         RaidEvents.HideBattleAnnouncment();
         yield return new WaitForSeconds(0.2f);
 
-#region Check Suprises
+        #region Check Suprises
         if (BattleGround.SurpriseStatus == SurpriseStatus.HeroesSurprised)
         {
             RaidEvents.ShowAnnouncment(LocalizationManager.GetString("surprise_announcement"), AnnouncmentPosition.Left);
@@ -5875,7 +5877,7 @@ public class RaidSceneManager : MonoBehaviour
         }
         else
             yield return new WaitForSeconds(0.8f);
-#endregion
+        #endregion
 
         RaidEvents.roundIndicator.Appear();
         yield return StartCoroutine(BattleRound());
@@ -5889,7 +5891,7 @@ public class RaidSceneManager : MonoBehaviour
                 yield break;
         }
 
-#region Execute Hero Transformations
+        #region Execute Hero Transformations
         for (int i = 0; i < Formations.heroes.party.Units.Count; i++)
         {
             var hero = Formations.heroes.party.Units[i].Character as Hero;
@@ -5907,16 +5909,16 @@ public class RaidSceneManager : MonoBehaviour
                 }
             }
         }
-#endregion
+        #endregion
 
         BattleGround.ResetTargetRanks();
 
-#region Stop Soundtrack
+        #region Stop Soundtrack
         DarkestSoundManager.StopBattleSoundtrack();
         DarkestSoundManager.ContinueDungeonSoundtrack(Raid.Quest.Dungeon);
-#endregion
+        #endregion
 
-#region Check Game Over
+        #region Check Game Over
         if (Formations.heroes.party.Units.Count == 0)
         {
             StartCoroutine(RaidResultsEvent());
@@ -5927,9 +5929,9 @@ public class RaidSceneManager : MonoBehaviour
             DarkestSoundManager.ExecuteNarration("victory", NarrationPlace.Raid);
             FMODUnity.RuntimeManager.PlayOneShot("event:/general/combat/victory");
         }
-#endregion
+        #endregion
 
-#region Destroy Remains
+        #region Destroy Remains
         Formations.HideMonsterOverlay();
 
         if (BattleGround.MonsterParty.Units.Count > 0)
@@ -5950,7 +5952,7 @@ public class RaidSceneManager : MonoBehaviour
                         monster.CommonEffects.DeathEffect) as GameObject);
                     AnimatedEffect effect = deathFx.GetComponent<AnimatedEffect>();
                     effect.BindToTarget(unit, unit.SkeletonAnimations[1], "fxdeath");
-                    
+
                 }
             }
             yield return new WaitForSeconds(1f);
@@ -5958,13 +5960,13 @@ public class RaidSceneManager : MonoBehaviour
         RaidEvents.MonsterTooltip.Hide();
         RaidEvents.roundIndicator.Disappear();
         yield return new WaitForSeconds(0.4f);
-#endregion
+        #endregion
 
         RaidEvents.roundIndicator.End();
         BattleGround.FinishBattle();
-#endregion
+        #endregion
 
-#region Reset Hero Statuses
+        #region Reset Hero Statuses
         foreach (var hero in Formations.heroes.party.Units)
         {
             hero.ResetHalo();
@@ -5974,33 +5976,33 @@ public class RaidSceneManager : MonoBehaviour
             hero.Character.UpdateDurations(BuffDurationType.Combat);
             hero.OverlaySlot.UpdateOverlay();
         }
-#endregion
+        #endregion
 
-#region Reset Animation and Selection
+        #region Reset Animation and Selection
         RaidPanel.SelectedUnit.SetPerformerStatus();
         foreach (var hero in Formations.heroes.party.Units)
             hero.SetCombatAnimation(false);
         RaidEvents.MonsterTooltip.Hide();
-#endregion
+        #endregion
 
-#region Provide Loot
+        #region Provide Loot
         if (BattleGround.BattleLoot.Count > 0)
         {
             Formations.UnlockSelections();
             RaidEvents.LoadBattleLoot(BattleGround.BattleLoot);
-            if(RaidEvents.loot.partyInventory.HasSomething())
+            if (RaidEvents.loot.partyInventory.HasSomething())
                 yield return StartCoroutine(LootEvent());
         }
-#endregion
+        #endregion
 
-#region Check Quest Completion
+        #region Check Quest Completion
         areaView.Area.BattleEncounter.Cleared = true;
 
         if (!Raid.QuestCompleted && Raid.CheckQuestGoals())
             yield return StartCoroutine(CompletionCrestEvent());
-#endregion
+        #endregion
 
-#region Force Curio Tag
+        #region Force Curio Tag
         if (areaView.Area.Type == AreaType.BattleCurio || areaView.Area.Type == AreaType.BattleTresure)
         {
             Curio curio = areaView.Area.Prop as Curio;
@@ -6041,18 +6043,18 @@ public class RaidSceneManager : MonoBehaviour
             }
 
         }
-#endregion
+        #endregion
 
-#region Remove Combat States and Restrictions
+        #region Remove Combat States and Restrictions
         QuestPanel.SetPeacefulState();
         Formations.UnlockSelections();
         Formations.ShowHeroOverlay();
         RaidPanel.SetPeacefulState();
         EnablePartyMovement();
         EnableEnviroment();
-#endregion
+        #endregion
 
-#region Scouting and Room Updates
+        #region Scouting and Room Updates
         if (sceneState == DungeonSceneState.Room && Raid.Quest.IsScoutingEnabled)
         {
             DungeonRoom room = RoomView.raidRoom.Area as DungeonRoom;
@@ -6060,9 +6062,9 @@ public class RaidSceneManager : MonoBehaviour
         }
         if (sceneState == DungeonSceneState.Room)
             MapPanel.ShowAvailableRooms(RoomView.raidRoom.Area as DungeonRoom);
-#endregion
+        #endregion
 
-#region Complete Area Info
+        #region Complete Area Info
         if (areaView is RaidHallSector)
             areaView.CompleteArea();
         else
@@ -6072,7 +6074,7 @@ public class RaidSceneManager : MonoBehaviour
 
             MapPanel.UpdateArea(areaView.Area);
         }
-#endregion
+        #endregion
 
         QuestPanel.EnableRetreat();
         BattleGround.LeaveBattleGround();
@@ -6107,9 +6109,9 @@ public class RaidSceneManager : MonoBehaviour
                     yield return new WaitForSeconds(0.4f);
             }
 
-            if(scoutingSectors == hallway.HallCount)
+            if (scoutingSectors == hallway.HallCount)
             {
-                if(hallway.RoomB.Knowledge == Knowledge.Hidden)
+                if (hallway.RoomB.Knowledge == Knowledge.Hidden)
                 {
                     hallway.RoomB.Knowledge = Knowledge.Scouted;
                     MapPanel.UpdateArea(hallway.RoomB);
@@ -6218,11 +6220,11 @@ public class RaidSceneManager : MonoBehaviour
                     {
                         FMODUnity.RuntimeManager.PlayOneShot("event:/general/map/scout_hallway");
                         MapPanel.UpdateArea(hallSector.Hallway.Halls[i]);
-                        if(hallSector.Hallway.Halls[i].Type == AreaType.Trap)
+                        if (hallSector.Hallway.Halls[i].Type == AreaType.Trap)
                         {
                             var raidSector = HallwayView.raidHallway.HallSectors.
                                 Find(trapSector => trapSector.HallSector == hallSector.Hallway.Halls[i]);
-                            if(raidSector != null)
+                            if (raidSector != null)
                                 (raidSector.Prop as RaidTrap).SkeletonAnimation.MeshRenderer.enabled = true;
                         }
                         yield return new WaitForSeconds(0.4f);
@@ -6274,7 +6276,7 @@ public class RaidSceneManager : MonoBehaviour
                 }
             }
         }
-        else if(direction == Direction.Top || direction == Direction.Right)
+        else if (direction == Direction.Top || direction == Direction.Right)
         {
             int hallIndex = hallSector.Hallway.Halls.IndexOf(hallSector);
             int tilesScouted = Mathf.Min(hallSector.Hallway.Halls.Count - hallSector.Hallway.Halls.IndexOf(hallSector) - 1, tiles);
@@ -6361,7 +6363,7 @@ public class RaidSceneManager : MonoBehaviour
         else
             scoutingTiles = RandomSolver.CheckSuccess(scoutingChance) ? RandomSolver.CheckSuccess(0.5f) ? 12 : 6 : 0;
 
-        if(scoutingTiles > 0)
+        if (scoutingTiles > 0)
         {
             RaidPanel.SwitchBlocked = true;
             if (!RaidPanel.IsMapActive)
@@ -6372,7 +6374,7 @@ public class RaidSceneManager : MonoBehaviour
             MapPanel.SetScoutingRadar();
             FMODUnity.RuntimeManager.PlayOneShot("event:/general/map/scout_start");
             yield return new WaitForSeconds(1f);
-            
+
             scoutingCounter = 0;
 
             for (int i = 0; i < room.Doors.Count; i++)
@@ -6412,7 +6414,7 @@ public class RaidSceneManager : MonoBehaviour
 
             if (scoutingTiles > 0)
             {
-                if(area is HallSector)
+                if (area is HallSector)
                 {
                     scoutingCounter = 2;
 
@@ -6443,9 +6445,9 @@ public class RaidSceneManager : MonoBehaviour
 
             foreach (var hallway in Raid.Dungeon.Hallways.Values)
             {
-                foreach(var hallwaySlot in hallway.Halls)
+                foreach (var hallwaySlot in hallway.Halls)
                 {
-                    if (hallwaySlot.Type == AreaType.Trap && 
+                    if (hallwaySlot.Type == AreaType.Trap &&
                         (hallwaySlot.Knowledge == Knowledge.Hidden || hallwaySlot.Knowledge == Knowledge.Visited))
                     {
                         hallwaySlot.Knowledge = Knowledge.Scouted;
@@ -6526,7 +6528,7 @@ public class RaidSceneManager : MonoBehaviour
 
                     FMODUnity.RuntimeManager.PlayOneShot("event:/general/map/scout_room");
                     MapPanel.UpdateArea(room);
-                    
+
                     yield return new WaitForSeconds(0.6f);
                 }
             }
@@ -6535,7 +6537,7 @@ public class RaidSceneManager : MonoBehaviour
         {
             foreach (var room in Raid.Dungeon.Rooms.Values)
             {
-                if ( (room.Type == AreaType.Curio || room.Type == AreaType.BattleCurio) && room.Knowledge == Knowledge.Hidden)
+                if ((room.Type == AreaType.Curio || room.Type == AreaType.BattleCurio) && room.Knowledge == Knowledge.Hidden)
                 {
                     room.Knowledge = Knowledge.Scouted;
 
@@ -6609,10 +6611,10 @@ public class RaidSceneManager : MonoBehaviour
         CurioInteraction curioInteraction = null;
         CurioResult curioResult = null;
 
-        if(curio.IsQuestCurio)
+        if (curio.IsQuestCurio)
         {
             Inventory.SetInteractionState(true);
-#region Interaction Event
+            #region Interaction Event
             float announcementTimer = -1;
             RaidEvents.LoadInteraction(curio, areaView);
             while (true)
@@ -6683,12 +6685,12 @@ public class RaidSceneManager : MonoBehaviour
                     curioResult = RandomSolver.ChooseByRandom<CurioResult>(curioInteraction.Results);
                     break;
             }
-#endregion
+            #endregion
         }
         else if (curio.IsFullCurio && triggerQuirk == null && triggerTrait == null)
         {
             Inventory.SetInteractionState(false);
-#region Interaction Event
+            #region Interaction Event
             float announcementTimer = -1;
             RaidEvents.LoadInteraction(curio, areaView);
             while (true)
@@ -6759,7 +6761,7 @@ public class RaidSceneManager : MonoBehaviour
                     curioResult = RandomSolver.ChooseByRandom<CurioResult>(curioInteraction.Results);
                     break;
             }
-#endregion
+            #endregion
         }
         else
         {
@@ -6794,7 +6796,7 @@ public class RaidSceneManager : MonoBehaviour
 
         Formations.LockSelections();
 
-#region Curio Investigation
+        #region Curio Investigation
         string stringId = "str_curio_" + curio.OriginalId + "_" + curioInteraction.ResultString();
         string message = LocalizationManager.GetString(stringId);
 
@@ -6805,11 +6807,11 @@ public class RaidSceneManager : MonoBehaviour
         }
 
         areaView.CompleteArea();
-        if(curio.OriginalId == "beacon" || curio.OriginalId == "teleporter")
+        if (curio.OriginalId == "beacon" || curio.OriginalId == "teleporter")
             (areaView.Prop as RaidCurio).SkeletonAnimation.state.AddAnimation(0, "disturbed", true, 1.8f);
-        
+
         Formations.InvestigateCurioIntro(areaView.Prop);
-        if(stringId != message)
+        if (stringId != message)
             RaidEvents.ShowAnnouncment(message);
         DungeonCamera.Zoom(50, 0.1f);
 
@@ -6834,7 +6836,7 @@ public class RaidSceneManager : MonoBehaviour
         if (stringId != message)
             RaidEvents.HideAnnouncment();
         Formations.ShowHeroOverlay();
-#endregion
+        #endregion
         var interactorUnit = RaidPanel.SelectedUnit;
 
         switch (curioInteraction.ResultType)
@@ -6843,7 +6845,7 @@ public class RaidSceneManager : MonoBehaviour
             case "teleport":
                 break;
             case "summon":
-#region Summon
+                #region Summon
                 if (Raid.Dungeon.DungeonMash.NamedEncounters.ContainsKey(curioResult.Item))
                 {
                     var summonMash = RandomSolver.ChooseByRandom(Raid.Dungeon.DungeonMash.NamedEncounters[curioResult.Item]);
@@ -6855,16 +6857,16 @@ public class RaidSceneManager : MonoBehaviour
                         yield break;
                     }
                 }
-#endregion
+                #endregion
                 break;
             case "scouting":
-#region Scouting
+                #region Scouting
                 yield return StartCoroutine(CurioScoutingEvent(areaView.Area, curioResult));
-#endregion
+                #endregion
                 break;
             case "loot":
-#region Curio Loot Event
-                if(triggerQuirk != null)
+                #region Curio Loot Event
+                if (triggerQuirk != null)
                     RaidEvents.LoadCurioLoot(curio, curioInteraction, curioResult, triggerQuirk.KeepLoot);
                 else if (triggerTrait != null)
                     RaidEvents.LoadCurioLoot(curio, curioInteraction, curioResult, triggerTrait.KeepLoot);
@@ -6877,14 +6879,14 @@ public class RaidSceneManager : MonoBehaviour
 
                 if (curio.IsQuestCurio && !Raid.QuestCompleted && Raid.CheckQuestGoals())
                     yield return StartCoroutine(CompletionCrestEvent());
-#endregion
+                #endregion
                 break;
             case "quirk":
-#region Curio Quirk Event
+                #region Curio Quirk Event
                 if (curioResult.Item == "positive")
                 {
                     var newPositiveQuirk = (RaidPanel.SelectedUnit.Character as Hero).AddPositiveQuirk();
-                    if(newPositiveQuirk != null)
+                    if (newPositiveQuirk != null)
                     {
                         RaidPanel.SelectedUnit.SetHalo("quirk");
                         RaidEvents.ShowPopupMessage(RaidPanel.SelectedUnit, PopupMessageType.PositiveQuirk,
@@ -6922,10 +6924,10 @@ public class RaidSceneManager : MonoBehaviour
                         yield return new WaitForSeconds(1f);
                     }
                 }
-#endregion
+                #endregion
                 break;
             case "effect":
-#region Curio Effect Event
+                #region Curio Effect Event
                 Effect effect;
                 if (DarkestDungeonManager.Data.Effects.ContainsKey(curioResult.Item))
                     effect = DarkestDungeonManager.Data.Effects[curioResult.Item];
@@ -6938,31 +6940,31 @@ public class RaidSceneManager : MonoBehaviour
                 BattleSolver.SkillResult.Reset();
                 BattleSolver.SkillResult.AddResultEntry(new SkillResultEntry(RaidPanel.SelectedUnit, SkillResultType.Hit));
 
-                if(effect.TargetType == EffectTargetType.Performer)
+                if (effect.TargetType == EffectTargetType.Performer)
                     effect.Apply(RaidPanel.SelectedUnit, RaidPanel.SelectedUnit, BattleSolver.SkillResult);
                 else
                     effect.Apply(null, RaidPanel.SelectedUnit, BattleSolver.SkillResult);
 
                 yield return StartCoroutine(ExecuteEffectEvents(false));
-#endregion
+                #endregion
                 break;
             case "purge":
-#region Curio Purge Effect
+                #region Curio Purge Effect
                 if (curioResult.Item != "negative")
                     Debug.LogError("Purge type " + curioResult.Item + " in curio " + curio.StringId + " is unknown!");
 
                 Quirk removedQuirk = (RaidPanel.SelectedUnit.Character as Hero).RemoveNegativeQuirk();
-                if(removedQuirk != null)
+                if (removedQuirk != null)
                 {
                     RaidPanel.SelectedUnit.SetHalo("quirk");
                     RaidEvents.ShowPopupMessage(RaidPanel.SelectedUnit, PopupMessageType.QuirkRemoved,
                         LocalizationManager.GetString("str_quirk_name_" + removedQuirk.Id));
                     yield return new WaitForSeconds(1f);
                 }
-#endregion
+                #endregion
                 break;
             case "disease":
-#region Curio Disease Effect
+                #region Curio Disease Effect
                 Quirk disease;
                 if (curioResult.Item == "random")
                     disease = (RaidPanel.SelectedUnit.Character as Hero).AddRandomDisease();
@@ -6983,11 +6985,11 @@ public class RaidSceneManager : MonoBehaviour
                         LocalizationManager.GetString("str_quirk_name_" + disease.Id));
                     yield return new WaitForSeconds(1f);
                 }
-#endregion
+                #endregion
                 break;
         }
 
-#region Comment on Curio
+        #region Comment on Curio
         if (Formations.heroes.party.Units.Count > 1 && Formations.heroes.party.Units.Contains(interactorUnit))
         {
             foreach (var heroBarker in Formations.heroes.party.Units)
@@ -7007,7 +7009,7 @@ public class RaidSceneManager : MonoBehaviour
                 }
             }
         }
-#endregion
+        #endregion
 
         QuestPanel.EnableRetreat();
         Inventory.SetPeacefulState(false);
@@ -7041,7 +7043,7 @@ public class RaidSceneManager : MonoBehaviour
 
         yield return new WaitForSeconds(0.30f);
 
-        if(handActivation)
+        if (handActivation)
         {
             float disarmChance = RaidPanel.SelectedUnit.Character.GetSingleAttribute(AttributeType.Trap).ModifiedValue;
             disarmChance -= currentRaid.Quest.Difficulty / 2 * 0.2f;
@@ -7060,7 +7062,7 @@ public class RaidSceneManager : MonoBehaviour
 
         if (isDisarmed)
         {
-#region Animation
+            #region Animation
             GameObject animationObject = Resources.Load<GameObject>("Prefabs/Effects/interaction_curio");
             if (animationObject != null)
             {
@@ -7072,10 +7074,10 @@ public class RaidSceneManager : MonoBehaviour
                     animation.BindToTarget(raidTrap.RectTransform, raidTrap.SkeletonAnimation, "root");
                 }
             }
-#endregion
+            #endregion
         }
         yield return new WaitForSeconds(0.05f);
-#region Effects Execution
+        #region Effects Execution
         BattleSolver.SkillResult.Reset();
 
         if (isDisarmed)
@@ -7083,15 +7085,15 @@ public class RaidSceneManager : MonoBehaviour
             BattleSolver.SkillResult.AddResultEntry(new SkillResultEntry(trapTarget, SkillResultType.Hit));
             FMODUnity.RuntimeManager.PlayOneShot("event:/props/traps/" + trap.StringId + "_disarm");
 
-            if(currentRaid.Quest.Difficulty == 1)
+            if (currentRaid.Quest.Difficulty == 1)
             {
-                foreach(var succesEffect in trap.SuccessEffects)
+                foreach (var succesEffect in trap.SuccessEffects)
                     succesEffect.Apply(null, trapTarget, BattleSolver.SkillResult);
             }
             else
             {
                 TrapVariation variation;
-                if(trap.Variations.ContainsKey(currentRaid.Quest.Difficulty))
+                if (trap.Variations.ContainsKey(currentRaid.Quest.Difficulty))
                     variation = trap.Variations[currentRaid.Quest.Difficulty];
                 else
                     variation = trap.Variations[5];
@@ -7147,7 +7149,7 @@ public class RaidSceneManager : MonoBehaviour
             }
         }
         trapTarget.OverlaySlot.UpdateOverlay();
-#endregion
+        #endregion
         yield return new WaitForSeconds(1.4f);
         DungeonCamera.Zoom(DungeonCamera.StandardFOV, 0.1f);
         Formations.InvestigateTrapOutro(sector, isDisarmed);
@@ -7159,18 +7161,18 @@ public class RaidSceneManager : MonoBehaviour
 
         yield return StartCoroutine(ExecuteEffectEvents(false));
 
-        if(Formations.heroes.party.Units.Contains(trapTarget))
+        if (Formations.heroes.party.Units.Contains(trapTarget))
             trapTarget.OverlaySlot.UpdateOverlay();
 
-#region Check Game Over
+        #region Check Game Over
         if (Formations.heroes.party.Units.Count == 0)
         {
             StartCoroutine(RaidResultsEvent());
             yield break;
         }
-#endregion
+        #endregion
 
-#region Comment on Trigger
+        #region Comment on Trigger
         if (isDisarmed == false && Formations.heroes.party.Units.Count > 1 &&
             Formations.heroes.party.Units.Contains(trapTarget))
         {
@@ -7193,7 +7195,7 @@ public class RaidSceneManager : MonoBehaviour
                 }
             }
         }
-#endregion
+        #endregion
 
         QuestPanel.EnableRetreat();
         Formations.UnlockSelections();
@@ -7235,14 +7237,14 @@ public class RaidSceneManager : MonoBehaviour
         yield return new WaitForEndOfFrame();
 
         float timeWasted = 0;
-        if(handActivation)
+        if (handActivation)
         {
             DarkestSoundManager.ExecuteNarration("obstacle_clear_no_item", NarrationPlace.Raid);
             FMODUnity.RuntimeManager.PlayOneShot("event:/props/obstacles/" + obstacle.StringId + "_by_hand");
             if (obstacle.TorchlightPenalty < 0)
                 TorchMeter.DecreaseTorch(Mathf.Abs(Mathf.RoundToInt(obstacle.TorchlightPenalty)));
 
-            if(obstacle.HealthPenalty != 0)
+            if (obstacle.HealthPenalty != 0)
             {
                 foreach (var heroUnit in Formations.heroes.party.Units)
                 {
@@ -7257,7 +7259,7 @@ public class RaidSceneManager : MonoBehaviour
 
             BattleSolver.SkillResult.Reset();
 
-            if(obstacle.FailEffects.Count > 0)
+            if (obstacle.FailEffects.Count > 0)
             {
                 foreach (var heroUnit in Formations.heroes.party.Units)
                 {
@@ -7266,16 +7268,16 @@ public class RaidSceneManager : MonoBehaviour
                         failEffect.Apply(null, heroUnit, BattleSolver.SkillResult);
                 }
             }
-            
+
             yield return StartCoroutine(ExecuteEffectEvents(false));
 
-#region Check Game Over
+            #region Check Game Over
             if (Formations.heroes.party.Units.Count == 0)
             {
                 StartCoroutine(RaidResultsEvent());
                 yield break;
             }
-#endregion
+            #endregion
         }
         else
         {
@@ -7315,18 +7317,18 @@ public class RaidSceneManager : MonoBehaviour
             if (targetUnit.Character.DeathClass != null &&
                 targetUnit.Character.DeathClass.CanDieFromDamage == false)
                 return false;
-            
+
             targetUnit.CombatInfo.IsDead = true;
 
             Monster monster = targetUnit.Character as Monster;
 
-            if(BattleGround.SharedHealth.IsActive)
+            if (BattleGround.SharedHealth.IsActive)
                 if (BattleGround.SharedHealth.SharedUnits.Contains(targetUnit))
                     for (int i = 0; i < BattleGround.SharedHealth.SharedUnits.Count; i++)
                         if (BattleGround.SharedHealth.SharedUnits[i].CombatInfo.IsDead == false)
                             PrepareDeath(BattleGround.SharedHealth.SharedUnits[i]);
 
-            if (monster.Data.FullCaptor != null && 
+            if (monster.Data.FullCaptor != null &&
                 BattleGround.Captures.Find(capture => capture.CaptorUnit == targetUnit) != null)
             {
                 targetUnit.SetReleaseAnimation(true);
@@ -7342,7 +7344,7 @@ public class RaidSceneManager : MonoBehaviour
 
             FMODUnity.RuntimeManager.PlayOneShot("event:/char/enemy/" + monster.Data.TypeId + "_vo_death");
 
-            if(!monster.MonsterTypes.Contains(MonsterType.Corpse))
+            if (!monster.MonsterTypes.Contains(MonsterType.Corpse))
                 DarkestSoundManager.ExecuteNarration("kill_monster", NarrationPlace.Raid,
                 monster.Class, monster.Size > 1 ? "strong" : "weak", monster.Size > 1 ? "big" : "small",
                 (deathFactor == DeathFactor.BleedMonster || deathFactor == DeathFactor.PoisonMonster) ? "dot" : "one_shot");
@@ -7355,7 +7357,7 @@ public class RaidSceneManager : MonoBehaviour
                 effect.gameObject.layer = targetUnit.CurrentState.gameObject.layer;
                 effect.BindToTarget(targetUnit, targetUnit.SkeletonAnimations[1], "fxdeath");
             }
-            
+
             targetUnit.ResetHalo();
             targetUnit.OverlaySlot.Hide();
             return true;
@@ -7374,7 +7376,7 @@ public class RaidSceneManager : MonoBehaviour
                 FMODUnity.RuntimeManager.PlayOneShot("event:/general/char/death_ally");
 
                 var captureRecord = BattleGround.Captures.Find(capture => capture.PrisonerUnit == targetUnit);
-                if(captureRecord != null)
+                if (captureRecord != null)
                 {
                     captureRecord.CaptorUnit.SetReleaseAnimation(true);
                     captureRecord.CaptorUnit.SetDefendAnimation(false);
@@ -7408,7 +7410,7 @@ public class RaidSceneManager : MonoBehaviour
                     RaidEvents.MonsterTooltip.Hide();
                 Monster monster = targetUnit.Character as Monster;
 
-                if(monster.SkillReaction != null && monster.SkillReaction.WasKilledOtherMonstersEffects.Count > 0)
+                if (monster.SkillReaction != null && monster.SkillReaction.WasKilledOtherMonstersEffects.Count > 0)
                 {
                     for (int i = 0; i < targetUnit.Party.Units.Count; i++)
                         for (int j = 0; j < monster.SkillReaction.WasKilledOtherMonstersEffects.Count; j++)
@@ -7420,11 +7422,11 @@ public class RaidSceneManager : MonoBehaviour
 
                 var companionRecord = BattleGround.Companions.Find(record =>
                 record.TargetUnit == targetUnit || record.CompanionUnit == targetUnit);
-                if(companionRecord != null)
+                if (companionRecord != null)
                 {
                     BattleGround.Companions.Remove(companionRecord);
 
-                    if(companionRecord.CompanionUnit == targetUnit)
+                    if (companionRecord.CompanionUnit == targetUnit)
                     {
                         foreach (var buff in companionRecord.CompanionComponent.Buffs)
                             companionRecord.TargetUnit.Character.RemoveSourceBuff(buff, BuffSourceType.Adventure);
@@ -7442,10 +7444,10 @@ public class RaidSceneManager : MonoBehaviour
                 if (monster.Data.FullCaptor != null)
                 {
                     var captureRecord = BattleGround.Captures.Find(capture => capture.CaptorUnit == targetUnit);
-                    if(captureRecord != null)
+                    if (captureRecord != null)
                         BattleGround.ReleaseUnit(captureRecord);
 
-                    if(monster.Data.LifeLink != null && BattleGround.IsLifeLinked(targetUnit, monster.Data.LifeLink))
+                    if (monster.Data.LifeLink != null && BattleGround.IsLifeLinked(targetUnit, monster.Data.LifeLink))
                     {
                         MonsterData emptyCaptorData = DarkestDungeonManager.Data.Monsters[monster.Data.FullCaptor.EmptyMonsterClass];
                         GameObject unitObject = Resources.Load("Prefabs/Monsters/" + emptyCaptorData.TypeId) as GameObject;
@@ -7460,11 +7462,11 @@ public class RaidSceneManager : MonoBehaviour
                 }
                 else if (monster.Data.DeathClass != null)
                 {
-                    if(monster.Data.DeathClass.Type == DeathClassType.Corpse)
+                    if (monster.Data.DeathClass.Type == DeathClassType.Corpse)
                     {
                         targetUnit.SetCorpseAnimation(true);
                         BattleGround.UnitCorpsed(targetUnit);
-                        Formations.monsters.SpawnCorpse(targetUnit, 
+                        Formations.monsters.SpawnCorpse(targetUnit,
                             new Monster(DarkestDungeonManager.Data.Monsters[monster.Data.DeathClass.CorpseClass]));
                     }
                     else
@@ -7473,7 +7475,7 @@ public class RaidSceneManager : MonoBehaviour
                         unitEventQueue.RemoveAll(item => item == targetUnit);
                         MonsterData replacementData = DarkestDungeonManager.Data.Monsters[monster.Data.DeathClass.CorpseClass];
                         GameObject unitObject = Resources.Load("Prefabs/Monsters/" + replacementData.TypeId) as GameObject;
-                        var finalUnit = BattleGround.ReplaceUnit(replacementData, targetUnit, unitObject, false, 1);                     
+                        var finalUnit = BattleGround.ReplaceUnit(replacementData, targetUnit, unitObject, false, 1);
 
                         for (int i = 0; i < deathClass.DeathChangeEffects.Count; i++)
                             for (int j = 0; j < deathClass.DeathChangeEffects[i].SubEffects.Count; j++)
@@ -7499,7 +7501,7 @@ public class RaidSceneManager : MonoBehaviour
             }
             else if (targetUnit.Character is Hero)
             {
-#region Captures and Controls
+                #region Captures and Controls
                 var captureRecord = BattleGround.Captures.Find(capture => capture.PrisonerUnit == targetUnit);
                 if (captureRecord != null)
                 {
@@ -7522,7 +7524,7 @@ public class RaidSceneManager : MonoBehaviour
                 var controlRecord = BattleGround.Controls.Find(control => control.PrisonerUnit == targetUnit);
                 if (controlRecord != null)
                     BattleGround.Controls.Remove(controlRecord);
-#endregion
+                #endregion
 
                 var heroInfo = currentRaid.RaidParty.HeroInfo.Find(info => info.Hero == targetUnit.Character as Hero);
                 heroInfo.IsAlive = false;
@@ -7545,7 +7547,7 @@ public class RaidSceneManager : MonoBehaviour
                     if (Formations.heroes.party.Units.Count > 0)
                         Formations.heroes.party.Units[0].OverlaySlot.UnitSelected();
                 }
-                for(int i = 0; i < BattleGround.HeroParty.Units.Count; i++)
+                for (int i = 0; i < BattleGround.HeroParty.Units.Count; i++)
                     DarkestDungeonManager.Data.Effects["Stress 2"].ApplyIndependent(BattleGround.HeroParty.Units[i]);
             }
         }
@@ -7561,9 +7563,9 @@ public class RaidSceneManager : MonoBehaviour
         if (!heartAttackCheckQueue.Contains(unit))
             heartAttackCheckQueue.Add(unit);
     }
-#endregion
+    #endregion
 
-#region Restrictions
+    #region Restrictions
     public void DisablePartyMovement()
     {
         partyController.MovementAllowed = false;
@@ -7598,5 +7600,5 @@ public class RaidSceneManager : MonoBehaviour
         RoomView.EnableInteraction();
         HallwayView.EnableInteraction();
     }
-#endregion
+    #endregion
 }

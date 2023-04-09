@@ -20,6 +20,6 @@ public class RaidInterface : MonoBehaviour
     public void UpdateRaidScene()
     {
         DarkestDungeonManager.Instanse.UpdateSceneOverlay(OverlayCamera);
-        DarkestDungeonManager.Instanse.mainMenu.uiCanvasGroup = RaidSceneManager.RaidEvents.raidUiCanvasGroup;
+        DarkestDungeonManager.Instanse.mainMenu.UICanvasGroupSet(RaidSceneManager.RaidEvents.raidUiCanvasGroup);
     }
 }

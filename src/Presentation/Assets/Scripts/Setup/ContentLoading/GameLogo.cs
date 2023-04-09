@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 #if !UNITY_WEBGL
 public class GameLogo : MonoBehaviour

@@ -152,11 +152,12 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
 
         PhotonGameManager.BarkMessages.Clear();
     }
-    protected override void Update()
-    {
-        if (Input.GetKeyUp(KeyCode.Escape))
-            OnEscapePressed();
-    }
+
+    //protected override void Update()
+    //{
+    //    if (Input.GetKeyUp(KeyCode.Escape))
+    //        OnEscapePressed();
+    //}
 
     protected override IEnumerator RoomLoadingEvent(DungeonRoom room, RoomTransitionType transitionType, RaidHallSector fromRaidSector = null)
     {

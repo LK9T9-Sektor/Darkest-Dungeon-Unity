@@ -1,12 +1,10 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using FMODUnity;
+using UnityEngine.UI;
 
 public class MainMenuWindow : MonoBehaviour
 {
     public Button closeButton;
-    public CanvasGroup uiCanvasGroup;
 
     public event WindowEvent onWindowClose;
 
@@ -22,8 +20,22 @@ public class MainMenuWindow : MonoBehaviour
     {
         gameObject.SetActive(true);
         DarkestDungeonManager.GamePaused = true;
-        uiCanvasGroup.blocksRaycasts = false;
+
+        if (UICanvasGroup != null)
+        {
+            UICanvasGroup.blocksRaycasts = false;
+        }
     }
+
+    #region UICanvasGroup
+
+    public CanvasGroup UICanvasGroup { get; private set; }
+    public void UICanvasGroupSet(CanvasGroup canvasGroup)
+    {
+        UICanvasGroup = canvasGroup;
+    }
+
+    #endregion
 
     public void WindowClosed()
     {
@@ -32,18 +44,22 @@ public class MainMenuWindow : MonoBehaviour
 
         if (onWindowClose != null)
             onWindowClose();
-        uiCanvasGroup.blocksRaycasts = true;
+
+        if (UICanvasGroup != null)
+        {
+            UICanvasGroup.blocksRaycasts = true;
+        }        
     }
 
     public void ReturnToCampaignSelection()
     {
-        if(SceneManager.GetActiveScene().name == "DungeonMultiplayer")
+        if (SceneManager.GetActiveScene().name == "DungeonMultiplayer")
         {
             WindowClosed();
             RaidSceneManager.Instanse.AbandonButtonClicked();
             return;
         }
-        else if(SceneManager.GetActiveScene().name == "EstateManagement")
+        else if (SceneManager.GetActiveScene().name == "EstateManagement")
         {
             EstateSceneManager.Instanse.OnSceneLeave();
             DarkestDungeonManager.SaveData.UpdateFromEstate();
@@ -80,7 +96,7 @@ public class MainMenuWindow : MonoBehaviour
         }
         else if (SceneManager.GetActiveScene().name == "Dungeon")
         {
-            if(!RaidSceneManager.HasAnyEvents)
+            if (!RaidSceneManager.HasAnyEvents)
             {
                 DarkestDungeonManager.SaveData.UpdateFromRaid();
                 DarkestDungeonManager.Instanse.SaveGame();
@@ -90,18 +106,4 @@ public class MainMenuWindow : MonoBehaviour
         DarkestSoundManager.SilenceNarrator();
         Application.Quit();
     }
-
-	// Sektor
-	string message;
-	public static float soundValue;	// настройка звука
-	public static float musicValue;
-
-	public void Options()
-	{
-		gameObject.SetActive(true);
-		soundValue = 0.5f;
-		musicValue = 0.5f;
-		Time.timeScale = 8.5f; // изменение скорости игры пашет
-		Debug.Log ("Options pressed!");
-	}
 }
