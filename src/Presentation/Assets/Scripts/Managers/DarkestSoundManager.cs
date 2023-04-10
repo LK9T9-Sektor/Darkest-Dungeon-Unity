@@ -32,6 +32,8 @@ public class DarkestSoundManager : MonoBehaviour
 
     private static void SoundSetLevel(EventInstance eventInstance)
     {
+        Debug.Log("DarkestSoundManager | SoundSetLevel");
+        AudioListener.volume = _soundLevel;
         if (eventInstance != null)
         {
             var result = eventInstance.setVolume(_soundLevel);
@@ -171,13 +173,13 @@ public class DarkestSoundManager : MonoBehaviour
         }
     }
 
-
+    // TODO: Not all sounds volume are controlled, need to be fixed
     public static FMOD.Studio.EventInstance OneShotAudioInstanse { get; private set; }
     public static void PlayOneShot(string eventId)
     {
-        Debug.Log("PlayOneShot: " + eventId + "_soundLevel: " + _soundLevel);
+        Debug.Log("PlayOneShot: " + eventId + " | _soundLevel: " + _soundLevel);
         OneShotAudioInstanse = RuntimeManager.CreateInstance(eventId);
-        OneShotAudioInstanse.setVolume(0.1F);
+        SoundSetLevel(OneShotAudioInstanse);
         OneShotAudioInstanse.start();
     }
 

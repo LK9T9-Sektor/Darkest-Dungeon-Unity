@@ -1,12 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
-using System.Collections;
-using FMODUnity;
 
 public class OptionsWindow : MonoBehaviour
 {
-
 	public CanvasGroup uiCanvasGroup;
 
 	public static bool isMenu; // активно меню или нет
@@ -43,4 +39,5 @@ public class OptionsWindow : MonoBehaviour
 	{
 		Time.timeScale = 8.5f; // изменение скорости игры пашет
 	}
+
 }
