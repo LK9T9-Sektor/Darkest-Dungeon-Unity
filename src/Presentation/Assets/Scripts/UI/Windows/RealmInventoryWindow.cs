@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.Sounds;
 
 public class RealmInventoryWindow : MonoBehaviour, IInventory
 {
@@ -164,7 +165,7 @@ public class RealmInventoryWindow : MonoBehaviour, IInventory
     }
     public void UnequipAllHeroes()
     {
-        DarkestSoundManager.PlayOneShot("event:/ui/town/sort_by");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/sort_by");
         bool hasUnequipped = false;
 
         for (int i = 0; i < DarkestDungeonManager.Campaign.Heroes.Count; i++)
@@ -192,11 +193,11 @@ public class RealmInventoryWindow : MonoBehaviour, IInventory
         }
 
         if (hasUnequipped)
-            DarkestSoundManager.PlayOneShot("event:/ui/dungeon/trink_unequip");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/dungeon/trink_unequip");
     }
     public void SortByName()
     {
-        DarkestSoundManager.PlayOneShot("event:/ui/town/sort_by");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/sort_by");
 
         RealmInventory.Trinkets.Sort((x, y) =>
             LocalizationManager.GetString(ToolTipManager.GetConcat("str_inventory_title_trinket", x.Id)).
@@ -213,7 +214,7 @@ public class RealmInventoryWindow : MonoBehaviour, IInventory
     }
     public void SortByRarity()
     {
-        DarkestSoundManager.PlayOneShot("event:/ui/town/sort_by");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/sort_by");
 
         RealmInventory.Trinkets.Sort((x, y) =>
         {
@@ -232,7 +233,7 @@ public class RealmInventoryWindow : MonoBehaviour, IInventory
     }
     public void SortByRestriction()
     {
-        DarkestSoundManager.PlayOneShot("event:/ui/town/sort_by");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/sort_by");
 
         RealmInventory.Trinkets.Sort((x, y) => 
         {
@@ -345,7 +346,7 @@ public class RealmInventoryWindow : MonoBehaviour, IInventory
     }
     public void WindowClosed()
     {
-        DarkestSoundManager.PlayOneShot("event:/ui/town/trinket_close");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/trinket_close");
         
         if (onWindowClose != null)
             onWindowClose();

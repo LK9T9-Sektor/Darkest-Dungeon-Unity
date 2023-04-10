@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.SceneManagement;
 using System;
+using Assets.Scripts.Sounds;
 
 public class ScreenLoader : MonoBehaviour
 {
@@ -29,7 +30,7 @@ public class ScreenLoader : MonoBehaviour
 
             if (currentQuest.IsPlotQuest)
             {
-                DarkestSoundManager.ExecuteNarration("loading_screen_start", NarrationPlace.Raid, currentQuest.Id);
+                DarkestSoundManager.Instanse.ExecuteNarration("loading_screen_start", NarrationPlace.Raid, currentQuest.Id);
 
                 if (currentQuest.Id != "tutorial")
                 {
@@ -44,7 +45,7 @@ public class ScreenLoader : MonoBehaviour
             }
             else
             {
-                DarkestSoundManager.ExecuteNarration("loading_screen_start", NarrationPlace.Raid, currentQuest.Type, currentQuest.Dungeon);
+                DarkestSoundManager.Instanse.ExecuteNarration("loading_screen_start", NarrationPlace.Raid, currentQuest.Type, currentQuest.Dungeon);
 
                 title.text = LocalizationManager.GetString("dungeon_name_" + currentQuest.Dungeon);
                 description.text = LocalizationManager.GetString("str_" + currentQuest.Dungeon + "_tip");

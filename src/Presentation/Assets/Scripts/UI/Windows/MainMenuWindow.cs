@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Sounds;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -74,7 +75,7 @@ public class MainMenuWindow : MonoBehaviour
             }
             RaidSceneManager.Instanse.OnSceneLeave();
         }
-        DarkestSoundManager.SilenceNarrator();
+        DarkestSoundManager.Instanse.SilenceNarrator();
         SceneManager.LoadScene("CampaignSelection");
         WindowClosed();
     }
@@ -103,7 +104,7 @@ public class MainMenuWindow : MonoBehaviour
             }
             RaidSceneManager.Instanse.OnSceneLeave();
         }
-        DarkestSoundManager.SilenceNarrator();
+        DarkestSoundManager.Instanse.SilenceNarrator();
         Application.Quit();
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using Assets.Scripts.Sounds;
 
 public enum EffectBoolParams : byte 
 {
@@ -1903,9 +1904,9 @@ public class HealEffect : SubEffect
             target.Character.Health.IncreaseValue(critHeal);
             RaidSceneManager.RaidEvents.ShowPopupMessage(target, PopupMessageType.CritHeal, critHeal.ToString());
             if(target.Character is Hero)
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_ally_crit");
+                DarkestSoundManager.Instanse.PlayOneShot("event:/general/status/heal_ally_crit");
             else
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_enemy_crit");
+                DarkestSoundManager.Instanse.PlayOneShot("event:/general/status/heal_enemy_crit");
 
             target.OverlaySlot.UpdateOverlay();
             return true;
@@ -1915,9 +1916,9 @@ public class HealEffect : SubEffect
             target.Character.Health.IncreaseValue(heal);
             RaidSceneManager.RaidEvents.ShowPopupMessage(target, PopupMessageType.Heal, heal.ToString());
             if(target.Character is Hero)
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_ally");
+                DarkestSoundManager.Instanse.PlayOneShot("event:/general/status/heal_ally");
             else
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_enemy");
+                DarkestSoundManager.Instanse.PlayOneShot("event:/general/status/heal_enemy");
 
             target.OverlaySlot.UpdateOverlay();
             return true;

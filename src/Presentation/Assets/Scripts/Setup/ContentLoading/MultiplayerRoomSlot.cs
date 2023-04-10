@@ -7,6 +7,7 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 using System;
+using Assets.Scripts.Sounds;
 
 public class MultiplayerRoomSlot : MonoBehaviour
 {
@@ -88,7 +89,7 @@ public class MultiplayerRoomSlot : MonoBehaviour
     }
     public void NukeButtonClick()
     {
-        DarkestSoundManager.PlayOneShot("event:/ui/town/button_click");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click");
         FillEmptyRoom();
     }
 
@@ -103,7 +104,7 @@ public class MultiplayerRoomSlot : MonoBehaviour
             RoomSelector.EnableInteraction();
             return;
         }
-        DarkestSoundManager.PlayOneShot("event:/ui/town/button_click");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click");
         RoomSelector.RoomNamingCompleted();
 
         if (!DarkestPhotonLauncher.Instanse.CreateNamedRoom(titleInput.text))

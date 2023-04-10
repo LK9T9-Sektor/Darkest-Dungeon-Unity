@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using Assets.Scripts.Sounds;
 
 public class SanitariumQuirkWindow : MonoBehaviour
 {
@@ -31,14 +32,14 @@ public class SanitariumQuirkWindow : MonoBehaviour
 
     void SanitariumQuirkWindow_onPositiveDeselect(QuirkTreatmentSlot slot)
     {
-        DarkestSoundManager.PlayOneShot("event:/ui/town/button_click");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click");
 
         SelectedSlot.TreatmentSlot.TargetPositiveQuirk = null;
         RecalculateCost();
     }
     void SanitariumQuirkWindow_onNegativeDeselect(QuirkTreatmentSlot slot)
     {
-        DarkestSoundManager.PlayOneShot("event:/ui/town/button_click");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click");
 
         SelectedSlot.TreatmentSlot.TargetNegativeQuirk = null;
         RecalculateCost();
@@ -50,7 +51,7 @@ public class SanitariumQuirkWindow : MonoBehaviour
             slot.Deselect();
             return;
         }
-        DarkestSoundManager.PlayOneShot("event:/ui/town/button_click");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click");
 
         for (int i = 0; i < positiveSlots.Count; i++)
         {
@@ -62,7 +63,7 @@ public class SanitariumQuirkWindow : MonoBehaviour
     }
     void SanitariumQuirkWindow_onNegativeSelect(QuirkTreatmentSlot slot)
     {
-        DarkestSoundManager.PlayOneShot("event:/ui/town/button_click");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click");
 
         for (int i = 0; i < negativeSlots.Count; i++)
         {
@@ -140,7 +141,7 @@ public class SanitariumQuirkWindow : MonoBehaviour
                     TownManager.EstateSceneManager.currencyPanel.CurrencyDecreased("gold");
                     TownManager.GetHeroSlot(SelectedSlot.TreatmentSlot.Hero).SetStatus(HeroStatus.Sanitarium);
                     SelectedSlot.PayoutSlot();
-                    DarkestSoundManager.PlayOneShot("event:/town/sanitarium_treatment");
+                    DarkestSoundManager.Instanse.PlayOneShot("event:/town/sanitarium_treatment");
                     ResetWindow();
                 }
             }

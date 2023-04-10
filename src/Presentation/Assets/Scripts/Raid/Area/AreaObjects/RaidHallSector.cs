@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
+using Assets.Scripts.Sounds;
 
 public interface IRaidArea : IPointerClickHandler
 {
@@ -205,7 +206,7 @@ public class RaidHallSector : MonoBehaviour, IRaidArea
         if (Area != null)
         {
             if (Area.Type == AreaType.Curio)
-                DarkestSoundManager.ExecuteNarration("curio", NarrationPlace.Raid);
+                DarkestSoundManager.Instanse.ExecuteNarration("curio", NarrationPlace.Raid);
 
             if (Area.Knowledge == Knowledge.Hidden)
                 RaidSceneManager.TorchMeter.DecreaseTorch(6);

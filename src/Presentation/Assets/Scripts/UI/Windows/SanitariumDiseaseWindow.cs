@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using Assets.Scripts.Sounds;
 
 public class SanitariumDiseaseWindow : MonoBehaviour
 {
@@ -87,7 +88,7 @@ public class SanitariumDiseaseWindow : MonoBehaviour
                     TownManager.EstateSceneManager.currencyPanel.CurrencyDecreased("gold");
                     TownManager.GetHeroSlot(SelectedSlot.TreatmentSlot.Hero).SetStatus(HeroStatus.Sanitarium);
                     SelectedSlot.PayoutSlot();
-                    DarkestSoundManager.PlayOneShot("event:/town/sanitarium_disease_treatment");
+                    DarkestSoundManager.Instanse.PlayOneShot("event:/town/sanitarium_disease_treatment");
                     ResetWindow();
                 }
             }

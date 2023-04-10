@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Sounds;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class GuildHeroWindow : MonoBehaviour
@@ -76,7 +77,7 @@ public class GuildHeroWindow : MonoBehaviour
             }
         }
         else if (status == UpgradeStatus.Locked)
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_click_locked");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click_locked");
     }
     void GuildHeroWindow_onSkillClick(SkillPurchaseSlot slot)
     {

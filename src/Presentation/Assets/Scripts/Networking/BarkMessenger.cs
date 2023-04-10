@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using Assets.Scripts.Sounds;
 
 public class BarkMessenger : MonoBehaviour
 {
@@ -42,7 +43,7 @@ public class BarkMessenger : MonoBehaviour
         IsChecked = !IsChecked;
         PhotonGameManager.SkipMessagesOnClick = IsChecked;
         checkBoxImage.enabled = IsChecked;
-        DarkestSoundManager.PlayOneShot("event:/ui/town/button_click");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click");
     }
 
     public void SendButtonClicked()

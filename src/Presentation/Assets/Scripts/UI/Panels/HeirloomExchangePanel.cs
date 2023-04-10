@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.Sounds;
 
 public delegate void HeirloomArrowEvent(int exchangeIndex);
 
@@ -74,9 +75,9 @@ public class HeirloomExchangePanel : MonoBehaviour
     {
         exchangeAnimator.SetBool("IsOpened", !exchangeAnimator.GetBool("IsOpened"));
         if (exchangeAnimator.GetBool("IsOpened"))
-            DarkestSoundManager.PlayOneShot("event:/ui/town/heirloom_exchange_open");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/heirloom_exchange_open");
         else
-            DarkestSoundManager.PlayOneShot("event:/ui/town/heirloom_exchange_close");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/heirloom_exchange_close");
     }
 
     public void UpTypeButtonClicked()

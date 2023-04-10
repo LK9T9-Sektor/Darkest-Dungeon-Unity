@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Assets.Scripts.Sounds;
 
 public delegate void ItemInteractionEvent(InventoryItem item);
 public delegate void InteractionActivationEvent(ItemData item);
@@ -50,7 +51,7 @@ public class InteractionSlot : BaseSlot, IDropHandler, IPointerEnterHandler, IPo
     {
         if (Item != null)
         {
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_mouse_over");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_mouse_over");
             ToolTipManager.Instanse.Show(Item.ToolTip(), eventData, rectTransform, ToolTipStyle.FromBottom, ToolTipSize.Normal);
         }
     }

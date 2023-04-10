@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using Assets.Scripts.Sounds;
 
 public class RoomSelector : MonoBehaviour
 {
@@ -84,7 +85,7 @@ public class RoomSelector : MonoBehaviour
 
     IEnumerator SceneSlider()
     {
-        DarkestSoundManager.PlayOneShot("event:/general/title_screen/campaign_button");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/general/title_screen/campaign_button");
         if(PhotonNetwork.connected)
             progressLabel.text = "Connected!";
         else
@@ -162,8 +163,8 @@ public class RoomSelector : MonoBehaviour
             }
         }
 
-        DarkestSoundManager.StopTitleMusic();
-        DarkestSoundManager.PlayOneShot("event:/general/title_screen/start_game");
+        DarkestSoundManager.Instanse.StopTitleMusic();
+        DarkestSoundManager.Instanse.PlayOneShot("event:/general/title_screen/start_game");
 
         while (true)
         {
@@ -236,7 +237,7 @@ public class RoomSelector : MonoBehaviour
 
     public void SaveNamingStart(MultiplayerRoomSlot namingSaveSlot)
     {
-        DarkestSoundManager.PlayOneShot("event:/general/title_screen/letter_open");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/general/title_screen/letter_open");
         namingSaveSlot.titleInput.text = GenerateRoomName();
         selectedRoomSlot = namingSaveSlot;
         DisableInteraction();

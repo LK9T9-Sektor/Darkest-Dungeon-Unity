@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Assets.Scripts.Sounds;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Campaign
@@ -86,13 +87,13 @@ public class Campaign
             EventModifiers.IncludeEvent(TriggeredEvent);
 
             if(TriggeredEvent.Id == "plot_quest_town_invasion_0")
-                DarkestSoundManager.PlayOneShot("event:/town/town_event_display_bandit_incursion");
+                DarkestSoundManager.Instanse.PlayOneShot("event:/town/town_event_display_bandit_incursion");
             else if (TriggeredEvent.Tone == TownEventTone.Bad)
-                DarkestSoundManager.PlayOneShot("event:/town/town_event_display_bad");
+                DarkestSoundManager.Instanse.PlayOneShot("event:/town/town_event_display_bad");
             else if (TriggeredEvent.Tone == TownEventTone.Good)
-                DarkestSoundManager.PlayOneShot("event:/town/town_event_display_good");
+                DarkestSoundManager.Instanse.PlayOneShot("event:/town/town_event_display_good");
             else
-                DarkestSoundManager.PlayOneShot("event:/town/town_event_display_neutral");
+                DarkestSoundManager.Instanse.PlayOneShot("event:/town/town_event_display_neutral");
         }
 
         GenerateQuests();
@@ -147,7 +148,7 @@ public class Campaign
     {
         Heroes.Remove(dismissedHero);
         Estate.ReturnRosterId(dismissedHero.RosterId);
-        DarkestSoundManager.PlayOneShot("event:/ui/town/let_go");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/let_go");
     }
 
     public Campaign()

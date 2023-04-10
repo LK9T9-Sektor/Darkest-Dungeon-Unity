@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Sounds;
+using UnityEngine;
 using UnityEngine.UI;
 
 public delegate void WindowEvent();
@@ -137,7 +138,7 @@ public class CharacterWindow : MonoBehaviour
 
         DarkestDungeonManager.Campaign.DismissHero(CurrentHero);
         EstateSceneManager.Instanse.rosterPanel.DestroySlot(CurrentHero);
-        DarkestSoundManager.ExecuteNarration("dismiss_hero", NarrationPlace.Town);
+        DarkestSoundManager.Instanse.ExecuteNarration("dismiss_hero", NarrationPlace.Town);
         WindowClosed();
     }
     public void NextButtonClicked()

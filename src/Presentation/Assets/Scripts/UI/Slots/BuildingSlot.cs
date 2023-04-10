@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
+using Assets.Scripts.Sounds;
 
 public class BuildingSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
@@ -35,7 +36,7 @@ public class BuildingSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
             buildingDescription.enabled = true;
             currentState.state.ClearTracks();
             currentState.state.SetAnimation(0, "active", false);
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_mouse_over");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_mouse_over");
         }
     }
 

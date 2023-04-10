@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Sounds;
+using UnityEngine;
 using UnityEngine.UI;
 
 public delegate void EstateCurrencyChanged(string currency);
@@ -20,7 +21,7 @@ public class EstateCurrencyPanel : MonoBehaviour
     {
         if (currency == "gold")
         {
-            FMODUnity.RuntimeManager.PlayOneShot("event:/ui/town/buy_free");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/buy_free");
         }
 
         if (onCurrencyIncreased != null)
@@ -33,7 +34,7 @@ public class EstateCurrencyPanel : MonoBehaviour
             goldPile.state.ClearTracks();
             goldPile.state.SetAnimation(0, "spend", false);
             goldPile.state.AddAnimation(0, "idle", true, 0);
-            FMODUnity.RuntimeManager.PlayOneShot("event:/ui/town/buy");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/buy");
         }
         if (onCurrencyDecreased != null)
             onCurrencyDecreased(currency);

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Sounds;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 public delegate void DragHeroRaidPartyEvent(RaidPartySlot partySlot, HeroSlot heroSlot);
@@ -77,7 +78,7 @@ public class DragManager : MonoBehaviour
 
     public void StartDragging(HeroSlot heroSlot, PointerEventData eventData, bool fromRaidPanel = false)
     {
-        DarkestSoundManager.PlayOneShot("event:/ui/town/character_pickup");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/character_pickup");
 
         UpdateHeroItemPosition(eventData);
         LoadHeroItem(heroSlot);

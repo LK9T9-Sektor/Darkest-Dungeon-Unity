@@ -1,6 +1,7 @@
 ﻿using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine;
+using Assets.Scripts.Sounds;
 
 public delegate void ShopSlotEvent(ShopSlot slot, InventorySlot dropSlot);
 
@@ -55,7 +56,7 @@ public class ShopSlot : BaseSlot, IPointerEnterHandler, IPointerExitHandler
     {
         if (Item != null)
         {
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_mouse_over");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_mouse_over");
             ToolTipManager.Instanse.Show(Item.ToolTip, eventData, RectTransform, ToolTipStyle.FromRight, ToolTipSize.Normal);
         }
     }

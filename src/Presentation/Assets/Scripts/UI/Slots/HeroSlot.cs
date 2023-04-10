@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Assets.Scripts.Sounds;
 
 public class HeroSlot : MonoBehaviour, IPointerClickHandler, IDragHandler, IBeginDragHandler, IEndDragHandler, IDropHandler, IPointerEnterHandler
 {
@@ -263,6 +264,6 @@ public class HeroSlot : MonoBehaviour, IPointerClickHandler, IDragHandler, IBegi
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        DarkestSoundManager.PlayOneShot("event:/ui/town/button_mouse_over_3");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_mouse_over_3");
     }
 }

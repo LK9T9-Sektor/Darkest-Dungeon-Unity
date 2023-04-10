@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System;
+using Assets.Scripts.Sounds;
 
 public class MultiplayerPartySlot : MonoBehaviour, IPointerEnterHandler
 {
@@ -26,7 +27,7 @@ public class MultiplayerPartySlot : MonoBehaviour, IPointerEnterHandler
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (SelectedHero != null)
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_mouse_over");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_mouse_over");
     }
 
     public void HeroSelected()

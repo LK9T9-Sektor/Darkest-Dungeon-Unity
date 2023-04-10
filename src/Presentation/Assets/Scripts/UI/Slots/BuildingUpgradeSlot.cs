@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using System.Text;
+using Assets.Scripts.Sounds;
 
 public delegate void UpgradeSlotEvent(BuildingUpgradeSlot slot);
 
@@ -83,13 +84,13 @@ public class BuildingUpgradeSlot : MonoBehaviour, IPointerEnterHandler, IPointer
 
         if (DarkestDungeonManager.Campaign.Estate.GetUpgradeStatus(Tree.Id, UpgradeInfo) == UpgradeStatus.Locked)
         {
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_mouse_over_2");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_mouse_over_2");
             ToolTipManager.Instanse.Show(toolTip + "\n" + UpgradeInfo.PrerequisitesTooltip(),
                 eventData, rectTransform, ToolTipStyle.FromRight, ToolTipSize.Normal);
         }
         else
         {
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_mouse_over");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_mouse_over");
             ToolTipManager.Instanse.Show(toolTip, eventData, rectTransform, ToolTipStyle.FromRight, ToolTipSize.Normal);
         }
 

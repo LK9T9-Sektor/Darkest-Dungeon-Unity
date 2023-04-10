@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using Assets.Scripts.Sounds;
 
 public class GuildWindow : BuildingWindow
 {
@@ -57,7 +58,7 @@ public class GuildWindow : BuildingWindow
             }
         }
         else if (status == UpgradeStatus.Locked)
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_click_locked");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click_locked");
     }
 
     public override void Initialize()
@@ -98,7 +99,7 @@ public class GuildWindow : BuildingWindow
         upgradeWindow.upgradedValue.text = Mathf.RoundToInt(ratio * 100).ToString() + "%";
 
         if (afterPurchase && Mathf.Approximately(ratio, 1))
-            DarkestSoundManager.PlayOneShot("event:/town/purchase_upgrade_last");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/town/purchase_upgrade_last");
 
         foreach (var tree in upgradeWindow.upgradeTrees)
         {
@@ -122,8 +123,8 @@ public class GuildWindow : BuildingWindow
         {
             gameObject.SetActive(true);
             TownManager.BuildingWindowActive = true;
-            DarkestSoundManager.ExecuteNarration("enter_building", NarrationPlace.Town, "guild");
-            DarkestSoundManager.PlayOneShot("event:/town/enter_guild");
+            DarkestSoundManager.Instanse.ExecuteNarration("enter_building", NarrationPlace.Town, "guild");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/town/enter_guild");
         }
     }
 
@@ -137,7 +138,7 @@ public class GuildWindow : BuildingWindow
         heroSlot.ClearSlot();
         gameObject.SetActive(false);
         TownManager.BuildingWindowActive = false;
-        DarkestSoundManager.PlayOneShot("event:/ui/town/building_zoomout");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/building_zoomout");
     }
 
     public void UpgradeSwitchClicked()

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Assets.Scripts.Sounds;
 
 public delegate void TownHeroSlotEvent(TownHeroSlot slot);
 
@@ -299,9 +300,9 @@ public class TownHeroSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
                 eventData, RectTransform, ToolTipStyle.FromBottom, ToolTipSize.Small);
 
         if(ActivitySlot.IsUnlocked)
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_mouse_over_3");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_mouse_over_3");
         else
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_mouse_over_2");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_mouse_over_2");
     }
     public void OnPointerExit(PointerEventData eventData)
     {
@@ -314,7 +315,7 @@ public class TownHeroSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         {
             if (ActivitySlot == null || !ActivitySlot.IsUnlocked || !AllowedToDrop)
             {
-                DarkestSoundManager.PlayOneShot("event:/ui/town/button_invalid");
+                DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_invalid");
                 return;
             }
 
@@ -324,7 +325,7 @@ public class TownHeroSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
                 ActivitySlot.Status = ActivitySlotStatus.Checkout;
                 ActivitySlot.Hero = heroSlot.Hero;
                 UpdateSlot();
-                DarkestSoundManager.PlayOneShot("event:/ui/town/character_add");
+                DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/character_add");
             }
         }
     }

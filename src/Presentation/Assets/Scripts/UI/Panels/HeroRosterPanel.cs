@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
+using Assets.Scripts.Sounds;
 
 public delegate void HeroInspectEvent(Hero hero, bool interactable);
 public delegate void HeroSlotEvent(HeroSlot heroSlot);
@@ -57,7 +58,7 @@ public class HeroRosterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExit
     {
         if (DarkestDungeonManager.Campaign.Heroes.Count >= DarkestDungeonManager.Campaign.Estate.StageCoach.RosterSlots)
         {
-            DarkestSoundManager.PlayOneShot("event:/ui/town/character_add_full");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/character_add_full");
             return null;
         }
 
@@ -65,13 +66,13 @@ public class HeroRosterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExit
         DarkestDungeonManager.Campaign.Heroes.Add(recruitSlot.Hero);
         var deathRecord = DarkestDungeonManager.Campaign.Estate.RecruitHero(recruitSlot.Hero);
 
-        DarkestSoundManager.ExecuteNarration("recruit_hero", NarrationPlace.Town, recruitSlot.Hero.Class);
+        DarkestSoundManager.Instanse.ExecuteNarration("recruit_hero", NarrationPlace.Town, recruitSlot.Hero.Class);
 
         if (deathRecord != null && onHeroResurrection != null)
             onHeroResurrection(deathRecord);
         else
         {
-            DarkestSoundManager.PlayOneShot("event:/town/stage_coach_purchase");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/town/stage_coach_purchase");
         }
 
         if (heroSlot != null)
@@ -104,7 +105,7 @@ public class HeroRosterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
     public void SortByBuilding()
     {
-        DarkestSoundManager.PlayOneShot("event:/ui/town/sort_by");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/sort_by");
 
         System.Comparison<Hero> sorting = (x, y) =>
         {
@@ -120,7 +121,7 @@ public class HeroRosterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExit
     }
     public void SortByClass()
     {
-        DarkestSoundManager.PlayOneShot("event:/ui/town/sort_by");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/sort_by");
 
         System.Comparison<Hero> sorting = (x, y) =>
         {
@@ -136,7 +137,7 @@ public class HeroRosterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExit
     }
     public void SortByStress()
     {
-        DarkestSoundManager.PlayOneShot("event:/ui/town/sort_by");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/sort_by");
 
         System.Comparison<Hero> sorting = (x, y) =>
         {
@@ -152,7 +153,7 @@ public class HeroRosterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExit
     }
     public void SortByLevel()
     {
-        DarkestSoundManager.PlayOneShot("event:/ui/town/sort_by");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/sort_by");
 
         System.Comparison<Hero> sorting = (x, y) =>
         {

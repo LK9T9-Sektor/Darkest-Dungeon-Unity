@@ -7,6 +7,7 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 using System;
+using Assets.Scripts.Sounds;
 
 public class SaveSlot : MonoBehaviour
 {
@@ -108,7 +109,7 @@ public class SaveSlot : MonoBehaviour
     public void NukeButtonClick()
     {
         SaveLoadManager.DeleteSave(slotId);
-        DarkestSoundManager.PlayOneShot("event:/ui/town/button_click");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click");
         FillEmptySave();
     }
 
@@ -128,7 +129,7 @@ public class SaveSlot : MonoBehaviour
 
         titleInput.interactable = false;
         titleInput.enabled = false;
-        DarkestSoundManager.PlayOneShot("event:/ui/town/button_click");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click");
         SaveSelector.SaveNamingCompleted();
     }
 

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using Assets.Scripts.Sounds;
 
 public class SanitariumWindow : BuildingWindow
 {
@@ -81,7 +82,7 @@ public class SanitariumWindow : BuildingWindow
             }
         }
         else if (status == UpgradeStatus.Locked)
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_click_locked");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click_locked");
     }
     void SanitariumWindow_onTreatmentButtonClick(TreatmentHeroSlot slot)
     {
@@ -177,7 +178,7 @@ public class SanitariumWindow : BuildingWindow
         upgradeWindow.upgradedValue.text = Mathf.RoundToInt(ratio * 100).ToString() + "%";
 
         if (afterPurchase && Mathf.Approximately(ratio, 1))
-            DarkestSoundManager.PlayOneShot("event:/town/purchase_upgrade_last");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/town/purchase_upgrade_last");
 
         foreach (var tree in upgradeWindow.upgradeTrees)
         {
@@ -237,8 +238,8 @@ public class SanitariumWindow : BuildingWindow
             TownManager.BuildingWindowActive = true;
             TownManager.EstateSceneManager.rosterPanel.onHeroSlotBeginDragging += rosterPanel_onHeroSlotBeginDragging;
             TownManager.EstateSceneManager.rosterPanel.onHeroSlotEndDragging += rosterPanel_onHeroSlotEndDragging;
-            DarkestSoundManager.ExecuteNarration("enter_building", NarrationPlace.Town, "sanitarium");
-            DarkestSoundManager.PlayOneShot("event:/town/enter_sanitarium");
+            DarkestSoundManager.Instanse.ExecuteNarration("enter_building", NarrationPlace.Town, "sanitarium");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/town/enter_sanitarium");
         }
     }
     public override void WindowClosed()
@@ -265,6 +266,6 @@ public class SanitariumWindow : BuildingWindow
             }
         }
         TownManager.BuildingWindowActive = false;
-        DarkestSoundManager.PlayOneShot("event:/ui/town/building_zoomout");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/building_zoomout");
     }
 }

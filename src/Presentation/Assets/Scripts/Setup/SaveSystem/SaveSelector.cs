@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using Assets.Scripts.Sounds;
 
 public class SaveSelector : MonoBehaviour
 {
@@ -29,22 +30,24 @@ public class SaveSelector : MonoBehaviour
         startCampaignButton = saveFrame.GetComponentInParent<Button>();
         sceneryRect = startCampaignButton.transform.parent.GetComponent<RectTransform>();
     }
-	void Start()
+
+    void Start()
     {
         saveFrame.gameObject.SetActive(false);
-        if(SaveLoadManager.ReadSave(1) == null && SaveLoadManager.ReadSave(2) == null)
+        if (SaveLoadManager.ReadSave(1) == null && SaveLoadManager.ReadSave(2) == null)
         {
             SaveLoadManager.WriteStartingSave(new SaveCampaignData(1, "Darkest"));
             SaveLoadManager.WriteTestingSave(new SaveCampaignData(2, "Middle"));
         }
     }
-	void Update()
+
+    void Update()
     {
         if (isSelecting == true)
         {
             if (selectedSaveSlot != null)
             {
-                if(Input.GetMouseButtonDown(0))
+                if (Input.GetMouseButtonDown(0))
                 {
                     selectedSaveSlot.RefocusInput();
                 }
@@ -56,11 +59,11 @@ public class SaveSelector : MonoBehaviour
                 StartCoroutine(slideBackCoroutine);
             }
         }
-	}
+    }
 
     IEnumerator SceneSlider()
     {
-        DarkestSoundManager.PlayOneShot("event:/general/title_screen/campaign_button");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/general/title_screen/campaign_button");
 
         while (true)
         {
@@ -130,8 +133,8 @@ public class SaveSelector : MonoBehaviour
             }
         }
 
-        DarkestSoundManager.StopTitleMusic();
-        DarkestSoundManager.PlayOneShot("event:/general/title_screen/start_game");
+        DarkestSoundManager.Instanse.StopTitleMusic();
+        DarkestSoundManager.Instanse.PlayOneShot("event:/general/title_screen/start_game");
 
         while (true)
         {
@@ -159,9 +162,9 @@ public class SaveSelector : MonoBehaviour
 
         if (PhotonNetwork.connected)
             PhotonNetwork.Disconnect();
-        
+
         fadeCoroutine = SceneFade(1, 2500);
-        StartCoroutine(fadeCoroutine); 
+        StartCoroutine(fadeCoroutine);
     }
 
     public void SaveSelectionStart()
@@ -175,8 +178,8 @@ public class SaveSelector : MonoBehaviour
 
     public void SaveNamingStart(SaveSlot namingSaveSlot)
     {
-        DarkestSoundManager.PlayOneShot("event:/general/title_screen/letter_open");
-        
+        DarkestSoundManager.Instanse.PlayOneShot("event:/general/title_screen/letter_open");
+
         selectedSaveSlot = namingSaveSlot;
         for (int i = 0; i < slotNumber; i++)
             saveSlots[i].DisableInteraction();
@@ -198,4 +201,5 @@ public class SaveSelector : MonoBehaviour
             StartCoroutine(slideBackCoroutine);
         }
     }
+
 }

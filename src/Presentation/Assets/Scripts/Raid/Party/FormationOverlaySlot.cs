@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using Assets.Scripts.Sounds;
 
 public delegate void UnitOverlayEvent(FormationOverlaySlot slot);
 
@@ -82,7 +83,7 @@ public class FormationOverlaySlot : MonoBehaviour, IPointerClickHandler, IPointe
 
     public void StartDialog(string dialogText, bool skipable = true)
     {
-        FMODUnity.RuntimeManager.PlayOneShot("event:/ui/shared/text_popup");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/shared/text_popup");
         dialogPopup.SetCurrentDialog(dialogText, skipable);
     }
     public void LockOnUnit(FormationUnit unit)

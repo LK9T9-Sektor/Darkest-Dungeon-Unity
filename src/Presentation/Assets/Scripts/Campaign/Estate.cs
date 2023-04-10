@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.Sounds;
 
 public enum RecruitResult { None, StageCoach, Bonus, Graveyard }
 
@@ -396,7 +397,7 @@ public class Estate
         if (!isFree)
             RemoveCurrency(upgrade.Cost, discount);
 
-        DarkestSoundManager.PlayOneShot("event:/ui/town/buy");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/buy");
         return true;
     }
     public bool BuyUpgrade(CampingSkill skill, Hero hero, float discount)
@@ -416,7 +417,7 @@ public class Estate
         HeroPurchases[hero.RosterId][skill.Id].PurchasedUpgrades.Add("0");
 
         RemoveCurrency(skill.CurrencyCost, discount);
-        DarkestSoundManager.PlayOneShot("event:/ui/town/buy");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/buy");
         return true;
     }
     public bool BuyUpgrade(string treeId, TownUpgrade upgrade, bool isFree)
@@ -444,10 +445,10 @@ public class Estate
         }
 
         if (DarkestDungeonManager.Data.UpgradeTrees.ContainsKey(treeId))
-            DarkestSoundManager.ExecuteNarration("upgrade_building", NarrationPlace.Town,
+            DarkestSoundManager.Instanse.ExecuteNarration("upgrade_building", NarrationPlace.Town,
                 DarkestDungeonManager.Data.UpgradeTrees[treeId].Tags.ToArray());
 
-        DarkestSoundManager.PlayOneShot("event:/ui/town/buy");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/buy");
         return true;
     }
 

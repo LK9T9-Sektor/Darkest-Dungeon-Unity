@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
+using Assets.Scripts.Sounds;
 
 public delegate void CampingSkillSlotEvent(CampingSkillSlot slot);
 
@@ -104,7 +105,7 @@ public class CampingSkillSlot : MonoBehaviour, IPointerClickHandler, IPointerEnt
     {
         if (!Interactable || Locked)
         {
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_invalid");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_invalid");
             return;
         }
 
@@ -113,20 +114,20 @@ public class CampingSkillSlot : MonoBehaviour, IPointerClickHandler, IPointerEnt
             if (!currentHero.SelectedCampingSkills.Remove(Skill))
                 Debug.LogError("Deselected camping skill not found.");
             Deselect();
-            DarkestSoundManager.PlayOneShot("event:/ui/town/character_unequip");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/character_unequip");
         }
         else
         {
             if (currentHero.SelectedCampingSkills.Count == 4)
             {
-                DarkestSoundManager.PlayOneShot("event:/ui/town/button_invalid");
+                DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_invalid");
                 return;
             }
             else
             {
                 currentHero.SelectedCampingSkills.Add(Skill);
                 Select();
-                DarkestSoundManager.PlayOneShot("event:/ui/town/character_equip");
+                DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/character_equip");
             }
         }
     }

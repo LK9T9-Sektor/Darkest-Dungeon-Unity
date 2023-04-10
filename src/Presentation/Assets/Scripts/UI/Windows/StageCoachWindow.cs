@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using Assets.Scripts.Sounds;
 
 public class StageCoachWindow : BuildingWindow
 {
@@ -63,7 +64,7 @@ public class StageCoachWindow : BuildingWindow
             }
         }
         else if (status == UpgradeStatus.Locked)
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_click_locked");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click_locked");
     }
 
     public override void UpdateUpgradeTrees(bool afterPurchase = false)
@@ -73,7 +74,7 @@ public class StageCoachWindow : BuildingWindow
         upgradeWindow.upgradedValue.text = Mathf.RoundToInt(ratio * 100).ToString() + "%";
 
         if (afterPurchase && Mathf.Approximately(ratio, 1))
-            DarkestSoundManager.PlayOneShot("event:/town/purchase_upgrade_last");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/town/purchase_upgrade_last");
 
         foreach (var tree in upgradeWindow.upgradeTrees)
         {
@@ -97,8 +98,8 @@ public class StageCoachWindow : BuildingWindow
         {
             gameObject.SetActive(true);
             TownManager.BuildingWindowActive = true;
-            DarkestSoundManager.ExecuteNarration("enter_building", NarrationPlace.Town, "stage_coach");
-            DarkestSoundManager.PlayOneShot("event:/town/enter_stage_coach");
+            DarkestSoundManager.Instanse.ExecuteNarration("enter_building", NarrationPlace.Town, "stage_coach");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/town/enter_stage_coach");
         }
     }
 
@@ -111,7 +112,7 @@ public class StageCoachWindow : BuildingWindow
         }
         gameObject.SetActive(false);
         TownManager.BuildingWindowActive = false;
-        DarkestSoundManager.PlayOneShot("event:/ui/town/building_zoomout");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/building_zoomout");
     }
 
     public void UpgradeSwitchClicked()

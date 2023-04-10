@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
+using Assets.Scripts.Sounds;
 
 public enum Team { Heroes, Monsters }
 public enum TurnType { HeroTurn, MonsterTurn }
@@ -479,7 +480,7 @@ public class BattleGround : MonoBehaviour
         }
         else
         {
-            FMODUnity.RuntimeManager.PlayOneShot("event:/char/enemy/" + captor.Character.Class + "_capture_fade_in");          
+            DarkestSoundManager.Instanse.PlayOneShot("event:/char/enemy/" + captor.Character.Class + "_capture_fade_in");          
         }
     }
     public void ControlUnit(FormationUnit prisoner, FormationUnit controller, int duration)
@@ -552,7 +553,7 @@ public class BattleGround : MonoBehaviour
                         subEffect.ApplyInstant(captureRecord.CaptorUnit, captureRecord.PrisonerUnit, captorEffect);
                 }
                 captureRecord.PrisonerUnit.RemoveCaptureEffect();
-                FMODUnity.RuntimeManager.PlayOneShot("event:/char/enemy/" +
+                DarkestSoundManager.Instanse.PlayOneShot("event:/char/enemy/" +
                     captureRecord.CaptorUnit.Character.Class + "_capture_fade_out");
             }
         }
@@ -766,7 +767,7 @@ public class BattleGround : MonoBehaviour
             newUnit.Character.Health.ValueRatio = carryHp;
         newUnit.CombatInfo.PrepareForBattle(oldUnit.CombatInfo.CombatId, newUnit.Character as Monster, true);
 
-        DarkestSoundManager.ExecuteNarration("change_monster_class", NarrationPlace.Raid,
+        DarkestSoundManager.Instanse.ExecuteNarration("change_monster_class", NarrationPlace.Raid,
             oldUnit.Character.Class, newUnit.Character.Class);
 
         if (!newUnit.RankSlot.Ranks.facingRight)

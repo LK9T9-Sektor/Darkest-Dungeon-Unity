@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using System.Text;
+using Assets.Scripts.Sounds;
 
 public enum TorchRangeType
 {
@@ -134,9 +135,9 @@ public class TorchMeter : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
                     CurrentRange = Ranges[i];
                     if(CurrentRange.RangeType == TorchRangeType.Out)
-                        DarkestSoundManager.ExecuteNarration("torchlight_out", NarrationPlace.Raid);
+                        DarkestSoundManager.Instanse.ExecuteNarration("torchlight_out", NarrationPlace.Raid);
                     else if (CurrentRange.RangeType == TorchRangeType.Radiant && TorchAmount > 90)
-                        DarkestSoundManager.ExecuteNarration("torchlight_full", NarrationPlace.Raid);
+                        DarkestSoundManager.Instanse.ExecuteNarration("torchlight_full", NarrationPlace.Raid);
 
                     ApplyBuffs();
                     torchFlame.state.SetAnimation(0, CurrentRange.AnimationId, true);

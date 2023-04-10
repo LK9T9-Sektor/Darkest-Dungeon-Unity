@@ -496,7 +496,7 @@ namespace Photon
     /// <remarks>
     /// By extending this class, you can implement individual methods as override.
     ///
-    /// Visual Studio and MonoDevelop should provide the list of methods when you begin typing "override".
+    /// Visual _studio and MonoDevelop should provide the list of methods when you begin typing "override".
     /// <b>Your implementation does not have to call "base.method()".</b>
     ///
     /// This class implements IPunCallbacks, which is used as definition of all PUN callbacks.

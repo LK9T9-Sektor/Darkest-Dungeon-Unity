@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using Assets.Scripts.Sounds;
 
 public class PhotonGameManager : Photon.PunBehaviour
 {

@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
+using Assets.Scripts.Sounds;
 
 public class UpgradeButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
@@ -15,14 +16,14 @@ public class UpgradeButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public void OnPointerEnter(PointerEventData eventData)
     {
         buildingIcon.material.SetFloat("_BrightnessAmount", 1.35f);
-        DarkestSoundManager.PlayOneShot("event:/ui/town/button_mouse_over");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_mouse_over");
     }
 
     public void SwitchUpgrades()
     {
         IsOpened = !IsOpened;
         iconAnimator.SetBool("IsOpened", IsOpened);
-        DarkestSoundManager.PlayOneShot(IsOpened ? "event:/ui/town/page_open" : "event:/ui/town/page_close");
+        DarkestSoundManager.Instanse.PlayOneShot(IsOpened ? "event:/ui/town/page_open" : "event:/ui/town/page_close");
     }
 
     public void OnPointerExit(PointerEventData eventData)

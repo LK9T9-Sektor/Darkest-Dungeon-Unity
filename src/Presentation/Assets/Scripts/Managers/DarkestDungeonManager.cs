@@ -137,7 +137,15 @@ public class DarkestDungeonManager : MonoBehaviour
     public static float RandomBarkChance { get; set; }
 
     public Canvas MainMenuUI { get; set; }
-    public Camera MainUICamera { get; set; }
+    public Camera MainUICamera { get; private set; }
+
+    public void MainUICameraSet()
+    {
+        Debug.Log("DarkestDungeonManager.MainUICamera: " + MainUICamera.name);
+        MainUICamera = GameObject.FindGameObjectWithTag("Main UI Camera").GetComponent<Camera>();
+
+        Debug.Log("DarkestDungeonManager.MainUICamera, find: " + MainUICamera.name);
+    }
 
     public DragManager DragManager { get; private set; }
     public RaidManager RaidingManager { get; private set; }

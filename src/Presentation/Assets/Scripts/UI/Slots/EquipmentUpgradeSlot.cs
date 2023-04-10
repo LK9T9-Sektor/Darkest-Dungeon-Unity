@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Assets.Scripts.Sounds;
 
 public delegate void EquipmentUpgradeSlotEvent(EquipmentUpgradeSlot slot);
 
@@ -50,14 +51,14 @@ public class EquipmentUpgradeSlot : MonoBehaviour, IPointerEnterHandler, IPointe
         icon.material = DarkestDungeonManager.HighlightMaterial;
         if(DarkestDungeonManager.Campaign.Estate.GetUpgradeStatus(Tree.Id, Hero, Upgrade) == UpgradeStatus.Locked)
         {
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_mouse_over_2");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_mouse_over_2");
             ToolTipManager.Instanse.Show(Equipment.Tooltip + "\n" +
                 Upgrade.PrerequisitesTooltip(Hero, DarkestDungeonManager.Campaign.Estate),
                 eventData, rectTransform, ToolTipStyle.FromRight, ToolTipSize.Normal);
         }
         else
         {
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_mouse_over");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_mouse_over");
             ToolTipManager.Instanse.Show(Equipment.Tooltip, eventData, rectTransform, ToolTipStyle.FromRight, ToolTipSize.Normal);
         }
 

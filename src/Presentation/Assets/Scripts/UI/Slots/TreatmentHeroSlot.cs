@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Assets.Scripts.Sounds;
 
 public delegate void TreatmentSlotEvent(TreatmentHeroSlot slot);
 
@@ -205,9 +206,9 @@ public class TreatmentHeroSlot : MonoBehaviour, IPointerEnterHandler, IPointerEx
                 eventData, RectTransform, ToolTipStyle.FromBottom, ToolTipSize.Small);
 
         if (TreatmentSlot.IsUnlocked)
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_mouse_over_3");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_mouse_over_3");
         else
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_mouse_over_2");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_mouse_over_2");
     }
     public void OnPointerExit(PointerEventData eventData)
     {
@@ -219,7 +220,7 @@ public class TreatmentHeroSlot : MonoBehaviour, IPointerEnterHandler, IPointerEx
         {
             if (TreatmentSlot == null || !TreatmentSlot.IsUnlocked)
             {
-                DarkestSoundManager.PlayOneShot("event:/ui/town/button_invalid");
+                DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_invalid");
                 return;
             }
 
@@ -231,7 +232,7 @@ public class TreatmentHeroSlot : MonoBehaviour, IPointerEnterHandler, IPointerEx
                 if (onHeroDropped != null)
                     onHeroDropped(this);
                 UpdateSlot();
-                DarkestSoundManager.PlayOneShot("event:/ui/town/character_add");
+                DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/character_add");
             }
         }
     }

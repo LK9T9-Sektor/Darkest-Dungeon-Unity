@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
 using System;
+using Assets.Scripts.Sounds;
 
 public class ExchangeEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
@@ -24,8 +25,8 @@ public class ExchangeEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         {
             DarkestDungeonManager.Campaign.Estate.Currencies[CurrentExchange.FromType].amount -= fromAmount;
             DarkestDungeonManager.Campaign.Estate.Currencies[CurrentExchange.ToType].amount += CurrentAmount;
-            DarkestSoundManager.PlayOneShot("event:/ui/town/heirloom_exchange_confirm");
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_click");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/heirloom_exchange_confirm");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click");
             EstateSceneManager.Instanse.OnHeirloomExchange();
             EstateSceneManager.Instanse.currencyPanel.UpdateCurrency();
         }

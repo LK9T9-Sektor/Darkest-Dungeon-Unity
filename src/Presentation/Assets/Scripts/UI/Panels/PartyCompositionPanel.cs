@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using Assets.Scripts.Sounds;
 
 public class PartyCompositionPanel : MonoBehaviour
 {
@@ -24,7 +25,7 @@ public class PartyCompositionPanel : MonoBehaviour
         {
             partyName.text = LocalizationManager.GetString("party_name_" + compEntry.Id);
             partyAnimator.SetBool("IsValid", true);
-            DarkestSoundManager.PlayOneShot("event:/ui/town/party_comp");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/party_comp");
         }
         else
             partyAnimator.SetBool("IsValid", false);

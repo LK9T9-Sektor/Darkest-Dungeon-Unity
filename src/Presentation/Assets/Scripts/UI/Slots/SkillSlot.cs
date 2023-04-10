@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Assets.Scripts.Sounds;
 
 public delegate void SkillSlotEvent(SkillSlot slot);
 
@@ -107,7 +108,7 @@ public class SkillSlot : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
     {
         if (!Interactable || Locked)
         {
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_invalid");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_invalid");
             return;
         }
 
@@ -116,20 +117,20 @@ public class SkillSlot : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
             if (!currentHero.SelectedCombatSkills.Remove(Skill))
                 Debug.LogError("Deselected skill not found.");
             Deselect();
-            DarkestSoundManager.PlayOneShot("event:/ui/town/character_unequip");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/character_unequip");
         }
         else
         {
             if (currentHero.SelectedCombatSkills.Count == 4)
             {
-                DarkestSoundManager.PlayOneShot("event:/ui/town/button_invalid");
+                DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_invalid");
                 return;
             }
             else
             {
                 currentHero.SelectedCombatSkills.Add(Skill);
                 Select();
-                DarkestSoundManager.PlayOneShot("event:/ui/town/character_equip");
+                DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/character_equip");
             }
         }
     }

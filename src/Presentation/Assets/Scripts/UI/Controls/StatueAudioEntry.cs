@@ -1,6 +1,6 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Sounds;
+using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
 public class StatueAudioEntry : MonoBehaviour
 {
@@ -31,6 +31,6 @@ public class StatueAudioEntry : MonoBehaviour
     }
     public void PlayButtonClicked()
     {
-        DarkestSoundManager.PlayStatueAudioEntry(audioEntryId);
+        DarkestSoundManager.Instanse.PlayStatueAudioEntry(audioEntryId);
     }
 }

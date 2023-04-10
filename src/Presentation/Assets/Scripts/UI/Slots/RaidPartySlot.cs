@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System;
+using Assets.Scripts.Sounds;
 
 public delegate void RaidPartySlotEvent(HeroSlot heroSlot);
 public delegate bool RaidPartySlotCheck(HeroSlot heroSlot);
@@ -74,7 +75,7 @@ public class RaidPartySlot : MonoBehaviour, IDropHandler, IDragHandler, IBeginDr
         if (onDropOut != null)
             onDropOut(heroSlot);
 
-        DarkestSoundManager.PlayOneShot("event:/ui/town/character_remove");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/character_remove");
     }
     public void ItemSwapped(HeroSlot heroSlot)
     {
@@ -134,7 +135,7 @@ public class RaidPartySlot : MonoBehaviour, IDropHandler, IDragHandler, IBeginDr
             return;
         }
 
-        DarkestSoundManager.PlayOneShot("event:/ui/town/character_add");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/character_add");
 
         if (SelectedHero == null)
         {
@@ -165,6 +166,6 @@ public class RaidPartySlot : MonoBehaviour, IDropHandler, IDragHandler, IBeginDr
     public void OnPointerEnter(PointerEventData eventData)
     {
         if(SelectedHero != null)
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_mouse_over");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_mouse_over");
     }
 }

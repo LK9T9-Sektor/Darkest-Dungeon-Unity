@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
+using Assets.Scripts.Sounds;
 
 public class BlacksmithHeroWindow : MonoBehaviour
 {
@@ -118,13 +119,13 @@ public class BlacksmithHeroWindow : MonoBehaviour
                 DarkestDungeonManager.Campaign.Estate.ReequipHero(slot.Hero);
                 UpdateHeroOverview();
                 if(slot.Tree.Tags.Contains("weapon"))
-                    DarkestSoundManager.PlayOneShot("event:/town/blacksmith_purchase_weapon");
+                    DarkestSoundManager.Instanse.PlayOneShot("event:/town/blacksmith_purchase_weapon");
                 else
-                    DarkestSoundManager.PlayOneShot("event:/town/blacksmith_purchase_armor");
+                    DarkestSoundManager.Instanse.PlayOneShot("event:/town/blacksmith_purchase_armor");
             }
         }
         else if (status == UpgradeStatus.Locked)
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_click_locked");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click_locked");
     }
 
     public void Initialize(TownManager townManager)

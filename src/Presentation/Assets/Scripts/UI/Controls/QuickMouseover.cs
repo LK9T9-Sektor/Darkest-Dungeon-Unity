@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Sounds;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class QuickMouseover : MonoBehaviour, IPointerEnterHandler
@@ -8,6 +9,6 @@ public class QuickMouseover : MonoBehaviour, IPointerEnterHandler
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        DarkestSoundManager.PlayOneShot(mouseoverEvent);
+        DarkestSoundManager.Instanse.PlayOneShot(mouseoverEvent);
     }
 }

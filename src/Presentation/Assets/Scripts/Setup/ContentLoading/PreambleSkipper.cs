@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Assets.Scripts.Sounds;
+using System.Collections;
 using UnityEngine;
 
 public class PreambleSkipper : MonoBehaviour
@@ -17,7 +18,7 @@ public class PreambleSkipper : MonoBehaviour
 
     void Start()
     {
-        DarkestSoundManager.PlayTitleMusic(true);
+        DarkestSoundManager.Instanse.PlayTitleMusic(true);
     }
 
     void Update()
@@ -38,6 +39,7 @@ public class PreambleSkipper : MonoBehaviour
         {
             if (Input.anyKey)
             {
+                DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_mouse_over");
                 isSliding = true;
                 slideCoroutine = StartSceneSlider();
                 StartCoroutine(slideCoroutine);
@@ -63,7 +65,7 @@ public class PreambleSkipper : MonoBehaviour
                 if(offsetMax.y > distance)
                 {
                     distance = 1;
-                    DarkestSoundManager.PlayTitleMusic(false);
+                    DarkestSoundManager.Instanse.PlayTitleMusic(false);
                 }
             }
 

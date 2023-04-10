@@ -1,5 +1,6 @@
 ﻿using UnityEngine.UI;
 using System.Collections.Generic;
+using Assets.Scripts.Sounds;
 
 public class StatueWindow : BuildingWindow
 {
@@ -34,8 +35,8 @@ public class StatueWindow : BuildingWindow
         {
             gameObject.SetActive(true);
             TownManager.BuildingWindowActive = true;
-            DarkestSoundManager.ExecuteNarration("enter_building", NarrationPlace.Town, "statue");
-            DarkestSoundManager.PlayOneShot("event:/town/enter_statue");
+            DarkestSoundManager.Instanse.ExecuteNarration("enter_building", NarrationPlace.Town, "statue");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/town/enter_statue");
         }
     }
 
@@ -43,6 +44,6 @@ public class StatueWindow : BuildingWindow
     {
         gameObject.SetActive(false);
         TownManager.BuildingWindowActive = false;
-        DarkestSoundManager.PlayOneShot("event:/ui/town/building_zoomout");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/building_zoomout");
     }
 }

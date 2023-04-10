@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.SceneManagement;
+using Assets.Scripts.Sounds;
 
 public enum EstateSceneState { EstateScreen, QuestScreen, ProvisionScreen }
 
@@ -136,7 +137,7 @@ public class EstateSceneManager : MonoBehaviour
                     new PartyActivityRecord(PartyActionType.Result, DarkestDungeonManager.RaidManager);
             }
 
-            DarkestSoundManager.ExecuteNarration("town_visit_start", NarrationPlace.Town,
+            DarkestSoundManager.Instanse.ExecuteNarration("town_visit_start", NarrationPlace.Town,
                 DarkestDungeonManager.RaidManager.Status == RaidStatus.Success ? "successes" : "fail",
                 DarkestDungeonManager.Campaign.TriggeredEvent != null ?
                 DarkestDungeonManager.Campaign.TriggeredEvent.Id : "not_triggered",
@@ -161,7 +162,7 @@ public class EstateSceneManager : MonoBehaviour
             }
             else
             {
-                DarkestSoundManager.ExecuteNarration("town_visit_start", NarrationPlace.Town);
+                DarkestSoundManager.Instanse.ExecuteNarration("town_visit_start", NarrationPlace.Town);
             }
         }
 
@@ -193,7 +194,7 @@ public class EstateSceneManager : MonoBehaviour
             DarkestDungeonManager.RaidManager.Status = RaidStatus.Preparation;
         }
 
-        DarkestSoundManager.StartTownSoundtrack();
+        DarkestSoundManager.Instanse.StartTownSoundtrack();
     }
 
     void OnDestroy()
@@ -227,7 +228,7 @@ public class EstateSceneManager : MonoBehaviour
     {
         (townManager.buildingWindows[2] as GraveyardWindow).HeroResurrected(record);
         townEventWindow.eventRecruits.UpdateRecruitPanel(DarkestDungeonManager.Campaign.Estate.StageCoach.EventHeroes);
-        DarkestSoundManager.PlayOneShot("event:/town/graveyard_resurrect");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/town/graveyard_resurrect");
     }
 
     #region Quik Start Generation Options
@@ -284,7 +285,7 @@ public class EstateSceneManager : MonoBehaviour
     }
     public void OnSceneLeave(bool embarking = false)
     {
-        DarkestSoundManager.StopTownSoundtrack();
+        DarkestSoundManager.Instanse.StopTownSoundtrack();
 
         if(!embarking)
         {
@@ -423,7 +424,7 @@ public class EstateSceneManager : MonoBehaviour
         activityLogOpened = false;
         bottomPanel.ActivityLogAnimator.state.SetAnimation(0, "idle", false);
         activityLogWindow.gameObject.SetActive(activityLogOpened);
-        DarkestSoundManager.PlayOneShot("event:/ui/town/page_close");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/page_close");
     }
     public void MainMenuClose()
     {
@@ -434,13 +435,13 @@ public class EstateSceneManager : MonoBehaviour
     {
         bottomPanel.GlossaryAnimator.state.SetAnimation(0, "idle", false);
         glossaryWindow.gameObject.SetActive(false);
-        DarkestSoundManager.PlayOneShot("event:/ui/town/page_close");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/page_close");
     }
     public void TownEventClose()
     {
         bottomPanel.TownEventAnimator.state.SetAnimation(0, "idle", false);
         townEventWindow.gameObject.SetActive(false);
-        DarkestSoundManager.PlayOneShot("event:/ui/town/page_close");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/page_close");
     }
 
     public void CharacterWindowSwitch(Hero hero, bool interactable)
@@ -448,7 +449,7 @@ public class EstateSceneManager : MonoBehaviour
         if (EstateSceneState == EstateSceneState.ProvisionScreen)
             return;
 
-        DarkestSoundManager.PlayOneShot("event:/ui/town/page_open");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/page_open");
 
         if (characterWindowOpened)
             characterWindow.UpdateCharacterInfo(hero, interactable);
@@ -467,13 +468,13 @@ public class EstateSceneManager : MonoBehaviour
         if(realmInventoryOpened)
         {
             bottomPanel.RealmInventoryAnimator.state.SetAnimation(0, "selected", true);
-            DarkestSoundManager.PlayOneShot("event:/ui/town/trinket_open");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/trinket_open");
         }
         else
         {
             bottomPanel.RealmInventoryAnimator.state.ClearTracks();
             bottomPanel.RealmInventoryAnimator.state.SetAnimation(0, "idle", false);
-            DarkestSoundManager.PlayOneShot("event:/ui/town/trinket_close");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/trinket_close");
         }
 
         realmInventoryWindow.gameObject.SetActive(realmInventoryOpened);
@@ -505,12 +506,12 @@ public class EstateSceneManager : MonoBehaviour
         activityLogOpened = !activityLogOpened;
         if(activityLogOpened)
         {
-            DarkestSoundManager.PlayOneShot("event:/ui/town/page_open");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/page_open");
             bottomPanel.ActivityLogAnimator.state.SetAnimation(0, "selected", false);
         }
         else
         {
-            DarkestSoundManager.PlayOneShot("event:/ui/town/page_close");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/page_close");
             bottomPanel.ActivityLogAnimator.state.SetAnimation(0, "idle", false);
         }
         activityLogWindow.gameObject.SetActive(activityLogOpened);
@@ -531,13 +532,13 @@ public class EstateSceneManager : MonoBehaviour
         {
             bottomPanel.GlossaryAnimator.state.SetAnimation(0, "idle", false);
             glossaryWindow.gameObject.SetActive(false);
-            DarkestSoundManager.PlayOneShot("event:/ui/town/page_close");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/page_close");
         }
         else
         {
             bottomPanel.GlossaryAnimator.state.SetAnimation(0, "selected", true);
             glossaryWindow.gameObject.SetActive(true);
-            DarkestSoundManager.PlayOneShot("event:/ui/town/page_open");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/page_open");
         }
     }
     public void TownEventClick()
@@ -549,13 +550,13 @@ public class EstateSceneManager : MonoBehaviour
         {
             bottomPanel.TownEventAnimator.state.SetAnimation(0, "idle", false);
             townEventWindow.gameObject.SetActive(false);
-            DarkestSoundManager.PlayOneShot("event:/ui/town/page_close");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/page_close");
         }
         else
         {
             bottomPanel.TownEventAnimator.state.SetAnimation(0, "selected", true);
             townEventWindow.gameObject.SetActive(true);
-            DarkestSoundManager.PlayOneShot("event:/ui/town/page_open");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/page_open");
         }
     }
 
@@ -567,7 +568,7 @@ public class EstateSceneManager : MonoBehaviour
             DarkestDungeonManager.ScreenFader.onFadeEnded += EmbarkTransitionFadeComplete;
             DarkestDungeonManager.ScreenFader.onAppearEnded += EmbarkTransitionAppearComplete;
             DarkestDungeonManager.ScreenFader.Fade();
-            DarkestSoundManager.PlayOneShot("event:/ui/town/embark_button");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/embark_button");
     }
     }
     void EmbarkTransitionFadeComplete()
@@ -595,7 +596,7 @@ public class EstateSceneManager : MonoBehaviour
     {
         DarkestDungeonManager.ScreenFader.onFadeEnded -= EmbarkTransitionFadeComplete;
         DarkestDungeonManager.ScreenFader.onAppearEnded -= EmbarkTransitionAppearComplete;
-        DarkestSoundManager.ExecuteNarration("enter_quest_select", NarrationPlace.Town);
+        DarkestSoundManager.Instanse.ExecuteNarration("enter_quest_select", NarrationPlace.Town);
         transitionsEnabled = true;
         raidPartyPanel.CheckComposition();
     }
@@ -608,7 +609,7 @@ public class EstateSceneManager : MonoBehaviour
             DarkestDungeonManager.ScreenFader.onFadeEnded += ProvisionFadeComplete;
             DarkestDungeonManager.ScreenFader.onAppearEnded += ProvisionAppearComplete;
             DarkestDungeonManager.ScreenFader.Fade();
-            DarkestSoundManager.PlayOneShot("event:/ui/town/provision_button");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/provision_button");
         }
     }
     void ProvisionFadeComplete()
@@ -637,7 +638,7 @@ public class EstateSceneManager : MonoBehaviour
     {
         DarkestDungeonManager.ScreenFader.onFadeEnded -= ProvisionFadeComplete;
         DarkestDungeonManager.ScreenFader.onAppearEnded -= ProvisionAppearComplete;
-        DarkestSoundManager.ExecuteNarration("enter_provision_select", NarrationPlace.Town);
+        DarkestSoundManager.Instanse.ExecuteNarration("enter_provision_select", NarrationPlace.Town);
         transitionsEnabled = true;
     }
 
@@ -649,7 +650,7 @@ public class EstateSceneManager : MonoBehaviour
             DarkestDungeonManager.ScreenFader.onFadeEnded += FinalEmbarkFadeComplete;
             DarkestDungeonManager.ScreenFader.Fade();
             DarkestDungeonManager.Instanse.RaidingManager.DeployFromPreparation(raidPreparationManager, shopManager);
-            DarkestSoundManager.PlayOneShot("event:/ui/town/set_off_button");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/set_off_button");
             OnSceneLeave(true);
         }
     }
@@ -684,7 +685,7 @@ public class EstateSceneManager : MonoBehaviour
             DarkestDungeonManager.ScreenFader.onFadeEnded += ReturnFadeComplete;
             DarkestDungeonManager.ScreenFader.onAppearEnded += ReturnAppearComplete;
             DarkestDungeonManager.ScreenFader.Fade();
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_click_back");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click_back");
         }
     }
     void ReturnFadeComplete()

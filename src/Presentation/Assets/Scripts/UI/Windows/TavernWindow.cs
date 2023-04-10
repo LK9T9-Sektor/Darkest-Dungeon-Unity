@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using Assets.Scripts.Sounds;
 
 public class TavernWindow : BuildingWindow
 {
@@ -45,7 +46,7 @@ public class TavernWindow : BuildingWindow
             }
         }
         else if (status == UpgradeStatus.Locked)
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_click_locked");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click_locked");
     }
     void TavernWindow_onTreatmentButtonClick(TownHeroSlot slot)
     {
@@ -58,7 +59,7 @@ public class TavernWindow : BuildingWindow
                 TownManager.EstateSceneManager.currencyPanel.CurrencyDecreased("gold");
                 TownManager.GetHeroSlot(slot.ActivitySlot.Hero).SetStatus(HeroStatus.Tavern);
                 slot.SetStatus(ActivitySlotStatus.Paid);
-                DarkestSoundManager.PlayOneShot("event:/town/tavern_" + slot.activityName);
+                DarkestSoundManager.Instanse.PlayOneShot("event:/town/tavern_" + slot.activityName);
             }
         }
         else if (slot.ActivitySlot.Status == ActivitySlotStatus.Paid)
@@ -154,7 +155,7 @@ public class TavernWindow : BuildingWindow
         upgradeWindow.upgradedValue.text = Mathf.RoundToInt(ratio * 100).ToString() + "%";
 
         if (afterPurchase && Mathf.Approximately(ratio, 1))
-            DarkestSoundManager.PlayOneShot("event:/town/purchase_upgrade_last");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/town/purchase_upgrade_last");
 
         foreach (var tree in upgradeWindow.upgradeTrees)
         {
@@ -186,8 +187,8 @@ public class TavernWindow : BuildingWindow
             TownManager.BuildingWindowActive = true;
             TownManager.EstateSceneManager.rosterPanel.onHeroSlotBeginDragging += rosterPanel_onHeroSlotBeginDragging;
             TownManager.EstateSceneManager.rosterPanel.onHeroSlotEndDragging += rosterPanel_onHeroSlotEndDragging;
-            DarkestSoundManager.ExecuteNarration("enter_building", NarrationPlace.Town, "tavern");
-            DarkestSoundManager.PlayOneShot("event:/town/enter_tavern");
+            DarkestSoundManager.Instanse.ExecuteNarration("enter_building", NarrationPlace.Town, "tavern");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/town/enter_tavern");
         }
     }
 
@@ -211,7 +212,7 @@ public class TavernWindow : BuildingWindow
                 brothelSlots[i].SetStatus(ActivitySlotStatus.Available);
         }
         TownManager.BuildingWindowActive = false;
-        DarkestSoundManager.PlayOneShot("event:/ui/town/building_zoomout");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/building_zoomout");
     }
 
     public void UpgradeSwitchClicked()

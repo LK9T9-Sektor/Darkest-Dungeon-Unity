@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Sounds;
+using UnityEngine;
 using UnityEngine.UI;
 
 public delegate void QuestSelectionEvent(QuestSlot questSlot);
@@ -56,7 +57,7 @@ public class QuestSlot : MonoBehaviour
 
     public void QuestButtonClicked()
     {
-        DarkestSoundManager.PlayOneShot("event:/ui/town/dungeon_select");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/dungeon_select");
 
         if (onQuestSelected != null)
             onQuestSelected(this);

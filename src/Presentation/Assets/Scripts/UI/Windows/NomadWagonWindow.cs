@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using Assets.Scripts.Sounds;
 
 public class NomadWagonWindow : BuildingWindow
 {
@@ -64,7 +65,7 @@ public class NomadWagonWindow : BuildingWindow
             }
         }
         else if (status == UpgradeStatus.Locked)
-            DarkestSoundManager.PlayOneShot("event:/ui/town/button_click_locked");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_click_locked");
     }
 
     public override void UpdateUpgradeTrees(bool afterPurchase = false)
@@ -75,7 +76,7 @@ public class NomadWagonWindow : BuildingWindow
         wagonInventory.UpdatePrices();
 
         if (afterPurchase && Mathf.Approximately(ratio, 1))
-            DarkestSoundManager.PlayOneShot("event:/town/purchase_upgrade_last");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/town/purchase_upgrade_last");
 
         foreach (var tree in upgradeWindow.upgradeTrees)
         {
@@ -98,8 +99,8 @@ public class NomadWagonWindow : BuildingWindow
         {
             gameObject.SetActive(true);
             TownManager.BuildingWindowActive = true;
-            DarkestSoundManager.ExecuteNarration("enter_building", NarrationPlace.Town, "nomad_wagon");
-            DarkestSoundManager.PlayOneShot("event:/town/enter_nomad_wagon");
+            DarkestSoundManager.Instanse.ExecuteNarration("enter_building", NarrationPlace.Town, "nomad_wagon");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/town/enter_nomad_wagon");
         }
     }
 
@@ -112,7 +113,7 @@ public class NomadWagonWindow : BuildingWindow
         }
         gameObject.SetActive(false);
         TownManager.BuildingWindowActive = false;
-        DarkestSoundManager.PlayOneShot("event:/ui/town/building_zoomout");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/building_zoomout");
     }
 
     public void UpgradeSwitchClicked()

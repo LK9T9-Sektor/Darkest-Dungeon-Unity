@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Assets.Scripts.Sounds;
 
 public class InventoryItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
     IDragHandler, IBeginDragHandler, IEndDragHandler, IDropHandler, IPointerClickHandler
@@ -494,8 +495,9 @@ public class InventoryItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        Debug.Log("OnPointerEnter");
         Highlighted = true;
-        DarkestSoundManager.PlayOneShot("event:/ui/town/button_mouse_over");
+        DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/button_mouse_over");
 
         SetActive(!Deactivated);
 

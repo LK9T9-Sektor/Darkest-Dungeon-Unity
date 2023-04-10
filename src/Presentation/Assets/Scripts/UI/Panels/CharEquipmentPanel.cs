@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using Assets.Scripts.Sounds;
 
 public delegate void PanelChangedEvent();
 
@@ -99,7 +100,7 @@ public class CharEquipmentPanel : MonoBehaviour, IInventory
         if (item.ItemType == "trinket")
         {
             CurrentHero.Equip((Trinket)item.ItemData, TrinketSlot.Right);
-            DarkestSoundManager.PlayOneShot("event:/ui/town/character_equip");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/character_equip");
             PanelChanged();
         }
         else
@@ -113,7 +114,7 @@ public class CharEquipmentPanel : MonoBehaviour, IInventory
         if (item.ItemType == "trinket")
         {
             CurrentHero.Equip((Trinket)item.ItemData, TrinketSlot.Left);
-            DarkestSoundManager.PlayOneShot("event:/ui/town/character_equip");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/character_equip");
             PanelChanged();
         }
         else
@@ -136,7 +137,7 @@ public class CharEquipmentPanel : MonoBehaviour, IInventory
         if (item.ItemType == "trinket")
         {
             CurrentHero.Equip((Trinket)item.ItemData, TrinketSlot.Right);
-            DarkestSoundManager.PlayOneShot("event:/ui/town/character_equip");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/character_equip");
         }
         else
         {
@@ -149,7 +150,7 @@ public class CharEquipmentPanel : MonoBehaviour, IInventory
         if (item.ItemType == "trinket")
         {
             CurrentHero.Equip((Trinket)item.ItemData, TrinketSlot.Left);
-            DarkestSoundManager.PlayOneShot("event:/ui/town/character_equip");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/character_equip");
         }
         else
         {
@@ -162,7 +163,7 @@ public class CharEquipmentPanel : MonoBehaviour, IInventory
         if (item.ItemType == "trinket")
         {
             CurrentHero.Unequip(TrinketSlot.Right);
-            DarkestSoundManager.PlayOneShot("event:/ui/town/character_unequip");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/character_unequip");
             PanelChanged();
         }
         else
@@ -176,7 +177,7 @@ public class CharEquipmentPanel : MonoBehaviour, IInventory
         if (item.ItemType == "trinket")
         {
             CurrentHero.Unequip(TrinketSlot.Left);
-            DarkestSoundManager.PlayOneShot("event:/ui/town/character_unequip");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/ui/town/character_unequip");
             PanelChanged();
         }
         else

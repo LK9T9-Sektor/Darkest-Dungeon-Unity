@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Sounds;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class CampingTrainerHeroWindow : MonoBehaviour
@@ -26,7 +27,7 @@ public class CampingTrainerHeroWindow : MonoBehaviour
                 TownManager.EstateSceneManager.currencyPanel.UpdateCurrency();
                 DarkestDungeonManager.Campaign.Estate.ReskillCampingHero(slot.Hero);
                 UpdateHeroOverview();
-                DarkestSoundManager.PlayOneShot("event:/town/trainer_purchase_skill");
+                DarkestSoundManager.Instanse.PlayOneShot("event:/town/trainer_purchase_skill");
             }
         }
     }

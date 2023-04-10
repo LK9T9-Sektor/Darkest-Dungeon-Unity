@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using Assets.Scripts.Sounds;
 
 public class GraveyardWindow : BuildingWindow
 {
@@ -54,8 +55,8 @@ public class GraveyardWindow : BuildingWindow
         {
             gameObject.SetActive(true);
             TownManager.BuildingWindowActive = true;
-            DarkestSoundManager.ExecuteNarration("enter_building", NarrationPlace.Town, "graveyard");
-            DarkestSoundManager.PlayOneShot("event:/town/enter_graveyard");
+            DarkestSoundManager.Instanse.ExecuteNarration("enter_building", NarrationPlace.Town, "graveyard");
+            DarkestSoundManager.Instanse.PlayOneShot("event:/town/enter_graveyard");
         }
     }
     public override void WindowClosed()
