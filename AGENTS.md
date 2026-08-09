@@ -9,6 +9,7 @@
 - **Presentation Layer** — The Unity editor environment and asset folder contain views, engines, and platform-specific assets. No pure domain logic is allowed here.
 - **Source Directory** — Pure C# multi-project source directory targeting strictly `.NET Standard 2.0` with C# language version limited to `7.3`.
 - **Test Directory** — Isolated unit and integration tests using standard runners (NUnit/xUnit). Structurally mirrors the architecture of the source directory.
+- **External Reference Only** — `src/External` contains vendored upstream source code provided purely as reference/context material. It is **read-only**: never modify, "fix", refactor, or restructure anything inside it. Do not treat it as owned code.
 
 ---
 
@@ -17,7 +18,7 @@
 - **Core Isolation** — All core mechanics (combat, turn management, stats, formulas) must live in external plain C# Class Libraries outside the presentation layer. These assemblies must not reference any game engine dependencies.
 - **No Raw Sources in Presentation** — Never place raw `.cs` files belonging to the core domain or tests directly inside the presentation layer assets folder.
 - **Automated Delivery Target** — Every core project must feature a post-build target that automatically compiles and copies its compiled binaries (`.dll` and `.pdb`) to a single flat internal plugins directory within the presentation layer.
-- **Boy Scout Rule** — When modifying existing legacy code in the presentation layer, apply opportunistic refactoring. Clean up magic strings, add missing XML documentation, and extract complex logic into new core modules.
+- **Minimal Legacy Diff** — Existing legacy code stays as-is. When a task touches a legacy file, make the smallest change required; no opportunistic cleanup, re-styling, or refactoring of old code. Extract logic into core modules only when the current task actually requires it. Keep commit diffs focused.
 
 ---
 
@@ -46,6 +47,7 @@
 ### III. Clean Code & Documentation
 
 - **One Public Type Per File** — Every file must contain exactly one public type. The file name must match the type name exactly.
+- **Naming (new code only)** — New code follows standard C# conventions: private fields and private constants use `_camelCase` (underscore prefix), local variables use `camelCase`, public members and methods use `PascalCase`. Existing legacy code is exempt and left untouched.
 - **No Magic Strings** — Use the `nameof(...)` operator for code identifiers to ensure refactoring resilience. Use strongly-typed named constants at the definition site for external wire, storage, or configuration keys.
 - **Mandatory XML Documentation** — All public types and members must have clear `///` XML comments.
 - **KISS/YAGNI** — Avoid over-abstracting code; it must be highly readable top-down. Don't add explanatory comments unless explicitly asked.

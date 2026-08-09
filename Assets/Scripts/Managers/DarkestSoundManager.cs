@@ -1,11 +1,20 @@
-﻿using UnityEngine;
+using UnityEngine;
 using FMODUnity;
 using System.Collections.Generic;
 using System.Linq;
 
 public class DarkestSoundManager : MonoBehaviour
 {
+    private const string _musicVolumePlayerPrefsKey = "settings_music_volume";
+    private const string _sfxVolumePlayerPrefsKey = "settings_sfx_volume";
+    private const float _defaultVolume = 0.35f;
+
     public static DarkestSoundManager Instanse { get; private set; }
+
+    public static float MusicVolume { get; private set; }
+    public static float SfxVolume { get; private set; }
+
+    public static FMOD.Studio.EventInstance OneShotAudioInstanse { get; private set; }
 
     public static FMOD.Studio.EventInstance DungeonInstanse { get; private set; }
     public static FMOD.Studio.EventInstance BattleInstanse { get; private set; }
@@ -24,6 +33,8 @@ public class DarkestSoundManager : MonoBehaviour
     {
         if (Instanse == null)
         {
+            MusicVolume = PlayerPrefs.GetFloat(_musicVolumePlayerPrefsKey, _defaultVolume);
+            SfxVolume = PlayerPrefs.GetFloat(_sfxVolumePlayerPrefsKey, _defaultVolume);
             NarrationQueue = new List<FMOD.Studio.EventInstance>();
             Instanse = this;
         }
@@ -36,6 +47,7 @@ public class DarkestSoundManager : MonoBehaviour
             if (NarrationQueue.Count > 0)
             {
                 CurrentNarration = NarrationQueue[0];
+                SoundSetLevel(CurrentNarration, SfxVolume);
                 CurrentNarration.start();
             }
         }
@@ -149,7 +161,41 @@ public class DarkestSoundManager : MonoBehaviour
 
     public static void PlayOneShot(string eventId)
     {
-        RuntimeManager.PlayOneShot(eventId);
+        if (OneShotAudioInstanse != null)
+            OneShotAudioInstanse.release();
+
+        OneShotAudioInstanse = RuntimeManager.CreateInstance(eventId);
+        SoundSetLevel(OneShotAudioInstanse, SfxVolume);
+        OneShotAudioInstanse.start();
+    }
+
+    private static void SoundSetLevel(FMOD.Studio.EventInstance eventInstance, float volume)
+    {
+        if (eventInstance != null)
+            eventInstance.setVolume(volume);
+    }
+
+    public static void SetMusicVolume(float volume)
+    {
+        MusicVolume = Mathf.Clamp01(volume);
+        PlayerPrefs.SetFloat(_musicVolumePlayerPrefsKey, MusicVolume);
+
+        SoundSetLevel(TitleMusicInstanse, MusicVolume);
+        SoundSetLevel(DungeonInstanse, MusicVolume);
+        SoundSetLevel(BattleInstanse, MusicVolume);
+        SoundSetLevel(CampingInstanse, MusicVolume);
+        SoundSetLevel(CampingMusicInstanse, MusicVolume);
+        SoundSetLevel(TownInstanse, MusicVolume);
+        SoundSetLevel(TownMusicInstanse, MusicVolume);
+    }
+
+    public static void SetSfxVolume(float volume)
+    {
+        SfxVolume = Mathf.Clamp01(volume);
+        PlayerPrefs.SetFloat(_sfxVolumePlayerPrefsKey, SfxVolume);
+
+        SoundSetLevel(CurrentNarration, SfxVolume);
+        SoundSetLevel(OneShotAudioInstanse, SfxVolume);
     }
 
     public static void PlayTitleMusic(bool isIntro)
@@ -162,7 +208,10 @@ public class DarkestSoundManager : MonoBehaviour
             TitleMusicInstanse = RuntimeManager.CreateInstance("event:/music/_music_assets/title_outro");
 
         if (TitleMusicInstanse != null)
+        {
+            SoundSetLevel(TitleMusicInstanse, MusicVolume);
             TitleMusicInstanse.start();
+        }
     }
 
     public static void StopTitleMusic()
@@ -184,7 +233,10 @@ public class DarkestSoundManager : MonoBehaviour
             DungeonInstanse = RuntimeManager.CreateInstance("event:/ambience/dungeon/" + dungeonName);
 
         if (DungeonInstanse != null)
+        {
+            SoundSetLevel(DungeonInstanse, MusicVolume);
             DungeonInstanse.start();
+        }
     }
 
     public static void ContinueDungeonSoundtrack(string dungeonName)
@@ -217,7 +269,10 @@ public class DarkestSoundManager : MonoBehaviour
         BattleInstanse = RuntimeManager.CreateInstance("event:/music/mus_battle_" +
             dungeonName + (isRoom ? "_room" : "_hallway"));
         if (BattleInstanse != null)
+        {
+            SoundSetLevel(BattleInstanse, MusicVolume);
             BattleInstanse.start();
+        }
     }
 
     public static void StopBattleSoundtrack()
@@ -235,10 +290,16 @@ public class DarkestSoundManager : MonoBehaviour
 
         CampingInstanse = RuntimeManager.CreateInstance("event:/ambience/local/campfire");
         if (CampingInstanse != null)
+        {
+            SoundSetLevel(CampingInstanse, MusicVolume);
             CampingInstanse.start();
+        }
         CampingMusicInstanse = RuntimeManager.CreateInstance("event:/music/mus_camp");
         if (CampingMusicInstanse != null)
+        {
+            SoundSetLevel(CampingMusicInstanse, MusicVolume);
             CampingMusicInstanse.start();
+        }
     }
 
     public static void StopCampingSoundtrack()
@@ -261,10 +322,16 @@ public class DarkestSoundManager : MonoBehaviour
 
         TownInstanse = RuntimeManager.CreateInstance("event:/ambience/town/general");
         if (TownInstanse != null)
+        {
+            SoundSetLevel(TownInstanse, MusicVolume);
             TownInstanse.start();
+        }
         TownMusicInstanse = RuntimeManager.CreateInstance("event:/music/mus_town");
         if (TownMusicInstanse != null)
+        {
+            SoundSetLevel(TownMusicInstanse, MusicVolume);
             TownMusicInstanse.start();
+        }
     }
 
     public static void StopTownSoundtrack()
