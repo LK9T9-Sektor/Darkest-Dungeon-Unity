@@ -2076,7 +2076,7 @@ MonoBehaviour:
   - {fileID: 114000012638139388}
   - {fileID: 114000013567328306}
   MasterBankRef: {fileID: 11455388}
-  stringsBankWriteTime: 636046414770000000
+  stringsBankWriteTime: 636046558770000000
   cacheVersion: 1
 --- !u!114 &11400006
 MonoBehaviour:
@@ -2605,7 +2605,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\hero_plague_doctor.bank
-  lastModified: 636046414990000000
+  lastModified: 636046558990000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -3607,7 +3607,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\hero_grave_robber.bank
-  lastModified: 636046414990000000
+  lastModified: 636046558990000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -4059,7 +4059,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000010229809548}
+  - {fileID: 114780432966846036}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11402550
@@ -4652,7 +4652,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012696937384}
+  - {fileID: 114735867176856378}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11402966
@@ -4766,7 +4766,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\hero_arbalest.bank
-  lastModified: 636046414990000000
+  lastModified: 636046558990000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -4887,7 +4887,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\en_weald.bank
-  lastModified: 636046415620000000
+  lastModified: 636046559620000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -5318,7 +5318,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000010402116388}
+  - {fileID: 114802766728204250}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11403766
@@ -6228,7 +6228,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\props_warrens.bank
-  lastModified: 636046415910000000
+  lastModified: 636046559910000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -6475,7 +6475,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\voiceover.bank
-  lastModified: 636046416000000000
+  lastModified: 636046560000000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -6512,7 +6512,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\hero_abomination.bank
-  lastModified: 636046414990000000
+  lastModified: 636046558990000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -6916,7 +6916,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\props_shared.bank
-  lastModified: 636046415060000000
+  lastModified: 636046559060000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -7059,8 +7059,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000010009151738}
-  - {fileID: 114000011352333416}
+  - {fileID: 114720389415376018}
+  - {fileID: 114923397948169436}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11405642
@@ -7450,8 +7450,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013556175434}
-  - {fileID: 114000010124448618}
+  - {fileID: 114309655428764650}
+  - {fileID: 114778811687440236}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11406364
@@ -9071,7 +9071,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\hero_highwayman.bank
-  lastModified: 636046414890000000
+  lastModified: 636046558890000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -9769,7 +9769,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012533070366}
+  - {fileID: 114543302499801882}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11408970
@@ -9791,8 +9791,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013308202772}
-  - {fileID: 114000012187524820}
+  - {fileID: 114767802466341740}
+  - {fileID: 114246439864984554}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11408992
@@ -9919,8 +9919,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011888271160}
-  - {fileID: 114000012128471516}
+  - {fileID: 114783364077451250}
+  - {fileID: 114572870334619920}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11409158
@@ -10047,8 +10047,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011037653526}
-  - {fileID: 114000013404667906}
+  - {fileID: 114943429991682262}
+  - {fileID: 114010334569371536}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11409370
@@ -10433,9 +10433,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000010652379628}
-  - {fileID: 114000013541420920}
-  - {fileID: 114000013137195680}
+  - {fileID: 114695805697132802}
+  - {fileID: 114416361671851880}
+  - {fileID: 114079885176568936}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11409738
@@ -10845,8 +10845,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012243301450}
-  - {fileID: 114000011234646948}
+  - {fileID: 114939796414481352}
+  - {fileID: 114833387254872664}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11410210
@@ -10910,8 +10910,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012839915014}
-  - {fileID: 114000013843384646}
+  - {fileID: 114798251605605822}
+  - {fileID: 114084019968696934}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11410300
@@ -11984,7 +11984,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011952828922}
+  - {fileID: 114973091560740098}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11411342
@@ -12111,8 +12111,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013553228684}
-  - {fileID: 114000014024909742}
+  - {fileID: 114129385542173410}
+  - {fileID: 114654678653161404}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11411544
@@ -13072,8 +13072,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012098034746}
-  - {fileID: 114000010378226188}
+  - {fileID: 114821691871015880}
+  - {fileID: 114390404655486946}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11412472
@@ -14038,8 +14038,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012575426568}
-  - {fileID: 114000010088908040}
+  - {fileID: 114348039531230244}
+  - {fileID: 114528853748664762}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11413646
@@ -14517,9 +14517,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000012278877522}
-  - {fileID: 114000012819077070}
-  - {fileID: 114000011995466936}
+  - {fileID: 114117238365777366}
+  - {fileID: 114944702093518330}
+  - {fileID: 114913505696960530}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11414040
@@ -16077,8 +16077,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012048388634}
-  - {fileID: 114000012058118924}
+  - {fileID: 114465132005488526}
+  - {fileID: 114755551111916806}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11415660
@@ -16221,7 +16221,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000014051078834}
+  - {fileID: 114315970004109268}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11415802
@@ -16327,8 +16327,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013386908040}
-  - {fileID: 114000013032690042}
+  - {fileID: 114219704122308332}
+  - {fileID: 114976268690436862}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11415876
@@ -16980,9 +16980,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000011261570368}
-  - {fileID: 114000013946973158}
-  - {fileID: 114000011301637006}
+  - {fileID: 114242060193740956}
+  - {fileID: 114751589857968868}
+  - {fileID: 114664034873110932}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11416732
@@ -17040,8 +17040,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000012117378576}
-  - {fileID: 114000010704454140}
+  - {fileID: 114253605186536944}
+  - {fileID: 114517028787694552}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11416820
@@ -17977,8 +17977,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013401159248}
-  - {fileID: 114000011774713332}
+  - {fileID: 114782750861935422}
+  - {fileID: 114557932885802328}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11417748
@@ -18210,7 +18210,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013812054004}
+  - {fileID: 114687621266444476}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11417988
@@ -18456,7 +18456,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\hero_houndmaster.bank
-  lastModified: 636046415740000000
+  lastModified: 636046559740000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -18758,8 +18758,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000010313726974}
-  - {fileID: 114000014161748478}
+  - {fileID: 114317976392270124}
+  - {fileID: 114930081910008928}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11418598
@@ -19420,7 +19420,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000011740543188}
+  - {fileID: 114103990271121922}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11419338
@@ -21429,8 +21429,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012610546472}
-  - {fileID: 114000011792440216}
+  - {fileID: 114867895642927922}
+  - {fileID: 114507225336487744}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11421546
@@ -21887,9 +21887,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000013228923018}
-  - {fileID: 114000010888840606}
-  - {fileID: 114000011284163528}
+  - {fileID: 114926727138808974}
+  - {fileID: 114160431638061920}
+  - {fileID: 114751009194947780}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11422044
@@ -22326,7 +22326,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\en_cove.bank
-  lastModified: 636046415290000000
+  lastModified: 636046559290000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -24190,7 +24190,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\props_weald.bank
-  lastModified: 636046415910000000
+  lastModified: 636046559910000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -24255,7 +24255,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013490626084}
+  - {fileID: 114595943471333026}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11424986
@@ -24821,8 +24821,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012531068688}
-  - {fileID: 114000010939583948}
+  - {fileID: 114354875223193310}
+  - {fileID: 114977869164280342}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11425626
@@ -25734,7 +25734,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000010946066208}
+  - {fileID: 114396427140997548}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11426434
@@ -28803,7 +28803,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\hero_man_at_arms.bank
-  lastModified: 636046414890000000
+  lastModified: 636046558890000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -29738,7 +29738,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\en_ruins.bank
-  lastModified: 636046415450000000
+  lastModified: 636046559450000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -30163,9 +30163,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012105854266}
-  - {fileID: 114000010821250734}
-  - {fileID: 114000012509222634}
+  - {fileID: 114667923483374600}
+  - {fileID: 114543494931564482}
+  - {fileID: 114389589270833254}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11431736
@@ -30517,8 +30517,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000010273627026}
-  - {fileID: 114000011198791046}
+  - {fileID: 114705511149365642}
+  - {fileID: 114761496934438022}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11432234
@@ -30668,9 +30668,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000011806171828}
-  - {fileID: 114000010944101320}
-  - {fileID: 114000013982648770}
+  - {fileID: 114951113346802644}
+  - {fileID: 114708083909254152}
+  - {fileID: 114062737417001974}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11432418
@@ -31064,8 +31064,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012871868156}
-  - {fileID: 114000010856045758}
+  - {fileID: 114816349623877538}
+  - {fileID: 114085010022906520}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11432872
@@ -34187,8 +34187,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000010765809474}
-  - {fileID: 114000011039941556}
+  - {fileID: 114444849939951596}
+  - {fileID: 114763209827051686}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11436280
@@ -34697,9 +34697,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000013761106144}
-  - {fileID: 114000013724437286}
-  - {fileID: 114000011872496146}
+  - {fileID: 114355197557992054}
+  - {fileID: 114340107755866434}
+  - {fileID: 114992523154718672}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11436756
@@ -35101,7 +35101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\music.bank
-  lastModified: 636046415970000000
+  lastModified: 636046559970000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -35705,8 +35705,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012869995520}
-  - {fileID: 114000013309435572}
+  - {fileID: 114503216162884632}
+  - {fileID: 114293713808623598}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11437978
@@ -36291,7 +36291,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\en_shared.bank
-  lastModified: 636046415510000000
+  lastModified: 636046559510000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -36356,8 +36356,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013285463030}
-  - {fileID: 114000013427530154}
+  - {fileID: 114547112632220840}
+  - {fileID: 114315547959773492}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11438574
@@ -36876,8 +36876,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011279878268}
-  - {fileID: 114000014202586162}
+  - {fileID: 114290919842050146}
+  - {fileID: 114351865310634624}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11439268
@@ -37046,8 +37046,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012002812146}
-  - {fileID: 114000010788411488}
+  - {fileID: 114584435998971478}
+  - {fileID: 114297138127101670}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11439522
@@ -37191,7 +37191,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000010891262976}
+  - {fileID: 114915456008750598}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11439710
@@ -37469,9 +37469,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000012261621566}
-  - {fileID: 114000011614633324}
-  - {fileID: 114000011098918146}
+  - {fileID: 114289364803681676}
+  - {fileID: 114087778030809628}
+  - {fileID: 114312749829386206}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11440062
@@ -37832,7 +37832,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013071075764}
+  - {fileID: 114877551597536656}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11440460
@@ -37875,8 +37875,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013580352668}
-  - {fileID: 114000010855415770}
+  - {fileID: 114301079022765772}
+  - {fileID: 114882070554999778}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11440562
@@ -38784,8 +38784,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000010588438264}
-  - {fileID: 114000010212318658}
+  - {fileID: 114492672993199646}
+  - {fileID: 114279419644453744}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11441836
@@ -40656,8 +40656,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013496868696}
-  - {fileID: 114000013965226296}
+  - {fileID: 114236549217000068}
+  - {fileID: 114512547174141502}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11443722
@@ -40778,7 +40778,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000011900827914}
+  - {fileID: 114012270372419356}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11443826
@@ -42151,7 +42151,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000010369431088}
+  - {fileID: 114363581449205244}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11445142
@@ -43175,7 +43175,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011055872936}
+  - {fileID: 114769730650418564}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11446150
@@ -43289,7 +43289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\town.bank
-  lastModified: 636046415980000000
+  lastModified: 636046559980000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -43356,8 +43356,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000014245636250}
-  - {fileID: 114000010719519164}
+  - {fileID: 114469923052989610}
+  - {fileID: 114562446297176906}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11446386
@@ -43773,8 +43773,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013776334644}
-  - {fileID: 114000010972572046}
+  - {fileID: 114127265648776748}
+  - {fileID: 114833645090239454}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11446846
@@ -44147,8 +44147,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011965642732}
-  - {fileID: 114000013548609856}
+  - {fileID: 114797464193813558}
+  - {fileID: 114570985843728614}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11447258
@@ -44311,8 +44311,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000010599781248}
-  - {fileID: 114000010811722350}
+  - {fileID: 114376481137849990}
+  - {fileID: 114081907536293270}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11447420
@@ -45017,7 +45017,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\props_ruins.bank
-  lastModified: 636046415180000000
+  lastModified: 636046559180000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -45329,8 +45329,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000014087044848}
-  - {fileID: 114000012464229650}
+  - {fileID: 114407967551944820}
+  - {fileID: 114320465217870892}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11448484
@@ -45648,7 +45648,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\raid_screen.bank
-  lastModified: 636046415670000000
+  lastModified: 636046559670000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -45956,7 +45956,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\hero_vestal.bank
-  lastModified: 636046415650000000
+  lastModified: 636046559650000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -47412,8 +47412,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013957755364}
-  - {fileID: 114000010191425420}
+  - {fileID: 114407835122659512}
+  - {fileID: 114276050136381908}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11450578
@@ -48795,7 +48795,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\hero_crusader.bank
-  lastModified: 636046415710000000
+  lastModified: 636046559710000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -49479,8 +49479,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012037570492}
-  - {fileID: 114000010408688358}
+  - {fileID: 114476482328267000}
+  - {fileID: 114607694441784834}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11453246
@@ -49722,7 +49722,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\props_cove.bank
-  lastModified: 636046415170000000
+  lastModified: 636046559170000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -50583,8 +50583,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013898683020}
-  - {fileID: 114000012205975442}
+  - {fileID: 114943120368516420}
+  - {fileID: 114259185403379054}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11454624
@@ -51051,7 +51051,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\master_bank.bank
-  lastModified: 636046414770000000
+  lastModified: 636046558770000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -51211,7 +51211,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011101692404}
+  - {fileID: 114879676502219408}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11455540
@@ -51928,8 +51928,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012778961394}
-  - {fileID: 114000013840095186}
+  - {fileID: 114339248440901452}
+  - {fileID: 114772889755147698}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11456376
@@ -52451,8 +52451,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013516495280}
-  - {fileID: 114000010792551978}
+  - {fileID: 114054655845693094}
+  - {fileID: 114169154086310336}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11457058
@@ -52600,9 +52600,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000011750618812}
-  - {fileID: 114000011480130646}
-  - {fileID: 114000012341949564}
+  - {fileID: 114145078246670012}
+  - {fileID: 114410057471230554}
+  - {fileID: 114224463371377816}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11457254
@@ -52822,9 +52822,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000010821016570}
-  - {fileID: 114000012694796306}
-  - {fileID: 114000010924746852}
+  - {fileID: 114117043127392492}
+  - {fileID: 114306412480019264}
+  - {fileID: 114788251390313164}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11457374
@@ -53193,8 +53193,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012584013304}
-  - {fileID: 114000010366289334}
+  - {fileID: 114806901802728316}
+  - {fileID: 114491640613891478}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11457752
@@ -53824,7 +53824,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011369947728}
+  - {fileID: 114443765546238006}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11458340
@@ -54354,7 +54354,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\hero_hellion.bank
-  lastModified: 636046414940000000
+  lastModified: 636046558940000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -54724,8 +54724,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000011453927710}
-  - {fileID: 114000010774757442}
+  - {fileID: 114809685655974998}
+  - {fileID: 114928748562839780}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11459378
@@ -54982,7 +54982,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\props_darkestdungeon.bank
-  lastModified: 636046415930000000
+  lastModified: 636046559930000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -54998,7 +54998,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\hero_jester.bank
-  lastModified: 636046414990000000
+  lastModified: 636046558990000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -55580,7 +55580,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\title_screen.bank
-  lastModified: 636046415050000000
+  lastModified: 636046559050000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -56728,9 +56728,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000011144281142}
-  - {fileID: 114000011233944176}
-  - {fileID: 114000010544037348}
+  - {fileID: 114060819110028702}
+  - {fileID: 114444361327121974}
+  - {fileID: 114456104483337244}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11461398
@@ -56817,7 +56817,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\hero_antiquarian.bank
-  lastModified: 636046414930000000
+  lastModified: 636046558930000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -56971,8 +56971,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013054542404}
-  - {fileID: 114000013916195024}
+  - {fileID: 114652668553634984}
+  - {fileID: 114562385313165316}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11461686
@@ -57266,7 +57266,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\hero_bounty_hunter.bank
-  lastModified: 636046414930000000
+  lastModified: 636046558930000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -57777,8 +57777,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012860405650}
-  - {fileID: 114000012415687462}
+  - {fileID: 114800869461664536}
+  - {fileID: 114096338656518402}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11462654
@@ -57800,8 +57800,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012402421808}
-  - {fileID: 114000013358516376}
+  - {fileID: 114663744328183736}
+  - {fileID: 114112294938884674}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11462660
@@ -59372,8 +59372,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000010287466602}
-  - {fileID: 114000010812177060}
+  - {fileID: 114023290190511724}
+  - {fileID: 114566128354219842}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11464316
@@ -60067,8 +60067,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011755819244}
-  - {fileID: 114000012185819740}
+  - {fileID: 114512912949904066}
+  - {fileID: 114191098027551470}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11465176
@@ -60090,7 +60090,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011108982402}
+  - {fileID: 114127213300958986}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11465240
@@ -62555,8 +62555,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000011995982564}
-  - {fileID: 114000013062052094}
+  - {fileID: 114115893504589256}
+  - {fileID: 114686746103735752}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11468228
@@ -62761,8 +62761,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011167540632}
-  - {fileID: 114000014129922980}
+  - {fileID: 114333012728723554}
+  - {fileID: 114919534591082676}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11468596
@@ -63733,7 +63733,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\ui_dungeon.bank
-  lastModified: 636046415050000000
+  lastModified: 636046559050000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -63798,9 +63798,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000010992618256}
-  - {fileID: 114000010248928224}
-  - {fileID: 114000011294651958}
+  - {fileID: 114761868763067136}
+  - {fileID: 114315018551883524}
+  - {fileID: 114110347306358480}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11469462
@@ -64200,7 +64200,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011427390338}
+  - {fileID: 114763723213394796}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11469962
@@ -64955,7 +64955,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\hero_occultist.bank
-  lastModified: 636046414990000000
+  lastModified: 636046558990000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -66077,8 +66077,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011623000670}
-  - {fileID: 114000010367492726}
+  - {fileID: 114384662532408594}
+  - {fileID: 114023801344309464}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11472300
@@ -66345,7 +66345,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\ui_shared.bank
-  lastModified: 636046415680000000
+  lastModified: 636046559680000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -66666,7 +66666,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011297143698}
+  - {fileID: 114350766814019416}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11473000
@@ -66703,8 +66703,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000014227604250}
-  - {fileID: 114000013885183990}
+  - {fileID: 114930111952020910}
+  - {fileID: 114917071807636698}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11473014
@@ -67335,8 +67335,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000010509125236}
-  - {fileID: 114000013171381310}
+  - {fileID: 114261698608544494}
+  - {fileID: 114332188228839872}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11473816
@@ -67505,8 +67505,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012195289346}
-  - {fileID: 114000012317307964}
+  - {fileID: 114625709041574626}
+  - {fileID: 114613296908072480}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11474132
@@ -68049,8 +68049,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000010844405212}
-  - {fileID: 114000010584221670}
+  - {fileID: 114685752371547712}
+  - {fileID: 114505624062118866}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11474752
@@ -68342,7 +68342,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\general.bank
-  lastModified: 636046415680000000
+  lastModified: 636046559680000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -69607,8 +69607,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012217463524}
-  - {fileID: 114000013123515600}
+  - {fileID: 114423549020425614}
+  - {fileID: 114914094774658646}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11476664
@@ -70712,9 +70712,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000011188945450}
-  - {fileID: 114000011812143972}
-  - {fileID: 114000011652127182}
+  - {fileID: 114024571732338444}
+  - {fileID: 114180418030003242}
+  - {fileID: 114337516136516882}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11477866
@@ -70751,8 +70751,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013166394440}
-  - {fileID: 114000013214576122}
+  - {fileID: 114500017369053598}
+  - {fileID: 114432466829784230}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11477902
@@ -71722,7 +71722,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013658095424}
+  - {fileID: 114404230660062970}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11479026
@@ -71802,8 +71802,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012816844082}
-  - {fileID: 114000011709692042}
+  - {fileID: 114109605347146874}
+  - {fileID: 114873936355881240}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11479162
@@ -72030,8 +72030,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012018948632}
-  - {fileID: 114000012738493652}
+  - {fileID: 114783921406011072}
+  - {fileID: 114405859203244292}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11479360
@@ -72272,8 +72272,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000010964643922}
-  - {fileID: 114000014001958800}
+  - {fileID: 114682346622488124}
+  - {fileID: 114014600296971130}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11479530
@@ -72584,8 +72584,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012231004084}
-  - {fileID: 114000013888277786}
+  - {fileID: 114048537530550492}
+  - {fileID: 114522177826147766}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11479852
@@ -72940,9 +72940,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013026598802}
-  - {fileID: 114000013553248804}
-  - {fileID: 114000013672860336}
+  - {fileID: 114160656885102650}
+  - {fileID: 114941227998179020}
+  - {fileID: 114663298755786290}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11480118
@@ -73736,8 +73736,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012317348810}
-  - {fileID: 114000012078970178}
+  - {fileID: 114652615454194574}
+  - {fileID: 114382728769384992}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11480822
@@ -75164,8 +75164,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011828714368}
-  - {fileID: 114000012013940748}
+  - {fileID: 114812971050480750}
+  - {fileID: 114985345510367134}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11482268
@@ -75180,7 +75180,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\ui_town.bank
-  lastModified: 636046415970000000
+  lastModified: 636046559970000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -77047,7 +77047,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000012153038408}
+  - {fileID: 114192993677170454}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11484412
@@ -77623,8 +77623,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011788611706}
-  - {fileID: 114000012215971578}
+  - {fileID: 114319893291071702}
+  - {fileID: 114862976718978728}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11484880
@@ -77724,8 +77724,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011189133192}
-  - {fileID: 114000012876070924}
+  - {fileID: 114155750287655992}
+  - {fileID: 114511398031856544}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11484940
@@ -77972,7 +77972,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000010755630086}
+  - {fileID: 114391974497341966}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11485240
@@ -78555,8 +78555,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013587584034}
-  - {fileID: 114000012622894122}
+  - {fileID: 114025786253868998}
+  - {fileID: 114287180503734892}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11485900
@@ -78620,7 +78620,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000012263526172}
+  - {fileID: 114400378222281710}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11485980
@@ -78996,7 +78996,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\hero_musketeer.bank
-  lastModified: 636046414940000000
+  lastModified: 636046558940000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -79054,7 +79054,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\en_warrens.bank
-  lastModified: 636046415580000000
+  lastModified: 636046559580000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -79578,7 +79578,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011439462120}
+  - {fileID: 114821859678571792}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11487102
@@ -79950,7 +79950,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\hero_leper.bank
-  lastModified: 636046414990000000
+  lastModified: 636046558990000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -80501,8 +80501,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000011863882148}
-  - {fileID: 114000012873612424}
+  - {fileID: 114234574022565984}
+  - {fileID: 114130035017642902}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11488002
@@ -80982,9 +80982,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000010792174304}
-  - {fileID: 114000013210888512}
-  - {fileID: 114000011559339178}
+  - {fileID: 114206057447638276}
+  - {fileID: 114624249637863836}
+  - {fileID: 114918146031341216}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11488618
@@ -81153,8 +81153,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012362456516}
-  - {fileID: 114000010830450076}
+  - {fileID: 114085559197564598}
+  - {fileID: 114503212095614106}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11488746
@@ -81702,8 +81702,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000014266853702}
-  - {fileID: 114000012999865666}
+  - {fileID: 114269002014001166}
+  - {fileID: 114581218335391594}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11489288
@@ -82363,8 +82363,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012267890468}
-  - {fileID: 114000012920794160}
+  - {fileID: 114208532392114610}
+  - {fileID: 114013785957402170}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11490022
@@ -82575,9 +82575,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011041261248}
-  - {fileID: 114000012735817392}
-  - {fileID: 114000011949793568}
+  - {fileID: 114489480038126142}
+  - {fileID: 114282455000509678}
+  - {fileID: 114057017152537682}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11490236
@@ -83112,8 +83112,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000011788120450}
-  - {fileID: 114000011659836040}
+  - {fileID: 114846239734545680}
+  - {fileID: 114950972774710412}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11490750
@@ -83657,8 +83657,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012951480514}
-  - {fileID: 114000011660152618}
+  - {fileID: 114589447463407692}
+  - {fileID: 114350604346356908}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11491530
@@ -84522,9 +84522,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000010154953008}
-  - {fileID: 114000012222337896}
-  - {fileID: 114000013701205568}
+  - {fileID: 114627837816629486}
+  - {fileID: 114350734568705182}
+  - {fileID: 114629265043214158}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11492252
@@ -85314,8 +85314,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000014126980530}
-  - {fileID: 114000013165840900}
+  - {fileID: 114734537548089306}
+  - {fileID: 114143393720466478}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11493068
@@ -86605,8 +86605,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013683160344}
-  - {fileID: 114000010337990682}
+  - {fileID: 114070459869875740}
+  - {fileID: 114031325148862406}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11494890
@@ -86813,8 +86813,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000013936618138}
-  - {fileID: 114000011010014960}
+  - {fileID: 114501565675617786}
+  - {fileID: 114140492364790300}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11495016
@@ -88508,7 +88508,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\en_darkest.bank
-  lastModified: 636046415390000000
+  lastModified: 636046559390000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -89212,7 +89212,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000012617569782}
+  - {fileID: 114743581410294072}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11497330
@@ -89368,7 +89368,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\ambience.bank
-  lastModified: 636046415220000000
+  lastModified: 636046559220000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -90569,8 +90569,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000010725367890}
-  - {fileID: 114000011909763594}
+  - {fileID: 114842651141140132}
+  - {fileID: 114825270201859414}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &11499118
@@ -92583,8 +92583,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000011587357908}
-  - {fileID: 114000010282693900}
+  - {fileID: 114505676545114298}
+  - {fileID: 114238156552246630}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &114000011233944176
@@ -92957,7 +92957,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000012870609014}
+  - {fileID: 114662595690946284}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &114000011587357908
@@ -93162,7 +93162,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000013628056316}
+  - {fileID: 114982346358553340}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &114000011750618812
@@ -94383,7 +94383,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: Assets\Audio\en_town.bank
-  lastModified: 636046415530000000
+  lastModified: 636046559530000000
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -95441,9 +95441,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000012318697476}
-  - {fileID: 114000012438723180}
-  - {fileID: 114000010236281932}
+  - {fileID: 114464139163270652}
+  - {fileID: 114671332763302640}
+  - {fileID: 114256940667756158}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &114000013253051786
@@ -95711,9 +95711,9 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114000013169059944}
-  - {fileID: 114000010843660598}
-  - {fileID: 114000010084081144}
+  - {fileID: 114671981516054688}
+  - {fileID: 114917302433930172}
+  - {fileID: 114524414528293660}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &114000013490626084
@@ -95939,8 +95939,8 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 1
   Parameters:
-  - {fileID: 114000011157733386}
-  - {fileID: 114000013888466572}
+  - {fileID: 114901591442661538}
+  - {fileID: 114624912800972876}
   MinDistance: 0
   MaxDistance: 0
 --- !u!114 &114000013570148068
@@ -96789,3 +96789,3498 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 0
   MaxDistance: 0
+--- !u!114 &114010334569371536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114012270372419356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114013785957402170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114014600296971130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: distance_to_goal
+  Min: 0
+  Max: 2
+  Default: 0
+--- !u!114 &114023290190511724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114023801344309464
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114024571732338444
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114025786253868998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114031325148862406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114048537530550492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114054655845693094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114057017152537682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: quest_index
+  Min: 0
+  Max: 28
+  Default: 0
+--- !u!114 &114060819110028702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: monster_intensity
+  Min: 0
+  Max: 3
+  Default: 0
+--- !u!114 &114062737417001974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114070459869875740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114079885176568936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: monster_intensity
+  Min: 0
+  Max: 3
+  Default: 0
+--- !u!114 &114081907536293270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114084019968696934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114085010022906520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114085559197564598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114087778030809628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: monster_intensity
+  Min: 0
+  Max: 3
+  Default: 0
+--- !u!114 &114096338656518402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114103990271121922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: paused
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114109605347146874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114110347306358480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114112294938884674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114115893504589256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10.1
+  Default: 0
+--- !u!114 &114117043127392492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 12
+  Default: 0
+--- !u!114 &114117238365777366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: monster_intensity
+  Min: 0
+  Max: 3
+  Default: 0
+--- !u!114 &114127213300958986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: start_condition
+  Min: 0
+  Max: 2
+  Default: 0
+--- !u!114 &114127265648776748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114129385542173410
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114130035017642902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: distance_to_goal
+  Min: 0
+  Max: 2
+  Default: 0
+--- !u!114 &114140492364790300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10.1
+  Default: 0
+--- !u!114 &114143393720466478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114145078246670012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114155750287655992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114160431638061920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: monster_intensity
+  Min: 0
+  Max: 3
+  Default: 0
+--- !u!114 &114160656885102650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: quest_index
+  Min: 0
+  Max: 28
+  Default: 0
+--- !u!114 &114169154086310336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114180418030003242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114191098027551470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114192993677170454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: town_event
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114206057447638276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114208532392114610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114219704122308332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114224463371377816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114234574022565984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10.1
+  Default: 0
+--- !u!114 &114236549217000068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114238156552246630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: distance_to_goal
+  Min: 0
+  Max: 2
+  Default: 0
+--- !u!114 &114242060193740956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: monster_intensity
+  Min: 0
+  Max: 3
+  Default: 0
+--- !u!114 &114246439864984554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114253605186536944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: distance_to_goal
+  Min: 0
+  Max: 2
+  Default: 0
+--- !u!114 &114256940667756158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114259185403379054
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114261698608544494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114269002014001166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114276050136381908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114279419644453744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114282455000509678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: hero_index
+  Min: 0
+  Max: 14
+  Default: 0
+--- !u!114 &114287180503734892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114289364803681676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114290919842050146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114293713808623598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114297138127101670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114301079022765772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114306412480019264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: monster_intensity
+  Min: 0
+  Max: 3
+  Default: 0
+--- !u!114 &114309655428764650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114312749829386206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114315018551883524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: monster_intensity
+  Min: 0
+  Max: 3
+  Default: 0
+--- !u!114 &114315547959773492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114315970004109268
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114317976392270124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114319893291071702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114320465217870892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114332188228839872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114333012728723554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114337516136516882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: monster_intensity
+  Min: 0
+  Max: 3
+  Default: 0
+--- !u!114 &114339248440901452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114340107755866434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: monster_intensity
+  Min: 0
+  Max: 3
+  Default: 0
+--- !u!114 &114348039531230244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114350604346356908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114350734568705182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114350766814019416
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114351865310634624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114354875223193310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114355197557992054
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: inside
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114363581449205244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: outro
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114376481137849990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114382728769384992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114384662532408594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114389589270833254
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: dungeon_index
+  Min: 0
+  Max: 5
+  Default: 0
+--- !u!114 &114390404655486946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114391974497341966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114396427140997548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: outro
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114400378222281710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114404230660062970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114405859203244292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114407835122659512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114407967551944820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114410057471230554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: monster_intensity
+  Min: 0
+  Max: 3
+  Default: 0
+--- !u!114 &114416361671851880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114423549020425614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114432466829784230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114443765546238006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114444361327121974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: outro
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114444849939951596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114456104483337244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114464139163270652
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114465132005488526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114469923052989610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114476482328267000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114489480038126142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: dungeon_index
+  Min: 0
+  Max: 5
+  Default: 0
+--- !u!114 &114491640613891478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114492672993199646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114500017369053598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114501565675617786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: distance_to_goal
+  Min: 0
+  Max: 2
+  Default: 0
+--- !u!114 &114503212095614106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114503216162884632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114505624062118866
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114505676545114298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10.1
+  Default: 0
+--- !u!114 &114507225336487744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114511398031856544
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114512547174141502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114512912949904066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114517028787694552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10.1
+  Default: 0
+--- !u!114 &114522177826147766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114524414528293660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114528853748664762
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114543302499801882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114543494931564482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: hero_index
+  Min: 0
+  Max: 14
+  Default: 0
+--- !u!114 &114547112632220840
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114557932885802328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114562385313165316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114562446297176906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114566128354219842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114570985843728614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114572870334619920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114581218335391594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114584435998971478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114589447463407692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114595943471333026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114607694441784834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114613296908072480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114624249637863836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: monster_intensity
+  Min: 0
+  Max: 3
+  Default: 0
+--- !u!114 &114624912800972876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114625709041574626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114627837816629486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: monster_intensity
+  Min: 0
+  Max: 3
+  Default: 0
+--- !u!114 &114629265043214158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114652615454194574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114652668553634984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114654678653161404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114662595690946284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114663298755786290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: hero_index
+  Min: 0
+  Max: 14
+  Default: 0
+--- !u!114 &114663744328183736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114664034873110932
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114667923483374600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: quest_index
+  Min: 0
+  Max: 28
+  Default: 0
+--- !u!114 &114671332763302640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: monster_intensity
+  Min: 0
+  Max: 3
+  Default: 0
+--- !u!114 &114671981516054688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: monster_intensity
+  Min: 0
+  Max: 3
+  Default: 0
+--- !u!114 &114682346622488124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10.1
+  Default: 0
+--- !u!114 &114685752371547712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114686746103735752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: distance_to_goal
+  Min: 0
+  Max: 2
+  Default: 0
+--- !u!114 &114687621266444476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114695805697132802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114705511149365642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114708083909254152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114720389415376018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: distance_to_goal
+  Min: 0
+  Max: 2
+  Default: 0
+--- !u!114 &114734537548089306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114735867176856378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114743581410294072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114751009194947780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114751589857968868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114755551111916806
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114761496934438022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114761868763067136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114763209827051686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114763723213394796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: start_condition
+  Min: 0
+  Max: 2
+  Default: 0
+--- !u!114 &114767802466341740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114769730650418564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114772889755147698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114778811687440236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114780432966846036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114782750861935422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114783364077451250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114783921406011072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114788251390313164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114797464193813558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114798251605605822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114800869461664536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114802766728204250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: amount
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114806901802728316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114809685655974998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: distance_to_goal
+  Min: 0
+  Max: 2
+  Default: 0
+--- !u!114 &114812971050480750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114816349623877538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114821691871015880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114821859678571792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114825270201859414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114833387254872664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114833645090239454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114842651141140132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114846239734545680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: distance_to_goal
+  Min: 0
+  Max: 2
+  Default: 0
+--- !u!114 &114862976718978728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114867895642927922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114873936355881240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114877551597536656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114879676502219408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114882070554999778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114901591442661538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114913505696960530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114914094774658646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114915456008750598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114917071807636698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114917302433930172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114918146031341216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114919534591082676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114923397948169436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10.1
+  Default: 0
+--- !u!114 &114926727138808974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114928748562839780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10.1
+  Default: 0
+--- !u!114 &114930081910008928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114930111952020910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114939796414481352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114941227998179020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: dungeon_index
+  Min: 0
+  Max: 5
+  Default: 0
+--- !u!114 &114943120368516420
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114943429991682262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114944702093518330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114950972774710412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: darkness
+  Min: 0
+  Max: 10.1
+  Default: 0
+--- !u!114 &114951113346802644
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: monster_intensity
+  Min: 0
+  Max: 3
+  Default: 0
+--- !u!114 &114973091560740098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114976268690436862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114977869164280342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: result_category
+  Min: 0
+  Max: 2
+  Default: 1
+--- !u!114 &114982346358553340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: door_type
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114985345510367134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: item_index
+  Min: 0
+  Max: 10
+  Default: 0
+--- !u!114 &114992523154718672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: play_variance
+  Min: 0
+  Max: 1
+  Default: 0

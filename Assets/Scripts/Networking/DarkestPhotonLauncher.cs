@@ -22,7 +22,7 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
     /// <summary>
     /// Client's version number. Users are separated from each other by gameversion.
     /// </summary>
-    public static string GameVersion { get { return "1.0.3"; } }
+    public static string GameVersion { get { return GameInfo.Version; } }
     public static DarkestPhotonLauncher Instanse { get; private set; }
 
     private static CloudRegionCode selectedRegion = CloudRegionCode.eu;
