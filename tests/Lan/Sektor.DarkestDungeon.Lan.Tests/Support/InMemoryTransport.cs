@@ -35,6 +35,9 @@ namespace Sektor.DarkestDungeon.Lan.Tests.Support
         public event Action<TransportMessage> MessageReceived;
 
         /// <inheritdoc />
+        public event Action<string> SessionInviteReceived;
+
+        /// <inheritdoc />
         public event Action Disconnected;
 
         /// <inheritdoc />
@@ -201,6 +204,15 @@ namespace Sektor.DarkestDungeon.Lan.Tests.Support
             if (received != null)
             {
                 received(message);
+            }
+        }
+
+        internal void NotifyInviteReceived(string sessionId)
+        {
+            Action<string> invite = SessionInviteReceived;
+            if (invite != null)
+            {
+                invite(sessionId);
             }
         }
     }

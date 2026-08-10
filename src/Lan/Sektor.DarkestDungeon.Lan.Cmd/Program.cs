@@ -8,9 +8,10 @@ namespace Sektor.DarkestDungeon.Lan.Cmd
     using Sektor.DarkestDungeon.Lan.Steam;
 
     /// <summary>
-    /// Console smoke test for the Steam transport: one process hosts a session, another joins
-    /// it, and each side exchanges one message. Requires the Steam client and a valid AppID
-    /// via steam_appid.txt next to the executable.
+    /// Console smoke test for the Steam transport. Without arguments an interactive menu lets the
+    /// user pick between hosting a session or joining one (via a pasted ROOM_ID or a Steam invite,
+    /// like the legacy SteamLan console app). With arguments it stays scriptable:
+    /// <c>host</c> creates a session, <c>join &lt;sessionId&gt;</c> joins one.
     /// </summary>
     internal static class Program
     {
@@ -18,19 +19,14 @@ namespace Sektor.DarkestDungeon.Lan.Cmd
         private const string PongType = "pong";
         private const int TimeoutSeconds = 60;
         private const int FlushMilliseconds = 500;
+        private const int BoxInnerWidth = 48;
 
         private static volatile bool _exitRequested;
         private static int _exitCode = 1;
 
         private static int Main(string[] args)
         {
-            if (args.Length == 0)
-            {
-                Console.WriteLine("Usage:");
-                Console.WriteLine("  host");
-                Console.WriteLine("  join <sessionId>");
-                return 1;
-            }
+            Console.Title = "Darkest Dungeon LAN - Steam";
 
             using (SteamTransport transport = new SteamTransport(new JsonTransportCodec()))
             {
@@ -38,38 +34,150 @@ namespace Sektor.DarkestDungeon.Lan.Cmd
                 if (!init.IsSuccess)
                 {
                     Console.WriteLine("Init failed: " + init.ErrorMessage);
+                    WaitForExit();
                     return 1;
                 }
 
                 Console.WriteLine("Steam ready. Local player: " + transport.LocalPlayerId);
-                WireEvents(transport);
+                WireEvents(transport, exitOnMessage: args.Length > 0);
 
-                if (args[0] == "host")
+                if (args.Length == 0)
                 {
-                    Result created = transport.CreateSession("smoke", 2);
-                    if (!created.IsSuccess)
-                    {
-                        Console.WriteLine("CreateSession failed: " + created.ErrorMessage);
-                        return 1;
-                    }
+                    return InteractiveRun(transport);
                 }
-                else if (args[0] == "join" && args.Length > 1)
+
+                return CliRun(transport, args);
+            }
+        }
+
+        private static int InteractiveRun(ITransport transport)
+        {
+            while (true)
+            {
+                ShowMenu();
+                ConsoleKey key = Console.ReadKey(true).Key;
+                switch (key)
                 {
-                    Result joined = transport.JoinSession(args[1]);
-                    if (!joined.IsSuccess)
-                    {
-                        Console.WriteLine("JoinSession failed: " + joined.ErrorMessage);
-                        return 1;
-                    }
+                    case ConsoleKey.D1:
+                    case ConsoleKey.NumPad1:
+                        Result created = transport.CreateSession("smoke", 2);
+                        if (!created.IsSuccess)
+                        {
+                            Console.WriteLine("CreateSession failed: " + created.ErrorMessage);
+                            WaitForExit();
+                            return 1;
+                        }
+
+                        Console.WriteLine("Ждём подключения игрока... (Esc — выход)");
+                        return PumpUntilEscape(transport);
+
+                    case ConsoleKey.D2:
+                    case ConsoleKey.NumPad2:
+                        Console.Write("Введите ROOM_ID хоста (Enter — ждать приглашение Steam): ");
+                        string sessionId = Console.ReadLine();
+                        if (!string.IsNullOrWhiteSpace(sessionId))
+                        {
+                            Result joined = transport.JoinSession(sessionId.Trim());
+                            if (!joined.IsSuccess)
+                            {
+                                Console.WriteLine("JoinSession failed: " + joined.ErrorMessage);
+                                WaitForExit();
+                                return 1;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Ожидание приглашения через Steam... (Esc — выход)");
+                        }
+
+                        return PumpUntilEscape(transport);
+
+                    case ConsoleKey.D3:
+                    case ConsoleKey.NumPad3:
+                        return 0;
                 }
-                else
+            }
+        }
+
+        private static int CliRun(ITransport transport, string[] args)
+        {
+            if (args[0] == "host")
+            {
+                Result created = transport.CreateSession("smoke", 2);
+                if (!created.IsSuccess)
                 {
-                    Console.WriteLine("Unknown mode: " + args[0]);
+                    Console.WriteLine("CreateSession failed: " + created.ErrorMessage);
                     return 1;
                 }
-
-                return PumpUntilFinished(transport);
             }
+            else if (args[0] == "join" && args.Length > 1)
+            {
+                Result joined = transport.JoinSession(args[1]);
+                if (!joined.IsSuccess)
+                {
+                    Console.WriteLine("JoinSession failed: " + joined.ErrorMessage);
+                    return 1;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Unknown mode: " + args[0]);
+                Console.WriteLine("Usage:");
+                Console.WriteLine("  host");
+                Console.WriteLine("  join <sessionId>");
+                return 1;
+            }
+
+            return PumpUntilFinished(transport);
+        }
+
+        private static void ShowMenu()
+        {
+            Console.WriteLine("\n" + BoxTop);
+            Console.WriteLine(Row("Darkest Dungeon — Steam LAN"));
+            Console.WriteLine(BoxMiddle);
+            Console.WriteLine(Row("1. Я ХОСТ (создать сессию)"));
+            Console.WriteLine(Row("2. Я КЛИЕНТ (вступить через Steam или ROOM_ID)"));
+            Console.WriteLine(Row("3. ВЫХОД"));
+            Console.WriteLine(BoxBottom);
+            Console.Write("\nВаш выбор: ");
+        }
+
+        private static string BoxTop
+        {
+            get { return "╔" + new string('═', BoxInnerWidth) + "╗"; }
+        }
+
+        private static string BoxMiddle
+        {
+            get { return "╠" + new string('═', BoxInnerWidth) + "╣"; }
+        }
+
+        private static string BoxBottom
+        {
+            get { return "╚" + new string('═', BoxInnerWidth) + "╝"; }
+        }
+
+        private static string Row(string content)
+        {
+            return "║" + content.PadRight(BoxInnerWidth) + "║";
+        }
+
+        private static int PumpUntilEscape(ITransport transport)
+        {
+            while (!_exitRequested)
+            {
+                transport.RunCallbacks();
+                if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape)
+                {
+                    _exitCode = 0;
+                    break;
+                }
+
+                Thread.Sleep(10);
+            }
+
+            return _exitCode;
         }
 
         private static int PumpUntilFinished(ITransport transport)
@@ -90,8 +198,18 @@ namespace Sektor.DarkestDungeon.Lan.Cmd
             return _exitCode;
         }
 
-        private static void WireEvents(ITransport transport)
+        private static void WireEvents(ITransport transport, bool exitOnMessage)
         {
+            transport.SessionInviteReceived += sessionId =>
+            {
+                Console.WriteLine("Получено приглашение: " + sessionId + ". Подключаемся...");
+                Result joined = transport.JoinSession(sessionId);
+                if (!joined.IsSuccess)
+                {
+                    Console.WriteLine("JoinSession failed: " + joined.ErrorMessage);
+                }
+            };
+
             transport.SessionJoined += sessionId =>
             {
                 Console.WriteLine("Session joined: " + sessionId);
@@ -107,12 +225,25 @@ namespace Sektor.DarkestDungeon.Lan.Cmd
             transport.PlayerLeft += playerId =>
             {
                 Console.WriteLine("Player left: " + playerId);
-                RequestExit(0);
+                if (exitOnMessage)
+                {
+                    RequestExit(0);
+                }
             };
 
             transport.MessageReceived += message =>
             {
                 Console.WriteLine("Received [" + message.Type + "] from " + message.SenderId + ": " + message.Payload);
+                if (!exitOnMessage)
+                {
+                    if (message.Type == PingType)
+                    {
+                        transport.SendMessage(PongType, "world");
+                    }
+
+                    return;
+                }
+
                 if (message.Type == PongType)
                 {
                     RequestExit(0);
@@ -126,8 +257,17 @@ namespace Sektor.DarkestDungeon.Lan.Cmd
             transport.Disconnected += () =>
             {
                 Console.WriteLine("Disconnected.");
-                RequestExit(1);
+                if (exitOnMessage)
+                {
+                    RequestExit(1);
+                }
             };
+        }
+
+        private static void WaitForExit()
+        {
+            Console.WriteLine("\nНажмите любую клавишу для выхода...");
+            Console.ReadKey(true);
         }
 
         private static void RequestExit(int code)

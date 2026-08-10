@@ -39,6 +39,7 @@ namespace Sektor.DarkestDungeon.Lan.Steam
                 { SteamCallbackIds.LobbyCreated, HandleLobbyCreated },
                 { SteamCallbackIds.LobbyEnter, HandleLobbyEnter },
                 { SteamCallbackIds.LobbyChatUpdate, HandleLobbyChatUpdate },
+                { SteamCallbackIds.GameLobbyJoinRequested, HandleGameLobbyJoinRequested },
                 { SteamCallbackIds.P2PSessionRequest, HandleP2PSessionRequest },
                 { SteamCallbackIds.P2PSessionConnectFail, HandleP2PSessionConnectFail }
             };
@@ -55,6 +56,9 @@ namespace Sektor.DarkestDungeon.Lan.Steam
 
         /// <inheritdoc />
         public event Action<TransportMessage> MessageReceived;
+
+        /// <inheritdoc />
+        public event Action<string> SessionInviteReceived;
 
         /// <inheritdoc />
         public event Action Disconnected;
@@ -267,6 +271,16 @@ namespace Sektor.DarkestDungeon.Lan.Steam
         {
             P2PSessionRequest_t callback = (P2PSessionRequest_t)Marshal.PtrToStructure(param, typeof(P2PSessionRequest_t));
             SteamNative.ISteamNetworking_AcceptP2PSessionWithUser(_runtime.Networking, callback.m_steamIDRemote);
+        }
+
+        private void HandleGameLobbyJoinRequested(IntPtr param)
+        {
+            GameLobbyJoinRequested_t callback = (GameLobbyJoinRequested_t)Marshal.PtrToStructure(param, typeof(GameLobbyJoinRequested_t));
+            Action<string> invite = SessionInviteReceived;
+            if (invite != null)
+            {
+                invite(callback.m_steamIDLobby.ToString());
+            }
         }
 
         private void HandleP2PSessionConnectFail(IntPtr param)

@@ -16,6 +16,9 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
         /// <summary>A lobby member's state changed.</summary>
         internal const int LobbyChatUpdate = SteamConstants.SteamMatchmakingCallbacks + 6;
 
+        /// <summary>A friend requested to join the host's lobby through Steam.</summary>
+        internal const int GameLobbyJoinRequested = SteamConstants.SteamFriendsCallbacks + 15;
+
         /// <summary>A remote host wants to start a P2P session.</summary>
         internal const int P2PSessionRequest = SteamConstants.SteamNetworkingCallbacks + 2;
 

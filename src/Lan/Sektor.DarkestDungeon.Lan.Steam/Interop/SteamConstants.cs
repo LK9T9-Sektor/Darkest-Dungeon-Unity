@@ -26,5 +26,8 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
 
         /// <summary>Base callback identity for networking callbacks.</summary>
         internal const int SteamNetworkingCallbacks = 1200;
+
+        /// <summary>Base callback identity for friends callbacks.</summary>
+        internal const int SteamFriendsCallbacks = 300;
     }
 }

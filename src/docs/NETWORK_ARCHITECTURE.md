@@ -46,7 +46,8 @@ docs/NETWORK_ARCHITECTURE.md
   (`ITransport`, `ITransportCodec`, `TransportMessage`, `Result`/`Result<T>`). Никаких зависимостей.
 - `src/Lan/Sektor.DarkestDungeon.Lan.Steam` — Steam P2P транспорт: `JsonTransportCodec` (Newtonsoft.Json) +
   `SteamTransport` поверх собственного interop-слоя `Interop/`.
-- `src/Lan/Sektor.DarkestDungeon.Lan.Cmd` — консольный smoke-тест host/join.
+- `src/Lan/Sektor.DarkestDungeon.Lan.Cmd` — консольный smoke-клиент: без аргументов интерактивное меню
+  (хост / клиент / выход) со входом по Steam-приглашению; с аргументами скриптовый режим `host` / `join <sessionId>`.
 - `tests/Lan/Sektor.DarkestDungeon.Lan.Tests` — NUnit: кодек, жизненный цикл, round-trip (in-memory транспорт).
 
 Почему свой interop-слой, а не Steamworks.NET из NuGet:

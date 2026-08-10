@@ -20,6 +20,9 @@ namespace Sektor.DarkestDungeon.Lan.Contracts.Transport
         /// <summary>Raised when a message arrives from any session participant.</summary>
         event System.Action<TransportMessage> MessageReceived;
 
+        /// <summary>Raised when the provider delivers an invitation to join a session; carries the session id.</summary>
+        event System.Action<string> SessionInviteReceived;
+
         /// <summary>Raised when the session is lost or the transport disconnects unexpectedly.</summary>
         event System.Action Disconnected;
 

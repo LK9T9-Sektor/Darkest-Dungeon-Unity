@@ -66,6 +66,17 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
         internal uint m_rgfChatMemberStateChange;
     }
 
+    /// <summary>A friend requested to join the host's lobby through Steam (callback 315).</summary>
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct GameLobbyJoinRequested_t
+    {
+        /// <summary>The lobby the friend wants to join.</summary>
+        internal ulong m_steamIDLobby;
+
+        /// <summary>The friend who requested the join.</summary>
+        internal ulong m_steamIDFriend;
+    }
+
     /// <summary>A remote host wants to start a P2P session (callback 1202).</summary>
     [StructLayout(LayoutKind.Sequential)]
     internal struct P2PSessionRequest_t

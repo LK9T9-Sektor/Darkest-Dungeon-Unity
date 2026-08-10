@@ -92,5 +92,16 @@ namespace Sektor.DarkestDungeon.Lan.Tests.Transport
 
             Assert.That(result.IsSuccess, Is.False);
         }
+
+        [Test]
+        public void InviteReceived_RaisesSessionInviteReceivedWithSessionId()
+        {
+            List<string> invites = new List<string>();
+            _client.SessionInviteReceived += sessionId => invites.Add(sessionId);
+
+            _client.NotifyInviteReceived("room-42");
+
+            Assert.That(invites, Is.EquivalentTo(new[] { "room-42" }));
+        }
     }
 }
