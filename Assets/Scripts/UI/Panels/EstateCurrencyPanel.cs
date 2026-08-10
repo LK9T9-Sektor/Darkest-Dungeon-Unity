@@ -25,7 +25,7 @@ public class EstateCurrencyPanel : MonoBehaviour
     {
         if (currency == "gold")
         {
-            FMODUnity.RuntimeManager.PlayOneShot("event:/ui/town/buy_free");
+            DarkestSoundManager.PlayOneShot("event:/ui/town/buy_free");
         }
 
         if (EventCurrencyIncreased != null)
@@ -39,7 +39,7 @@ public class EstateCurrencyPanel : MonoBehaviour
             goldPile.state.ClearTracks();
             goldPile.state.SetAnimation(0, "spend", false);
             goldPile.state.AddAnimation(0, "idle", true, 0);
-            FMODUnity.RuntimeManager.PlayOneShot("event:/ui/town/buy");
+            DarkestSoundManager.PlayOneShot("event:/ui/town/buy");
         }
         if (EventCurrencyDecreased != null)
             EventCurrencyDecreased(currency);

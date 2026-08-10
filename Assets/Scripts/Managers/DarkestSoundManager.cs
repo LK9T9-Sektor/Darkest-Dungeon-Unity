@@ -14,8 +14,6 @@ public class DarkestSoundManager : MonoBehaviour
     public static float MusicVolume { get; private set; }
     public static float SfxVolume { get; private set; }
 
-    public static FMOD.Studio.EventInstance OneShotAudioInstanse { get; private set; }
-
     public static FMOD.Studio.EventInstance DungeonInstanse { get; private set; }
     public static FMOD.Studio.EventInstance BattleInstanse { get; private set; }
     public static FMOD.Studio.EventInstance CampingInstanse { get; private set; }
@@ -161,12 +159,19 @@ public class DarkestSoundManager : MonoBehaviour
 
     public static void PlayOneShot(string eventId)
     {
-        if (OneShotAudioInstanse != null)
-            OneShotAudioInstanse.release();
+        PlayOneShot(eventId, new Vector3());
+    }
 
-        OneShotAudioInstanse = RuntimeManager.CreateInstance(eventId);
-        SoundSetLevel(OneShotAudioInstanse, SfxVolume);
-        OneShotAudioInstanse.start();
+    public static void PlayOneShot(string eventId, Vector3 position)
+    {
+        FMOD.Studio.EventInstance eventInstance = RuntimeManager.CreateInstance(eventId);
+        if (eventInstance == null)
+            return;
+
+        eventInstance.set3DAttributes(FMODUnity.RuntimeUtils.To3DAttributes(position));
+        SoundSetLevel(eventInstance, SfxVolume);
+        eventInstance.start();
+        eventInstance.release();
     }
 
     private static void SoundSetLevel(FMOD.Studio.EventInstance eventInstance, float volume)
@@ -195,7 +200,6 @@ public class DarkestSoundManager : MonoBehaviour
         PlayerPrefs.SetFloat(_sfxVolumePlayerPrefsKey, SfxVolume);
 
         SoundSetLevel(CurrentNarration, SfxVolume);
-        SoundSetLevel(OneShotAudioInstanse, SfxVolume);
     }
 
     public static void PlayTitleMusic(bool isIntro)

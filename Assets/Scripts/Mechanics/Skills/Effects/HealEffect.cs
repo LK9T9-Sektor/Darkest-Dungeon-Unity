@@ -54,9 +54,9 @@
             int critHeal = target.Character.Heal(initialHeal * 1.5f, true);
             RaidSceneManager.RaidEvents.ShowPopupMessage(target, PopupMessageType.CritHeal, critHeal.ToString());
             if (target.Character is Hero)
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_ally_crit");
+                DarkestSoundManager.PlayOneShot("event:/general/status/heal_ally_crit");
             else
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_enemy_crit");
+                DarkestSoundManager.PlayOneShot("event:/general/status/heal_enemy_crit");
 
             target.OverlaySlot.UpdateOverlay();
             return true;
@@ -66,9 +66,9 @@
             int heal = target.Character.Heal(initialHeal, true);
             RaidSceneManager.RaidEvents.ShowPopupMessage(target, PopupMessageType.Heal, heal.ToString());
             if (target.Character is Hero)
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_ally");
+                DarkestSoundManager.PlayOneShot("event:/general/status/heal_ally");
             else
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_enemy");
+                DarkestSoundManager.PlayOneShot("event:/general/status/heal_enemy");
 
             target.OverlaySlot.UpdateOverlay();
             return true;

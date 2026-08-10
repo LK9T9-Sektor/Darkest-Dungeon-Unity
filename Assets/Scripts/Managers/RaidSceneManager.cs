@@ -390,7 +390,7 @@ public class RaidSceneManager : MonoBehaviour
                 int heal = target.Character.HealPercent(currentEffect.Amount, true);
                 RaidEvents.ShowPopupMessage(target, PopupMessageType.Heal, heal.ToString());
                 target.OverlaySlot.UpdateOverlay();
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_ally");
+                DarkestSoundManager.PlayOneShot("event:/general/status/heal_ally");
                 break;
             case CampEffectType.Loot:
                 RaidEvents.LoadSingleLoot(currentEffect.Subtype, (int)currentEffect.Amount);
@@ -915,13 +915,13 @@ public class RaidSceneManager : MonoBehaviour
                 yield return StartCoroutine(ProcessStarvation());
                 break;
             case 1:
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/party/eat");
+                DarkestSoundManager.PlayOneShot("event:/general/party/eat");
                 yield return new WaitForSeconds(0.6f);
                 break;
             case 2:
             case 3:
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_ally");
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/party/eat");
+                DarkestSoundManager.PlayOneShot("event:/general/status/heal_ally");
+                DarkestSoundManager.PlayOneShot("event:/general/party/eat");
                 float healPercent = RaidEvents.MealEvent.SelectedMealSlot.FoodRank == 2 ? 0.1f : 0.25f;
 
                 for (int i = 0; i < HeroParty.Units.Count; i++)
@@ -984,7 +984,7 @@ public class RaidSceneManager : MonoBehaviour
 
                 campEffects.Clear();
                 campEffects.AddRange(skill.Effects);
-                FMODUnity.RuntimeManager.PlayOneShot("event:/camp/skill/" + skill.Id, DungeonCamera.Transform.position);
+                DarkestSoundManager.PlayOneShot("event:/camp/skill/" + skill.Id, DungeonCamera.Transform.position);
                 yield return new WaitForSeconds(0.5f);
 
                 foreach (var damageEffect in campEffects.FindAll(effect => effect.Type == CampEffectType.HealthDamageMaxHealthPercent))
@@ -1495,7 +1495,7 @@ public class RaidSceneManager : MonoBehaviour
             {
                 var swapper = RaidPanel.SelectedUnit;
                 var target = overlaySlot.TargetUnit;
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/party/combat_move");
+                DarkestSoundManager.PlayOneShot("event:/general/party/combat_move");
                 Formations.Heroes.SwapUnits(swapper, target);
                 target.OverlaySlot.UnitSelected();
             }
@@ -1605,9 +1605,9 @@ public class RaidSceneManager : MonoBehaviour
                 targetUnit.SetDeathAnimation(true);
 
             if (monster.Data.FullCaptor != null)
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/char/death_enemy");
+                DarkestSoundManager.PlayOneShot("event:/general/char/death_enemy");
 
-            FMODUnity.RuntimeManager.PlayOneShot("event:/char/enemy/" + monster.Data.TypeId + "_vo_death");
+            DarkestSoundManager.PlayOneShot("event:/char/enemy/" + monster.Data.TypeId + "_vo_death");
 
             if (!monster.MonsterTypes.Contains(MonsterType.Corpse))
                 DarkestSoundManager.ExecuteNarration("kill_monster", NarrationPlace.Raid,
@@ -1638,7 +1638,7 @@ public class RaidSceneManager : MonoBehaviour
                 if (RandomSolver.CheckSuccess(hero.DeathResist) && !targetUnit.CombatInfo.MarkedForDeath)
                     return false;
                 targetUnit.SetDeathAnimation(true);
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/char/death_ally");
+                DarkestSoundManager.PlayOneShot("event:/general/char/death_ally");
 
                 var captureRecord = BattleGround.Captures.Find(capture => capture.PrisonerUnit == targetUnit);
                 if (captureRecord != null)
@@ -1995,6 +1995,7 @@ public class RaidSceneManager : MonoBehaviour
         var oneShotStart = FMODUnity.RuntimeManager.CreateInstance("event:/general/combat/start");
         if (oneShotStart != null)
         {
+            oneShotStart.setVolume(DarkestSoundManager.SfxVolume);
             if (BattleGround.SurpriseStatus == SurpriseStatus.Nothing)
                 oneShotStart.setParameterValue("start_condition", 0);
             else if (BattleGround.SurpriseStatus == SurpriseStatus.MonstersSurprised)
@@ -2007,7 +2008,7 @@ public class RaidSceneManager : MonoBehaviour
         }
 
         foreach (var unit in Formations.Monsters.Party.Units)
-            FMODUnity.RuntimeManager.PlayOneShot("event:/char/enemy/" + unit.Character.Class + "_vo_aggro");
+            DarkestSoundManager.PlayOneShot("event:/char/enemy/" + unit.Character.Class + "_vo_aggro");
         #endregion
 
         RaidEvents.ShowBattleAnnouncment();
@@ -2080,7 +2081,7 @@ public class RaidSceneManager : MonoBehaviour
         yield return ProcessRaidFailure();
 
         DarkestSoundManager.ExecuteNarration("victory", NarrationPlace.Raid);
-        FMODUnity.RuntimeManager.PlayOneShot("event:/general/combat/victory");
+        DarkestSoundManager.PlayOneShot("event:/general/combat/victory");
 
         #region Destroy Remains
 
@@ -2254,7 +2255,7 @@ public class RaidSceneManager : MonoBehaviour
     {
         Raid.QuestCompleted = true;
         CompletionWindow.Appear();
-        FMODUnity.RuntimeManager.PlayOneShot("event:/general/party/quest_goal_complete");
+        DarkestSoundManager.PlayOneShot("event:/general/party/quest_goal_complete");
         DungeonCamera.SwitchBlur(true);
         while (CompletionWindow.Action == CompletionAction.Waiting)
             yield return null;
@@ -2274,7 +2275,7 @@ public class RaidSceneManager : MonoBehaviour
     {
         if (fromBattleSave == false)
         {
-            FMODUnity.RuntimeManager.PlayOneShot("event:/general/combat/round");
+            DarkestSoundManager.PlayOneShot("event:/general/combat/round");
             yield return new WaitForSeconds(1f);
 
             #region Stalling
@@ -2465,7 +2466,7 @@ public class RaidSceneManager : MonoBehaviour
                             }
                         }
                         if (mutated)
-                            FMODUnity.RuntimeManager.PlayOneShot("event:/char/enemy/_shared/formless_shared_mutate");
+                            DarkestSoundManager.PlayOneShot("event:/char/enemy/_shared/formless_shared_mutate");
 
                         yield return new WaitForSeconds(0.01f);
                         Formations.PartyBuffPositions.SetUnitTargets(TempList, 0.05f, Vector2.zero);
@@ -2516,7 +2517,7 @@ public class RaidSceneManager : MonoBehaviour
                         var prisonerUnit = BattleGround.Captures[i].PrisonerUnit;
 
                         int healthDamage = prisonerUnit.Character.TakeDamagePercent(BattleGround.Captures[i].Component.PerTurnDamagePercent);
-                        FMODUnity.RuntimeManager.PlayOneShot("event:/char/enemy/" + captorMonster.Data.TypeId + "_captor_full_action");
+                        DarkestSoundManager.PlayOneShot("event:/char/enemy/" + captorMonster.Data.TypeId + "_captor_full_action");
 
                         if (!prisonerUnit.Character.HasZeroHealth)
                         {
@@ -2550,7 +2551,7 @@ public class RaidSceneManager : MonoBehaviour
                                     Formations.HideUnitOverlay();
                                     yield return new WaitForSeconds(0.2f);
                                     DungeonCamera.Zoom(50, 0.05f);
-                                    FMODUnity.RuntimeManager.PlayOneShot("event:/char/enemy/" + captorMonster.Data.TypeId + "_vo_death");
+                                    DarkestSoundManager.PlayOneShot("event:/char/enemy/" + captorMonster.Data.TypeId + "_vo_death");
                                     yield return new WaitForSeconds(0.05f);
                                     DungeonCamera.SwitchBlur(true);
                                     Formations.UnitSkillIntro(BattleGround.Captures[i].CaptorUnit, "release");
@@ -2643,7 +2644,7 @@ public class RaidSceneManager : MonoBehaviour
                     if (!Mathf.Approximately(companionEntry.CompanionComponent.HealPerTurn, 0))
                     {
                         int health = companionEntry.TargetUnit.Character.HealPercent(companionEntry.CompanionComponent.HealPerTurn, false);
-                        FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_enemy");
+                        DarkestSoundManager.PlayOneShot("event:/general/status/heal_enemy");
                         companionEntry.TargetUnit.OverlaySlot.UpdateOverlay();
                         RaidEvents.ShowPopupMessage(companionEntry.TargetUnit, PopupMessageType.Heal, health.ToString());
                         yield return new WaitForSeconds(0.4f);
@@ -2727,7 +2728,7 @@ public class RaidSceneManager : MonoBehaviour
             {
                 var bleedEffect = idleUnit.Character.GetStatusEffect(StatusType.Bleeding) as BleedingStatusEffect;
                 int damage = idleUnit.Character.TakeDamage(Mathf.CeilToInt(bleedEffect.CurrentTickDamage * 1.5f));
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/bleed_dot");
+                DarkestSoundManager.PlayOneShot("event:/general/status/bleed_dot");
                 idleUnit.OverlaySlot.UpdateOverlay();
 
                 if (!idleUnit.Character.HasZeroHealth)
@@ -2747,7 +2748,7 @@ public class RaidSceneManager : MonoBehaviour
                 var poisonEffect = idleUnit.Character.GetStatusEffect(StatusType.Poison) as PoisonStatusEffect;
                 int damage = idleUnit.Character.TakeDamage(Mathf.CeilToInt(poisonEffect.CurrentTickDamage * 1.5f));
                 RaidEvents.ShowPopupMessage(idleUnit, PopupMessageType.Damage, damage.ToString());
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/poison_dot");
+                DarkestSoundManager.PlayOneShot("event:/general/status/poison_dot");
                 idleUnit.OverlaySlot.UpdateOverlay();
 
                 if (!idleUnit.Character.HasZeroHealth)
@@ -2800,7 +2801,7 @@ public class RaidSceneManager : MonoBehaviour
     {
         if(fromBattleSave == false)
         {
-            FMODUnity.RuntimeManager.PlayOneShot("event:/general/char/ally_turn");
+            DarkestSoundManager.PlayOneShot("event:/general/char/ally_turn");
             RaidPanel.SetDisabledState();
             Formations.ResetSelections();
             yield return new WaitForEndOfFrame();
@@ -2812,7 +2813,7 @@ public class RaidSceneManager : MonoBehaviour
             if (actionUnit.Character.GetStatusEffect(StatusType.Bleeding).IsApplied)
             {
                 var bleedEffect = (BleedingStatusEffect)actionUnit.Character.GetStatusEffect(StatusType.Bleeding);
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/bleed_dot");
+                DarkestSoundManager.PlayOneShot("event:/general/status/bleed_dot");
 
                 if (ProcessDamage(actionUnit, bleedEffect.CurrentTickDamage))
                 {
@@ -2830,7 +2831,7 @@ public class RaidSceneManager : MonoBehaviour
             if (actionUnit.Character.GetStatusEffect(StatusType.Poison).IsApplied)
             {
                 var poisonEffect = (PoisonStatusEffect)actionUnit.Character.GetStatusEffect(StatusType.Poison);
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/poison_dot");
+                DarkestSoundManager.PlayOneShot("event:/general/status/poison_dot");
 
                 if (ProcessDamage(actionUnit, poisonEffect.CurrentTickDamage))
                 {
@@ -2918,7 +2919,7 @@ public class RaidSceneManager : MonoBehaviour
                         {
                             actionUnit.SetDefendAnimation(true);
                             yield return new WaitForSeconds(0.1f);
-                            FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/bleed_dot");
+                            DarkestSoundManager.PlayOneShot("event:/general/status/bleed_dot");
 
                             if (PrepareDeath(actionUnit))
                                 RaidEvents.ShowPopupMessage(actionUnit, PopupMessageType.DeathBlow);
@@ -2946,7 +2947,7 @@ public class RaidSceneManager : MonoBehaviour
 
                             int damageAmount = actionHero.TakeDamagePercent(actOut.NumberParameter);
                             actionUnit.OverlaySlot.UpdateOverlay();
-                            FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/bleed_dot");
+                            DarkestSoundManager.PlayOneShot("event:/general/status/bleed_dot");
                             RaidEvents.ShowPopupMessage(actionUnit, PopupMessageType.Damage, damageAmount.ToString());
 
                             if (actionUnit.Character.HasZeroHealth)
@@ -3032,7 +3033,7 @@ public class RaidSceneManager : MonoBehaviour
                         }
                         if (TempList.Count == 0) break;
                         yield return new WaitForSeconds(1f);
-                        FMODUnity.RuntimeManager.PlayOneShot("event:/general/party/combat_move");
+                        DarkestSoundManager.PlayOneShot("event:/general/party/combat_move");
                         yield return new WaitForSeconds(0.1f);
                         var shuffleRoll = TempList[RandomSolver.Next(TempList.Count)];
                         TempList.Clear();
@@ -3054,7 +3055,7 @@ public class RaidSceneManager : MonoBehaviour
                         int healAmount = actionHero.HealPercent(actOut.NumberParameter, true);
                         actionUnit.OverlaySlot.UpdateOverlay();
                         RaidEvents.ShowPopupMessage(actionUnit, PopupMessageType.Heal, healAmount.ToString());
-                        FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_ally");
+                        DarkestSoundManager.PlayOneShot("event:/general/status/heal_ally");
                         if (actionHero.AtDeathsDoor)
                             actionHero.RevertDeathsDoor();
                         actionUnit.OverlaySlot.UpdateOverlay();
@@ -3211,7 +3212,7 @@ public class RaidSceneManager : MonoBehaviour
 
                         #endregion
 
-                        FMODUnity.RuntimeManager.PlayOneShot("event:/general/party/combat_move");
+                        DarkestSoundManager.PlayOneShot("event:/general/party/combat_move");
 
                         if (actionUnit.Rank > targetUnit.Rank)
                             actionUnit.Pull(actionUnit.Rank - targetUnit.Rank);
@@ -3340,7 +3341,7 @@ public class RaidSceneManager : MonoBehaviour
                     }
                     else
                     {
-                        FMODUnity.RuntimeManager.PlayOneShot("event:/general/combat/retreat");
+                        DarkestSoundManager.PlayOneShot("event:/general/combat/retreat");
                         DarkestSoundManager.ExecuteNarration("battle_retreat", NarrationPlace.Raid);
 
                         yield return StartCoroutine(ProcessTransformationsAfterBattle());
@@ -3424,7 +3425,7 @@ public class RaidSceneManager : MonoBehaviour
 
     protected virtual IEnumerator MonsterTurn(FormationUnit actionUnit, string combatSkillOverride = null, bool fromBonusTurn = false)
     {
-        FMODUnity.RuntimeManager.PlayOneShot("event:/general/char/enemy_turn");
+        DarkestSoundManager.PlayOneShot("event:/general/char/enemy_turn");
         Formations.ResetSelections();
         yield return new WaitForEndOfFrame();
 
@@ -3443,7 +3444,7 @@ public class RaidSceneManager : MonoBehaviour
             if (actionUnit.Character[StatusType.Bleeding].IsApplied)
             {
                 var bleedEffect = (BleedingStatusEffect)actionUnit.Character[StatusType.Bleeding];
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/bleed_dot");
+                DarkestSoundManager.PlayOneShot("event:/general/status/bleed_dot");
 
                 if (ProcessDamage(actionUnit, bleedEffect.CurrentTickDamage))
                 {
@@ -3465,7 +3466,7 @@ public class RaidSceneManager : MonoBehaviour
             if (actionUnit.Character[StatusType.Poison].IsApplied)
             {
                 var poisonEffect = (PoisonStatusEffect)actionUnit.Character[StatusType.Poison];
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/poison_dot");
+                DarkestSoundManager.PlayOneShot("event:/general/status/poison_dot");
 
                 if (ProcessDamage(actionUnit, poisonEffect.CurrentTickDamage))
                 {
@@ -3616,11 +3617,11 @@ public class RaidSceneManager : MonoBehaviour
                         break;
                     case SkillResultType.Heal:
                         RaidEvents.ShowPopupMessage(skillEntry.Target, PopupMessageType.Heal, skillEntry.Amount.ToString());
-                        FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_ally");
+                        DarkestSoundManager.PlayOneShot("event:/general/status/heal_ally");
                         break;
                     case SkillResultType.CritHeal:
                         RaidEvents.ShowPopupMessage(skillEntry.Target, PopupMessageType.CritHeal, skillEntry.Amount.ToString());
-                        FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_ally_crit");
+                        DarkestSoundManager.PlayOneShot("event:/general/status/heal_ally_crit");
                         break;
                 }
 
@@ -3845,15 +3846,15 @@ public class RaidSceneManager : MonoBehaviour
             if (target.Character is Hero)
             {
                 if (target.Character.Mode != null)
-                    FMODUnity.RuntimeManager.PlayOneShot("event:/char/ally/" + 
+                    DarkestSoundManager.PlayOneShot("event:/char/ally/" + 
                         target.Character.Class + "_" + riposteSkill.Id + "_" + target.Character.Mode.Id);
                 else
-                    FMODUnity.RuntimeManager.PlayOneShot("event:/char/ally/" +
+                    DarkestSoundManager.PlayOneShot("event:/char/ally/" +
                         target.Character.Class + "_" + riposteSkill.Id);
             }
             else
             {
-                FMODUnity.RuntimeManager.PlayOneShot("event:/char/enemy/" + 
+                DarkestSoundManager.PlayOneShot("event:/char/enemy/" + 
                     target.Character.Class + "_" + riposteSkill.Id);
             }
         }
@@ -3907,11 +3908,11 @@ public class RaidSceneManager : MonoBehaviour
                             break;
                         case SkillResultType.Heal:
                             RaidEvents.ShowPopupMessage(skillEntry.Target, PopupMessageType.Heal, skillEntry.Amount.ToString());
-                            FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_ally");
+                            DarkestSoundManager.PlayOneShot("event:/general/status/heal_ally");
                             break;
                         case SkillResultType.CritHeal:
                             RaidEvents.ShowPopupMessage(skillEntry.Target, PopupMessageType.CritHeal, skillEntry.Amount.ToString());
-                            FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_ally_crit");
+                            DarkestSoundManager.PlayOneShot("event:/general/status/heal_ally_crit");
                             break;
                     }
 
@@ -3988,9 +3989,9 @@ public class RaidSceneManager : MonoBehaviour
         }
 
         if(skillResult.HasHit && FMODUnity.RuntimeManager.GetEventDescription(playSkillEvent) != null)
-            FMODUnity.RuntimeManager.PlayOneShot(playSkillEvent, DungeonCamera.Transform.position);
+            DarkestSoundManager.PlayOneShot(playSkillEvent, DungeonCamera.Transform.position);
         else if (FMODUnity.RuntimeManager.GetEventDescription(playSkillMissEvent) != null)
-            FMODUnity.RuntimeManager.PlayOneShot(playSkillMissEvent, DungeonCamera.Transform.position);
+            DarkestSoundManager.PlayOneShot(playSkillMissEvent, DungeonCamera.Transform.position);
 
         if (skillResult.HasCritEffect && targetInfo.Type == SkillTargetType.Enemy)
             DarkestSoundManager.ExecuteNarration(performer.Character.IsMonster ? "crit_hero" : "crit_monster", NarrationPlace.Raid);
@@ -4390,13 +4391,13 @@ public class RaidSceneManager : MonoBehaviour
                 if (actionUnit.Character.HealthRatio < 1)
                 {
                     Inventory.DiscardSingleItem(slot);
-                    FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/discard");
+                    DarkestSoundManager.PlayOneShot("event:/general/items/discard");
                     yield return new WaitForSeconds(0.1f);
                     int healthRestored = actionUnit.Character.HealPercent(0.05f, false);
                     RaidEvents.ShowPopupMessage(actionUnit, PopupMessageType.Heal, healthRestored.ToString());
                     actionUnit.OverlaySlot.UpdateOverlay();
                     Inventory.UpdateState();
-                    FMODUnity.RuntimeManager.PlayOneShot("event:/general/party/eat");
+                    DarkestSoundManager.PlayOneShot("event:/general/party/eat");
                     yield return new WaitForSeconds(0.3f);
                 }
                 break;
@@ -4407,7 +4408,7 @@ public class RaidSceneManager : MonoBehaviour
                         if(SceneState == DungeonSceneState.Room && CurrentEvent == null)
                         {
                             Inventory.DiscardSingleItem(slot);
-                            FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/discard");
+                            DarkestSoundManager.PlayOneShot("event:/general/items/discard");
                             CurrentEvent = CampingEvent(RoomView.RaidRoom.Area as DungeonRoom);
                             StartCoroutine(CurrentEvent);
                         }
@@ -4428,13 +4429,13 @@ public class RaidSceneManager : MonoBehaviour
                             }
                             #endregion
                             Inventory.DiscardSingleItem(slot);
-                            FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/discard");
+                            DarkestSoundManager.PlayOneShot("event:/general/items/discard");
                             yield return new WaitForSeconds(0.1f);
                             actionUnit.Character[StatusType.Bleeding].ResetStatus();
                             actionUnit.OverlaySlot.UpdateOverlay();
                             actionUnit.SetTargetItemEffect("bandage");
                             Inventory.UpdateState();
-                            FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/bandage");
+                            DarkestSoundManager.PlayOneShot("event:/general/items/bandage");
                             yield return new WaitForSeconds(0.8f);
                         }
                         break;
@@ -4454,13 +4455,13 @@ public class RaidSceneManager : MonoBehaviour
                             }
                             #endregion
                             Inventory.DiscardSingleItem(slot);
-                            FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/discard");
+                            DarkestSoundManager.PlayOneShot("event:/general/items/discard");
                             yield return new WaitForSeconds(0.1f);
                             actionUnit.Character[StatusType.Poison].ResetStatus();
                             actionUnit.OverlaySlot.UpdateOverlay();
                             actionUnit.SetTargetItemEffect("antivenom");
                             Inventory.UpdateState();
-                            FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/antivenom");
+                            DarkestSoundManager.PlayOneShot("event:/general/items/antivenom");
                             yield return new WaitForSeconds(0.8f);
                         }
                         break;
@@ -4480,14 +4481,14 @@ public class RaidSceneManager : MonoBehaviour
                             }
                             #endregion
                             Inventory.DiscardSingleItem(slot);
-                            FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/discard");
+                            DarkestSoundManager.PlayOneShot("event:/general/items/discard");
                             yield return new WaitForSeconds(0.1f);
                             RaidPanel.SelectedHero.RemoveCombatDebuffs();
                             RaidEvents.ShowPopupMessage(actionUnit, PopupMessageType.Cured);
                             actionUnit.OverlaySlot.UpdateOverlay();
                             actionUnit.SetTargetItemEffect("medicinal_herbs");
                             Inventory.UpdateState();
-                            FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/medicinal_herbs");
+                            DarkestSoundManager.PlayOneShot("event:/general/items/medicinal_herbs");
                             yield return new WaitForSeconds(0.8f);
                         }
                         break;
@@ -4495,10 +4496,10 @@ public class RaidSceneManager : MonoBehaviour
                         if (TorchMeter.TorchAmount < TorchMeter.MaxAmount)
                         {
                             Inventory.DiscardSingleItem(slot);
-                            FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/discard");
+                            DarkestSoundManager.PlayOneShot("event:/general/items/discard");
                             yield return new WaitForSeconds(0.1f);
                             TorchMeter.IncreaseTorch(25);
-                            FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/torch");
+                            DarkestSoundManager.PlayOneShot("event:/general/items/torch");
                             Inventory.UpdateState();
                             yield return new WaitForSeconds(0.1f);
                         }
@@ -4517,7 +4518,7 @@ public class RaidSceneManager : MonoBehaviour
                         }
                         #endregion
                         Inventory.DiscardSingleItem(slot);
-                        FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/discard");
+                        DarkestSoundManager.PlayOneShot("event:/general/items/discard");
                         yield return new WaitForSeconds(0.1f);
 
                         var holyWaterEffect = DarkestDungeonManager.Data.Effects["holy_water"];
@@ -4527,7 +4528,7 @@ public class RaidSceneManager : MonoBehaviour
                         actionUnit.SetTargetItemEffect("holy_water");
 
                         Inventory.UpdateState();
-                        FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/holy_water");
+                        DarkestSoundManager.PlayOneShot("event:/general/items/holy_water");
                         yield return new WaitForSeconds(0.8f);
                         break;
                     case "dog_treats":
@@ -4545,7 +4546,7 @@ public class RaidSceneManager : MonoBehaviour
                                 }
                             }
                             #endregion
-                            FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/discard");
+                            DarkestSoundManager.PlayOneShot("event:/general/items/discard");
                             yield return new WaitForSeconds(0.1f);
 
                             var dogEffect = DarkestDungeonManager.Data.Effects["dog_treats"];
@@ -4555,7 +4556,7 @@ public class RaidSceneManager : MonoBehaviour
                             actionUnit.SetTargetItemEffect("dog_treat");
 
                             Inventory.UpdateState();
-                            FMODUnity.RuntimeManager.PlayOneShot("event:/general/items/dog_treats");
+                            DarkestSoundManager.PlayOneShot("event:/general/items/dog_treats");
                             yield return new WaitForSeconds(0.8f);
                         }
                         break;
@@ -4602,7 +4603,7 @@ public class RaidSceneManager : MonoBehaviour
 
             RaidEvents.ShowAnnouncment(string.Format(LocalizationManager.GetString("resolve_test"), resolveUnit.Character.Name));
 
-            FMODUnity.RuntimeManager.PlayOneShot("event:/general/char/resolve_test");
+            DarkestSoundManager.PlayOneShot("event:/general/char/resolve_test");
             yield return new WaitForSeconds(1.6f);
             RaidEvents.HideAnnouncment();
             Formations.HideUnitOverlay();
@@ -4617,12 +4618,12 @@ public class RaidSceneManager : MonoBehaviour
             if(isVirtue)
             {
                 DarkestSoundManager.ExecuteNarration("virtue", NarrationPlace.Raid, resolveTrait.Id);
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/char/resolve_virtue");
+                DarkestSoundManager.PlayOneShot("event:/general/char/resolve_virtue");
             }
             else
             {
                 DarkestSoundManager.ExecuteNarration("afflicted", NarrationPlace.Raid, resolveTrait.Id);
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/char/resolve_afflict");
+                DarkestSoundManager.PlayOneShot("event:/general/char/resolve_afflict");
             }
 
             Formations.HeroResolveCheckIntro(resolveUnit, isVirtue);
@@ -4677,7 +4678,7 @@ public class RaidSceneManager : MonoBehaviour
                 continue;
 
             var bleedEffect = (BleedingStatusEffect)UnitEventQueue[i].Character[StatusType.Bleeding];
-            FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/bleed_dot");
+            DarkestSoundManager.PlayOneShot("event:/general/status/bleed_dot");
             executedBleed = true;
 
             if (ProcessDamage(UnitEventQueue[i], bleedEffect.CurrentTickDamage))
@@ -4715,7 +4716,7 @@ public class RaidSceneManager : MonoBehaviour
                 continue;
 
             var poisonEffect = (BleedingStatusEffect)UnitEventQueue[i].Character[StatusType.Poison];
-            FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/poison_dot");
+            DarkestSoundManager.PlayOneShot("event:/general/status/poison_dot");
             executedPoison = true;
 
             if (ProcessDamage(UnitEventQueue[i], poisonEffect.CurrentTickDamage))
@@ -4823,7 +4824,7 @@ public class RaidSceneManager : MonoBehaviour
                 if (RaidEvents.CampEvent.ActionType == CampUsageResultType.Skill)
                     RaidEvents.CampEvent.Hide();
 
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/combat/deaths_door");
+                DarkestSoundManager.PlayOneShot("event:/general/combat/deaths_door");
                 DarkestSoundManager.ExecuteNarration("deaths_door", NarrationPlace.Raid);
 
                 foreach (var deathDoorUnit in DeathDoorEnterQueue)
@@ -5008,8 +5009,8 @@ public class RaidSceneManager : MonoBehaviour
             yield return StartCoroutine(ProcessStarvation());
         else if (RaidEvents.HungerEvent.ActionType == HungerResultType.Eat)
         {
-            FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/heal_ally");
-            FMODUnity.RuntimeManager.PlayOneShot("event:/general/party/eat");
+            DarkestSoundManager.PlayOneShot("event:/general/status/heal_ally");
+            DarkestSoundManager.PlayOneShot("event:/general/party/eat");
 
             for (int i = 0; i < HeroParty.Units.Count; i++)
             {
@@ -5107,7 +5108,7 @@ public class RaidSceneManager : MonoBehaviour
             yield return new WaitForSeconds(0.6f);
 
             MapPanel.SetScoutingRadar();
-            FMODUnity.RuntimeManager.PlayOneShot("event:/general/map/scout_start");
+            DarkestSoundManager.PlayOneShot("event:/general/map/scout_start");
             yield return new WaitForSeconds(1f);
             
             foreach (Door door in room.Doors)
@@ -5128,7 +5129,7 @@ public class RaidSceneManager : MonoBehaviour
         yield return new WaitForSeconds(0.6f);
 
         MapPanel.SetScoutingRadar();
-        FMODUnity.RuntimeManager.PlayOneShot("event:/general/map/scout_start");
+        DarkestSoundManager.PlayOneShot("event:/general/map/scout_start");
         yield return new WaitForSeconds(1f);
 
         if (result.Item.EndsWith("all"))
@@ -5313,6 +5314,7 @@ public class RaidSceneManager : MonoBehaviour
         var oneShotCurio = FMODUnity.RuntimeManager.CreateInstance("event:/props/curios/" + curio.OriginalId);
         if (oneShotCurio != null)
         {
+            oneShotCurio.setVolume(DarkestSoundManager.SfxVolume);
             if (curioInteraction is ItemInteraction)
             {
                 oneShotCurio.setParameterValue("item_index", curio.ItemInteractions.IndexOf(curioInteraction as ItemInteraction) + 1);
@@ -5622,7 +5624,7 @@ public class RaidSceneManager : MonoBehaviour
         if (isDisarmed)
         {
             BattleSolver.SkillResult.AddResultEntry(new SkillResultEntry(trapTarget, SkillResultType.Hit));
-            FMODUnity.RuntimeManager.PlayOneShot("event:/props/traps/" + trap.StringId + "_disarm");
+            DarkestSoundManager.PlayOneShot("event:/props/traps/" + trap.StringId + "_disarm");
 
             if(CurrentRaid.Quest.Difficulty == 1)
             {
@@ -5645,12 +5647,12 @@ public class RaidSceneManager : MonoBehaviour
         {
             if (RandomSolver.CheckSuccess(Mathf.Clamp(trapTarget.Character.Dodge, 0, 0.9f)))
             {
-                FMODUnity.RuntimeManager.PlayOneShot("event:/props/traps/" + trap.StringId + "_dodge");
+                DarkestSoundManager.PlayOneShot("event:/props/traps/" + trap.StringId + "_dodge");
                 BattleSolver.SkillResult.AddResultEntry(new SkillResultEntry(trapTarget, SkillResultType.Dodge));
             }
             else
             {
-                FMODUnity.RuntimeManager.PlayOneShot("event:/props/traps/" + trap.StringId);
+                DarkestSoundManager.PlayOneShot("event:/props/traps/" + trap.StringId);
                 BattleSolver.SkillResult.AddResultEntry(new SkillResultEntry(trapTarget, SkillResultType.Hit));
             }
 
@@ -5770,7 +5772,7 @@ public class RaidSceneManager : MonoBehaviour
         if(handActivation)
         {
             DarkestSoundManager.ExecuteNarration("obstacle_clear_no_item", NarrationPlace.Raid);
-            FMODUnity.RuntimeManager.PlayOneShot("event:/props/obstacles/" + obstacle.StringId + "_by_hand");
+            DarkestSoundManager.PlayOneShot("event:/props/obstacles/" + obstacle.StringId + "_by_hand");
             if (obstacle.TorchlightPenalty < 0)
                 TorchMeter.DecreaseTorch(Mathf.Abs(Mathf.RoundToInt(obstacle.TorchlightPenalty)));
 
@@ -5804,7 +5806,7 @@ public class RaidSceneManager : MonoBehaviour
         else
         {
             DarkestSoundManager.ExecuteNarration("obstacle", NarrationPlace.Raid, Raid.Quest.Dungeon);
-            FMODUnity.RuntimeManager.PlayOneShot("event:/props/obstacles/" + obstacle.StringId);
+            DarkestSoundManager.PlayOneShot("event:/props/obstacles/" + obstacle.StringId);
         }
 
         if (raidObstacle.SkeletonAnimation.state.GetCurrent(0) != null)
@@ -5931,7 +5933,7 @@ public class RaidSceneManager : MonoBehaviour
     private IEnumerator ProcessStarvation()
     {
         DarkestSoundManager.ExecuteNarration("hunger_starve", NarrationPlace.Raid);
-        FMODUnity.RuntimeManager.PlayOneShot("event:/general/status/bleed_dot");
+        DarkestSoundManager.PlayOneShot("event:/general/status/bleed_dot");
 
         HeroParty.Units.ForEach(unit => ProcessDamage(unit, unit.Character.TakeDamagePercent(0.2f)));
         HeroParty.Units.ForEach(unit => DarkestDungeonManager.Data.Effects["Stress 2"].ApplyIndependent(unit));

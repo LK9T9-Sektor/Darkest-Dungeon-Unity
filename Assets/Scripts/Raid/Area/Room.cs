@@ -67,7 +67,7 @@ public class DungeonRoom : Area
         {
             Knowledge = Knowledge.Scouted;
             RaidSceneManager.MapPanel.UpdateArea(this);
-            FMODUnity.RuntimeManager.PlayOneShot("event:/general/map/scout_room");
+            DarkestSoundManager.PlayOneShot("event:/general/map/scout_room");
         }
     }
 }

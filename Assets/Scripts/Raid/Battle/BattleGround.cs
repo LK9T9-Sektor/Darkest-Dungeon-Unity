@@ -629,7 +629,7 @@ public class BattleGround : MonoBehaviour
         }
         else
         {
-            FMODUnity.RuntimeManager.PlayOneShot("event:/char/enemy/" + captor.Character.Class + "_capture_fade_in");          
+            DarkestSoundManager.PlayOneShot("event:/char/enemy/" + captor.Character.Class + "_capture_fade_in");          
         }
     }
 
@@ -704,7 +704,7 @@ public class BattleGround : MonoBehaviour
                         subEffect.ApplyInstant(captureRecord.CaptorUnit, captureRecord.PrisonerUnit, captorEffect);
                 }
                 captureRecord.PrisonerUnit.RemoveCaptureEffect();
-                FMODUnity.RuntimeManager.PlayOneShot("event:/char/enemy/" +
+                DarkestSoundManager.PlayOneShot("event:/char/enemy/" +
                     captureRecord.CaptorUnit.Character.Class + "_capture_fade_out");
             }
         }

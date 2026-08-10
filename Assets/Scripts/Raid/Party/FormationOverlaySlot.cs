@@ -67,7 +67,7 @@ public class FormationOverlaySlot : MonoBehaviour, IPointerClickHandler, IPointe
 
     public void StartDialog(string dialogText, bool skipable = true)
     {
-        FMODUnity.RuntimeManager.PlayOneShot("event:/ui/shared/text_popup");
+        DarkestSoundManager.PlayOneShot("event:/ui/shared/text_popup");
         dialogPopup.SetCurrentDialog(dialogText, skipable);
     }
 

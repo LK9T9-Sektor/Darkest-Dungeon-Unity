@@ -76,7 +76,7 @@ public class HallSector : Area
 
             if (Type != AreaType.Door)
             {
-                FMODUnity.RuntimeManager.PlayOneShot("event:/general/map/scout_hallway");
+                DarkestSoundManager.PlayOneShot("event:/general/map/scout_hallway");
                 RaidSceneManager.MapPanel.UpdateArea(this);
 
                 if (Type != AreaType.Trap || RaidSceneManager.SceneState != DungeonSceneState.Hall)
