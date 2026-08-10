@@ -13,4 +13,7 @@ public class SoundSettingsSprites : ScriptableObject
 
     /// <summary>The increment arrow shown on the volume increase button.</summary>
     public Sprite PlusArrow;
+
+    /// <summary>The close X icon shown in the window's top-right corner.</summary>
+    public Sprite CloseIcon;
 }

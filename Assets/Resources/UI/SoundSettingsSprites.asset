@@ -14,3 +14,4 @@ MonoBehaviour:
   WindowFrame: {fileID: 21300000, guid: c9844842069265e4da07c78f3ede229c, type: 3}
   MinusArrow: {fileID: 21300000, guid: 8d241f4fc46f92743be47d77dbd578d9, type: 3}
   PlusArrow: {fileID: 21300000, guid: 25607369278636749981b488cf8df52a, type: 3}
+  CloseIcon: {fileID: 21300000, guid: 769d8277be4c51447a1cb51c5cb91749, type: 3}

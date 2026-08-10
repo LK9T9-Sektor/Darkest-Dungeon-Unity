@@ -106,6 +106,7 @@ public class SoundSettingsUI : MonoBehaviour
         _musicValueText.text = _musicVolume.ToString();
         _sfxValueText.text = _sfxVolume.ToString();
 
+        CreateCloseButton(_panel.transform);
         CreateButton(canvas.transform);
     }
 
@@ -184,6 +185,12 @@ public class SoundSettingsUI : MonoBehaviour
         _title = CreateText("SettingsTitle", parent, _titleLabelFallback,
             new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 300), new Vector2(600, 48));
         _title.fontSize = _titleFontSize;
+    }
+
+    private void CreateCloseButton(Transform parent)
+    {
+        Sprite closeIcon = _sprites != null ? _sprites.CloseIcon : null;
+        CreateStepperButton(parent, "CloseButton", closeIcon, new Vector2(476, 334), TogglePanel);
     }
 
     private void CreateVolumeRow(Transform parent, int index, string labelFallback,
