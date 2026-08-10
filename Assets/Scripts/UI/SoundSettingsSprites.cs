@@ -16,4 +16,7 @@ public class SoundSettingsSprites : ScriptableObject
 
     /// <summary>The close X icon shown in the window's top-right corner.</summary>
     public Sprite CloseIcon;
+
+    /// <summary>The framed overlay used as the exit button's background.</summary>
+    public Sprite ExitButtonOverlay;
 }

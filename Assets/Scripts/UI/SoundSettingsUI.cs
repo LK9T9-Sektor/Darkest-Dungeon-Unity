@@ -13,10 +13,12 @@ public class SoundSettingsUI : MonoBehaviour
     private const string _titleLabelKey = "menu_options_title";
     private const string _musicVolumeLabelKey = "menu_options_element_music_volume";
     private const string _sfxVolumeLabelKey = "menu_options_element_sfx_volume";
+    private const string _exitButtonLabelKey = "menu_base_element_exit_game";
 
     private const string _titleLabelFallback = "Settings";
     private const string _musicVolumeLabelFallback = "Music Volume";
     private const string _sfxVolumeLabelFallback = "SFX Volume";
+    private const string _exitButtonLabelFallback = "Exit to Desktop";
 
     private const string _fontResourcePath = "Fonts/Deutsch";
     private const string _settingsButtonSpriteResourcePath = "UI/settings.button";
@@ -38,6 +40,7 @@ public class SoundSettingsUI : MonoBehaviour
     private Text _sfxLabel;
     private Text _musicValueText;
     private Text _sfxValueText;
+    private Text _exitButtonLabel;
     private Font _font;
     private Sprite _settingsButtonSprite;
     private SoundSettingsSprites _sprites;
@@ -46,6 +49,7 @@ public class SoundSettingsUI : MonoBehaviour
     private bool _titleLocalized;
     private bool _musicLabelLocalized;
     private bool _sfxLabelLocalized;
+    private bool _exitLabelLocalized;
 
     /// <summary>Creates the persistent settings object once the first scene has loaded.</summary>
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -79,6 +83,8 @@ public class SoundSettingsUI : MonoBehaviour
             _musicLabelLocalized = TryLocalize(_musicLabel, _musicVolumeLabelKey, _musicVolumeLabelFallback);
         if (!_sfxLabelLocalized)
             _sfxLabelLocalized = TryLocalize(_sfxLabel, _sfxVolumeLabelKey, _sfxVolumeLabelFallback);
+        if (!_exitLabelLocalized)
+            _exitLabelLocalized = TryLocalize(_exitButtonLabel, _exitButtonLabelKey, _exitButtonLabelFallback);
     }
 
     private void CreateUi()
@@ -107,6 +113,7 @@ public class SoundSettingsUI : MonoBehaviour
         _sfxValueText.text = _sfxVolume.ToString();
 
         CreateCloseButton(_panel.transform);
+        CreateExitButton(_panel.transform);
         CreateButton(canvas.transform);
     }
 
@@ -191,6 +198,37 @@ public class SoundSettingsUI : MonoBehaviour
     {
         Sprite closeIcon = _sprites != null ? _sprites.CloseIcon : null;
         CreateStepperButton(parent, "CloseButton", closeIcon, new Vector2(476, 334), TogglePanel);
+    }
+
+    private void CreateExitButton(Transform parent)
+    {
+        GameObject buttonObject = CreateUiObject("ExitButton", parent);
+        RectTransform rect = buttonObject.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.5f, 0.5f);
+        rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = new Vector2(0, -250);
+        rect.sizeDelta = new Vector2(466, 97);
+
+        Image background = buttonObject.AddComponent<Image>();
+        Sprite exitOverlay = _sprites != null ? _sprites.ExitButtonOverlay : null;
+        if (exitOverlay != null)
+        {
+            background.sprite = exitOverlay;
+            background.color = Color.white;
+        }
+        else
+        {
+            background.color = new Color(0, 0, 0, 0.75f);
+        }
+
+        Button button = buttonObject.AddComponent<Button>();
+        button.targetGraphic = background;
+        button.onClick.AddListener(QuitGame);
+
+        _exitButtonLabel = CreateText("ExitLabel", buttonObject.transform, _exitButtonLabelFallback,
+            new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 3), new Vector2(236, 43));
+        _exitButtonLabel.fontSize = 30;
     }
 
     private void CreateVolumeRow(Transform parent, int index, string labelFallback,
@@ -303,6 +341,14 @@ public class SoundSettingsUI : MonoBehaviour
         _panel.SetActive(isActive);
         if (isActive)
             SyncValuesFromManager();
+    }
+
+    private void QuitGame()
+    {
+        if (DarkestDungeonManager.Instanse != null && DarkestDungeonManager.MainMenu != null)
+            DarkestDungeonManager.MainMenu.QuitGame();
+        else
+            Application.Quit();
     }
 
     private void SyncValuesFromManager()
