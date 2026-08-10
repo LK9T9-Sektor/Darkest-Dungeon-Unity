@@ -38,7 +38,7 @@ docs/NETWORK_ARCHITECTURE.md
 Миграция проходит поэтапно, без поломки существующей функциональности.
 Папка /External/ – только для справки, код не используется напрямую.
 
-5. Текущая реализация (ветка coop)
+5. Текущая реализация (ветка steam)
 
 Модули (чистый .NET Standard 2.0, C# 7.3):
 
@@ -74,8 +74,9 @@ docs/NETWORK_ARCHITECTURE.md
 - Сессия = Steam Lobby (тип Public); сообщения — надёжный, упорядоченный P2P-канал
   (`k_EP2PSendReliable`, channel 1).
 - При активной сессии публикуется rich presence `connect = steam://joinlobby/<appid>/<lobbyId>`
-  (ISteamFriends), что делает хоста «Joinable» в Steam и позволяет вступать через кнопку Join Game /
-  `+connect_lobby`. AppID берётся через `ISteamUtils_GetAppID`, не хардкодится.
+  (ISteamFriends) — хост помечается «Joinable» в Steam. AppID берётся через `ISteamUtils_GetAppID`,
+  не хардкодится. Вход через Steam-приглашение (Join Game / `+connect_lobby`) пока НЕ работает —
+  приходится вводить ROOM_ID вручную (см. KNOWN_ISSUES.md §11).
 - Идентификатор игрока/сессии — `ulong` steamID как строка; никаких хардкод-AppID (steam_appid.txt).
 - Разбор входящих колбэков — через реестр делегатов по callback ID (без switch по идентификаторам).
 
