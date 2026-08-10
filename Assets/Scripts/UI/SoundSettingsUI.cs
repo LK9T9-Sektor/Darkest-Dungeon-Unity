@@ -347,10 +347,20 @@ public class SoundSettingsUI : MonoBehaviour
 
     private void ReturnToMainMenu()
     {
+        Debug.Log("[SOUNDSETTINGS] EXIT TO MAIN MENU CLICKED. CLOSING SETTINGS PANEL.");
+        ClosePanel();
         if (DarkestDungeonManager.Instanse != null && DarkestDungeonManager.MainMenu != null)
             DarkestDungeonManager.MainMenu.ReturnToCampaignSelection();
         else
             SceneManager.LoadScene(_campaignSelectionSceneName);
+    }
+
+    private void ClosePanel()
+    {
+        if (_panel == null)
+            return;
+
+        _panel.SetActive(false);
     }
 
     private void SyncValuesFromManager()

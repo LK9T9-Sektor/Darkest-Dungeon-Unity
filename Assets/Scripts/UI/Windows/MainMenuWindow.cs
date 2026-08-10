@@ -59,6 +59,7 @@ public class MainMenuWindow : MonoBehaviour
 
     public void QuitGame()
     {
+        Debug.Log("[MAINMENU] QUIT GAME REQUESTED. STOPPING PLAY MODE IN EDITOR OR QUITTING APPLICATION IN BUILD.");
         if (SceneManager.GetActiveScene().name == "DungeonMultiplayer")
         {
             RaidSceneManager.Instanse.OnSceneLeave();
