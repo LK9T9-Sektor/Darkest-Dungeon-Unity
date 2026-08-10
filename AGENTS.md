@@ -61,3 +61,16 @@
 ### V. Structural Evolution
 
 - **Module Growth Lifecycle** — Features, entities, and use cases start flat as a single file in a general folder. Once a feature expands beyond one public type, it must be promoted to a standalone top-level module (its own folder and namespace), never hidden inside subfolders. Further growth promotes it to a dedicated assembly.
+
+---
+
+## 📚 Documentation: Required Reading & Maintenance
+
+Before planning or editing, read the relevant documents from `src\docs\`:
+- `GAME_ARCHITECTURE.md` — architecture, code structure, god-classes, version;
+- `KNOWN_ISSUES.md` — architectural debt and known issues (do not make them worse);
+- `CHANGELOG.md` — change log by version (current version at the top of the file).
+
+Read only what the task relates to. Legacy edits stay minimal; `src\External\` is read-only.
+
+**Maintenance rule:** if a code change affects a documented fact (paths/structure, god-classes, version, public APIs, new modules, dependencies), update the corresponding document in the same commit. Do not document internals or cosmetics; `CHANGELOG.md` only for user-visible changes.
