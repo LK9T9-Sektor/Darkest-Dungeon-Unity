@@ -41,6 +41,22 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
             "SteamNetworking005",
         };
 
+        /// <summary>ISteamFriends version candidates, newest first.</summary>
+        internal static readonly string[] SteamFriendsCandidates =
+        {
+            "SteamFriends017",
+            "SteamFriends016",
+            "SteamFriends015",
+            "SteamFriends014",
+        };
+
+        /// <summary>ISteamUtils version candidates, newest first.</summary>
+        internal static readonly string[] SteamUtilsCandidates =
+        {
+            "SteamUtils010",
+            "SteamUtils009",
+        };
+
         /// <summary>Size in bytes of the native SteamErrMsg buffer (k_cchMaxSteamErrMsg).</summary>
         internal const int SteamApiMaxErrorLength = 1024;
 

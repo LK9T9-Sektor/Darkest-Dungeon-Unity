@@ -19,6 +19,8 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
         private IntPtr _matchmaking;
         private IntPtr _networking;
         private IntPtr _user;
+        private IntPtr _friends;
+        private IntPtr _utils;
 
         /// <summary>Gets a value indicating whether the runtime is initialized.</summary>
         internal bool IsInitialized
@@ -42,6 +44,18 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
         internal IntPtr User
         {
             get { return _user; }
+        }
+
+        /// <summary>Gets the ISteamFriends interface pointer.</summary>
+        internal IntPtr Friends
+        {
+            get { return _friends; }
+        }
+
+        /// <summary>Gets the ISteamUtils interface pointer.</summary>
+        internal IntPtr Utils
+        {
+            get { return _utils; }
         }
 
         /// <summary>
@@ -97,12 +111,27 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
                 triedNetworking,
                 version => SteamNative.ISteamClient_GetISteamNetworking(client, _hSteamUser, _hSteamPipe, version));
 
-            if (_user == IntPtr.Zero || _matchmaking == IntPtr.Zero || _networking == IntPtr.Zero)
+            List<string> triedFriends = new List<string>();
+            _friends = ResolveFirst(
+                SteamConstants.SteamFriendsCandidates,
+                triedFriends,
+                version => SteamNative.ISteamClient_GetISteamFriends(client, _hSteamUser, _hSteamPipe, version));
+
+            List<string> triedUtils = new List<string>();
+            _utils = ResolveFirst(
+                SteamConstants.SteamUtilsCandidates,
+                triedUtils,
+                version => SteamNative.ISteamClient_GetISteamUtils(client, _hSteamUser, _hSteamPipe, version));
+
+            if (_user == IntPtr.Zero || _matchmaking == IntPtr.Zero || _networking == IntPtr.Zero
+                || _friends == IntPtr.Zero || _utils == IntPtr.Zero)
             {
                 SteamNative.SteamAPI_Shutdown();
                 return Result.Failure("A required ISteam interface is unavailable (User: " + string.Join(", ", triedUser)
                     + "; Matchmaking: " + string.Join(", ", triedMatchmaking)
-                    + "; Networking: " + string.Join(", ", triedNetworking) + ").");
+                    + "; Networking: " + string.Join(", ", triedNetworking)
+                    + "; Friends: " + string.Join(", ", triedFriends)
+                    + "; Utils: " + string.Join(", ", triedUtils) + ").");
             }
 
             SteamNative.SteamAPI_ManualDispatch_Init();

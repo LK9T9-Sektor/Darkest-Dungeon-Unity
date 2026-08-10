@@ -11,12 +11,14 @@ namespace Sektor.DarkestDungeon.Lan.Cmd
     /// Console smoke test for the Steam transport. Without arguments an interactive menu lets the
     /// user pick between hosting a session or joining one (via a pasted ROOM_ID or a Steam invite,
     /// like the legacy SteamLan console app). With arguments it stays scriptable:
-    /// <c>host</c> creates a session, <c>join &lt;sessionId&gt;</c> joins one.
+    /// <c>host</c> creates a session, <c>join &lt;sessionId&gt;</c> joins one, and
+    /// <c>+connect_lobby &lt;sessionId&gt;</c> joins a lobby from a Steam invite URL.
     /// </summary>
     internal static class Program
     {
         private const string PingType = "ping";
         private const string PongType = "pong";
+        private const string ConnectLobbyArg = "+connect_lobby";
         private const int TimeoutSeconds = 60;
         private const int FlushMilliseconds = 500;
 
@@ -38,7 +40,22 @@ namespace Sektor.DarkestDungeon.Lan.Cmd
                 }
 
                 Console.WriteLine("Steam ready. Local player: " + transport.LocalPlayerId);
-                WireEvents(transport, exitOnMessage: args.Length > 0);
+                string connectLobbyId = ExtractConnectLobbyId(args);
+                WireEvents(transport, exitOnMessage: args.Length > 0 || connectLobbyId != null);
+
+                if (connectLobbyId != null)
+                {
+                    Console.WriteLine("Connect lobby: " + connectLobbyId + ". Подключаемся...");
+                    Result joined = transport.JoinSession(connectLobbyId);
+                    if (!joined.IsSuccess)
+                    {
+                        Console.WriteLine("JoinSession failed: " + joined.ErrorMessage);
+                        WaitForExit();
+                        return 1;
+                    }
+
+                    return PumpUntilFinished(transport);
+                }
 
                 if (args.Length == 0)
                 {
@@ -124,10 +141,24 @@ namespace Sektor.DarkestDungeon.Lan.Cmd
                 Console.WriteLine("Usage:");
                 Console.WriteLine("  host");
                 Console.WriteLine("  join <sessionId>");
+                Console.WriteLine("  +connect_lobby <sessionId>");
                 return 1;
             }
 
             return PumpUntilFinished(transport);
+        }
+
+        private static string ExtractConnectLobbyId(string[] args)
+        {
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == ConnectLobbyArg && i + 1 < args.Length)
+                {
+                    return args[i + 1];
+                }
+            }
+
+            return null;
         }
 
         private static void ShowMenu()

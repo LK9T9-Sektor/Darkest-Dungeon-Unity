@@ -56,6 +56,12 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
         [DllImport(NativeLibraryName, EntryPoint = "SteamAPI_ISteamClient_GetISteamUser", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr ISteamClient_GetISteamUser(IntPtr instancePtr, int hSteamUser, int hSteamPipe, string pchVersion);
 
+        [DllImport(NativeLibraryName, EntryPoint = "SteamAPI_ISteamClient_GetISteamFriends", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr ISteamClient_GetISteamFriends(IntPtr instancePtr, int hSteamUser, int hSteamPipe, string pchVersion);
+
+        [DllImport(NativeLibraryName, EntryPoint = "SteamAPI_ISteamClient_GetISteamUtils", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr ISteamClient_GetISteamUtils(IntPtr instancePtr, int hSteamUser, int hSteamPipe, string pchVersion);
+
         // ISteamMatchmaking ----------------------------------------------------------
 
         [DllImport(NativeLibraryName, EntryPoint = "SteamAPI_ISteamMatchmaking_CreateLobby", CallingConvention = CallingConvention.Cdecl)]
@@ -102,5 +108,19 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
 
         [DllImport(NativeLibraryName, EntryPoint = "SteamAPI_ISteamUser_GetSteamID", CallingConvention = CallingConvention.Cdecl)]
         internal static extern ulong ISteamUser_GetSteamID(IntPtr instancePtr);
+
+        // ISteamFriends --------------------------------------------------------------
+
+        [DllImport(NativeLibraryName, EntryPoint = "SteamAPI_ISteamFriends_SetRichPresence", CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool ISteamFriends_SetRichPresence(IntPtr instancePtr, IntPtr pchKey, IntPtr pchValue);
+
+        [DllImport(NativeLibraryName, EntryPoint = "SteamAPI_ISteamFriends_ClearRichPresence", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void ISteamFriends_ClearRichPresence(IntPtr instancePtr);
+
+        // ISteamUtils ----------------------------------------------------------------
+
+        [DllImport(NativeLibraryName, EntryPoint = "SteamAPI_ISteamUtils_GetAppID", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern uint ISteamUtils_GetAppID(IntPtr instancePtr);
     }
 }

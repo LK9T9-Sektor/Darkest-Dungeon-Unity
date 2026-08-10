@@ -44,10 +44,11 @@ docs/NETWORK_ARCHITECTURE.md
 
 - `src/Lan/Sektor.DarkestDungeon.Lan.Contracts` — интерфейсы транспорта и wire-контракты
   (`ITransport`, `ITransportCodec`, `TransportMessage`, `Result`/`Result<T>`). Никаких зависимостей.
-- `src/Lan/Sektor.DarkestDungeon.Lan.Steam` — Steam P2P транспорт: `JsonTransportCodec` (Newtonsoft.Json) +
-  `SteamTransport` поверх собственного interop-слоя `Interop/`.
+- `src/Lan/Sektor.DarkestDungeon.Lan.Steam` — Steam P2P транспорт: `JsonTransportCodec` (самодостаточный
+  минимальный JSON-кодек без внешних зависимостей) + `SteamTransport` поверх собственного interop-слоя `Interop/`.
 - `src/Lan/Sektor.DarkestDungeon.Lan.Cmd` — консольный smoke-клиент: без аргументов интерактивное меню
-  (хост / клиент / выход) со входом по Steam-приглашению; с аргументами скриптовый режим `host` / `join <sessionId>`.
+  (хост / клиент / выход) со входом по Steam-приглашению; с аргументами скриптовый режим `host` / `join <sessionId>`,
+  а также вход через `+connect_lobby <sessionId>` (Steam Invite URL).
 - `tests/Lan/Sektor.DarkestDungeon.Lan.Tests` — NUnit: кодек, жизненный цикл, round-trip (in-memory транспорт).
 
 Почему свой interop-слой, а не Steamworks.NET из NuGet:
@@ -72,6 +73,9 @@ docs/NETWORK_ARCHITECTURE.md
   Ошибки init пробрасываются наружу как `Result.Failure` с текстом от SDK.
 - Сессия = Steam Lobby (тип Public); сообщения — надёжный, упорядоченный P2P-канал
   (`k_EP2PSendReliable`, channel 1).
+- При активной сессии публикуется rich presence `connect = steam://joinlobby/<appid>/<lobbyId>`
+  (ISteamFriends), что делает хоста «Joinable» в Steam и позволяет вступать через кнопку Join Game /
+  `+connect_lobby`. AppID берётся через `ISteamUtils_GetAppID`, не хардкодится.
 - Идентификатор игрока/сессии — `ulong` steamID как строка; никаких хардкод-AppID (steam_appid.txt).
 - Разбор входящих колбэков — через реестр делегатов по callback ID (без switch по идентификаторам).
 

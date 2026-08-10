@@ -21,6 +21,8 @@ namespace Sektor.DarkestDungeon.Lan.Steam
         private const int ReceiveBufferSize = 65535;
         private const int MaxDrainedPerPump = 256;
         private const string LobbyDataHostSteamId = "host_steam_id";
+        private const string ConnectRichPresenceKey = "connect";
+        private const string JoinLobbyUrlPrefix = "steam://joinlobby/";
 
         private readonly ITransportCodec _codec;
         private readonly SteamRuntime _runtime;
@@ -143,6 +145,7 @@ namespace Sektor.DarkestDungeon.Lan.Steam
             SteamNative.ISteamMatchmaking_LeaveLobby(_runtime.Matchmaking, _currentLobbyId);
             _currentLobbyId = 0;
             _sessionCreationPending = false;
+            ClearJoinableState();
             return Result.Success();
         }
 
@@ -196,6 +199,7 @@ namespace Sektor.DarkestDungeon.Lan.Steam
                 _currentLobbyId = 0;
             }
 
+            ClearJoinableState();
             _runtime.Dispose();
         }
 
@@ -220,6 +224,7 @@ namespace Sektor.DarkestDungeon.Lan.Steam
             bool wasInSession = IsSessionActive;
             _currentLobbyId = callback.m_ulSteamIDLobby;
             SetLobbyData(LobbyDataHostSteamId, LocalPlayerId);
+            UpdateJoinableState();
             if (!wasInSession)
             {
                 OnSessionJoined(_currentLobbyId.ToString());
@@ -237,6 +242,7 @@ namespace Sektor.DarkestDungeon.Lan.Steam
             bool wasInSession = IsSessionActive;
             _currentLobbyId = callback.m_ulSteamIDLobby;
             _sessionCreationPending = false;
+            UpdateJoinableState();
             if (wasInSession)
             {
                 return;
@@ -310,6 +316,22 @@ namespace Sektor.DarkestDungeon.Lan.Steam
                 SteamNative.ISteamMatchmaking_SetLobbyData(
                     _runtime.Matchmaking, _currentLobbyId, keyBuffer.Pointer, valueBuffer.Pointer);
             }
+        }
+
+        private void UpdateJoinableState()
+        {
+            uint appId = SteamNative.ISteamUtils_GetAppID(_runtime.Utils);
+            string connect = JoinLobbyUrlPrefix + appId + "/" + _currentLobbyId;
+            using (NativeUtf8.PinnedBuffer keyBuffer = NativeUtf8.ToNative(ConnectRichPresenceKey))
+            using (NativeUtf8.PinnedBuffer valueBuffer = NativeUtf8.ToNative(connect))
+            {
+                SteamNative.ISteamFriends_SetRichPresence(_runtime.Friends, keyBuffer.Pointer, valueBuffer.Pointer);
+            }
+        }
+
+        private void ClearJoinableState()
+        {
+            SteamNative.ISteamFriends_ClearRichPresence(_runtime.Friends);
         }
 
         private void NotifyExistingPlayers()
