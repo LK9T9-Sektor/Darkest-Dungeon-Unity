@@ -123,4 +123,5 @@
 - `NETWORK_ARCHITECTURE.md` — план миграции сети Photon → альтернативный сетевой провайдер (например, Steam P2P).
 - `COMPABILITY.md` — как собирать чистое C# ядро для Unity 2017.4 (netstandard2.0, C# 7.3).
 - `KNOWN_ISSUES.md` — архитектурный долг и известные проблемы.
+- `ROADMAP.md` — кооперативная сессия (боевая сессия до 8, город 1–4): эскиз и дорожная карта.
 - `RUNTIME_MIGRATION.md` — переход runtime на .NET 4.6: анализ ошибок загрузки контента (`src\issues\Migration-Issues-01.txt`).
