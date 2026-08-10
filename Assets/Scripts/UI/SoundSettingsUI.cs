@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
@@ -13,12 +14,13 @@ public class SoundSettingsUI : MonoBehaviour
     private const string _titleLabelKey = "menu_options_title";
     private const string _musicVolumeLabelKey = "menu_options_element_music_volume";
     private const string _sfxVolumeLabelKey = "menu_options_element_sfx_volume";
-    private const string _exitButtonLabelKey = "menu_base_element_exit_game";
+    private const string _returnButtonLabelKey = "menu_base_element_exit_campaign";
 
     private const string _titleLabelFallback = "Settings";
     private const string _musicVolumeLabelFallback = "Music Volume";
     private const string _sfxVolumeLabelFallback = "SFX Volume";
-    private const string _exitButtonLabelFallback = "Exit to Desktop";
+    private const string _returnButtonLabelFallback = "Exit to Main Menu";
+    private const string _campaignSelectionSceneName = "CampaignSelection";
 
     private const string _fontResourcePath = "Fonts/Deutsch";
     private const string _settingsButtonSpriteResourcePath = "UI/settings.button";
@@ -40,7 +42,7 @@ public class SoundSettingsUI : MonoBehaviour
     private Text _sfxLabel;
     private Text _musicValueText;
     private Text _sfxValueText;
-    private Text _exitButtonLabel;
+    private Text _returnButtonLabel;
     private Font _font;
     private Sprite _settingsButtonSprite;
     private SoundSettingsSprites _sprites;
@@ -49,7 +51,7 @@ public class SoundSettingsUI : MonoBehaviour
     private bool _titleLocalized;
     private bool _musicLabelLocalized;
     private bool _sfxLabelLocalized;
-    private bool _exitLabelLocalized;
+    private bool _returnLabelLocalized;
 
     /// <summary>Creates the persistent settings object once the first scene has loaded.</summary>
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -83,8 +85,8 @@ public class SoundSettingsUI : MonoBehaviour
             _musicLabelLocalized = TryLocalize(_musicLabel, _musicVolumeLabelKey, _musicVolumeLabelFallback);
         if (!_sfxLabelLocalized)
             _sfxLabelLocalized = TryLocalize(_sfxLabel, _sfxVolumeLabelKey, _sfxVolumeLabelFallback);
-        if (!_exitLabelLocalized)
-            _exitLabelLocalized = TryLocalize(_exitButtonLabel, _exitButtonLabelKey, _exitButtonLabelFallback);
+        if (!_returnLabelLocalized)
+            _returnLabelLocalized = TryLocalize(_returnButtonLabel, _returnButtonLabelKey, _returnButtonLabelFallback);
     }
 
     private void CreateUi()
@@ -113,7 +115,7 @@ public class SoundSettingsUI : MonoBehaviour
         _sfxValueText.text = _sfxVolume.ToString();
 
         CreateCloseButton(_panel.transform);
-        CreateExitButton(_panel.transform);
+        CreateReturnButton(_panel.transform);
         CreateButton(canvas.transform);
     }
 
@@ -200,9 +202,9 @@ public class SoundSettingsUI : MonoBehaviour
         CreateStepperButton(parent, "CloseButton", closeIcon, new Vector2(476, 334), TogglePanel);
     }
 
-    private void CreateExitButton(Transform parent)
+    private void CreateReturnButton(Transform parent)
     {
-        GameObject buttonObject = CreateUiObject("ExitButton", parent);
+        GameObject buttonObject = CreateUiObject("ReturnButton", parent);
         RectTransform rect = buttonObject.GetComponent<RectTransform>();
         rect.anchorMin = new Vector2(0.5f, 0.5f);
         rect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -224,11 +226,11 @@ public class SoundSettingsUI : MonoBehaviour
 
         Button button = buttonObject.AddComponent<Button>();
         button.targetGraphic = background;
-        button.onClick.AddListener(QuitGame);
+        button.onClick.AddListener(ReturnToMainMenu);
 
-        _exitButtonLabel = CreateText("ExitLabel", buttonObject.transform, _exitButtonLabelFallback,
+        _returnButtonLabel = CreateText("ReturnLabel", buttonObject.transform, _returnButtonLabelFallback,
             new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 3), new Vector2(236, 43));
-        _exitButtonLabel.fontSize = 30;
+        _returnButtonLabel.fontSize = 30;
     }
 
     private void CreateVolumeRow(Transform parent, int index, string labelFallback,
@@ -343,12 +345,12 @@ public class SoundSettingsUI : MonoBehaviour
             SyncValuesFromManager();
     }
 
-    private void QuitGame()
+    private void ReturnToMainMenu()
     {
         if (DarkestDungeonManager.Instanse != null && DarkestDungeonManager.MainMenu != null)
-            DarkestDungeonManager.MainMenu.QuitGame();
+            DarkestDungeonManager.MainMenu.ReturnToCampaignSelection();
         else
-            Application.Quit();
+            SceneManager.LoadScene(_campaignSelectionSceneName);
     }
 
     private void SyncValuesFromManager()

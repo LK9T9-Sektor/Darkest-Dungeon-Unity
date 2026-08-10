@@ -82,6 +82,10 @@ public class MainMenuWindow : MonoBehaviour
             RaidSceneManager.Instanse.OnSceneLeave();
         }
         DarkestSoundManager.SilenceNarrator();
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
         Application.Quit();
+#endif
     }
 }
