@@ -19,7 +19,6 @@ namespace Sektor.DarkestDungeon.Lan.Cmd
         private const string PongType = "pong";
         private const int TimeoutSeconds = 60;
         private const int FlushMilliseconds = 500;
-        private const int BoxInnerWidth = 48;
 
         private static volatile bool _exitRequested;
         private static int _exitCode = 1;
@@ -133,34 +132,15 @@ namespace Sektor.DarkestDungeon.Lan.Cmd
 
         private static void ShowMenu()
         {
-            Console.WriteLine("\n" + BoxTop);
-            Console.WriteLine(Row("Darkest Dungeon — Steam LAN"));
-            Console.WriteLine(BoxMiddle);
-            Console.WriteLine(Row("1. Я ХОСТ (создать сессию)"));
-            Console.WriteLine(Row("2. Я КЛИЕНТ (вступить через Steam или ROOM_ID)"));
-            Console.WriteLine(Row("3. ВЫХОД"));
-            Console.WriteLine(BoxBottom);
+            Console.WriteLine("\n==========");
+            Console.WriteLine("Darkest Dungeon — Steam LAN");
+            Console.WriteLine("==========");
+            Console.WriteLine();
+            Console.WriteLine("1. Я ХОСТ (создать сессию)");
+            Console.WriteLine("2. Я КЛИЕНТ (вступить через Steam или ROOM_ID)");
+            Console.WriteLine("3. ВЫХОД");
+            Console.WriteLine("==========");
             Console.Write("\nВаш выбор: ");
-        }
-
-        private static string BoxTop
-        {
-            get { return "╔" + new string('═', BoxInnerWidth) + "╗"; }
-        }
-
-        private static string BoxMiddle
-        {
-            get { return "╠" + new string('═', BoxInnerWidth) + "╣"; }
-        }
-
-        private static string BoxBottom
-        {
-            get { return "╚" + new string('═', BoxInnerWidth) + "╝"; }
-        }
-
-        private static string Row(string content)
-        {
-            return "║" + content.PadRight(BoxInnerWidth) + "║";
         }
 
         private static int PumpUntilEscape(ITransport transport)

@@ -217,9 +217,13 @@ namespace Sektor.DarkestDungeon.Lan.Steam
                 return;
             }
 
+            bool wasInSession = IsSessionActive;
             _currentLobbyId = callback.m_ulSteamIDLobby;
             SetLobbyData(LobbyDataHostSteamId, LocalPlayerId);
-            OnSessionJoined(_currentLobbyId.ToString());
+            if (!wasInSession)
+            {
+                OnSessionJoined(_currentLobbyId.ToString());
+            }
         }
 
         private void HandleLobbyEnter(IntPtr param)
@@ -230,8 +234,14 @@ namespace Sektor.DarkestDungeon.Lan.Steam
                 return;
             }
 
+            bool wasInSession = IsSessionActive;
             _currentLobbyId = callback.m_ulSteamIDLobby;
             _sessionCreationPending = false;
+            if (wasInSession)
+            {
+                return;
+            }
+
             NotifyExistingPlayers();
             OnSessionJoined(_currentLobbyId.ToString());
         }
