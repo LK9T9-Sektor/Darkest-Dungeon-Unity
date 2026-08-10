@@ -10,11 +10,14 @@ public class SoundSettingsUI : MonoBehaviour
 {
     private const string _musicVolumeLabelKey = "menu_options_element_music_volume";
     private const string _sfxVolumeLabelKey = "menu_options_element_sfx_volume";
-    private const string _audioCategoryLabelKey = "options_category_audio";
 
     private const string _musicVolumeLabelFallback = "Music Volume";
     private const string _sfxVolumeLabelFallback = "SFX Volume";
-    private const string _audioCategoryLabelFallback = "Audio";
+
+    private const string _fontResourcePath = "Fonts/Deutsch";
+    private const string _settingsButtonSpriteResourcePath = "UI/settings.button";
+
+    private static readonly Color _labelColor = new Color(0.9338235f, 0.7924933f, 0.4463127f);
 
     private static SoundSettingsUI _instanse;
 
@@ -23,10 +26,10 @@ public class SoundSettingsUI : MonoBehaviour
     private Slider _sfxSlider;
     private Text _musicLabel;
     private Text _sfxLabel;
-    private Text _buttonLabel;
+    private Font _font;
+    private Sprite _settingsButtonSprite;
     private bool _musicLabelLocalized;
     private bool _sfxLabelLocalized;
-    private bool _buttonLabelLocalized;
     private bool _slidersSynced;
 
     /// <summary>Creates the persistent settings object once the first scene has loaded.</summary>
@@ -55,6 +58,9 @@ public class SoundSettingsUI : MonoBehaviour
 
     private void Update()
     {
+        if (_musicSlider == null || _sfxSlider == null)
+            return;
+
         if (!_slidersSynced && DarkestSoundManager.Instanse != null)
         {
             _musicSlider.value = DarkestSoundManager.MusicVolume;
@@ -66,12 +72,13 @@ public class SoundSettingsUI : MonoBehaviour
             _musicLabelLocalized = TryLocalize(_musicLabel, _musicVolumeLabelKey, _musicVolumeLabelFallback);
         if (!_sfxLabelLocalized)
             _sfxLabelLocalized = TryLocalize(_sfxLabel, _sfxVolumeLabelKey, _sfxVolumeLabelFallback);
-        if (!_buttonLabelLocalized)
-            _buttonLabelLocalized = TryLocalize(_buttonLabel, _audioCategoryLabelKey, _audioCategoryLabelFallback);
     }
 
     private void CreateUi()
     {
+        _font = Resources.Load<Font>(_fontResourcePath);
+        _settingsButtonSprite = Resources.Load<Sprite>(_settingsButtonSpriteResourcePath);
+
         EnsureEventSystem();
 
         Canvas canvas = CreateCanvas();
@@ -96,9 +103,10 @@ public class SoundSettingsUI : MonoBehaviour
         }
     }
 
-    private static Canvas CreateCanvas()
+    private Canvas CreateCanvas()
     {
         GameObject canvasObject = new GameObject("SoundSettingsCanvas");
+        canvasObject.transform.SetParent(transform, false);
         Canvas canvas = canvasObject.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 30000;
@@ -106,7 +114,7 @@ public class SoundSettingsUI : MonoBehaviour
         CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920, 1080);
-        scaler.matchWidthOrHeight = 0.5f;
+        scaler.matchWidthOrHeight = 1f;
 
         canvasObject.AddComponent<GraphicRaycaster>();
         return canvas;
@@ -116,31 +124,30 @@ public class SoundSettingsUI : MonoBehaviour
     {
         GameObject buttonObject = CreateUiObject("AudioButton", parent);
         RectTransform rect = buttonObject.GetComponent<RectTransform>();
-        rect.anchorMin = new Vector2(1, 0);
-        rect.anchorMax = new Vector2(1, 0);
-        rect.pivot = new Vector2(1, 0);
-        rect.anchoredPosition = new Vector2(-16, 16);
-        rect.sizeDelta = new Vector2(140, 44);
+        rect.anchorMin = new Vector2(1, 1);
+        rect.anchorMax = new Vector2(1, 1);
+        rect.pivot = new Vector2(1, 1);
+        rect.anchoredPosition = new Vector2(-16, -16);
+        rect.sizeDelta = new Vector2(56, 56);
 
         Image background = buttonObject.AddComponent<Image>();
-        background.color = new Color(0, 0, 0, 0.75f);
+        background.sprite = _settingsButtonSprite;
+        background.preserveAspect = true;
+        background.color = _settingsButtonSprite != null ? Color.white : new Color(0, 0, 0, 0.75f);
 
         Button button = buttonObject.AddComponent<Button>();
         button.targetGraphic = background;
         button.onClick.AddListener(TogglePanel);
-
-        _buttonLabel = CreateText("AudioLabel", buttonObject.transform, _audioCategoryLabelFallback,
-            new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(140, 44));
     }
 
     private GameObject CreatePanel(Transform parent)
     {
         GameObject panelObject = CreateUiObject("AudioPanel", parent);
         RectTransform rect = panelObject.GetComponent<RectTransform>();
-        rect.anchorMin = new Vector2(1, 0);
-        rect.anchorMax = new Vector2(1, 0);
-        rect.pivot = new Vector2(1, 0);
-        rect.anchoredPosition = new Vector2(-16, 72);
+        rect.anchorMin = new Vector2(1, 1);
+        rect.anchorMax = new Vector2(1, 1);
+        rect.pivot = new Vector2(1, 1);
+        rect.anchoredPosition = new Vector2(-16, -60);
         rect.sizeDelta = new Vector2(320, 176);
 
         Image background = panelObject.AddComponent<Image>();
@@ -196,7 +203,7 @@ public class SoundSettingsUI : MonoBehaviour
         return slider;
     }
 
-    private static Text CreateText(string name, Transform parent, string text,
+    private Text CreateText(string name, Transform parent, string text,
         Vector2 anchor, Vector2 pivot, Vector2 anchoredPosition, Vector2 size)
     {
         GameObject textObject = CreateUiObject(name, parent);
@@ -209,9 +216,9 @@ public class SoundSettingsUI : MonoBehaviour
 
         Text uiText = textObject.AddComponent<Text>();
         uiText.text = text;
-        uiText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-        uiText.fontSize = 18;
-        uiText.color = Color.white;
+        uiText.font = _font != null ? _font : Resources.GetBuiltinResource<Font>("Arial.ttf");
+        uiText.fontSize = 20;
+        uiText.color = _labelColor;
         uiText.alignment = TextAnchor.MiddleCenter;
         uiText.raycastTarget = false;
         return uiText;
@@ -227,11 +234,15 @@ public class SoundSettingsUI : MonoBehaviour
 
     private void TogglePanel()
     {
-        _panel.SetActive(!_panel.activeSelf);
+        if (_panel != null)
+            _panel.SetActive(!_panel.activeSelf);
     }
 
     private static bool TryLocalize(Text label, string key, string fallback)
     {
+        if (label == null)
+            return false;
+
         try
         {
             label.text = LocalizationManager.GetString(key);
