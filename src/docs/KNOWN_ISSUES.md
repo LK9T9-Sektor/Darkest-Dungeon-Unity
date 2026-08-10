@@ -40,14 +40,23 @@
 
 ## 7. Расхождение с AGENTS.md
 
-- Нет чистого C# ядра: домен лежит в презентационном слое (`Assets\Scripts`), нет проекта тестов, нет `Result`-типов вместо исключений.
-- Пост-билд доставка DLL в `Assets\Plugins\Internal` не реализована (папка отсутствует).
+- Основной домен всё ещё лежит в презентационном слое (`Assets\Scripts`); чистый C# ядро существует пока только
+  для сетевого слоя (`src\Lan\`): интерфейсы, `Result`-типы вместо исключений, NUnit-тесты, пост-билд доставка
+  DLL в `Assets\Plugins\Internal` (см. `NETWORK_ARCHITECTURE.md` §5).
+- Сетевые контракты компилируются под netstandard2.0; основной игровой код — нет.
 
 ## 8. Культуро-зависимый парсинг чисел
 
 - `float.Parse`/`float.TryParse`/`int.Parse`/`Convert.To*` вызываются без `CultureInfo.InvariantCulture` — **164 места** в `Assets\Scripts`.
 - После перехода runtime на .NET 4.6 (Mono берёт OS-локаль, десятичный разделитель `,`) загрузка контента падает: `FormatException` в `HeroClass.cs:111` + каскад NRE/KeyNotFoundException. Полный разбор — в `RUNTIME_MIGRATION.md`, лог — `src\issues\Migration-Issues-01.txt`.
 
-## 9. Прочее
+## 9. Steamworks.NET несовместим с netstandard2.0
+
+- Все версии NuGet-пакета Steamworks.NET таргетят netstandard2.1 — не восстанавливаются в проектах
+  netstandard2.0 (потолок Unity 2017.4): NU1202. Поэтому Steam-транспорт использует собственный interop-слой
+  (`src\Lan\Sektor.DarkestDungeon.Lan.Steam\Interop\`), написанный по референсу `src\External\Steamworks.NET`
+  (15.0.1). Обновление SDK-обёрток/структур — вручную, по тому же референсу.
+
+## 10. Прочее
 
 - `ImageEffects` — стоковый код Unity, не домен.

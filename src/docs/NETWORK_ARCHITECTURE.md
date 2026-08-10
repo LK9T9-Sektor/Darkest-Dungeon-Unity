@@ -14,6 +14,9 @@ docs/NETWORK_ARCHITECTURE.md
 Это база знаний для ИИ-агента, содержащая готовые обёртки над SDK провайдера (например, Steamworks.NET) и примеры работы с ним.
 Код из этой папки не компилируется в основную сборку, используется только как референс при написании нового адаптера.
 
+Референс Steamworks.NET 15.0.1 (MIT) лежит в `src/External/Steamworks.NET/`. Он используется как источник точных
+сигнатур flat-API и layout'ов callback-структур для собственного interop-слоя (см. раздел 5).
+
 3. Этапы миграции
 Этап 1. Инкапсуляция Photon
 Все прямые вызовы PhotonNetwork.RPC заменяются на вызовы через обёртку, реализующую интерфейс.
@@ -34,4 +37,34 @@ docs/NETWORK_ARCHITECTURE.md
 Единый интерфейс транспорта обеспечивает независимость от SDK.
 Миграция проходит поэтапно, без поломки существующей функциональности.
 Папка /External/ – только для справки, код не используется напрямую.
+
+5. Текущая реализация (ветка coop)
+
+Модули (чистый .NET Standard 2.0, C# 7.3):
+
+- `src/Lan/Sektor.DarkestDungeon.Lan.Contracts` — интерфейсы транспорта и wire-контракты
+  (`ITransport`, `ITransportCodec`, `TransportMessage`, `Result`/`Result<T>`). Никаких зависимостей.
+- `src/Lan/Sektor.DarkestDungeon.Lan.Steam` — Steam P2P транспорт: `JsonTransportCodec` (Newtonsoft.Json) +
+  `SteamTransport` поверх собственного interop-слоя `Interop/`.
+- `src/Lan/Sektor.DarkestDungeon.Lan.Cmd` — консольный smoke-тест host/join.
+- `tests/Lan/Sektor.DarkestDungeon.Lan.Tests` — NUnit: кодек, жизненный цикл, round-trip (in-memory транспорт).
+
+Почему свой interop-слой, а не Steamworks.NET из NuGet:
+
+- Все версии пакета Steamworks.NET (15.0.1 / 20.x / 2024.x) таргетят netstandard2.1, что несовместимо
+  с netstandard2.0 (потолок для Unity 2017.4) — ошибка восстановления NU1202.
+- Исходники Steamworks.NET компилируются под netstandard2.0 + C# 7.3 чисто, но по разделу 2 код из
+  `src/External` в сборку не попадает.
+- Поэтому написан собственный минимальный interop-слой `Interop/`: `SteamNative` (P/Invoke на flat API),
+  `SteamEnums`, `SteamConstants`, `SteamCallbackIds`, `SteamCallbacks` (layout'ы структур), `NativeUtf8`,
+  `SteamRuntime` (init/интерфейсы/manual-dispatch pump).
+
+Ключевые решения:
+
+- Колбэки получаются через manual dispatch (`SteamAPI_ManualDispatch_*`), как в Steamworks.NET —
+  это заменяет `SteamAPI_RegisterCallback`.
+- Сессия = Steam Lobby (тип Public); сообщения — надёжный, упорядоченный P2P-канал
+  (`k_EP2PSendReliable`, channel 1).
+- Идентификатор игрока/сессии — `ulong` steamID как строка; никаких хардкод-AppID (steam_appid.txt).
+- Разбор входящих колбэков — через реестр делегатов по callback ID (без switch по идентификаторам).
 

@@ -153,5 +153,16 @@ BenchmarkDotNet.Artifacts/
 StyleCopReport.xml
 Generated\ Files/
 
+# --- Исключения: реальные файлы проектов ядра (Unity-секция выше игнорирует *.csproj/*.sln) ---
+!src/**/*.csproj
+!tests/**/*.csproj
+!*.slnx
+
+# --- Доставленные пост-билдом бинарники ядра в слое презентации (артефакты сборки) ---
+Assets/Plugins/Internal/
+
+# --- Локальный dev AppID Steam (не коммитится) ---
+steam_appid.txt
+
 # Ignore for AI-agent
 src/External/
