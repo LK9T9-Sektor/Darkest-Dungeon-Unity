@@ -17,7 +17,7 @@ All audio and graphic assets are ignored!
 **Not implemented:**
 - [ ] Some minor animations and effects
 - [ ] Tutorial
-- [ ] Menu options
+- [ ] Menu options (sound settings implemented in 1.0.4)
 
 **Probably next:**
 - [ ] Better UI for Android/iOS
