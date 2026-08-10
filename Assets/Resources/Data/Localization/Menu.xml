@@ -27,6 +27,7 @@
     <entry id="menu_options_not_recommended_confirm_dialog"><![CDATA[We recommend leaving this option on for the most authentic experience. Still disable?]]></entry>
     <entry id="menu_options_require_restart"><![CDATA[You will need to restart the game for these changes to take effect.]]></entry>
     <entry id="menu_options_value_seperation_resolution"><![CDATA[x]]></entry>
+    <entry id="menu_options_title"><![CDATA[Settings]]></entry>
     <entry id="menu_options_back_confirm_dialog_question"><![CDATA[Save these changes?]]></entry>
     <entry id="menu_options_back_confirm_dialog_answer_save"><![CDATA[SAVE]]></entry>
     <entry id="menu_options_back_confirm_dialog_answer_discard"><![CDATA[DISCARD]]></entry>
