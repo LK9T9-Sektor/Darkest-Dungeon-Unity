@@ -1,6 +1,7 @@
 namespace Sektor.DarkestDungeon.Lan.Steam.Interop
 {
     using System;
+    using System.Collections.Generic;
     using System.Runtime.InteropServices;
 
     using Sektor.DarkestDungeon.Lan.Contracts.Results;
@@ -45,8 +46,11 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
 
         /// <summary>
         /// Initializes the Steam client and resolves the interfaces used by the transport.
+        /// The interface version list is intentionally not pinned: the running Steam client
+        /// decides which versions it exposes, so each interface is probed against candidate
+        /// versions (newest first) and the first match is kept.
         /// Returns a failure result with the native error message when Steam is not running,
-        /// the client version mismatches, or a required interface is unavailable.
+        /// or with the probed candidates when no compatible interface is available.
         /// </summary>
         internal Result Initialize()
         {
@@ -64,24 +68,41 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
             _hSteamPipe = SteamNative.SteamAPI_GetHSteamPipe();
             _hSteamUser = SteamNative.SteamAPI_GetHSteamUser();
 
-            IntPtr client = SteamNative.SteamInternal_CreateInterface(SteamConstants.SteamClientInterfaceVersion);
+            List<string> triedClient = new List<string>();
+            IntPtr client = ResolveFirst(
+                SteamConstants.SteamClientCandidates,
+                triedClient,
+                SteamNative.SteamInternal_CreateInterface);
             if (client == IntPtr.Zero)
             {
                 SteamNative.SteamAPI_Shutdown();
-                return Result.Failure("Failed to resolve ISteamClient.");
+                return Result.Failure("The running Steam client exposes none of the supported ISteamClient versions (tried: " + string.Join(", ", triedClient) + ").");
             }
 
-            _matchmaking = SteamNative.ISteamClient_GetISteamMatchmaking(
-                client, _hSteamUser, _hSteamPipe, SteamConstants.SteamMatchmakingInterfaceVersion);
-            _networking = SteamNative.ISteamClient_GetISteamNetworking(
-                client, _hSteamUser, _hSteamPipe, SteamConstants.SteamNetworkingInterfaceVersion);
-            _user = SteamNative.ISteamClient_GetISteamUser(
-                client, _hSteamUser, _hSteamPipe, SteamConstants.SteamUserInterfaceVersion);
+            List<string> triedUser = new List<string>();
+            _user = ResolveFirst(
+                SteamConstants.SteamUserCandidates,
+                triedUser,
+                version => SteamNative.ISteamClient_GetISteamUser(client, _hSteamUser, _hSteamPipe, version));
 
-            if (_matchmaking == IntPtr.Zero || _networking == IntPtr.Zero || _user == IntPtr.Zero)
+            List<string> triedMatchmaking = new List<string>();
+            _matchmaking = ResolveFirst(
+                SteamConstants.SteamMatchmakingCandidates,
+                triedMatchmaking,
+                version => SteamNative.ISteamClient_GetISteamMatchmaking(client, _hSteamUser, _hSteamPipe, version));
+
+            List<string> triedNetworking = new List<string>();
+            _networking = ResolveFirst(
+                SteamConstants.SteamNetworkingCandidates,
+                triedNetworking,
+                version => SteamNative.ISteamClient_GetISteamNetworking(client, _hSteamUser, _hSteamPipe, version));
+
+            if (_user == IntPtr.Zero || _matchmaking == IntPtr.Zero || _networking == IntPtr.Zero)
             {
                 SteamNative.SteamAPI_Shutdown();
-                return Result.Failure("A required ISteam interface is unavailable.");
+                return Result.Failure("A required ISteam interface is unavailable (User: " + string.Join(", ", triedUser)
+                    + "; Matchmaking: " + string.Join(", ", triedMatchmaking)
+                    + "; Networking: " + string.Join(", ", triedNetworking) + ").");
             }
 
             SteamNative.SteamAPI_ManualDispatch_Init();
@@ -89,20 +110,31 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
             return Result.Success();
         }
 
+        /// <summary>Returns the first candidate version the running client accepts.</summary>
+        private static IntPtr ResolveFirst(string[] candidates, List<string> tried, Func<string, IntPtr> tryResolve)
+        {
+            foreach (string version in candidates)
+            {
+                tried.Add(version);
+                IntPtr resolved = tryResolve(version);
+                if (resolved != IntPtr.Zero)
+                {
+                    return resolved;
+                }
+            }
+
+            return IntPtr.Zero;
+        }
+
         private static Result InitSteamApi()
         {
-            string versionList = SteamConstants.SteamClientInterfaceVersion + "\0"
-                + SteamConstants.SteamUserInterfaceVersion + "\0"
-                + SteamConstants.SteamMatchmakingInterfaceVersion + "\0"
-                + SteamConstants.SteamNetworkingInterfaceVersion + "\0";
-
             IntPtr errorMessage = Marshal.AllocHGlobal(SteamConstants.SteamApiMaxErrorLength);
             try
             {
                 Marshal.Copy(new byte[SteamConstants.SteamApiMaxErrorLength], 0, errorMessage, SteamConstants.SteamApiMaxErrorLength);
 
                 ESteamAPIInitResult result;
-                using (NativeUtf8.PinnedBuffer versionBuffer = NativeUtf8.ToNative(versionList))
+                using (NativeUtf8.PinnedBuffer versionBuffer = NativeUtf8.ToNative(string.Empty))
                 {
                     result = SteamNative.SteamInternal_SteamAPI_Init(versionBuffer.Pointer, errorMessage);
                 }

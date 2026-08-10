@@ -66,8 +66,10 @@ docs/NETWORK_ARCHITECTURE.md
   это заменяет `SteamAPI_RegisterCallback`.
 - Инициализация — через `SteamInternal_SteamAPI_Init`: поставляемый `steam_api64.dll` от современного
   SDK (1.6x), где `SteamAPI_Init` удалён. Сигнатура и коды `ESteamAPIInitResult` сверены со Steamworks.NET
-  2024.8.0; версии интерфейсов (`SteamClient021`, `SteamUser023`, `SteamMatchMaking009`, `SteamNetworking006`) —
-  с экспортами/строками бинарника. Ошибки init пробрасываются наружу как `Result.Failure` с текстом от SDK.
+  2024.8.0. Версии интерфейсов жёстко не фиксируются: каждый интерфейс (ISteamClient, ISteamUser,
+  ISteamMatchmaking, ISteamNetworking) резолвится перебором кандидатов (новейший первым), так что
+  транспорт работает с разными билдами Steam-клиента (это чинит `VersionMismatch`/`No SteamClient021`).
+  Ошибки init пробрасываются наружу как `Result.Failure` с текстом от SDK.
 - Сессия = Steam Lobby (тип Public); сообщения — надёжный, упорядоченный P2P-канал
   (`k_EP2PSendReliable`, channel 1).
 - Идентификатор игрока/сессии — `ulong` steamID как строка; никаких хардкод-AppID (steam_appid.txt).

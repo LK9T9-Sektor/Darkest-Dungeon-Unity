@@ -3,20 +3,43 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
     /// <summary>
     /// Steamworks interface version strings and callback identity base constants.
     /// Values mirror the Steamworks SDK headers and the vendored Steamworks.NET reference.
+    /// The running Steam client decides which interface versions it exposes, so instead of a
+    /// single hardcoded version each interface is resolved by probing candidates in order.
     /// </summary>
     internal static class SteamConstants
     {
-        /// <summary>ISteamClient interface version.</summary>
-        internal const string SteamClientInterfaceVersion = "SteamClient021";
+        /// <summary>ISteamClient version candidates, newest first.</summary>
+        internal static readonly string[] SteamClientCandidates =
+        {
+            "SteamClient022",
+            "SteamClient021",
+            "SteamClient020",
+            "SteamClient017",
+        };
 
-        /// <summary>ISteamUser interface version.</summary>
-        internal const string SteamUserInterfaceVersion = "SteamUser023";
+        /// <summary>ISteamUser version candidates, newest first.</summary>
+        internal static readonly string[] SteamUserCandidates =
+        {
+            "SteamUser023",
+            "SteamUser022",
+            "SteamUser021",
+            "SteamUser020",
+            "SteamUser019",
+        };
 
-        /// <summary>ISteamMatchmaking interface version.</summary>
-        internal const string SteamMatchmakingInterfaceVersion = "SteamMatchMaking009";
+        /// <summary>ISteamMatchmaking version candidates, newest first.</summary>
+        internal static readonly string[] SteamMatchmakingCandidates =
+        {
+            "SteamMatchMaking009",
+            "SteamMatchMaking008",
+        };
 
-        /// <summary>ISteamNetworking interface version.</summary>
-        internal const string SteamNetworkingInterfaceVersion = "SteamNetworking006";
+        /// <summary>ISteamNetworking version candidates, newest first.</summary>
+        internal static readonly string[] SteamNetworkingCandidates =
+        {
+            "SteamNetworking006",
+            "SteamNetworking005",
+        };
 
         /// <summary>Size in bytes of the native SteamErrMsg buffer (k_cchMaxSteamErrMsg).</summary>
         internal const int SteamApiMaxErrorLength = 1024;
