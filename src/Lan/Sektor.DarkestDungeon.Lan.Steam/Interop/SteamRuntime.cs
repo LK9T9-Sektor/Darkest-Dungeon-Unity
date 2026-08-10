@@ -121,7 +121,7 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
             _utils = ResolveFirst(
                 SteamConstants.SteamUtilsCandidates,
                 triedUtils,
-                version => SteamNative.ISteamClient_GetISteamUtils(client, _hSteamUser, _hSteamPipe, version));
+                version => SteamNative.ISteamClient_GetISteamUtils(client, _hSteamPipe, version));
 
             if (_user == IntPtr.Zero || _matchmaking == IntPtr.Zero || _networking == IntPtr.Zero
                 || _friends == IntPtr.Zero || _utils == IntPtr.Zero)

@@ -60,7 +60,7 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
         internal static extern IntPtr ISteamClient_GetISteamFriends(IntPtr instancePtr, int hSteamUser, int hSteamPipe, string pchVersion);
 
         [DllImport(NativeLibraryName, EntryPoint = "SteamAPI_ISteamClient_GetISteamUtils", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr ISteamClient_GetISteamUtils(IntPtr instancePtr, int hSteamUser, int hSteamPipe, string pchVersion);
+        internal static extern IntPtr ISteamClient_GetISteamUtils(IntPtr instancePtr, int hSteamPipe, string pchVersion);
 
         // ISteamMatchmaking ----------------------------------------------------------
 
