@@ -82,12 +82,7 @@ namespace Sektor.DarkestDungeon.Lan.Steam
         /// <inheritdoc />
         public Result Initialize()
         {
-            if (_runtime.Initialize())
-            {
-                return Result.Success();
-            }
-
-            return Result.Failure("SteamAPI init failed; check the Steam client and steam_appid.txt.");
+            return _runtime.Initialize();
         }
 
         /// <inheritdoc />

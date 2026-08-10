@@ -63,6 +63,10 @@ docs/NETWORK_ARCHITECTURE.md
 
 - Колбэки получаются через manual dispatch (`SteamAPI_ManualDispatch_*`), как в Steamworks.NET —
   это заменяет `SteamAPI_RegisterCallback`.
+- Инициализация — через `SteamInternal_SteamAPI_Init`: поставляемый `steam_api64.dll` от современного
+  SDK (1.6x), где `SteamAPI_Init` удалён. Сигнатура и коды `ESteamAPIInitResult` сверены со Steamworks.NET
+  2024.8.0; версии интерфейсов (`SteamClient021`, `SteamUser023`, `SteamMatchMaking009`, `SteamNetworking006`) —
+  с экспортами/строками бинарника. Ошибки init пробрасываются наружу как `Result.Failure` с текстом от SDK.
 - Сессия = Steam Lobby (тип Public); сообщения — надёжный, упорядоченный P2P-канал
   (`k_EP2PSendReliable`, channel 1).
 - Идентификатор игрока/сессии — `ulong` steamID как строка; никаких хардкод-AppID (steam_appid.txt).

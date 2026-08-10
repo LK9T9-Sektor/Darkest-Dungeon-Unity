@@ -1,6 +1,9 @@
 namespace Sektor.DarkestDungeon.Lan.Steam.Interop
 {
     using System;
+    using System.Runtime.InteropServices;
+
+    using Sektor.DarkestDungeon.Lan.Contracts.Results;
 
     /// <summary>
     /// Owns the Steamworks runtime: initialization, interface resolution and the
@@ -42,18 +45,20 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
 
         /// <summary>
         /// Initializes the Steam client and resolves the interfaces used by the transport.
-        /// Returns false when Steam is not running or a required interface is unavailable.
+        /// Returns a failure result with the native error message when Steam is not running,
+        /// the client version mismatches, or a required interface is unavailable.
         /// </summary>
-        internal bool Initialize()
+        internal Result Initialize()
         {
             if (_isInitialized)
             {
-                return true;
+                return Result.Success();
             }
 
-            if (!SteamNative.SteamAPI_Init())
+            Result initResult = InitSteamApi();
+            if (!initResult.IsSuccess)
             {
-                return false;
+                return initResult;
             }
 
             _hSteamPipe = SteamNative.SteamAPI_GetHSteamPipe();
@@ -63,7 +68,7 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
             if (client == IntPtr.Zero)
             {
                 SteamNative.SteamAPI_Shutdown();
-                return false;
+                return Result.Failure("Failed to resolve ISteamClient.");
             }
 
             _matchmaking = SteamNative.ISteamClient_GetISteamMatchmaking(
@@ -76,12 +81,44 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
             if (_matchmaking == IntPtr.Zero || _networking == IntPtr.Zero || _user == IntPtr.Zero)
             {
                 SteamNative.SteamAPI_Shutdown();
-                return false;
+                return Result.Failure("A required ISteam interface is unavailable.");
             }
 
             SteamNative.SteamAPI_ManualDispatch_Init();
             _isInitialized = true;
-            return true;
+            return Result.Success();
+        }
+
+        private static Result InitSteamApi()
+        {
+            string versionList = SteamConstants.SteamClientInterfaceVersion + "\0"
+                + SteamConstants.SteamUserInterfaceVersion + "\0"
+                + SteamConstants.SteamMatchmakingInterfaceVersion + "\0"
+                + SteamConstants.SteamNetworkingInterfaceVersion + "\0";
+
+            IntPtr errorMessage = Marshal.AllocHGlobal(SteamConstants.SteamApiMaxErrorLength);
+            try
+            {
+                Marshal.Copy(new byte[SteamConstants.SteamApiMaxErrorLength], 0, errorMessage, SteamConstants.SteamApiMaxErrorLength);
+
+                ESteamAPIInitResult result;
+                using (NativeUtf8.PinnedBuffer versionBuffer = NativeUtf8.ToNative(versionList))
+                {
+                    result = SteamNative.SteamInternal_SteamAPI_Init(versionBuffer.Pointer, errorMessage);
+                }
+
+                if (result != ESteamAPIInitResult.OK)
+                {
+                    string nativeError = NativeUtf8.FromNative(errorMessage);
+                    return Result.Failure("SteamAPI init failed (" + result + "): " + nativeError);
+                }
+
+                return Result.Success();
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(errorMessage);
+            }
         }
 
         /// <summary>

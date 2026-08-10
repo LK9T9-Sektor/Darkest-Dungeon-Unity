@@ -15,9 +15,8 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
 
         // Lifecycle ------------------------------------------------------------------
 
-        [DllImport(NativeLibraryName, EntryPoint = "SteamAPI_Init", CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.I1)]
-        internal static extern bool SteamAPI_Init();
+        [DllImport(NativeLibraryName, EntryPoint = "SteamInternal_SteamAPI_Init", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern ESteamAPIInitResult SteamInternal_SteamAPI_Init(IntPtr pszInternalCheckInterfaceVersions, IntPtr pOutErrMsg);
 
         [DllImport(NativeLibraryName, EntryPoint = "SteamAPI_Shutdown", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void SteamAPI_Shutdown();

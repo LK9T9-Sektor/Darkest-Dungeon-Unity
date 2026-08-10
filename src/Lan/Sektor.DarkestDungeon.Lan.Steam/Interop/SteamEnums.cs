@@ -1,5 +1,21 @@
 namespace Sektor.DarkestDungeon.Lan.Steam.Interop
 {
+    /// <summary>Steamworks API initialization results (ESteamAPIInitResult).</summary>
+    internal enum ESteamAPIInitResult
+    {
+        /// <summary>Steamworks initialized successfully.</summary>
+        OK = 0,
+
+        /// <summary>Initialization failed for a generic reason.</summary>
+        FailedGeneric = 1,
+
+        /// <summary>Steam client is not running or cannot be reached.</summary>
+        NoSteamClient = 2,
+
+        /// <summary>The Steam client does not match the expected SDK version.</summary>
+        VersionMismatch = 3
+    }
+
     /// <summary>Result codes returned by Steamworks operations (EResult).</summary>
     internal enum EResult
     {

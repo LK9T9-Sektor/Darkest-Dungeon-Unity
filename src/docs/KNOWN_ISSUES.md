@@ -56,6 +56,9 @@
   netstandard2.0 (потолок Unity 2017.4): NU1202. Поэтому Steam-транспорт использует собственный interop-слой
   (`src\Lan\Sektor.DarkestDungeon.Lan.Steam\Interop\`), написанный по референсу `src\External\Steamworks.NET`
   (15.0.1). Обновление SDK-обёрток/структур — вручную, по тому же референсу.
+- Поставляемый `steam_api64.dll` — от современного SDK (1.6x), в котором удалён `SteamAPI_Init`. Инициализация
+  идёт через `SteamInternal_SteamAPI_Init` (сигнатура и коды `ESteamAPIInitResult` сверены со Steamworks.NET
+  2024.8.0), версии интерфейсов (`SteamClient021`, `SteamUser023`) — с экспортами/строками самого бинарника.
 
 ## 10. Прочее
 
