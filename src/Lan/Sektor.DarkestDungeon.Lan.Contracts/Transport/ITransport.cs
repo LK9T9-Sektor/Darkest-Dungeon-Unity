@@ -29,6 +29,9 @@ namespace Sektor.DarkestDungeon.Lan.Contracts.Transport
         /// <summary>Gets the opaque identifier of the local player.</summary>
         string LocalPlayerId { get; }
 
+        /// <summary>Gets the identifier of the player that hosts the current session; empty when not in a session.</summary>
+        string HostPlayerId { get; }
+
         /// <summary>Gets a value indicating whether the transport is currently in an active session.</summary>
         bool IsSessionActive { get; }
 

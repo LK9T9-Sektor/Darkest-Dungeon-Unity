@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class PhotonGameManager : Photon.PunBehaviour
 {
     public static PhotonGameManager Instanse { get; private set; }
-    public static int PlayersPreparedCount { private get; set; }
+    public static int PlayersPreparedCount { get; set; }
     public static List<BarkMessage> BarkMessages { get { return barkMessages; } }
     public static bool SkipMessagesOnClick { get; set; }
 

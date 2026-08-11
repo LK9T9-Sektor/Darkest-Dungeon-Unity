@@ -83,6 +83,9 @@ namespace Sektor.DarkestDungeon.Lan.Steam.Interop
         [return: MarshalAs(UnmanagedType.I1)]
         internal static extern bool ISteamMatchmaking_SetLobbyData(IntPtr instancePtr, ulong steamIDLobby, IntPtr pchKey, IntPtr pchValue);
 
+        [DllImport(NativeLibraryName, EntryPoint = "SteamAPI_ISteamMatchmaking_GetLobbyOwner", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern ulong ISteamMatchmaking_GetLobbyOwner(IntPtr instancePtr, ulong steamIDLobby);
+
         [DllImport(NativeLibraryName, EntryPoint = "SteamAPI_ISteamMatchmaking_GetLobbyData", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr ISteamMatchmaking_GetLobbyData(IntPtr instancePtr, ulong steamIDLobby, IntPtr pchKey);
 

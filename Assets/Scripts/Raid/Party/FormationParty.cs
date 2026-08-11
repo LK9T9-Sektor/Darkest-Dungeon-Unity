@@ -76,7 +76,7 @@ public class FormationParty : MonoBehaviour
         }
     }
 
-    public void CreateFormation(RaidParty party, PhotonPlayer player)
+    public void CreateFormation(RaidParty party, bool heroSide)
     {
         Units = new List<FormationUnit>();
 
@@ -89,7 +89,7 @@ public class FormationParty : MonoBehaviour
 
                 unit.transform.SetParent(transform, false);
                 unit.Party = this;
-                unit.Initialize(party.HeroInfo[i].Hero, 4 - i, player.IsMasterClient ? Team.Heroes : Team.Monsters);
+                unit.Initialize(party.HeroInfo[i].Hero, 4 - i, heroSide ? Team.Heroes : Team.Monsters);
                 Units.Add(unit);
                 unit.ResetAnimations();
 

@@ -15,6 +15,7 @@ namespace Sektor.DarkestDungeon.Lan.Tests.Support
         private readonly string _playerId;
         private InMemoryTransport _peer;
         private string _sessionId;
+        private string _hostId;
 
         /// <summary>Creates a transport representing the given player.</summary>
         public InMemoryTransport(string playerId)
@@ -47,6 +48,12 @@ namespace Sektor.DarkestDungeon.Lan.Tests.Support
         }
 
         /// <inheritdoc />
+        public string HostPlayerId
+        {
+            get { return _hostId ?? string.Empty; }
+        }
+
+        /// <inheritdoc />
         public bool IsSessionActive { get; private set; }
 
         /// <summary>Connects this transport to another instance for direct delivery.</summary>
@@ -75,6 +82,7 @@ namespace Sektor.DarkestDungeon.Lan.Tests.Support
             }
 
             _sessionId = sessionName;
+            _hostId = _playerId;
             IsSessionActive = true;
             Action<string> joined = SessionJoined;
             if (joined != null)
@@ -99,6 +107,7 @@ namespace Sektor.DarkestDungeon.Lan.Tests.Support
             }
 
             _sessionId = sessionId;
+            _hostId = _peer._hostId;
             IsSessionActive = true;
             Action<string> joined = SessionJoined;
             if (joined != null)

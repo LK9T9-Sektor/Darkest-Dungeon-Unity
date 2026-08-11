@@ -86,6 +86,19 @@ namespace Sektor.DarkestDungeon.Lan.Tests.Transport
         }
 
         [Test]
+        public void HostPlayerId_IsSetOnHost_AndPropagatesToJoiner()
+        {
+            _host.CreateSession("room-1", 8);
+
+            Assert.That(_host.HostPlayerId, Is.EqualTo("player-host"));
+            Assert.That(_client.HostPlayerId, Is.Empty);
+
+            _client.JoinSession("room-1");
+
+            Assert.That(_client.HostPlayerId, Is.EqualTo("player-host"));
+        }
+
+        [Test]
         public void SendMessage_WhenNotInSession_Fails()
         {
             var result = _client.SendMessage("type", "payload");

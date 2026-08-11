@@ -38,7 +38,7 @@ public class RaidQuestPanel : MonoBehaviour
         }
     }
 
-    public void UpdateQuest(Quest quest, PhotonPlayer player, bool isPanelOwner = false, bool completed = false)
+    public void UpdateQuest(Quest quest, string playerName, bool isPanelOwner = false, bool completed = false)
     {
         if (completed)
         {
@@ -46,10 +46,9 @@ public class RaidQuestPanel : MonoBehaviour
             return;
         }
 
-        questTitle.text = player.NickName;
-        questGoal.text = PhotonNetwork.room.PlayerCount > 1 ?
-            isPanelOwner ? "Defeat the " + PhotonNetwork.otherPlayers[0].NickName :
-            "Defeat the " + PhotonNetwork.player.NickName : "Defeat the opponent!";
+        questTitle.text = playerName;
+        questGoal.text = MultiplayerSync.PlayerCount > 1 ?
+            "Defeat the " + MultiplayerSync.RivalName : "Defeat the opponent!";
     }
 
     public void CompleteQuest()

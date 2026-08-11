@@ -80,6 +80,20 @@ namespace Sektor.DarkestDungeon.Lan.Steam
         }
 
         /// <inheritdoc />
+        public string HostPlayerId
+        {
+            get
+            {
+                if (!_runtime.IsInitialized || !IsSessionActive)
+                {
+                    return string.Empty;
+                }
+
+                return SteamNative.ISteamMatchmaking_GetLobbyOwner(_runtime.Matchmaking, _currentLobbyId).ToString();
+            }
+        }
+
+        /// <inheritdoc />
         public bool IsSessionActive
         {
             get { return _currentLobbyId != 0; }
@@ -94,6 +108,11 @@ namespace Sektor.DarkestDungeon.Lan.Steam
         /// <inheritdoc />
         public void RunCallbacks()
         {
+            if (!_runtime.IsInitialized)
+            {
+                return;
+            }
+
             _runtime.Pump(DispatchCallback);
             DrainIncomingMessages();
         }
@@ -101,6 +120,11 @@ namespace Sektor.DarkestDungeon.Lan.Steam
         /// <inheritdoc />
         public Result CreateSession(string sessionName, int maxPlayers)
         {
+            if (!_runtime.IsInitialized)
+            {
+                return Result.Failure("Steam is unavailable.");
+            }
+
             if (IsSessionActive)
             {
                 return Result.Failure("Already in a session.");
@@ -119,6 +143,11 @@ namespace Sektor.DarkestDungeon.Lan.Steam
         /// <inheritdoc />
         public Result JoinSession(string sessionId)
         {
+            if (!_runtime.IsInitialized)
+            {
+                return Result.Failure("Steam is unavailable.");
+            }
+
             if (IsSessionActive)
             {
                 return Result.Failure("Already in a session.");
@@ -137,6 +166,11 @@ namespace Sektor.DarkestDungeon.Lan.Steam
         /// <inheritdoc />
         public Result LeaveSession()
         {
+            if (!_runtime.IsInitialized)
+            {
+                return Result.Failure("Steam is unavailable.");
+            }
+
             if (!IsSessionActive)
             {
                 return Result.Failure("Not in a session.");
@@ -152,6 +186,11 @@ namespace Sektor.DarkestDungeon.Lan.Steam
         /// <inheritdoc />
         public Result SendMessage(string type, string payload)
         {
+            if (!_runtime.IsInitialized)
+            {
+                return Result.Failure("Steam is unavailable.");
+            }
+
             if (!IsSessionActive)
             {
                 return Result.Failure("Not in a session.");
@@ -171,7 +210,7 @@ namespace Sektor.DarkestDungeon.Lan.Steam
         public string[] GetSessionPlayers()
         {
             List<string> players = new List<string>();
-            if (!IsSessionActive)
+            if (!_runtime.IsInitialized || !IsSessionActive)
             {
                 return players.ToArray();
             }
@@ -199,7 +238,11 @@ namespace Sektor.DarkestDungeon.Lan.Steam
                 _currentLobbyId = 0;
             }
 
-            ClearJoinableState();
+            if (_runtime.IsInitialized)
+            {
+                ClearJoinableState();
+            }
+
             _runtime.Dispose();
         }
 
@@ -310,6 +353,11 @@ namespace Sektor.DarkestDungeon.Lan.Steam
 
         private void SetLobbyData(string key, string value)
         {
+            if (!_runtime.IsInitialized)
+            {
+                return;
+            }
+
             using (NativeUtf8.PinnedBuffer keyBuffer = NativeUtf8.ToNative(key))
             using (NativeUtf8.PinnedBuffer valueBuffer = NativeUtf8.ToNative(value))
             {
@@ -320,6 +368,11 @@ namespace Sektor.DarkestDungeon.Lan.Steam
 
         private void UpdateJoinableState()
         {
+            if (!_runtime.IsInitialized)
+            {
+                return;
+            }
+
             uint appId = SteamNative.ISteamUtils_GetAppID(_runtime.Utils);
             string connect = JoinLobbyUrlPrefix + appId + "/" + _currentLobbyId;
             using (NativeUtf8.PinnedBuffer keyBuffer = NativeUtf8.ToNative(ConnectRichPresenceKey))
@@ -331,6 +384,11 @@ namespace Sektor.DarkestDungeon.Lan.Steam
 
         private void ClearJoinableState()
         {
+            if (!_runtime.IsInitialized)
+            {
+                return;
+            }
+
             SteamNative.ISteamFriends_ClearRichPresence(_runtime.Friends);
         }
 

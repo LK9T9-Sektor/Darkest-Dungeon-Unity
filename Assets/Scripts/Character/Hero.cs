@@ -117,6 +117,33 @@ public class Hero : Character
         SelectedCampingSkills = new List<CampingSkill>();
     }
 
+    public Hero(int heroIndex, MultiplayerPartyData partyData)
+        : base(DarkestDungeonManager.Data.HeroClasses[partyData.ClassIds[heroIndex - 1]])
+    {
+        RandomSolver.SetRandomSeed(partyData.Seeds[heroIndex - 1]);
+
+        InitializeHeroInfo(0, partyData.Names[heroIndex - 1],
+            partyData.ClassIds[heroIndex - 1], 0, 30);
+
+        InitializeEquipment(1, 1);
+        InitializeQuirks();
+
+        CurrentCombatSkills = new CombatSkill[HeroClass.CombatSkills.Count];
+        for (int i = 0; i < CurrentCombatSkills.Length; i++)
+            CurrentCombatSkills[i] = HeroClass.CombatSkills[i];
+
+        var playerSkillFlags = (PlayerSkillFlags)partyData.SkillFlags[heroIndex - 1];
+        SelectedCombatSkills = new List<CombatSkill>();
+        for (int i = 0; i < CurrentCombatSkills.Length; i++)
+        {
+            if ((playerSkillFlags & (PlayerSkillFlags)Mathf.Pow(2, i + 1)) != PlayerSkillFlags.Empty)
+                SelectedCombatSkills.Add(CurrentCombatSkills[i]);
+        }
+
+        CurrentCampingSkills = new CampingSkill[HeroClass.CampingSkills.Count];
+        SelectedCampingSkills = new List<CampingSkill>();
+    }
+
     public Hero(string classId, string generatedName)
         : base(DarkestDungeonManager.Data.HeroClasses[classId])
     {

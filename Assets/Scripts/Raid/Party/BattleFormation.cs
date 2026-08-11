@@ -116,9 +116,9 @@ public class BattleFormation : MonoBehaviour
         Party.Units[0].OverlaySlot.UnitSelected();
     }
 
-    public void LoadParty(RaidParty heroParty, PhotonPlayer player)
+    public void LoadParty(RaidParty heroParty, bool heroSide)
     {
-        Party.CreateFormation(heroParty, player);
+        Party.CreateFormation(heroParty, heroSide);
         Ranks.DistributeParty(Party);
         Overlay.LockOnUnits(Party);
         Overlay.UpdateOverlay();

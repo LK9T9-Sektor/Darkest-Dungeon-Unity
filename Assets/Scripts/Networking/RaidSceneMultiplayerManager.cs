@@ -27,10 +27,22 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
 
             // just testing
             int sessionSeed = 0;
-            foreach(var player in PhotonNetwork.playerList)
+            if (MultiplayerSync.IsSteamSession)
             {
-                RandomSolver.SetRandomSeed(player.ID + player.ToString().GetHashCode());
-                sessionSeed += RandomSolver.Next((int)Mathf.Pow(2, 16));
+                string[] playerIds = MultiplayerSync.PlayerIds;
+                for (int i = 0; i < playerIds.Length; i++)
+                {
+                    RandomSolver.SetRandomSeed(MultiplayerSync.StableHash(playerIds[i]));
+                    sessionSeed += RandomSolver.Next((int)Mathf.Pow(2, 16));
+                }
+            }
+            else
+            {
+                foreach(var player in PhotonNetwork.playerList)
+                {
+                    RandomSolver.SetRandomSeed(player.ID + player.ToString().GetHashCode());
+                    sessionSeed += RandomSolver.Next((int)Mathf.Pow(2, 16));
+                }
             }
             RandomSolver.SetRandomSeed(sessionSeed);
 
@@ -78,7 +90,7 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
                 },
                 StartingRoomId = "room2_1",
             };
-            CurrentRaid.RaidParty = new RaidParty(PhotonNetwork.masterClient);
+            CurrentRaid.RaidParty = MultiplayerSync.HostRaidParty;
 
             DarkestDungeonManager.ScreenFader.StartFaded();
             DarkestDungeonManager.Data.LoadDungeon(CurrentRaid.Quest.Dungeon, CurrentRaid.Quest.Id);
@@ -115,14 +127,14 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
         RaidPanel.BannerPanel.SkillPanel.SetMode(SkillPanelMode.Combat);
         RaidPanel.BannerPanel.SetPeacefulState();
         MapPanel.LoadDungeon(CurrentRaid.Dungeon);
-        QuestPanel.UpdateQuest(CurrentRaid.Quest, PhotonNetwork.masterClient, PhotonNetwork.isMasterClient);
+        QuestPanel.UpdateQuest(CurrentRaid.Quest, MultiplayerSync.HostName, MultiplayerSync.IsHost);
 
-        if (PhotonNetwork.room.PlayerCount < 2)
+        if (MultiplayerSync.PlayerCount < 2)
             invaderQuestPanel.gameObject.SetActive(false);
-        else if (PhotonNetwork.isMasterClient)
-            invaderQuestPanel.UpdateQuest(CurrentRaid.Quest, PhotonNetwork.otherPlayers[0]);
+        else if (MultiplayerSync.IsHost)
+            invaderQuestPanel.UpdateQuest(CurrentRaid.Quest, MultiplayerSync.RivalName);
         else
-            invaderQuestPanel.UpdateQuest(CurrentRaid.Quest, PhotonNetwork.player, true);
+            invaderQuestPanel.UpdateQuest(CurrentRaid.Quest, MultiplayerSync.LocalName, true);
 
         DarkestSoundManager.StartDungeonSoundtrack(CurrentRaid.Dungeon.Name);
         TorchMeter.Initialize(100);
@@ -130,7 +142,7 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
 
         PhotonGameManager.PlayersPreparedCount = 0;
 
-        if (PhotonNetwork.room.PlayerCount < 2)
+        if (MultiplayerSync.PlayerCount < 2)
         {
             Raid.Dungeon.StartingRoom.BattleEncounter.Cleared = true;
             Raid.QuestCompleted = true;
@@ -255,7 +267,7 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
             yield return new WaitForSeconds(0.5f);
         #endregion
 
-        if (PhotonNetwork.room.PlayerCount < 2)
+        if (MultiplayerSync.PlayerCount < 2)
             RaidEvents.ShowAnnouncment("Waiting for opponent to join...");
 
         RaidPanel.SwitchBlocked = false;
@@ -352,12 +364,16 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
         BattleGround.InitiateBattle();
         yield return new WaitForSeconds(1f);
 
-        if(PhotonNetwork.room.PlayerCount < 2)
+        if(MultiplayerSync.PlayerCount < 2)
             BattleGround.SpawnEncounter(areaView.Area.BattleEncounter, campfireAmbush);
         else
-            BattleGround.SpawnMultiplayerEncounter(PhotonNetwork.isMasterClient ?
-                PhotonNetwork.otherPlayers[0] :
-                PhotonNetwork.player);
+        {
+            RaidParty monsterSideParty = MultiplayerSync.MonsterSideRaidParty;
+            if (monsterSideParty != null)
+                BattleGround.SpawnMultiplayerEncounter(monsterSideParty, false);
+            else
+                BattleGround.SpawnEncounter(areaView.Area.BattleEncounter, campfireAmbush);
+        }
 
         foreach (var hero in Formations.Monsters.Party.Units)
             hero.SetCombatAnimation(true);
@@ -386,7 +402,7 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
         RaidEvents.HideBattleAnnouncment();
         yield return new WaitForSeconds(1f);
 
-        yield return StartCoroutine(PhotonGameManager.PreparationCheck());
+        yield return StartCoroutine(MultiplayerSync.PreparationCheck());
 
         var stunResForEveryone = new List<FormationUnit>(HeroParty.Units.Concat(BattleGround.MonsterParty.Units));
         var stunResBuff = new Buff()
@@ -411,7 +427,7 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
             yield return new WaitForSeconds(0.4f);
         }
 
-        yield return StartCoroutine(PhotonGameManager.PreparationCheck());
+        yield return StartCoroutine(MultiplayerSync.PreparationCheck());
 
         RaidEvents.RoundIndicator.Appear();
         yield return StartCoroutine(BattleRound());
@@ -458,29 +474,29 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
        
         if (HeroParty.Units.Count == 0)
         {
-            if (PhotonNetwork.isMasterClient)
+            if (MultiplayerSync.IsHost)
             {
-                RaidEvents.ShowAnnouncment("Player " + PhotonNetwork.otherPlayers[0].NickName + " is victorious!");
+                RaidEvents.ShowAnnouncment("Player " + MultiplayerSync.RivalName + " is victorious!");
                 DarkestSoundManager.PlayOneShot("event:/general/combat/retreat");
             }
             else
             {
-                RaidEvents.ShowAnnouncment("Player " + PhotonNetwork.player.NickName + " is victorious!");
+                RaidEvents.ShowAnnouncment("Player " + MultiplayerSync.LocalName + " is victorious!");
                 DarkestSoundManager.ExecuteNarration("victory", NarrationPlace.Raid);
                 DarkestSoundManager.PlayOneShot("event:/general/combat/victory");
             }
         }
         else
         {
-            if (PhotonNetwork.isMasterClient)
+            if (MultiplayerSync.IsHost)
             {
-                RaidEvents.ShowAnnouncment("Player " + PhotonNetwork.player.NickName + " is victorious!");
+                RaidEvents.ShowAnnouncment("Player " + MultiplayerSync.LocalName + " is victorious!");
                 DarkestSoundManager.ExecuteNarration("victory", NarrationPlace.Raid);
                 DarkestSoundManager.PlayOneShot("event:/general/combat/victory");
             }
             else
             {
-                RaidEvents.ShowAnnouncment("Player " + PhotonNetwork.masterClient.NickName + " is victorious!");
+                RaidEvents.ShowAnnouncment("Player " + MultiplayerSync.HostName + " is victorious!");
                 DarkestSoundManager.PlayOneShot("event:/general/combat/retreat");
             }
         }
@@ -514,7 +530,7 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
 
         DarkestDungeonManager.ScreenFader.Fade();
         yield return new WaitForSeconds(1f);
-        PhotonGameManager.Instanse.LeaveRoom();
+        MultiplayerSync.LeaveRoom();
     }
 
     protected override IEnumerator CompletionCrestEvent()
@@ -1080,7 +1096,7 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
 
     protected override IEnumerator HeroTurn(FormationUnit actionUnit, bool fromBattleSave = false)
     {
-        yield return StartCoroutine(PhotonGameManager.PreparationCheck());
+        yield return StartCoroutine(MultiplayerSync.PreparationCheck());
 
         DarkestSoundManager.PlayOneShot("event:/general/char/ally_turn");
         RaidPanel.SetDisabledState();
@@ -1092,11 +1108,9 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
         actionUnit.OverlaySlot.UnitSelected();
 
         if (actionUnit.Team == Team.Heroes)
-            RaidEvents.ShowAnnouncment("Next turn: " + PhotonNetwork.masterClient.NickName);
-        else if (PhotonNetwork.isMasterClient && PhotonNetwork.otherPlayers.Length > 0)
-            RaidEvents.ShowAnnouncment("Next turn: " + PhotonNetwork.otherPlayers[0].NickName);
-        else if (!PhotonNetwork.isMasterClient)
-            RaidEvents.ShowAnnouncment("Next turn: " + PhotonNetwork.player.NickName);
+            RaidEvents.ShowAnnouncment("Next turn: " + MultiplayerSync.HostName);
+        else
+            RaidEvents.ShowAnnouncment("Next turn: " + (MultiplayerSync.IsHost ? MultiplayerSync.RivalName : MultiplayerSync.LocalName));
 
         yield return new WaitForSeconds(1.5f);
         RaidEvents.HideAnnouncment();
@@ -1542,7 +1556,7 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
             Formations.ShowUnitOverlay();
             BattleGround.Round.OnHeroTurn();
 
-            if ((actionUnit.Team == Team.Heroes && PhotonNetwork.isMasterClient) || (actionUnit.Team == Team.Monsters && !PhotonNetwork.isMasterClient))
+            if ((actionUnit.Team == Team.Heroes && MultiplayerSync.IsHost) || (actionUnit.Team == Team.Monsters && !MultiplayerSync.IsHost))
             {
                 RaidPanel.SetCombatState();
                 Inventory.SetCombatState();
@@ -1608,7 +1622,7 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
             var usedSkill = RaidPanel.BannerPanel.SkillPanel.SelectedSkill;
             RaidPanel.SetDisabledState();
 
-            yield return StartCoroutine(PhotonGameManager.PreparationCheck());
+            yield return StartCoroutine(MultiplayerSync.PreparationCheck());
 
             switch (BattleGround.Round.HeroAction)
             {
@@ -1644,7 +1658,7 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
                             BattleGround.Round.PreHeroTurn(actionUnit);
                             yield return new WaitForEndOfFrame();
                             actionUnit.OverlaySlot.UnitSelected();
-                            yield return StartCoroutine(PhotonGameManager.PreparationCheck());
+                            yield return StartCoroutine(MultiplayerSync.PreparationCheck());
                             continue;
                         }
                     }
@@ -1785,7 +1799,7 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
 
     protected override IEnumerator MonsterTurn(FormationUnit actionUnit, string combatSkillOverride = null, bool fromBonusTurn = false)
     {
-        yield return StartCoroutine(PhotonGameManager.PreparationCheck());
+        yield return StartCoroutine(MultiplayerSync.PreparationCheck());
 
         yield return StartCoroutine(base.MonsterTurn(actionUnit, combatSkillOverride, fromBonusTurn));
     }
@@ -2044,15 +2058,15 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
 
     public override void HeroPassButtonClicked()
     {
-        PhotonGameManager.Instanse.photonView.RPC("HeroPassButtonClicked", PhotonTargets.All);
+        MultiplayerSync.SendRpc(nameof(PhotonGameManager.HeroPassButtonClicked));
     }
 
     public override void HeroSkillTargetSelected(FormationOverlaySlot overlaySlot)
     {
-        if (BattleGround.Round.SelectedUnit.Team == Team.Heroes && !PhotonNetwork.isMasterClient)
+        if (BattleGround.Round.SelectedUnit.Team == Team.Heroes && !MultiplayerSync.IsHost)
             return;
 
-        if (BattleGround.Round.SelectedUnit.Team == Team.Monsters && PhotonNetwork.isMasterClient)
+        if (BattleGround.Round.SelectedUnit.Team == Team.Monsters && MultiplayerSync.IsHost)
             return;
 
         var primaryTarget = overlaySlot.TargetUnit;
@@ -2060,9 +2074,9 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
         if (BattleGround.BattleStatus == BattleStatus.Fighting)
         {
             if (RaidPanel.BannerPanel.SkillPanel.SelectedSkill is MoveSkill)
-                PhotonGameManager.Instanse.photonView.RPC("HeroMoveButtonClicked", PhotonTargets.All, primaryTarget.CombatInfo.CombatId);
+                MultiplayerSync.SendRpc(nameof(PhotonGameManager.HeroMoveButtonClicked), primaryTarget.CombatInfo.CombatId);
             else if (RaidPanel.BannerPanel.SkillPanel.SelectedSkill is CombatSkill)
-                PhotonGameManager.Instanse.photonView.RPC("HeroSkillButtonClicked", PhotonTargets.All, primaryTarget.CombatInfo.CombatId);
+                MultiplayerSync.SendRpc(nameof(PhotonGameManager.HeroSkillButtonClicked), primaryTarget.CombatInfo.CombatId);
         }
         else if (Raid.CampingPhase == CampingPhase.Skill)
         {
@@ -2086,17 +2100,17 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
     public override void HeroSkillSelected(BattleSkillSlot skillSlot)
     {
         int slotIndex = RaidPanel.BannerPanel.SkillPanel.SkillSlots.IndexOf(skillSlot);
-        PhotonGameManager.Instanse.photonView.RPC("HeroSkillSelected", PhotonTargets.All, slotIndex);
+        MultiplayerSync.SendRpc(nameof(PhotonGameManager.HeroSkillSelected), slotIndex);
     }
 
     public override void HeroMoveSelected(MoveSkillSlot skillSlot)
     {
-        PhotonGameManager.Instanse.photonView.RPC("HeroMoveSelected", PhotonTargets.All);
+        MultiplayerSync.SendRpc(nameof(PhotonGameManager.HeroMoveSelected));
     }
 
     public override void HeroMoveDeselected(MoveSkillSlot skillSlot)
     {
-        PhotonGameManager.Instanse.photonView.RPC("HeroMoveDeselected", PhotonTargets.All);
+        MultiplayerSync.SendRpc(nameof(PhotonGameManager.HeroMoveDeselected));
     }
 
     public void HeroSkillSelected(int skillSlotIndex)

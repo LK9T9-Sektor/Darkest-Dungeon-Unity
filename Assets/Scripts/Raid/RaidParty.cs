@@ -20,6 +20,21 @@ public class RaidParty
             HeroInfo.Add(new RaidHeroInfo(hero));
     }
 
+    public RaidParty(MultiplayerPartyData partyData)
+    {
+        List<Hero> multiplayerHeroes = new List<Hero>
+        {
+            new Hero(1, partyData),
+            new Hero(2, partyData),
+            new Hero(3, partyData),
+            new Hero(4, partyData)
+        };
+
+        HeroInfo = new List<RaidHeroInfo>();
+        foreach (var hero in multiplayerHeroes)
+            HeroInfo.Add(new RaidHeroInfo(hero));
+    }
+
     public RaidParty(RaidPartySaveData saveData)
     {
         IsMovingLeft = saveData.IsMovingLeft;

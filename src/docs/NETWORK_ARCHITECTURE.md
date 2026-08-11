@@ -51,6 +51,16 @@ docs/NETWORK_ARCHITECTURE.md
   а также вход через `+connect_lobby <sessionId>` (Steam Invite URL).
 - `tests/Lan/Sektor.DarkestDungeon.Lan.Tests` — NUnit: кодек, жизненный цикл, round-trip (in-memory транспорт).
 
+Unity-фасад (презентационный слой, `Assets/Scripts/Networking/`, версия 1.0.5):
+
+- `SteamRaidBridge` — диспетчер входящих сообщений: `rpc.<method>` повторяет RPC-вызовы легаси (`PhotonGameManager`), `party_config` — состав отряда соперника.
+- `SteamSessionManager` — MonoBehaviour-фасад над `ITransport` (качает колбэки в `Update`), живёт между сценами.
+- `MultiplayerPartyData` — DTO состава (классы, имена, сиды, флаги скиллов), сериализация для канала.
+- `MultiplayerSync` — статический фасад для легаси: `IsSteamSession` → Steam, иначе исходные Photon-пути.
+- `SteamLauncher` — runtime-панель лобби на `CampaignSelection` (хост/join по ROOM_ID, переход в `DungeonMultiplayer`).
+
+Легаси интегрирован минимальными правками через `MultiplayerSync` (см. `CHANGELOG.md` 1.0.5): Photon-путь сохранён, ветвление по `IsSteamSession`.
+
 Почему свой interop-слой, а не Steamworks.NET из NuGet:
 
 - Все версии пакета Steamworks.NET (15.0.1 / 20.x / 2024.x) таргетят netstandard2.1, что несовместимо

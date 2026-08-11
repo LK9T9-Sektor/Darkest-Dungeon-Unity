@@ -52,14 +52,14 @@ public class BarkMessenger : MonoBehaviour
         if (chatInputField.text.Trim(' ').Length == 0)
             return;
 
-        if (PhotonNetwork.otherPlayers.Length == 0)
+        if (MultiplayerSync.RivalCount == 0)
         {
             chatInputField.text = "You are the only one in the room!";
             return;
         }
 
-        PhotonGameManager.Instanse.photonView.RPC("ExecuteBarkMessage", PhotonTargets.All, 
-            PhotonNetwork.isMasterClient ? (int)Team.Heroes : (int)Team.Monsters, chatInputField.text);
+        MultiplayerSync.SendRpc(nameof(PhotonGameManager.ExecuteBarkMessage),
+            MultiplayerSync.IsHost ? (int)Team.Heroes : (int)Team.Monsters, chatInputField.text);
 
         chatInputField.interactable = false;
         sendButton.interactable = false;

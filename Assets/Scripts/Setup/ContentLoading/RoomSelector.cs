@@ -142,6 +142,14 @@ public class RoomSelector : MonoBehaviour
 
     public void SaveSelectionStart()
     {
+        if (MultiplayerSync.IsSteamProvider)
+        {
+            SteamLauncher.OpenPanel();
+            return;
+        }
+
+        MultiplayerMenuState.Open(MultiplayerMenuState.Menu.Photon);
+        SteamLauncher.EnsureLauncher();
         CampaignSelectionManager.OnSelectionStart(CampaignSelection.Multiplayer);
         SaveFrame.gameObject.SetActive(true);
 
@@ -251,6 +259,7 @@ public class RoomSelector : MonoBehaviour
         }
         isSelecting = false;
         CampaignSelectionManager.OnSelectionReturn();
+        MultiplayerMenuState.Close();
     }
 
     private IEnumerator SceneFade(float seconds, float speed)
