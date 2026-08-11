@@ -44,6 +44,11 @@
   для сетевого слоя (`src\Lan\`): интерфейсы, `Result`-типы вместо исключений, NUnit-тесты, пост-билд доставка
   DLL в `Assets\Plugins\Internal` (см. `NETWORK_ARCHITECTURE.md` §5).
 - Сетевые контракты компилируются под netstandard2.0; основной игровой код — нет.
+- Доставка в `Assets\Plugins\Internal` требует .NET Standard facade-шимы из редактора Unity (`COMPABILITY.md` §1);
+  без них старый Mono не резолвит BCL-типы netstandard2.0-сборок → ошибки компиляции Steam-скриптов в редакторе.
+  `tools\provision-unity-plugins.ps1` ищет корень редактора автоматически (`-UnityEditorPath` → `UNITY_EDITOR_PATH`
+  → `editors.json` Unity Hub → типовые каталоги установки) и доставляет фасады; фасады и `steam_appid.txt`
+  остаются gitignored.
 
 ## 8. Культуро-зависимый парсинг чисел
 
