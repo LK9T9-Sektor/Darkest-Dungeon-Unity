@@ -48,6 +48,8 @@ public class RoomSelector : MonoBehaviour
     private RectTransform SceneryRect { get { return sceneryRect; } }
     private Text VersionLabel { get { return versionLabel; } }
 
+    private const float SteamOpponentTimeoutSeconds = 30f;
+
     private static readonly List<string> RoomNameTemplates = new List<string>
     {
         "Lepoundmaster", "Lepersader", "Leprusader", "Cruleper",
@@ -282,8 +284,13 @@ public class RoomSelector : MonoBehaviour
         Result result = MultiplayerSync.Steam.HostSession();
         if (!result.IsSuccess)
         {
+            MultiplayerSync.WriteError("MULTIPLAYER", "Host failed: " + result.ErrorMessage);
             ProgressLabel.text = "Host failed: " + result.ErrorMessage;
             EnableInteraction();
+        }
+        else
+        {
+            MultiplayerSync.WriteLog("MULTIPLAYER", "Hosting Steam session...");
         }
     }
 
@@ -318,8 +325,13 @@ public class RoomSelector : MonoBehaviour
         Result result = MultiplayerSync.Steam.JoinSession(lobbyId);
         if (!result.IsSuccess)
         {
+            MultiplayerSync.WriteError("MULTIPLAYER", "Join failed: " + result.ErrorMessage);
             ProgressLabel.text = "Join failed: " + result.ErrorMessage;
             EnableInteraction();
+        }
+        else
+        {
+            MultiplayerSync.WriteLog("MULTIPLAYER", "Joining Steam session " + lobbyId + "...");
         }
     }
 
@@ -332,7 +344,8 @@ public class RoomSelector : MonoBehaviour
         ProgressLabel.text = "Lobby joined! Waiting for the opponent...";
         ProgressLabel.enabled = true;
         ProgressPanel.enabled = true;
-        Debug.Log("[MULTIPLAYER] Steam session joined: " + sessionId);
+        MultiplayerSync.WriteLog("MULTIPLAYER", "Steam session joined: " + sessionId);
+        MultiplayerSync.WriteLog("MULTIPLAYER", "ROOM_ID=" + sessionId);
 
         MultiplayerSync.EnsureLocalPartyData();
         SteamSessionManager sessionManager = MultiplayerSync.Steam;
@@ -349,6 +362,7 @@ public class RoomSelector : MonoBehaviour
             return;
 
         CleanRoomList();
+        MultiplayerSync.WriteLog("MULTIPLAYER", "Session closed.");
         ProgressLabel.text = "Session closed.";
     }
 
@@ -356,8 +370,28 @@ public class RoomSelector : MonoBehaviour
     {
         yield return new WaitForSeconds(1.5f);
 
-        if (MultiplayerSync.IsSteamSession)
-            MultiplayerSync.LoadLevel("DungeonMultiplayer");
+        ProgressLabel.text = "Waiting for the opponent's party...";
+
+        float elapsed = 0;
+        while (MultiplayerSync.IsSteamSession && !MultiplayerSync.HasRivalParty && elapsed < SteamOpponentTimeoutSeconds)
+        {
+            yield return null;
+            elapsed += Time.deltaTime;
+        }
+
+        if (!MultiplayerSync.IsSteamSession)
+            yield break;
+
+        if (!MultiplayerSync.HasRivalParty)
+        {
+            MultiplayerSync.WriteLog("MULTIPLAYER", "Opponent did not join in time. Leaving session.");
+            ProgressLabel.text = "Opponent did not join in time.";
+            MultiplayerSync.LeaveRoom();
+            EnableInteraction();
+            yield break;
+        }
+
+        MultiplayerSync.LoadLevel("DungeonMultiplayer");
     }
 
     private IEnumerator SceneSlider()

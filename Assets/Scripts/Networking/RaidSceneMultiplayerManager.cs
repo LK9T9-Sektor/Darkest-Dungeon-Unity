@@ -91,6 +91,14 @@ public class RaidSceneMultiplayerManager : RaidSceneManager
                 StartingRoomId = "room2_1",
             };
             CurrentRaid.RaidParty = MultiplayerSync.HostRaidParty;
+            if (CurrentRaid.RaidParty == null && MultiplayerSync.IsSteamSession)
+            {
+                if (MultiplayerSync.LocalPartyData != null)
+                {
+                    MultiplayerSync.WriteLog("STEAM", "Rival party missing at raid start; using local party as a fallback.");
+                    CurrentRaid.RaidParty = new RaidParty(MultiplayerSync.LocalPartyData);
+                }
+            }
 
             DarkestDungeonManager.ScreenFader.StartFaded();
             DarkestDungeonManager.Data.LoadDungeon(CurrentRaid.Quest.Dungeon, CurrentRaid.Quest.Id);

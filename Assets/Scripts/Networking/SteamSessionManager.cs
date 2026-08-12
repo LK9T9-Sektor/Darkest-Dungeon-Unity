@@ -175,7 +175,7 @@ public class SteamSessionManager : MonoBehaviour
         else
         {
             _lastError = initResult.ErrorMessage;
-            Debug.LogError("[STEAM] Steam unavailable: " + initResult.ErrorMessage);
+            MultiplayerSync.WriteError("STEAM", "Steam unavailable: " + initResult.ErrorMessage);
         }
     }
 
@@ -249,19 +249,21 @@ public class SteamSessionManager : MonoBehaviour
     private void OnSessionJoined(string sessionId)
     {
         _sessionId = sessionId;
+        MultiplayerSync.WriteLog("STEAM", "Session joined: " + sessionId);
+        MultiplayerSync.WriteLog("STEAM", "ROOM_ID=" + sessionId);
         MultiplayerSync.OnSessionJoined(sessionId);
     }
 
     private void OnPlayerJoined(string playerId)
     {
-        Debug.Log("[STEAM] Player joined: " + playerId);
+        MultiplayerSync.WriteLog("STEAM", "Player joined: " + playerId);
         MultiplayerSync.EnsureLocalPartyData();
         SendPartyConfig(MultiplayerSync.LocalPartyData);
     }
 
     private void OnPlayerLeft(string playerId)
     {
-        Debug.Log("[STEAM] Player left: " + playerId);
+        MultiplayerSync.WriteLog("STEAM", "Player left: " + playerId);
         LeaveSession();
     }
 
@@ -273,12 +275,12 @@ public class SteamSessionManager : MonoBehaviour
 
     private void OnSessionInviteReceived(string sessionId)
     {
-        Debug.Log("[STEAM] Invitation received for session " + sessionId);
+        MultiplayerSync.WriteLog("STEAM", "Invitation received for session " + sessionId);
     }
 
     private void OnDisconnected()
     {
-        Debug.Log("[STEAM] Session disconnected.");
+        MultiplayerSync.WriteLog("STEAM", "Session disconnected.");
         LeaveSession();
     }
 

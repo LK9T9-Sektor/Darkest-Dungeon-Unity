@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 
 using Photon;
 using Sektor.DarkestDungeon.Lan.Steam;
@@ -17,6 +18,10 @@ public static class MultiplayerSync
     private const string ProviderPrefKey = "MultiplayerProvider";
     private const string SteamProviderValue = "steam";
     private const string PhotonProviderValue = "photon";
+
+    private const int MaxLogLines = 500;
+
+    private static readonly List<string> _logLines = new List<string>();
 
     private static MultiplayerPartyData _localPartyData;
     private static MultiplayerPartyData _rivalPartyData;
@@ -49,7 +54,7 @@ public static class MultiplayerSync
     {
         PlayerPrefs.SetString(ProviderPrefKey, steam ? SteamProviderValue : PhotonProviderValue);
         PlayerPrefs.Save();
-        Debug.Log("[STEAM] Provider set to " + (steam ? "STEAM" : "PHOTON") + ".");
+        WriteLog("STEAM", "Provider set to " + (steam ? "STEAM" : "PHOTON") + ".");
     }
 
     /// <summary>
@@ -267,6 +272,12 @@ public static class MultiplayerSync
             BuildLocalPartyData();
     }
 
+    /// <summary>Gets a value indicating whether the rival party composition was received.</summary>
+    public static bool HasRivalParty
+    {
+        get { return _rivalPartyData != null; }
+    }
+
     /// <summary>Delivers a remote party composition from the given sender into the local bridge.</summary>
     public static void OnPartyConfigReceived(string senderId, MultiplayerPartyData data)
     {
@@ -276,9 +287,51 @@ public static class MultiplayerSync
         _rivalPartyData = data;
     }
 
+    /// <summary>Gets a snapshot of the in-memory multiplayer log lines.</summary>
+    public static string[] LogLines
+    {
+        get { return _logLines.ToArray(); }
+    }
+
+    /// <summary>
+    /// Records a multiplayer log entry, mirrors it to the Unity console and keeps it in
+    /// the session state for the in-game log window. Reset on session join and end.
+    /// </summary>
+    /// <param name="category">Category of the event, e.g. "STEAM" or "MULTIPLAYER".</param>
+    /// <param name="message">The log message text.</param>
+    public static void WriteLog(string category, string message)
+    {
+        string line = "[" + System.DateTime.Now.ToString("HH:mm:ss.fff") + "] [" + category + "] " + message;
+        _logLines.Add(line);
+        if (_logLines.Count > MaxLogLines)
+            _logLines.RemoveAt(0);
+
+        Debug.Log(line);
+    }
+
+    /// <summary>Records an error log entry and mirrors it to the Unity console as an error.</summary>
+    /// <param name="category">Category of the event, e.g. "STEAM" or "MULTIPLAYER".</param>
+    /// <param name="message">The log message text.</param>
+    public static void WriteError(string category, string message)
+    {
+        string line = "[" + System.DateTime.Now.ToString("HH:mm:ss.fff") + "] [" + category + "] " + message;
+        _logLines.Add(line);
+        if (_logLines.Count > MaxLogLines)
+            _logLines.RemoveAt(0);
+
+        Debug.LogError(line);
+    }
+
+    /// <summary>Clears the in-memory multiplayer log.</summary>
+    public static void ClearLog()
+    {
+        _logLines.Clear();
+    }
+
     /// <summary>Invoked by the session manager when the Steam session was created or joined.</summary>
     public static void OnSessionJoined(string sessionId)
     {
+        ClearLog();
         _cachedHostRaidParty = null;
         System.Action<string> handler = SessionJoined;
         if (handler != null)
@@ -292,6 +345,7 @@ public static class MultiplayerSync
         _rivalPartyData = null;
         _cachedHostRaidParty = null;
         Steam = null;
+        ClearLog();
 
         System.Action handler = SessionEnded;
         if (handler != null)

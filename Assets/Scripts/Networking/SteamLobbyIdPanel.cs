@@ -161,7 +161,7 @@ public class SteamLobbyIdPanel : MonoBehaviour
         rect.anchorMin = new Vector2(1, 1);
         rect.anchorMax = new Vector2(1, 1);
         rect.pivot = new Vector2(1, 1);
-        rect.anchoredPosition = new Vector2(-16, -84);
+        rect.anchoredPosition = new Vector2(-90, -20);
         rect.sizeDelta = new Vector2(380, 40);
 
         Image background = _panel.AddComponent<Image>();

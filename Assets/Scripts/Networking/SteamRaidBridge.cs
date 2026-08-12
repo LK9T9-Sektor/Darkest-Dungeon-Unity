@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Text;
 
 using Sektor.DarkestDungeon.Lan.Contracts.Transport;
-using UnityEngine;
 
 /// <summary>
 /// Bridges Steam transport messages to the legacy multiplayer handlers.
@@ -46,7 +45,7 @@ public sealed class SteamRaidBridge
     {
         if (message.Type == PartyConfigType)
         {
-            Debug.Log("[STEAM] party_config received from " + message.SenderId);
+            MultiplayerSync.WriteLog("STEAM", "party_config received from " + message.SenderId);
             MultiplayerSync.OnPartyConfigReceived(message.SenderId, MultiplayerPartyData.Deserialize(message.Payload));
             return;
         }
@@ -82,7 +81,7 @@ public sealed class SteamRaidBridge
             return;
         }
 
-        Debug.LogWarning("[STEAM] Unknown RPC: " + method);
+        MultiplayerSync.WriteLog("STEAM", "Unknown RPC: " + method);
     }
 
     private void HandleBarkMessage(string[] args)

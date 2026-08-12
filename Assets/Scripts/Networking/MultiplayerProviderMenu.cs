@@ -27,6 +27,7 @@ public class MultiplayerProviderMenu : MonoBehaviour
     private readonly bool[] _providers = new bool[] { false, true };
 
     private Font _font;
+    private SoundSettingsSprites _sprites;
     private GameObject _panel;
     private Image[] _rowBackgrounds;
     private Text[] _rowLabels;
@@ -56,7 +57,7 @@ public class MultiplayerProviderMenu : MonoBehaviour
 
         if (_instanse == null)
         {
-            Debug.LogError("[MULTIPLAYER] Provider menu unavailable.");
+            MultiplayerSync.WriteError("MULTIPLAYER", "Provider menu unavailable.");
             return;
         }
 
@@ -135,7 +136,7 @@ public class MultiplayerProviderMenu : MonoBehaviour
     private void ConfirmSelection()
     {
         bool steam = _providers[_selectedIndex];
-        Debug.Log("[MULTIPLAYER] Provider selected: " + (steam ? "STEAM" : "PHOTON") + ".");
+        MultiplayerSync.WriteLog("MULTIPLAYER", "Provider selected: " + (steam ? "STEAM" : "PHOTON") + ".");
         MultiplayerSync.SetSteamProvider(steam);
 
         if (steam)
@@ -153,7 +154,7 @@ public class MultiplayerProviderMenu : MonoBehaviour
         if (_panel != null)
             _panel.SetActive(false);
 
-        Debug.Log("[MULTIPLAYER] Provider menu closed.");
+        MultiplayerSync.WriteLog("MULTIPLAYER", "Provider menu closed.");
     }
 
     private void ConfirmRow(int index)
@@ -200,22 +201,47 @@ public class MultiplayerProviderMenu : MonoBehaviour
         rect.sizeDelta = new Vector2(640, 420);
 
         Image background = panelObject.AddComponent<Image>();
-        SoundSettingsSprites sprites = Resources.Load<SoundSettingsSprites>(_soundSettingsSpritesPath);
-        if (sprites != null && sprites.WindowFrame != null)
-        {
-            background.sprite = sprites.WindowFrame;
-            background.type = Image.Type.Sliced;
-        }
-        else
-        {
-            background.color = new Color(0, 0, 0, 0.85f);
-        }
+        _sprites = Resources.Load<SoundSettingsSprites>(_soundSettingsSpritesPath);
+        background.color = new Color(0, 0, 0, 0.95f);
 
         CreateTitle(panelObject.transform);
         CreateProviderRows(panelObject.transform);
         CreateHintLabel(panelObject.transform);
+        CreateCloseButton(panelObject.transform);
 
         return panelObject;
+    }
+
+    private void CreateCloseButton(Transform parent)
+    {
+        Sprite closeIcon = _sprites != null ? _sprites.CloseIcon : null;
+        CreateStepperButton(parent, "CloseButton", closeIcon, new Vector2(296, 186), ClosePanel);
+    }
+
+    private void CreateStepperButton(Transform parent, string name, Sprite sprite, Vector2 position, UnityEngine.Events.UnityAction onClick)
+    {
+        GameObject buttonObject = CreateUiObject(name, parent);
+        RectTransform rect = buttonObject.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.5f, 0.5f);
+        rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = position;
+        rect.sizeDelta = new Vector2(32, 32);
+
+        Image background = buttonObject.AddComponent<Image>();
+        if (sprite != null)
+        {
+            background.sprite = sprite;
+            background.color = Color.white;
+        }
+        else
+        {
+            background.color = new Color(0, 0, 0, 0.75f);
+        }
+
+        Button button = buttonObject.AddComponent<Button>();
+        button.targetGraphic = background;
+        button.onClick.AddListener(onClick);
     }
 
     private void CreateTitle(Transform parent)
