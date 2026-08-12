@@ -14,13 +14,13 @@ using UnityEngine.UI;
 public class MultiplayerProviderMenu : MonoBehaviour
 {
     private const string _campaignSelectionSceneName = "CampaignSelection";
-    private const string _fontResourcePath = "Fonts/Deutsch";
+    private const string _fontResourcePath = "Fonts/DwarvenAxe";
     private const string _soundSettingsSpritesPath = "UI/SoundSettingsSprites";
 
-    private static readonly Color _labelColor = new Color(0.9338235f, 0.7924933f, 0.4463127f);
+    private static readonly Color _labelColor = new Color(1f, 0.8588235f, 0.4666667f);
     private static readonly Color _selectedRowColor = new Color(0.45f, 0.38f, 0.2f, 0.95f);
-    private static readonly Color _idleRowColor = new Color(0.2f, 0.2f, 0.2f, 0.95f);
-    private static readonly Color _idleRowTextColor = new Color(0.55f, 0.55f, 0.55f);
+    private static readonly Color _idleRowColor = new Color(0.2f, 0.2f, 0.2f, 0.6f);
+    private static readonly Color _idleRowTextColor = new Color(1f, 0.8588235f, 0.4666667f);
 
     private static MultiplayerProviderMenu _instanse;
 
@@ -261,7 +261,7 @@ public class MultiplayerProviderMenu : MonoBehaviour
             Text rowLabel = CreateText(steam ? "SteamRowLabel" : "PhotonRowLabel", rowObject.transform,
                 steam ? "STEAM" : "PHOTON",
                 new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 0), new Vector2(540, 56));
-            rowLabel.fontSize = 40;
+            rowLabel.fontSize = 35;
             _rowLabels[i] = rowLabel;
         }
     }
@@ -269,8 +269,9 @@ public class MultiplayerProviderMenu : MonoBehaviour
     private void CreateHintLabel(Transform parent)
     {
         Text hint = CreateText("ProviderHint", parent, "Use up / down arrows to choose, Enter to confirm, Esc to cancel",
-            new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 26), new Vector2(600, 30));
+            new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 26), new Vector2(800, 34));
         hint.fontSize = 20;
+        hint.horizontalOverflow = HorizontalWrapMode.Wrap;
     }
 
     private static GameObject CreateUiObject(string name, Transform parent)

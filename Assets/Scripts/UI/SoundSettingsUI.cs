@@ -22,7 +22,7 @@ public class SoundSettingsUI : MonoBehaviour
     private const string _returnButtonLabelFallback = "Exit to Main Menu";
     private const string _campaignSelectionSceneName = "CampaignSelection";
 
-    private const string _fontResourcePath = "Fonts/Deutsch";
+    private const string _fontResourcePath = "Fonts/DwarvenAxe";
     private const string _settingsButtonSpriteResourcePath = "UI/settings.button";
     private const string _soundSettingsSpritesResourcePath = "UI/SoundSettingsSprites";
 
@@ -180,6 +180,7 @@ public class SoundSettingsUI : MonoBehaviour
         if (_sprites != null && _sprites.WindowFrame != null)
         {
             background.sprite = _sprites.WindowFrame;
+            background.type = Image.Type.Sliced;
             background.color = Color.white;
         }
         else

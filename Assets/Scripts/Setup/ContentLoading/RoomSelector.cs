@@ -149,6 +149,30 @@ public class RoomSelector : MonoBehaviour
             slot.LoadSaveFrame(null);
     }
 
+    /// <summary>
+    /// Re-centers the status panel inside the room list frame and lets its label wrap,
+    /// so the longer Steam status messages stay on screen instead of overflowing the
+    /// left edge of the screen.
+    /// </summary>
+    private void ConfigureSteamStatusLayout()
+    {
+        RectTransform panelRect = ProgressPanel.rectTransform;
+        panelRect.anchorMin = new Vector2(0.5f, 0.5f);
+        panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        panelRect.anchoredPosition = new Vector2(0, -240);
+        panelRect.sizeDelta = new Vector2(1000, 84);
+
+        RectTransform labelRect = ProgressLabel.rectTransform;
+        labelRect.anchorMin = new Vector2(0, 0.5f);
+        labelRect.anchorMax = new Vector2(1, 0.5f);
+        labelRect.anchoredPosition = Vector2.zero;
+        labelRect.sizeDelta = new Vector2(0, 76);
+
+        ProgressLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
+        ProgressLabel.verticalOverflow = VerticalWrapMode.Overflow;
+        ProgressLabel.alignment = TextAnchor.MiddleCenter;
+    }
+
     public void FadeToLoadingScreen()
     {
         DisableInteraction();
@@ -341,6 +365,9 @@ public class RoomSelector : MonoBehaviour
         DarkestSoundManager.PlayOneShot("event:/general/title_screen/campaign_button");
 
         bool steam = MultiplayerSync.IsSteamProvider;
+        if (steam)
+            ConfigureSteamStatusLayout();
+
         ProgressLabel.text = steam
             ? "Steam ready. Enter a lobby ID in a slot or press Play to host."
             : (PhotonNetwork.connected ? "Connected!" : "Disconnected!");

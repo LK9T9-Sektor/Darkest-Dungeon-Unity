@@ -1,20 +1,17 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
 /// Persistent, reusable panel that shows the current Steam lobby id together with a
-/// copy-to-clipboard button. Lives across scenes (DontDestroyOnLoad) and is shown both
-/// in the shared room list right after the host creates a session and inside the
+/// copy-to-clipboard button. Lives across scenes (DontDestroyOnLoad) and is shown
+/// whenever a Steam session is active, in the shared room list and inside the
 /// multiplayer dungeon, so the id can be shared with a friend at any moment. Hidden
-/// when no Steam session is active or when the player is on an unrelated scene.
+/// only when no Steam session is active.
 /// </summary>
 public class SteamLobbyIdPanel : MonoBehaviour
 {
-    private const string _campaignSelectionSceneName = "CampaignSelection";
-    private const string _dungeonMultiplayerSceneName = "DungeonMultiplayer";
-    private const string _fontResourcePath = "Fonts/Deutsch";
+    private const string _fontResourcePath = "Fonts/DwarvenAxe";
 
     private const string _idLabelFormat = "Steam Lobby ID: {0}";
     private const string _copyButtonLabel = "Copy";
@@ -23,8 +20,8 @@ public class SteamLobbyIdPanel : MonoBehaviour
     private const float _copiedFeedbackSeconds = 1f;
     private const int _sortingOrder = 20000;
 
-    private static readonly Color _labelColor = new Color(0.9338235f, 0.7924933f, 0.4463127f);
-    private static readonly Color _panelBackgroundColor = new Color(0, 0, 0, 0.6f);
+    private static readonly Color _labelColor = new Color(1f, 0.8588235f, 0.4666667f);
+    private static readonly Color _panelBackgroundColor = new Color(0, 0, 0, 0.85f);
     private static readonly Color _buttonBackgroundColor = new Color(0.2f, 0.2f, 0.2f, 0.95f);
 
     private static SteamLobbyIdPanel _instanse;
@@ -101,13 +98,12 @@ public class SteamLobbyIdPanel : MonoBehaviour
         Refresh();
     }
 
-    /// <summary>Shows the panel only for an active Steam session on a relevant scene.</summary>
+    /// <summary>Shows the panel for an active Steam session regardless of the current scene.</summary>
     private void Refresh()
     {
         bool active = MultiplayerSync.IsSteamSession
             && MultiplayerSync.Steam != null
-            && MultiplayerSync.Steam.SessionId.Length > 0
-            && IsRelevantScene();
+            && MultiplayerSync.Steam.SessionId.Length > 0;
 
         if (_panel.activeSelf != active)
             _panel.SetActive(active);
@@ -118,12 +114,6 @@ public class SteamLobbyIdPanel : MonoBehaviour
                 ? _copiedLabel
                 : string.Format(_idLabelFormat, MultiplayerSync.Steam.SessionId);
         }
-    }
-
-    private bool IsRelevantScene()
-    {
-        string sceneName = SceneManager.GetActiveScene().name;
-        return sceneName == _campaignSelectionSceneName || sceneName == _dungeonMultiplayerSceneName;
     }
 
     private void CreateUi()

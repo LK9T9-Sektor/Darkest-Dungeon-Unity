@@ -255,6 +255,8 @@ public class SteamSessionManager : MonoBehaviour
     private void OnPlayerJoined(string playerId)
     {
         Debug.Log("[STEAM] Player joined: " + playerId);
+        MultiplayerSync.EnsureLocalPartyData();
+        SendPartyConfig(MultiplayerSync.LocalPartyData);
     }
 
     private void OnPlayerLeft(string playerId)
