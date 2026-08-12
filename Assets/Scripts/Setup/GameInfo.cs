@@ -7,7 +7,7 @@ public static class GameInfo
 {
     public const int Major = 1;
     public const int Minor = 0;
-    public const int Patch = 5;
+    public const int Patch = 6;
 
     /// <summary>
     /// "Major.Minor.Patch" string used by Photon to separate clients by game version.

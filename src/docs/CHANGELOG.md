@@ -1,5 +1,31 @@
 # Журнал изменений
 
+## 1.0.6 — общий мультиплеер: выбор провайдера и гарантированное закрытие Steam
+
+Версия 1.0.6 (ветка `steam`) убирает отдельную Steam-панель лобби: вход в мультиплеер теперь начинается с оверлея выбора провайдера PHOTON/STEAM, а дальше оба провайдера используют один и тот же экран списка комнат и выбор героев (панель отряда переиспользуется). Также исправлено зависание «Spacewar» в Steam после закрытия игры.
+
+### Меню выбора провайдера
+
+- Новый `MultiplayerProviderMenu` (`Assets\Scripts\Networking\MultiplayerProviderMenu.cs`) — runtime-оверлей на `CampaignSelection`: две строки PHOTON/STEAM, крупный шрифт (40), навигация стрелками ↑/↓ + Enter (Esc — закрыть), поддержка мыши (hover/клик). Текущий провайдер подсвечен при открытии.
+- `RoomSelector.SaveSelectionStart` (кнопка «Multiplayer») открывает меню провайдера; выбор инициализирует провайдера (`MultiplayerSync.SetSteamProvider`; для Steam — `MultiplayerSync.EnsureSteamSession`, создаёт/инициализирует `SteamSessionManager` без панели) и открывает общий список комнат `RoomSelector.OpenRoomList()`.
+- `SteamLauncher` (панель «Steam Co-op Lobby», переключатель PHOTON/STEAM, кнопка «Open STEAM Lobby») и `MultiplayerMenuState` удалены.
+
+### Общий список комнат (переиспользование выбора героев)
+
+- `RoomSelector` открывает единый экран для обоих провайдеров: выбор героев (`MultiplayerPartyPanel` + `CharacterWindow`) и статус-панель общие.
+- В Steam-режиме три слота комнат служат вводом lobby ID: подтверждение слота вызывает `RoomSelector.JoinSteamLobby(id)` → `SteamSessionManager.JoinSession` (с проверкой выбора скиллов). Кнопка Play — хост новой сессии (`HostSession`).
+- При создании/входе в сессию (`MultiplayerSync.SessionJoined`) отряд захватывается, отправляется сопернику (`party_config`) и загружается `DungeonMultiplayer`; возврат/разрыв сессии — через `MultiplayerSync.Steam.LeaveSession`.
+- Steam не инициализируется в Photon-режиме и наоборот; недоступность Steam показывается в статус-панели («Steam unavailable: …»).
+
+### Гарантированное закрытие Steam
+
+- `SteamSessionManager.OnApplicationQuit` освобождает транспорт (`SteamAPI_Shutdown`), идемпотентно и с общим путём `Shutdown()` для `OnDestroy`. Steam-клиент больше не считает «Spacewar» запущенной после Stop в Play-режиме редактора и после выхода из собранного билда.
+
+### Проверка
+
+- NUnit `tests\Lan` — 14/14 зелёных (сетевое ядро не менялось).
+- Версия в `GameInfo` — `1.0.6` (ProjectSettings синхронизированы: `bundleVersion 1.0.6`, Android `10006`).
+
 ## 1.0.5 — Steam co-op (боевая сессия 2 игроков)
 
 Версия 1.0.5 (ветка `steam`) добавляет кооперативную арену над Steam P2P: лобби «Steam Co-op Lobby» на экране выбора кампании, создание/вход по ROOM_ID, синхронизация выбранных героев между игроками и бой 2×4 по старой схеме Photon-режима, но без облачных серверов — напрямую P2P через Steam.

@@ -208,6 +208,16 @@ public class SteamSessionManager : MonoBehaviour
         MultiplayerSync.OnSessionEnded();
     }
 
+    /// <summary>
+    /// Releases the transport when the application is quitting, so the Steam client no
+    /// longer reports the game as running. Reliable in both the editor (play mode stop)
+    /// and built players (process exit), unlike scene unloads which may be skipped.
+    /// </summary>
+    private void OnApplicationQuit()
+    {
+        Shutdown();
+    }
+
     /// <summary>Sends an RPC to the rival and executes it locally.</summary>
     public void SendRpc(string method, object[] args)
     {
@@ -276,6 +286,15 @@ public class SteamSessionManager : MonoBehaviour
 
     /// <summary>Releases the transport bindings when the object is destroyed.</summary>
     private void OnDestroy()
+    {
+        Shutdown();
+    }
+
+    /// <summary>
+    /// Disposes the transport and clears the runtime state. Idempotent: safe to call
+    /// from both OnApplicationQuit and OnDestroy without double-releasing native Steam.
+    /// </summary>
+    private void Shutdown()
     {
         if (_transport == null)
             return;

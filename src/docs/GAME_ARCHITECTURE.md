@@ -35,7 +35,7 @@
 | `Generation` | генерация подземелий (`DungeonGenerator`) и квестов (`QuestGenerator`) |
 | `Managers` | корневые менеджеры и сценарии сцен (`DarkestDungeonManager`, `RaidSceneManager`, `EstateSceneManager`, `TownManager`, `ShopManager`, …) |
 | `Mechanics` | бой (`BattleGround`, `Round`, `BattleSolver`), AI, 29 классов `Effect`, скиллы |
-| `Networking` | сетевой слой: Photon (`DarkestPhotonLauncher`, `PhotonGameManager`, `RaidSceneMultiplayerManager`) + Steam P2P фасад (`SteamLauncher`, `SteamSessionManager`, `SteamRaidBridge`, `MultiplayerSync`, `MultiplayerPartyData`) |
+| `Networking` | сетевой слой: Photon (`DarkestPhotonLauncher`, `PhotonGameManager`, `RaidSceneMultiplayerManager`) + Steam P2P фасад (`MultiplayerProviderMenu`, `SteamSessionManager`, `SteamRaidBridge`, `MultiplayerSync`, `MultiplayerPartyData`) |
 | `Setup` | запуск (`GameIntro`, `ScreenLoader`, `GameSetup`) и сохранения (`SaveLoadManager`, DTO) |
 | `UI` | ~132 файла: панели, окна, слоты, окна зданий, инвентарь |
 | `PlayerInput`, `Sounds` | пустые (только `.meta`) |
@@ -100,8 +100,9 @@
 ## 12. Мультиплеер
 
 - **Photon (исходный путь):** `DarkestPhotonLauncher : PunBehaviour` — лобби/комнаты (`MaxPlayersPerRoom = 2`), `PhotonNetwork` RPC.
-- **Steam P2P (ветка steam, версия 1.0.5):** транспорт вынесен в чистые библиотеки `src\Lan\` (`Sektor.DarkestDungeon.Lan.Contracts` + `Sektor.DarkestDungeon.Lan.Steam`, см. `NETWORK_ARCHITECTURE.md`), доставляются в `Assets\Plugins\Internal\` post-build. Unity-фасад в `Assets\Scripts\Networking\`. Вся логика арены ходит через статический `MultiplayerSync`: в Steam-режиме через `SteamSessionManager`/`SteamRaidBridge`, иначе — оригинальные Photon-пути.
-- Провайдер выбирается переключателем PHOTON/STEAM на панели `SteamLauncher` (панель скрыта по умолчанию, открывается по требованию): в STEAM-режиме `RoomSelector.SaveSelectionStart` открывает Steam-панель вместо Photon-списка комнат, переключение на PHOTON возвращает к `RoomSelector`.
+- **Steam P2P (ветка steam, версия 1.0.6):** транспорт вынесен в чистые библиотеки `src\Lan\` (`Sektor.DarkestDungeon.Lan.Contracts` + `Sektor.DarkestDungeon.Lan.Steam`, см. `NETWORK_ARCHITECTURE.md`), доставляются в `Assets\Plugins\Internal\` post-build. Unity-фасад в `Assets\Scripts\Networking\`. Вся логика арены ходит через статический `MultiplayerSync`: в Steam-режиме через `SteamSessionManager`/`SteamRaidBridge`, иначе — оригинальные Photon-пути.
+- Провайдер выбирается в оверлее `MultiplayerProviderMenu` (PHOTON/STEAM, крупный шрифт, стрелки ↑/↓ + Enter): выбор инициализирует провайдера и открывает общий список комнат `RoomSelector` (выбор героев переиспользуется для обоих провайдеров). В Steam-режиме слоты списка комнат служат вводом lobby ID (подтверждение → `JoinSession`), кнопка Play — хост новой сессии (`HostSession`).
+- `SteamSessionManager.OnApplicationQuit` гарантированно освобождает Steam (`SteamAPI_Shutdown`) при выходе из игры — и в редакторе (Stop в Play), и в билде.
 - `RaidSceneMultiplayerManager : RaidSceneManager` — co-op рейд; сид сессии собирается из ID игроков; сообщения-барки синхронизируются RPC на всех.
 
 ## 13. UI
@@ -111,12 +112,12 @@
 
 ## 14. Версионирование
 
-- **Единственный источник** — `GameInfo` (`Assets\Scripts\Setup\GameInfo.cs`): три константы `Major = 1`, `Minor = 0`, `Patch = 5`. Версия хранится числами, а не строкой — никакого парсинга.
+- **Единственный источник** — `GameInfo` (`Assets\Scripts\Setup\GameInfo.cs`): три константы `Major = 1`, `Minor = 0`, `Patch = 6`. Версия хранится числами, а не строкой — никакого парсинга.
 - **Производные (композиция из констант, не парсинг):**
-  - `GameInfo.Version` → `"Major.Minor.Patch"` (сейчас `1.0.5`) — Photon отделяет клиентов по версии: `DarkestPhotonLauncher.GameVersion` возвращает `GameInfo.Version` (`Assets\Scripts\Networking\DarkestPhotonLauncher.cs:25`);
-  - `GameInfo.AndroidBundleVersionCode` → `Major×10000 + Minor×100 + Patch` (сейчас `10005`, строго растёт).
+  - `GameInfo.Version` → `"Major.Minor.Patch"` (сейчас `1.0.6`) — Photon отделяет клиентов по версии: `DarkestPhotonLauncher.GameVersion` возвращает `GameInfo.Version` (`Assets\Scripts\Networking\DarkestPhotonLauncher.cs:25`);
+  - `GameInfo.AndroidBundleVersionCode` → `Major×10000 + Minor×100 + Patch` (сейчас `10006`, строго растёт).
 - **PlayerSettings** синхронизируются автоматически перед каждой сборкой через `IPreprocessBuildWithReport` в `GameInfoVersionSync` (`Assets\Editor\GameInfoVersionSync.cs`): `PlayerSettings.bundleVersion` ← `GameInfo.Version`, `PlayerSettings.AndroidBundleVersionCode` ← `GameInfo.AndroidBundleVersionCode`.
-- Текущие значения в `ProjectSettings\ProjectSettings.asset`: `bundleVersion: 1.0.5`, `AndroidBundleVersionCode: 10005`.
+- Текущие значения в `ProjectSettings\ProjectSettings.asset`: `bundleVersion: 1.0.6`, `AndroidBundleVersionCode: 10006`.
 - **Как бампить версию:** поменять `Major/Minor/Patch` в `GameInfo` и (для мгновенного обновления в редакторе) выполнить `Tools ▸ Game ▸ Sync Version`.
 
 ## 15. Смежные документы

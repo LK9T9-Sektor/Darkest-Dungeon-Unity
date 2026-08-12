@@ -51,13 +51,14 @@ docs/NETWORK_ARCHITECTURE.md
   а также вход через `+connect_lobby <sessionId>` (Steam Invite URL).
 - `tests/Lan/Sektor.DarkestDungeon.Lan.Tests` — NUnit: кодек, жизненный цикл, round-trip (in-memory транспорт).
 
-Unity-фасад (презентационный слой, `Assets/Scripts/Networking/`, версия 1.0.5):
+Unity-фасад (презентационный слой, `Assets/Scripts/Networking/`, версия 1.0.6):
 
 - `SteamRaidBridge` — диспетчер входящих сообщений: `rpc.<method>` повторяет RPC-вызовы легаси (`PhotonGameManager`), `party_config` — состав отряда соперника.
-- `SteamSessionManager` — MonoBehaviour-фасад над `ITransport` (качает колбэки в `Update`), живёт между сценами.
+- `SteamSessionManager` — MonoBehaviour-фасад над `ITransport` (качает колбэки в `Update`), живёт между сценами; `OnApplicationQuit` надёжно освобождает транспорт (`SteamAPI_Shutdown`), чтобы Steam-клиент не считал игру запущенной после выхода.
 - `MultiplayerPartyData` — DTO состава (классы, имена, сиды, флаги скиллов), сериализация для канала.
-- `MultiplayerSync` — статический фасад для легаси: `IsSteamSession` → Steam, иначе исходные Photon-пути.
-- `SteamLauncher` — runtime-панель лобби на `CampaignSelection` (хост/join по ROOM_ID, переход в `DungeonMultiplayer`).
+- `MultiplayerSync` — статический фасад для легаси: `IsSteamSession` → Steam, иначе исходные Photon-пути; `EnsureSteamSession()` создаёт/инициализирует `SteamSessionManager`.
+- `MultiplayerProviderMenu` — runtime-оверлей выбора провайдера (PHOTON/STEAM) на `CampaignSelection`; крупный шрифт, стрелки ↑/↓ + Enter, мышь. Выбор инициализирует провайдера и открывает общий список комнат `RoomSelector.OpenRoomList()`.
+- Общий список комнат `RoomSelector` переиспользует выбор героев (панель отряда) для обоих провайдеров: в Steam-режиме слоты служат вводом lobby ID (подтверждение → `JoinSession`), кнопка Play — хост новой сессии (`HostSession`), `SessionJoined` → отправка состава → загрузка `DungeonMultiplayer`.
 
 Легаси интегрирован минимальными правками через `MultiplayerSync` (см. `CHANGELOG.md` 1.0.5): Photon-путь сохранён, ветвление по `IsSteamSession`.
 
@@ -85,8 +86,8 @@ Unity-фасад (презентационный слой, `Assets/Scripts/Netwo
   (`k_EP2PSendReliable`, channel 1).
 - При активной сессии публикуется rich presence `connect = steam://joinlobby/<appid>/<lobbyId>`
   (ISteamFriends) — хост помечается «Joinable» в Steam. AppID берётся через `ISteamUtils_GetAppID`,
-  не хардкодится. Вход через Steam-приглашение (Join Game / `+connect_lobby`) пока НЕ работает —
-  приходится вводить ROOM_ID вручную (см. KNOWN_ISSUES.md §11).
+   не хардкодится. Вход через Steam-приглашение (Join Game / `+connect_lobby`) пока НЕ работает —
+   приходится вводить lobby ID вручную (в слот общего списка комнат; см. KNOWN_ISSUES.md §11).
 - Идентификатор игрока/сессии — `ulong` steamID как строка; никаких хардкод-AppID (steam_appid.txt).
 - Разбор входящих колбэков — через реестр делегатов по callback ID (без switch по идентификаторам).
 

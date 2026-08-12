@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using Sektor.DarkestDungeon.Lan.Contracts.Results;
 
 // ReSharper disable PossibleLossOfFraction
 
@@ -73,7 +74,16 @@ public class RoomSelector : MonoBehaviour
         foreach (MultiplayerRoomSlot slot in RoomSlots)
             slot.RoomSelector = this;
 
+        MultiplayerSync.SessionJoined += OnSteamSessionJoined;
+        MultiplayerSync.SessionEnded += OnSteamSessionEnded;
+
         VersionLabel.text = DarkestPhotonLauncher.GameVersion;
+    }
+
+    private void OnDestroy()
+    {
+        MultiplayerSync.SessionJoined -= OnSteamSessionJoined;
+        MultiplayerSync.SessionEnded -= OnSteamSessionEnded;
     }
 
     private void Start()
@@ -108,6 +118,12 @@ public class RoomSelector : MonoBehaviour
 
     public void RefreshRoomList()
     {
+        if (MultiplayerSync.IsSteamProvider)
+        {
+            CleanRoomList();
+            return;
+        }
+
         DarkestPhotonLauncher.Instanse.ConnectToMaster();
 
         if (PhotonNetwork.insideLobby)
@@ -140,16 +156,22 @@ public class RoomSelector : MonoBehaviour
         StartCoroutine(fadeCoroutine);
     }
 
+    /// <summary>
+    /// Entry point of the "Multiplayer" button: opens the provider selection menu.
+    /// Choosing a provider initializes it and opens the shared room list, where the
+    /// legacy hero selection is reused for both Photon and Steam.
+    /// </summary>
     public void SaveSelectionStart()
     {
-        if (MultiplayerSync.IsSteamProvider)
-        {
-            SteamLauncher.OpenPanel();
-            return;
-        }
+        MultiplayerProviderMenu.Open();
+    }
 
-        MultiplayerMenuState.Open(MultiplayerMenuState.Menu.Photon);
-        SteamLauncher.EnsureLauncher();
+    /// <summary>
+    /// Opens the shared multiplayer room list (save frame slide-up). Provider agnostic:
+    /// hero selection, room slots and status panel are reused by both providers.
+    /// </summary>
+    public void OpenRoomList()
+    {
         CampaignSelectionManager.OnSelectionStart(CampaignSelection.Multiplayer);
         SaveFrame.gameObject.SetActive(true);
 
@@ -160,7 +182,7 @@ public class RoomSelector : MonoBehaviour
     public void SaveNamingStart(MultiplayerRoomSlot namingSaveSlot)
     {
         DarkestSoundManager.PlayOneShot("event:/general/title_screen/letter_open");
-        namingSaveSlot.TitleInput.text = GenerateRoomName();
+        namingSaveSlot.TitleInput.text = MultiplayerSync.IsSteamProvider ? "" : GenerateRoomName();
         selectedRoomSlot = namingSaveSlot;
         DisableInteraction();
     }
@@ -202,13 +224,126 @@ public class RoomSelector : MonoBehaviour
 
     public void PlayButtonClicked()
     {
+        if (MultiplayerSync.IsSteamProvider)
+        {
+            HostSteamSession();
+            return;
+        }
+
         DarkestPhotonLauncher.Instanse.RandomConnect();
+    }
+
+    /// <summary>
+    /// Hosts a new Steam session: validates the selected heroes, captures the party and
+    /// creates a lobby. The session join handler loads the raid scene once the lobby is
+    /// created. Errors are reported through the shared status panel.
+    /// </summary>
+    private void HostSteamSession()
+    {
+        if (!DarkestPhotonLauncher.Instanse.CheckSelectedSkills())
+            return;
+
+        MultiplayerPartyData party = MultiplayerSync.BuildLocalPartyData();
+        if (party == null)
+        {
+            ProgressLabel.text = "Build your party first!";
+            return;
+        }
+
+        DisableInteraction();
+        ProgressLabel.enabled = true;
+        ProgressPanel.enabled = true;
+        ProgressLabel.text = "Creating Steam session...";
+
+        Result result = MultiplayerSync.Steam.HostSession();
+        if (!result.IsSuccess)
+        {
+            ProgressLabel.text = "Host failed: " + result.ErrorMessage;
+            EnableInteraction();
+        }
+    }
+
+    /// <summary>
+    /// Joins an existing Steam session by its lobby id, entered into a room slot.
+    /// Validates the selected heroes, captures the party and connects to the lobby;
+    /// the session join handler loads the raid scene once connected.
+    /// </summary>
+    public void JoinSteamLobby(string lobbyId)
+    {
+        if (string.IsNullOrEmpty(lobbyId))
+        {
+            ProgressLabel.text = "Enter the Steam lobby ID first.";
+            return;
+        }
+
+        if (!DarkestPhotonLauncher.Instanse.CheckSelectedSkills())
+            return;
+
+        MultiplayerPartyData party = MultiplayerSync.BuildLocalPartyData();
+        if (party == null)
+        {
+            ProgressLabel.text = "Build your party first!";
+            return;
+        }
+
+        DisableInteraction();
+        ProgressLabel.enabled = true;
+        ProgressPanel.enabled = true;
+        ProgressLabel.text = "Joining Steam session " + lobbyId + "...";
+
+        Result result = MultiplayerSync.Steam.JoinSession(lobbyId);
+        if (!result.IsSuccess)
+        {
+            ProgressLabel.text = "Join failed: " + result.ErrorMessage;
+            EnableInteraction();
+        }
+    }
+
+    /// <summary>
+    /// Raised when a Steam session was created or joined: captures the local party,
+    /// delivers it to the rival and loads the raid scene, mirroring the Photon flow.
+    /// </summary>
+    private void OnSteamSessionJoined(string sessionId)
+    {
+        ProgressLabel.text = "Lobby joined! Waiting for the opponent...";
+        ProgressLabel.enabled = true;
+        ProgressPanel.enabled = true;
+        Debug.Log("[MULTIPLAYER] Steam session joined: " + sessionId);
+
+        MultiplayerSync.EnsureLocalPartyData();
+        SteamSessionManager sessionManager = MultiplayerSync.Steam;
+        if (sessionManager != null)
+            sessionManager.SendPartyConfig(MultiplayerSync.LocalPartyData);
+
+        StartCoroutine(LoadSteamRaidSceneRoutine());
+    }
+
+    /// <summary>Raised when the Steam session ended while the room list is open.</summary>
+    private void OnSteamSessionEnded()
+    {
+        if (!isSelecting)
+            return;
+
+        CleanRoomList();
+        ProgressLabel.text = "Session closed.";
+    }
+
+    private IEnumerator LoadSteamRaidSceneRoutine()
+    {
+        yield return new WaitForSeconds(1.5f);
+
+        if (MultiplayerSync.IsSteamSession)
+            MultiplayerSync.LoadLevel("DungeonMultiplayer");
     }
 
     private IEnumerator SceneSlider()
     {
         DarkestSoundManager.PlayOneShot("event:/general/title_screen/campaign_button");
-        ProgressLabel.text = PhotonNetwork.connected ? "Connected!" : "Disconnected!";
+
+        bool steam = MultiplayerSync.IsSteamProvider;
+        ProgressLabel.text = steam
+            ? "Steam ready. Enter a lobby ID in a slot or press Play to host."
+            : (PhotonNetwork.connected ? "Connected!" : "Disconnected!");
 
         DisableInteraction();
 
@@ -226,17 +361,38 @@ public class RoomSelector : MonoBehaviour
             yield return null;
         }
 
-        DarkestPhotonLauncher.Instanse.ConnectToMaster();
+        if (steam)
+        {
+            MultiplayerSync.EnsureSteamSession();
+            if (!MultiplayerSync.Steam.IsInitialized)
+                ProgressLabel.text = "Steam unavailable: " + MultiplayerSync.Steam.LastError;
+        }
+        else
+        {
+            DarkestPhotonLauncher.Instanse.ConnectToMaster();
+        }
         yield return new WaitForSeconds(1f);
         isSelecting = true;
 
-        RefreshRoomList();
+        if (steam)
+            CleanRoomList();
+        else
+            RefreshRoomList();
         EnableInteraction();
     }
 
     private IEnumerator SliderBack()
     {
-        PhotonNetwork.Disconnect();
+        if (MultiplayerSync.IsSteamProvider)
+        {
+            if (MultiplayerSync.Steam != null && MultiplayerSync.Steam.IsSessionActive)
+                MultiplayerSync.Steam.LeaveSession();
+        }
+        else
+        {
+            PhotonNetwork.Disconnect();
+        }
+
         SaveFrame.gameObject.SetActive(false);
         ReturnButton.gameObject.SetActive(false);
 
@@ -259,7 +415,6 @@ public class RoomSelector : MonoBehaviour
         }
         isSelecting = false;
         CampaignSelectionManager.OnSelectionReturn();
-        MultiplayerMenuState.Close();
     }
 
     private IEnumerator SceneFade(float seconds, float speed)

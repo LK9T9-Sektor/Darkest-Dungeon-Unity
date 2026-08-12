@@ -33,7 +33,9 @@ public class MultiplayerRoomSlot : MonoBehaviour
         ColorUtility.TryParseHtmlString("#323232FF", out color);
         TitleInput.textComponent.color = color;
         TitleInput.text = "";
-        ((Text)TitleInput.placeholder).text = "Click here to create room...";
+        ((Text)TitleInput.placeholder).text = MultiplayerSync.IsSteamProvider
+            ? "Enter Steam lobby ID..."
+            : "Click here to create room...";
         location.text = "";
         currentWeek.text = "";
         saveEnvelopeAnimator.SetBool("Opened", false);
@@ -106,6 +108,12 @@ public class MultiplayerRoomSlot : MonoBehaviour
         }
         DarkestSoundManager.PlayOneShot("event:/ui/town/button_click");
         RoomSelector.RoomNamingCompleted();
+
+        if (MultiplayerSync.IsSteamProvider)
+        {
+            RoomSelector.JoinSteamLobby(TitleInput.text);
+            return;
+        }
 
         if (!DarkestPhotonLauncher.Instanse.CreateNamedRoom(TitleInput.text))
             FillEmptyRoom();

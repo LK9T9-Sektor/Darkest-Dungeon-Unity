@@ -1,6 +1,7 @@
 using System.Collections;
 
 using Photon;
+using Sektor.DarkestDungeon.Lan.Steam;
 
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -49,6 +50,42 @@ public static class MultiplayerSync
         PlayerPrefs.SetString(ProviderPrefKey, steam ? SteamProviderValue : PhotonProviderValue);
         PlayerPrefs.Save();
         Debug.Log("[STEAM] Provider set to " + (steam ? "STEAM" : "PHOTON") + ".");
+    }
+
+    /// <summary>
+    /// Ensures the persistent Steam session manager exists and its transport is bound.
+    /// Creates the manager (kept between scenes) and initializes the Steam transport on
+    /// first use; subsequent calls are no-ops. Safe to call while Steam is unavailable:
+    /// the manager reflects the failure and can be re-initialized on a later retry.
+    /// </summary>
+    public static void EnsureSteamSession()
+    {
+        if (Steam != null)
+            return;
+
+        SteamSessionManager manager = Object.FindObjectOfType<SteamSessionManager>();
+        if (manager == null)
+        {
+            GameObject managerObject = new GameObject(nameof(SteamSessionManager));
+            Object.DontDestroyOnLoad(managerObject);
+            manager = managerObject.AddComponent<SteamSessionManager>();
+        }
+
+        Steam = manager;
+
+        if (!manager.IsInitialized)
+            manager.Initialize(new SteamTransport(new JsonTransportCodec()), ResolveLocalName(manager));
+    }
+
+    /// <summary>Resolves the display name from the saved nickname, falling back to the player id suffix.</summary>
+    private static string ResolveLocalName(SteamSessionManager manager)
+    {
+        string saved = PlayerPrefs.GetString("PlayerNickname");
+        if (saved.Length > 0)
+            return saved;
+
+        string id = manager.LocalPlayerId;
+        return "Player" + (id.Length >= 4 ? id.Substring(id.Length - 4) : id);
     }
 
     /// <summary>Gets a value indicating whether the current session runs over Steam.</summary>
