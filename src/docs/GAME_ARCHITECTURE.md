@@ -4,7 +4,7 @@
 
 ## 1. Обзор
 
-- Порт/реконструкция *Darkest Dungeon* на **Unity 2017.4.40f1**, scripting runtime **.NET 4.6** (Experimental; поднят с .NET 3.5/Stable — `scriptingRuntimeVersion: 1`, `apiCompatibilityLevel: 2`).
+- Порт/реконструкция *Darkest Dungeon* на **Unity 2017.4.40f1**, scripting runtime **.NET 4.6** (Experimental; поднят с .NET 3.5/Stable — `scriptingRuntimeVersion: 1`, `apiCompatibilityLevel: 3`; Unity 2017.4 выставляет уровень 3 автоматически при runtime 1).
 - Реализация почти идентична оригиналу.
 - **Аудио работает**: музыка и звуки воспроизводятся через **FMOD**. Банки FMOD и графические/спрайтовые ассеты исключены из репозитория `.gitignore` из-за большого размера — изучается только код и документация.
 - Готово: имение, все герои/монстры, эффекты/статусы, генерация подземелий и квестов, события города, инвентарь/curios, сюжетные карты, озвучка, простой мультиплеер (Photon + Steam P2P co-op арена — см. `CHANGELOG.md` 1.0.5).
@@ -103,6 +103,7 @@
 - **Steam P2P (ветка steam, версия 1.0.6):** транспорт вынесен в чистые библиотеки `src\Lan\` (`Sektor.DarkestDungeon.Lan.Contracts` + `Sektor.DarkestDungeon.Lan.Steam`, см. `NETWORK_ARCHITECTURE.md`), доставляются в `Assets\Plugins\Internal\` post-build. Unity-фасад в `Assets\Scripts\Networking\`. Вся логика арены ходит через статический `MultiplayerSync`: в Steam-режиме через `SteamSessionManager`/`SteamRaidBridge`, иначе — оригинальные Photon-пути.
 - Провайдер выбирается в оверлее `MultiplayerProviderMenu` (PHOTON/STEAM, крупный шрифт, стрелки ↑/↓ + Enter): выбор инициализирует провайдера и открывает общий список комнат `RoomSelector` (выбор героев переиспользуется для обоих провайдеров). В Steam-режиме слоты списка комнат служат вводом lobby ID (подтверждение → `JoinSession`), кнопка Play — хост новой сессии (`HostSession`).
 - `SteamSessionManager.OnApplicationQuit` гарантированно освобождает Steam (`SteamAPI_Shutdown`) при выходе из игры — и в редакторе (Stop в Play), и в билде.
+- `SteamLobbyIdPanel` (`Assets\Scripts\Networking\SteamLobbyIdPanel.cs`) — переиспользуемая DontDestroyOnLoad панель Steam Lobby ID с кнопкой копирования в буфер обмена; показывается и в списке комнат после создания сессии, и в подземелье, скрывается без активной Steam-сессии.
 - `RaidSceneMultiplayerManager : RaidSceneManager` — co-op рейд; сид сессии собирается из ID игроков; сообщения-барки синхронизируются RPC на всех.
 
 ## 13. UI

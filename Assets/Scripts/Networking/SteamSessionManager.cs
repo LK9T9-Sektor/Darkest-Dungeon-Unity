@@ -197,7 +197,11 @@ public class SteamSessionManager : MonoBehaviour
         return _transport.JoinSession(sessionId);
     }
 
-    /// <summary>Leaves the current session and notifies the game layer.</summary>
+    /// <summary>
+    /// Leaves the current session and notifies the game layer. When leaving while inside
+    /// the raid scene, the campaign selection is loaded so the host does not stay stuck
+    /// on the faded-out dungeon.
+    /// </summary>
     public void LeaveSession()
     {
         if (!IsSessionActive)
@@ -206,6 +210,7 @@ public class SteamSessionManager : MonoBehaviour
         _transport.LeaveSession();
         _sessionId = string.Empty;
         MultiplayerSync.OnSessionEnded();
+        ReturnToLobbyWhenInRaid();
     }
 
     /// <summary>
@@ -256,7 +261,6 @@ public class SteamSessionManager : MonoBehaviour
     {
         Debug.Log("[STEAM] Player left: " + playerId);
         LeaveSession();
-        ReturnToLobbyWhenInRaid();
     }
 
     private void OnMessageReceived(TransportMessage message)
@@ -274,7 +278,6 @@ public class SteamSessionManager : MonoBehaviour
     {
         Debug.Log("[STEAM] Session disconnected.");
         LeaveSession();
-        ReturnToLobbyWhenInRaid();
     }
 
     /// <summary>Returns to the campaign selection when the session ends while inside the raid scene.</summary>
