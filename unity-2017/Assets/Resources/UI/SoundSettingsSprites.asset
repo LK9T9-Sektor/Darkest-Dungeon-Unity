@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b608f9f7d6cb4dc4ab5c8b5bf0a61e0f, type: 3}
+  m_Name: SoundSettingsSprites
+  m_EditorClassIdentifier: 
+  WindowFrame: {fileID: 21300000, guid: c9844842069265e4da07c78f3ede229c, type: 3}
+  MinusArrow: {fileID: 21300000, guid: 8d241f4fc46f92743be47d77dbd578d9, type: 3}
+  PlusArrow: {fileID: 21300000, guid: 25607369278636749981b488cf8df52a, type: 3}
+  CloseIcon: {fileID: 21300000, guid: 769d8277be4c51447a1cb51c5cb91749, type: 3}
+  ExitButtonOverlay: {fileID: 21300000, guid: b14c9d4fa66bc4d45897fba8c866125a, type: 3}
