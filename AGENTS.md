@@ -27,6 +27,7 @@
 - **Verification** — Domain projects must not contain references to game engine binaries or editor assemblies. Define local pure C# primitives or interfaces if spatial types are required.
 - **No Cross-Pollination** — AI agents must never create raw `.cs` files belonging to the domain layer anywhere inside the presentation layer. All core logic additions happen strictly within the dedicated source directory.
 - **Unity Compile Check (for AI agents)** — after changing code in the presentation layer (`Assets\Scripts`) or editor scripts (`Assets\Editor`), agents must verify that the scripts compile in the target Unity editor: run `pwsh tools\compile-check.ps1` (batch-mode import + compilation, parses the log; no player build). A full standalone build is `pwsh tools\build-game.ps1`, launching the built game is `pwsh tools\run-game.ps1` / `pwsh tools\dev-run.ps1`. `compile-check.ps1` needs the project closed in the editor (checks `Temp\UnityLockfile`); use `-Provision` to deliver the Lan transport plugins first when they are absent from `Assets\Plugins\Internal` (they are gitignored).
+- **Commit Messages** — commit messages must be in English, start with a capital letter, and end with a period (for example: "Add lobby timeout handling.").
 
 ---
 
@@ -68,9 +69,10 @@
 ## 📚 Documentation: Required Reading & Maintenance
 
 Before planning or editing, read the relevant documents from `src\docs\`:
-- `GAME_ARCHITECTURE.md` — architecture, code structure, god-classes, version;
+- `ARCHITECTURE.md` — architecture, code structure, god-classes, version;
 - `KNOWN_ISSUES.md` — architectural debt and known issues (do not make them worse);
-- `CHANGELOG.md` — change log by version (current version at the top of the file).
+- `CHANGELOG.md` — change log by version (current version at the top of the file);
+- `REORGANIZATION.md` — monorepo plan: `unity\` (active) + `unity-2017\` (legacy) + shared pure C# core in `src\`.
 
 Read only what the task relates to. Legacy edits stay minimal; `src\External\` is read-only.
 

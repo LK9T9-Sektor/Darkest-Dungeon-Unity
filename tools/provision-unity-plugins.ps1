@@ -88,8 +88,8 @@ Write-Host "==> Unity editor: $UnityEditorPath"
 
 $facadesSource = Join-Path $UnityEditorPath "Editor\Data\MonoBleedingEdge\lib\mono\unityjit\Facades"
 
-Write-Host "==> Building Lan solution"
-dotnet build (Join-Path $repoRoot "Sektor.DarkestDungeon.slnx") --nologo -v q -p:AllowMissingPrunePackageData=true
+Write-Host "==> Building Lan transport (Steam project builds Contracts transitively)"
+dotnet build (Join-Path $repoRoot "src\Lan\Sektor.DarkestDungeon.Lan.Steam\Sektor.DarkestDungeon.Lan.Steam.csproj") --nologo -v q -p:AllowMissingPrunePackageData=true
 if ($LASTEXITCODE -ne 0) { throw "dotnet build failed" }
 
 Write-Host "==> Copying .NET Standard facades"
