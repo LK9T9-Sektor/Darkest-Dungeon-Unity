@@ -11,15 +11,20 @@
 # 4. Runs Unity in batch mode (no BuildPlayer), then parses the log for errors.
 # 5. Exit code 0 when compilation succeeded, 1 otherwise.
 #
-# Usage: pwsh tools\compile-check.ps1 [-UnityEditorPath <path>] [-Provision]
+# Usage: pwsh tools\compile-check.ps1 [-ProjectPath <project>] [-UnityEditorPath <path>] [-Provision]
 
 param(
+    [string]$ProjectPath = "",
     [string]$UnityEditorPath = "",
     [switch]$Provision
 )
 
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
+if (-not $ProjectPath) {
+    $ProjectPath = "unity"
+}
+$projectRoot = Join-Path $repoRoot $ProjectPath
 
 function Find-UnityEditor {
     param([string]$Preferred)
@@ -65,13 +70,13 @@ function Find-UnityEditor {
 # Blocks when an editor is actually open on this project; a leftover Temp\UnityLockfile
 # from a crashed or failed batch run (no matching Unity process) is removed instead.
 function Assert-ProjectNotLocked {
-    $lockPath = Join-Path $repoRoot "Temp\UnityLockfile"
+    $lockPath = Join-Path $projectRoot "Temp\UnityLockfile"
     if (-not (Test-Path $lockPath)) {
         return
     }
 
     $running = Get-CimInstance Win32_Process -Filter "Name = 'Unity.exe'" -ErrorAction SilentlyContinue |
-        Where-Object { $_.CommandLine -and $_.CommandLine.Contains($repoRoot) }
+        Where-Object { $_.CommandLine -and $_.CommandLine.Contains($projectRoot) }
     if ($running) {
         throw "The project is open in the Unity editor. Close it first, then rerun the check."
     }
@@ -93,7 +98,7 @@ Assert-ProjectNotLocked
 
 if ($Provision) {
     Write-Host "==> Provisioning Lan transport plugins"
-    & (Join-Path $PSScriptRoot "provision-unity-plugins.ps1") -UnityEditorPath $UnityEditorPath
+    & (Join-Path $PSScriptRoot "provision-unity-plugins.ps1") -ProjectPath $ProjectPath -UnityEditorPath $UnityEditorPath
     if ($LASTEXITCODE -ne 0) {
         throw "Plugin provisioning failed."
     }
@@ -105,7 +110,7 @@ $logPath = Join-Path $env:TEMP ("unity-compile-" + [DateTime]::Now.ToString("yyy
 # the process is waited on explicitly and its real exit code is captured.
 $unityArguments = @(
     "-batchmode", "-quit", "-nographics",
-    "-projectPath", ('"' + $repoRoot + '"'),
+    "-projectPath", ('"' + $projectRoot + '"'),
     "-logFile", ('"' + $logPath + '"')
 )
 
@@ -134,7 +139,7 @@ if ($failed -and (Test-Path $logPath)) {
     $logText = Get-Content $logPath -Raw
     if ($logText -match "error CS2001:") {
         Write-Host "==> Stale script cache detected (deleted source file). Clearing Library\ScriptAssemblies and retrying."
-        Remove-Item (Join-Path $repoRoot "Library\ScriptAssemblies\*") -Force -ErrorAction SilentlyContinue
+        Remove-Item (Join-Path $projectRoot "Library\ScriptAssemblies\*") -Force -ErrorAction SilentlyContinue
 
         $logPath = Join-Path $env:TEMP ("unity-compile-" + [DateTime]::Now.ToString("yyyyMMdd-HHmmss") + ".log")
         $unityArguments[$unityArguments.Length - 1] = ('"' + $logPath + '"')

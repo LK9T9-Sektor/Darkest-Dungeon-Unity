@@ -1,26 +1,32 @@
 # Provision Unity plugin delivery for the Lan Steam transport.
 #
-# 1. Builds the Lan solution (dotnet), whose post-build targets copy the managed
-#    assemblies into Assets\Plugins\Internal\ (gitignored).
-# 2. Copies the .NET Standard facade shims from the installed Unity editor into
-#    Assets\Plugins\Internal\ so the old Mono runtime resolves the BCL types
-#    referenced by the netstandard2.0 assemblies (see src\docs\COMPABILITY.md).
+# 1. Builds the Lan transport (dotnet, Steam project builds Contracts transitively);
+#    its post-build target copies the managed assemblies into each Unity project's
+#    Assets\Plugins\Internal\ (gitignored) for unity\ and unity-2017\.
+# 2. Copies the .NET Standard facade shims from the installed Unity editor into the
+#    target project's Assets\Plugins\Internal\ so the old Mono runtime resolves the
+#    BCL types referenced by the netstandard2.0 assemblies (see src\docs\COMPABILITY.md).
 #    Required only for Unity 2017.4; Unity 6+ resolves those types natively and
 #    the MonoBleedingEdge unityjit\Facades folder no longer exists, so it is skipped.
-# 3. Copies steam_api64.dll into Assets\Plugins\x86_64\ as a native plugin.
+# 3. Copies steam_api64.dll into the target project's Assets\Plugins\x86_64\ as a native plugin.
 # 4. Ensures a local (gitignored) steam_appid.txt exists for editor/dev runs.
 #
-# Usage: pwsh tools\provision-unity-plugins.ps1 [-UnityEditorPath <path>] [-AppId <uint>]
+# Usage: pwsh tools\provision-unity-plugins.ps1 [-ProjectPath <project>] [-UnityEditorPath <path>] [-AppId <uint>]
 
 param(
+    [string]$ProjectPath = "",
     [string]$UnityEditorPath = "",
     [uint32]$AppId = 480
 )
 
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$internalDir = Join-Path $repoRoot "Assets\Plugins\Internal"
-$x86_64Dir = Join-Path $repoRoot "Assets\Plugins\x86_64"
+if (-not $ProjectPath) {
+    $ProjectPath = "unity"
+}
+$projectRoot = Join-Path $repoRoot $ProjectPath
+$internalDir = Join-Path $projectRoot "Assets\Plugins\Internal"
+$x86_64Dir = Join-Path $projectRoot "Assets\Plugins\x86_64"
 $steamDll = Join-Path $repoRoot "src\Lan\Sektor.DarkestDungeon.Lan.Steam\steam_api64.dll"
 $appIdFile = Join-Path $repoRoot "steam_appid.txt"
 

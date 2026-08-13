@@ -7,9 +7,10 @@
 # 5. Fails (exit 1) on compilation/build errors.
 # 6. Drops steam_appid.txt next to the executable so SteamAPI_Init works in the player.
 #
-# Usage: pwsh tools\build-game.ps1 [-UnityEditorPath <path>] [-BuildDir <path>] [-AppId <uint>] [-SkipProvision]
+# Usage: pwsh tools\build-game.ps1 [-ProjectPath <project>] [-UnityEditorPath <path>] [-BuildDir <path>] [-AppId <uint>] [-SkipProvision]
 
 param(
+    [string]$ProjectPath = "",
     [string]$UnityEditorPath = "",
     [string]$BuildDir = "",
     [uint32]$AppId = 480,
@@ -18,9 +19,13 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
+if (-not $ProjectPath) {
+    $ProjectPath = "unity"
+}
+$projectRoot = Join-Path $repoRoot $ProjectPath
 
 if (-not $BuildDir) {
-    $BuildDir = Join-Path $repoRoot "Build\Darkest Dungeon"
+    $BuildDir = Join-Path $projectRoot "Build\Darkest Dungeon"
 }
 $executableName = "Darkest Dungeon.exe"
 $executablePath = Join-Path $BuildDir $executableName
@@ -69,13 +74,13 @@ function Find-UnityEditor {
 # Blocks when an editor is actually open on this project; a leftover Temp\UnityLockfile
 # from a crashed or failed batch run (no matching Unity process) is removed instead.
 function Assert-ProjectNotLocked {
-    $lockPath = Join-Path $repoRoot "Temp\UnityLockfile"
+    $lockPath = Join-Path $projectRoot "Temp\UnityLockfile"
     if (-not (Test-Path $lockPath)) {
         return
     }
 
     $running = Get-CimInstance Win32_Process -Filter "Name = 'Unity.exe'" -ErrorAction SilentlyContinue |
-        Where-Object { $_.CommandLine -and $_.CommandLine.Contains($repoRoot) }
+        Where-Object { $_.CommandLine -and $_.CommandLine.Contains($projectRoot) }
     if ($running) {
         throw "The project is open in the Unity editor. Close it first, then rerun the build."
     }
@@ -97,7 +102,7 @@ Assert-ProjectNotLocked
 
 if (-not $SkipProvision) {
     Write-Host "==> Provisioning Lan transport plugins"
-    & (Join-Path $PSScriptRoot "provision-unity-plugins.ps1") -UnityEditorPath $UnityEditorPath -AppId $AppId
+    & (Join-Path $PSScriptRoot "provision-unity-plugins.ps1") -ProjectPath $ProjectPath -UnityEditorPath $UnityEditorPath -AppId $AppId
     if ($LASTEXITCODE -ne 0) {
         throw "Plugin provisioning failed."
     }
@@ -114,7 +119,7 @@ $env:DD_BUILD_DIR = $BuildDir
 # the process is waited on explicitly and its real exit code is captured.
 $unityArguments = @(
     "-batchmode", "-quit", "-nographics",
-    "-projectPath", ('"' + $repoRoot + '"'),
+    "-projectPath", ('"' + $projectRoot + '"'),
     "-executeMethod", "BuildGame.Build",
     "-logFile", ('"' + $logPath + '"')
 )

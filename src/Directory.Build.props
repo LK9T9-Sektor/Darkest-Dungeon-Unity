@@ -4,6 +4,8 @@
     <LangVersion>7.3</LangVersion>
     <DebugType>full</DebugType>
     <Nullable>disable</Nullable>
+    <!-- Unity projects that receive the built core DLL/PDB post-build (semicolon-separated). -->
+    <CoreUnityPluginFolders>$(MSBuildThisFileDirectory)..\unity\Assets\Plugins\Internal;$(MSBuildThisFileDirectory)..\unity-2017\Assets\Plugins\Internal</CoreUnityPluginFolders>
   </PropertyGroup>
 
 </Project>

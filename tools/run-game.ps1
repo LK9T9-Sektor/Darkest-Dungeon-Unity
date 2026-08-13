@@ -4,18 +4,23 @@
 # working directory, so SteamAPI_Init picks up steam_appid.txt placed next to the game.
 # When the executable is missing, prints a hint to build it first.
 #
-# Usage: pwsh tools\run-game.ps1 [-BuildDir <path>] [-AppId <uint>]
+# Usage: pwsh tools\run-game.ps1 [-ProjectPath <project>] [-BuildDir <path>] [-AppId <uint>]
 
 param(
+    [string]$ProjectPath = "",
     [string]$BuildDir = "",
     [uint32]$AppId = 480
 )
 
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
+if (-not $ProjectPath) {
+    $ProjectPath = "unity"
+}
+$projectRoot = Join-Path $repoRoot $ProjectPath
 
 if (-not $BuildDir) {
-    $BuildDir = Join-Path $repoRoot "Build\Darkest Dungeon"
+    $BuildDir = Join-Path $projectRoot "Build\Darkest Dungeon"
 }
 $executablePath = Join-Path $BuildDir "Darkest Dungeon.exe"
 

@@ -19,8 +19,11 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="..\..\..\Assets\Plugins\Internal\" />
-    <Copy SourceFiles="$(OutputPath)$(AssemblyName).pdb" DestinationFolder="..\..\..\Assets\Plugins\Internal\" />
+    <ItemGroup>
+      <CoreUnityPluginDir Include="$(CoreUnityPluginFolders)" />
+    </ItemGroup>
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="%(CoreUnityPluginDir.Identity)" />
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).pdb" DestinationFolder="%(CoreUnityPluginDir.Identity)" />
   </Target>
 
 </Project>
