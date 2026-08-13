@@ -5,6 +5,8 @@
 # 2. Copies the .NET Standard facade shims from the installed Unity editor into
 #    Assets\Plugins\Internal\ so the old Mono runtime resolves the BCL types
 #    referenced by the netstandard2.0 assemblies (see src\docs\COMPABILITY.md).
+#    Required only for Unity 2017.4; Unity 6+ resolves those types natively and
+#    the MonoBleedingEdge unityjit\Facades folder no longer exists, so it is skipped.
 # 3. Copies steam_api64.dll into Assets\Plugins\x86_64\ as a native plugin.
 # 4. Ensures a local (gitignored) steam_appid.txt exists for editor/dev runs.
 #
@@ -46,6 +48,7 @@ function Find-UnityEditor {
     }
 
     $knownRoots = @(
+        "C:\Program Files\Unity\Hub\Editor\6000.5.8f1",
         "D:\ProgramFiles\Unity2017.4.40f1",
         "D:\Program Files\Unity2017.4.40f1",
         "E:\ProgramFiles\Unity2017.4.40f1",
@@ -91,7 +94,7 @@ if ($LASTEXITCODE -ne 0) { throw "dotnet build failed" }
 
 Write-Host "==> Copying .NET Standard facades"
 if (-not (Test-Path $facadesSource)) {
-    Write-Warning "Facades folder not found: $facadesSource. Skipping facade delivery."
+    Write-Warning "Facades folder not found: $facadesSource. Not required for Unity 6+ (native type forwarding); skipping facade delivery."
 } else {
     New-Item -ItemType Directory -Force -Path $internalDir | Out-Null
     Copy-Item -Path (Join-Path $facadesSource "*.dll") -Destination $internalDir -Force

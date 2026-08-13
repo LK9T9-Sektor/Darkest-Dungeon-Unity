@@ -57,7 +57,7 @@ public class MultiplayerPartyPanel : MonoBehaviour
         var currentSlot = PartySlots.Find(slot => slot.SelectedHero == currentHero);
         int currentIndex = DarkestPhotonLauncher.HeroPool.IndexOf(currentHero);
 
-        int heroSeed = GetInstanceID() + System.DateTime.Now.Millisecond + (int)System.DateTime.Now.Ticks;
+        int heroSeed = GetEntityId().GetHashCode() + System.DateTime.Now.Millisecond + (int)System.DateTime.Now.Ticks;
         RandomSolver.SetRandomSeed(heroSeed);
 
         DarkestPhotonLauncher.HeroSeeds[currentIndex] = heroSeed;

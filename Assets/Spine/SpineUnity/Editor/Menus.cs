@@ -50,7 +50,7 @@ public class Menus {
 		var dir = "Assets/";
 		var selected = Selection.activeObject;
 		if (selected != null) {
-			var assetDir = AssetDatabase.GetAssetPath(selected.GetInstanceID());
+			var assetDir = AssetDatabase.GetAssetPath(selected.GetEntityId());
 			if (assetDir.Length > 0 && Directory.Exists(assetDir))
 				dir = assetDir + "/";
 		}

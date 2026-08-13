@@ -1,10 +1,10 @@
-# Миграция Unity 2017.4 → 6000.4.5f1 (Unity 6.4)
+# Миграция Unity 2017.4 → Unity 6
 
 Переход проекта с Unity 2017.4.40f1 на Unity 6000.4.5f1. Ниже — что изменилось, какие ошибки компиляции были устранены и какие runtime-проблемы остались на старте.
 
 ## 1. Что изменилось
 
-- `ProjectSettings\ProjectVersion.txt`: `m_EditorVersion: 6000.4.5f1` (было 2017.4.40f1).
+- `ProjectSettings\ProjectVersion.txt`: `m_EditorVersion: 6000.4.5f1` (было 2017.4.40f1). Актуальная версия — **6000.5.8f1** (см. §5).
 - Старые API удалены или помечены obsolete → правки компиляции:
   - `GUIText` → `UnityEngine.UI.Text` (`DemoBoxesGui.cs`);
   - `MovieTexture` удалён — `MoviePlayer` превращён в заглушку;
@@ -57,3 +57,22 @@ Path 'traits[0].reaction_act_outs[0].chance'
 - [x] Первопричина каскада — `JsonReaderException` в `LoadTraits` — исправлена (`JsonReactionActOut.chance` → `float`).
 - [x] Аудит всех JSON-данных через внешний харнесс — 0 ошибок десериализации.
 - [ ] Подтверждение на живом прогоне: список героев заполнен, NRE на старте нет.
+
+## 5. Обновление 6000.4.5f1 → 6000.5.8f1 (Unity 6.5)
+
+В Unity 6.5 ряд API стал obsolete-as-error (CS0619): `GetInstanceID()`, `hierarchyWindowItemOnGUI`, `EditorUtility.InstanceIDToObject(int)`. Проект переведён на `EntityId` (`Object.GetEntityId()`), у которого нет конверсии в int — используется как ключ коллекций напрямую либо через `GetHashCode()` для RNG-сидов.
+
+- `ProjectSettings\ProjectVersion.txt`: `m_EditorVersion: 6000.5.8f1`.
+- Свои скрипты:
+  - `Assets\Scripts\Networking\DarkestPhotonLauncher.cs:121` — сид героя: `GetInstanceID()` → `GetEntityId().GetHashCode()`.
+  - `Assets\Scripts\Networking\MultiplayerPartyPanel.cs:60` — сид перекатки черт: то же.
+  - `Assets\Scripts\Setup\ContentLoading\RoomSelector.cs:74` — `Random.InitState`: то же.
+- Spine runtime:
+  - `Assets\Spine\SpineUnity\SpriteAttacher.cs` — `Dictionary<int, AtlasRegion>` → `Dictionary<EntityId, AtlasRegion>`, `List<int>` → `List<EntityId>`, ключи `tex.GetInstanceID()` → `tex.GetEntityId()`.
+  - `Assets\Spine\SpineUnity\SkeletonRenderer.cs:259,796` — сравнение материалов через `GetEntityId() ==/!=`.
+- Spine editor:
+  - `Assets\Spine\SpineUnity\Editor\SpineEditorUtilities.cs` — три `Dictionary<int, …>` → `Dictionary<EntityId, …>`, событие → `hierarchyWindowItemByEntityIdOnGUI`, сигнатура обработчика `(EntityId instanceId, Rect)`.
+- FMOD (vendored, минимальный дифф):
+  - `Assets\Plugins\Editor\FMOD\EventBrowser.cs` — событие → `hierarchyWindowItemByEntityIdOnGUI`, обработчик `(EntityId instance, Rect rect)`, `InstanceIDToObject(instance)` → `EntityIdToObject(instance)`.
+- Инструменты: `tools\compile-check.ps1`/`build-game.ps1`/`provision-unity-plugins.ps1` находят редактор 6000.5.8f1 (`C:\Program Files\Unity\Hub\Editor\6000.5.8f1`). Фасады .NET Standard для Unity 6+ не требуются (нативный type-forwarding; каталог `MonoBleedingEdge\lib\mono\unityjit\Facades` в 6.5 отсутствует) — доставка фасадов пропускается.
+- Проверка: `pwsh tools\compile-check.ps1 -UnityEditorPath <editor 6.5> -Provision` → `Compilation succeeded`.

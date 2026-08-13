@@ -118,7 +118,7 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
             for (int i = 0; i < 4; i++)
             {
                 string generatedName = LocalizationManager.GetString("hero_name_" + RandomSolver.Next(0, 556).ToString());
-                int heroSeed = GetInstanceID() + System.DateTime.Now.Millisecond + (int)System.DateTime.Now.Ticks + i + HeroPool.Count;
+                int heroSeed = GetEntityId().GetHashCode() + System.DateTime.Now.Millisecond + (int)System.DateTime.Now.Ticks + i + HeroPool.Count;
                 RandomSolver.SetRandomSeed(heroSeed);
                 HeroSeeds.Add(heroSeed);
                 HeroPool.Add(new Hero(heroClass.StringId, generatedName));

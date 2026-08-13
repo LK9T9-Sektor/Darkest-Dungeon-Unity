@@ -75,10 +75,10 @@ public class SpriteAttachmentLoader : AttachmentLoader {
 	//TODO:  Memory cleanup functions
 
 	//IMPORTANT:  Make sure you clear this when you don't need it anymore. Goodluck.
-	public static Dictionary<int, AtlasRegion> atlasTable = new Dictionary<int, AtlasRegion>();
+	public static Dictionary<EntityId, AtlasRegion> atlasTable = new Dictionary<EntityId, AtlasRegion>();
 
 	//Shouldn't need to clear this, should just prevent redoing premultiply alpha pass on packed atlases
-	public static List<int> premultipliedAtlasIds = new List<int>();
+	public static List<EntityId> premultipliedAtlasIds = new List<EntityId>();
 
 	Sprite sprite;
 	Shader shader;
@@ -95,7 +95,7 @@ public class SpriteAttachmentLoader : AttachmentLoader {
 
 		Texture2D tex = sprite.texture;
 		//premultiply texture if it hasn't been yet
-		int instanceId = tex.GetInstanceID();
+		EntityId instanceId = tex.GetEntityId();
 		if (!premultipliedAtlasIds.Contains(instanceId)) {
 			try {
 				var colors = tex.GetPixels();
@@ -124,7 +124,7 @@ public class SpriteAttachmentLoader : AttachmentLoader {
 		RegionAttachment attachment = new RegionAttachment(name);
 
 		Texture2D tex = sprite.texture;
-		int instanceId = tex.GetInstanceID();
+		EntityId instanceId = tex.GetEntityId();
 		AtlasRegion atlasRegion;
 
 		//check cache first

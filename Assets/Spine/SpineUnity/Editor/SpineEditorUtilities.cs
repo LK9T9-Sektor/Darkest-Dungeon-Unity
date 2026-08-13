@@ -149,9 +149,9 @@ public class SpineEditorUtilities : AssetPostprocessor {
 
 	public static string editorPath = "";
 	public static string editorGUIPath = "";
-	static Dictionary<int, GameObject> skeletonRendererTable;
-	static Dictionary<int, SkeletonUtilityBone> skeletonUtilityBoneTable;
-	static Dictionary<int, BoundingBoxFollower> boundingBoxFollowerTable;
+	static Dictionary<EntityId, GameObject> skeletonRendererTable;
+	static Dictionary<EntityId, SkeletonUtilityBone> skeletonUtilityBoneTable;
+	static Dictionary<EntityId, BoundingBoxFollower> boundingBoxFollowerTable;
 	public static float defaultScale = 0.01f;
 	public static float defaultMix = 0.2f;
 	public static string defaultShader = "Spine/Skeleton";
@@ -173,12 +173,12 @@ public class SpineEditorUtilities : AssetPostprocessor {
 
 		Icons.Initialize();
 
-		skeletonRendererTable = new Dictionary<int, GameObject>();
-		skeletonUtilityBoneTable = new Dictionary<int, SkeletonUtilityBone>();
-		boundingBoxFollowerTable = new Dictionary<int, BoundingBoxFollower>();
+		skeletonRendererTable = new Dictionary<EntityId, GameObject>();
+		skeletonUtilityBoneTable = new Dictionary<EntityId, SkeletonUtilityBone>();
+		boundingBoxFollowerTable = new Dictionary<EntityId, BoundingBoxFollower>();
 
 		EditorApplication.hierarchyWindowChanged += HierarchyWindowChanged;
-		EditorApplication.hierarchyWindowItemOnGUI += HierarchyWindowItemOnGUI;
+		EditorApplication.hierarchyWindowItemByEntityIdOnGUI += HierarchyWindowItemOnGUI;
 
 		HierarchyWindowChanged();
 		initialized = true;
@@ -196,18 +196,18 @@ public class SpineEditorUtilities : AssetPostprocessor {
 
 		SkeletonRenderer[] arr = Object.FindObjectsOfType<SkeletonRenderer>();
 		foreach (SkeletonRenderer r in arr)
-			skeletonRendererTable.Add(r.gameObject.GetInstanceID(), r.gameObject);
+			skeletonRendererTable.Add(r.gameObject.GetEntityId(), r.gameObject);
 
 		SkeletonUtilityBone[] boneArr = Object.FindObjectsOfType<SkeletonUtilityBone>();
 		foreach (SkeletonUtilityBone b in boneArr)
-			skeletonUtilityBoneTable.Add(b.gameObject.GetInstanceID(), b);
+			skeletonUtilityBoneTable.Add(b.gameObject.GetEntityId(), b);
 
 		BoundingBoxFollower[] bbfArr = Object.FindObjectsOfType<BoundingBoxFollower>();
 		foreach (BoundingBoxFollower bbf in bbfArr)
-			boundingBoxFollowerTable.Add(bbf.gameObject.GetInstanceID(), bbf);
+			boundingBoxFollowerTable.Add(bbf.gameObject.GetEntityId(), bbf);
 	}
 
-	static void HierarchyWindowItemOnGUI (int instanceId, Rect selectionRect) {
+	static void HierarchyWindowItemOnGUI (EntityId instanceId, Rect selectionRect) {
 		if (skeletonRendererTable.ContainsKey(instanceId)) {
 			Rect r = new Rect(selectionRect);
 			r.x = r.width - 15;

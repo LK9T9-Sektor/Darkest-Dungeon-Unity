@@ -4,7 +4,7 @@
 # and then checks the log for compilation errors. Much faster than a full player build,
 # so it is the recommended check after changing code in Assets\Scripts or Assets\Editor.
 #
-# 1. Locates the Unity 2017.4 editor (known roots / UNITY_EDITOR_PATH / -UnityEditorPath).
+# 1. Locates the Unity editor (known roots / UNITY_EDITOR_PATH / -UnityEditorPath).
 # 2. Aborts when the project is already open in the editor (Temp\UnityLockfile).
 # 3. Optionally provisions the Lan transport plugins (-Provision); by default they are
 #    expected to be present in Assets\Plugins\Internal (gitignored).
@@ -32,6 +32,7 @@ function Find-UnityEditor {
     }
 
     $knownRoots = @(
+        "C:\Program Files\Unity\Hub\Editor\6000.5.8f1",
         "D:\ProgramFiles\Unity2017.4.40f1",
         "D:\Program Files\Unity2017.4.40f1",
         "E:\ProgramFiles\Unity2017.4.40f1",

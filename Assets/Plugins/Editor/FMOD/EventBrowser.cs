@@ -952,12 +952,12 @@ namespace FMODUnity
         public void OnEnable()
         {
             SceneView.onSceneGUIDelegate += SceneUpdate;
-            EditorApplication.hierarchyWindowItemOnGUI += HierachachyUpdate;
+            EditorApplication.hierarchyWindowItemByEntityIdOnGUI += HierachachyUpdate;
             instance = this;
         }
         
         // This is an event handler on the hierachy view to handle dragging our objects from the browser
-        void HierachachyUpdate(int instance, Rect rect)
+        void HierachachyUpdate(EntityId instance, Rect rect)
         {
             Event e = Event.current;
             if (e.type == EventType.DragPerform && rect.Contains(e.mousePosition))
@@ -967,7 +967,7 @@ namespace FMODUnity
                         (DragAndDrop.objectReferences[0].GetType() == typeof(EditorEventRef) ||
                          DragAndDrop.objectReferences[0].GetType() == typeof(EditorBankRef)))
                 {
-                    GameObject target = (GameObject)EditorUtility.InstanceIDToObject(instance);
+                    GameObject target = (GameObject)EditorUtility.EntityIdToObject(instance);
                     if (DragAndDrop.objectReferences[0].GetType() == typeof(EditorEventRef))
                     {
                         var emitter = Undo.AddComponent<StudioEventEmitter>(target);

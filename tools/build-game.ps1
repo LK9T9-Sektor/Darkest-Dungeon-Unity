@@ -1,6 +1,6 @@
 # Build the standalone Windows x64 player without opening the Unity editor.
 #
-# 1. Locates the Unity 2017.4 editor (known roots / UNITY_EDITOR_PATH / -UnityEditorPath).
+# 1. Locates the Unity editor (known roots / UNITY_EDITOR_PATH / -UnityEditorPath).
 # 2. Aborts when the project is already open in the editor (Temp\UnityLockfile).
 # 3. Provisions the Lan transport plugins (tools\provision-unity-plugins.ps1).
 # 4. Runs Unity in batch mode: BuildGame.Build -> Build\Darkest Dungeon\Darkest Dungeon.exe.
@@ -36,6 +36,7 @@ function Find-UnityEditor {
     }
 
     $knownRoots = @(
+        "C:\Program Files\Unity\Hub\Editor\6000.5.8f1",
         "D:\ProgramFiles\Unity2017.4.40f1",
         "D:\Program Files\Unity2017.4.40f1",
         "E:\ProgramFiles\Unity2017.4.40f1",

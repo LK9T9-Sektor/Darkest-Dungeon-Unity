@@ -256,7 +256,7 @@ public class SkeletonRenderer : MonoBehaviour {
 #else
 			Material material = (rendererObject.GetType() == typeof(Material)) ? (Material)rendererObject : (Material)((AtlasRegion)rendererObject).page.rendererObject;
 #endif
-			if ((lastMaterial != null && lastMaterial.GetInstanceID() != material.GetInstanceID()) ||
+			if ((lastMaterial != null && lastMaterial.GetEntityId() != material.GetEntityId()) ||
 				(submeshSeparatorSlotsCount > 0 && submeshSeparatorSlots.Contains(slot))) {
 				addSubmeshArgumentsTemp.Add(
 					new LastState.AddSubmeshArguments(lastMaterial, submeshStartSlotIndex, i, submeshTriangleCount, submeshFirstVertex, false)
@@ -793,7 +793,7 @@ public class SkeletonRenderer : MonoBehaviour {
 				return
 					!ReferenceEquals(material, null) &&
 					!ReferenceEquals(other.material, null) &&
-					material.GetInstanceID() == other.material.GetInstanceID() &&
+					material.GetEntityId() == other.material.GetEntityId() &&
 					startSlot == other.startSlot &&
 					endSlot == other.endSlot &&
 					triangleCount == other.triangleCount &&

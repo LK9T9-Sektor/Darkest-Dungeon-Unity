@@ -2,6 +2,14 @@
 
 ## Не выпущено (после 1.0.6)
 
+### Unity 6.5 (6000.5.8f1): EntityId-миграция
+
+- Редактор обновлён 6000.4.5f1 → 6000.5.8f1: устаревшие API стали ошибками компиляции (CS0619): `GetInstanceID()`, `EditorApplication.hierarchyWindowItemOnGUI`, `EditorUtility.InstanceIDToObject(int)`.
+- Свои скрипты переведены на `EntityId` (`Object.GetEntityId()`): RNG-сиды — через `GetEntityId().GetHashCode()` (`DarkestPhotonLauncher`, `MultiplayerPartyPanel`, `RoomSelector`).
+- Spine: ключи атласных таблиц и сравнение материалов на `EntityId` (`SpriteAttacher`, `SkeletonRenderer`, `SpineEditorUtilities`); событие иерархии — `hierarchyWindowItemByEntityIdOnGUI`.
+- FMOD: `EventBrowser` переведён на `hierarchyWindowItemByEntityIdOnGUI`/`EntityIdToObject` (vendored, минимальный дифф).
+- Инструменты `tools\*.ps1` находят редактор 6000.5.8f1; доставка .NET Standard фасадов пропущена — на Unity 6 они не нужны (нативный type-forwarding).
+
 ### Надёжный вход клиента в Steam-рейд
 
 - Загрузка сцены `DungeonMultiplayer` теперь ждёт готовности соперника: и хост, и клиент не входят в рейд, пока не получен состав отряда другого игрока (`party_config`) — `RoomSelector.LoadSteamRaidSceneRoutine` ожидает `MultiplayerSync.HasRivalParty` (таймаут 30 с: статус «Opponent did not join in time» и выход из сессии). Раньше клиент мог попасть в пустую «дефолтную» сцену рейда, если состав хоста ещё не дошёл до момента `RaidSceneMultiplayerManager.Awake`, а хост входил в рейд один и сразу «завершал» квест (`PlayerCount < 2`).
