@@ -42,9 +42,9 @@
 
 - Основной домен всё ещё лежит в презентационном слое (`Assets\Scripts`); чистый C# ядро существует пока только
   для сетевого слоя (`src\Lan\`): интерфейсы, `Result`-типы вместо исключений, NUnit-тесты, пост-билд доставка
-  DLL в `Assets\Plugins\Internal` (см. `NETWORK_ARCHITECTURE.md` §5).
+  DLL в `Assets\Plugins\Internal` (см. `NETWORK.md` §4).
 - Сетевые контракты компилируются под netstandard2.0; основной игровой код — нет.
-- Доставка в `Assets\Plugins\Internal` пост-билдом копирует собранные DLL/PDB (см. `NETWORK_ARCHITECTURE.md` §5).
+- Доставка в `Assets\Plugins\Internal` пост-билдом копирует собранные DLL/PDB (см. `EXTRACTION_PLAN.md` §5).
   .NET Standard facade-шимы (`COMPABILITY.md` §1) требовались старому Mono Unity 2017.4; после перехода на
   Unity 6000.5.8f1 фасады не нужны (нативный type-forwarding) — `tools\provision-unity-plugins.ps1` их
   пропускает. Доставка идёт автоматически: `-UnityEditorPath` → `UNITY_EDITOR_PATH` → `editors.json` Unity Hub

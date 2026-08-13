@@ -72,7 +72,8 @@ Before planning or editing, read the relevant documents from `src\docs\`:
 - `ARCHITECTURE.md` — architecture, code structure, god-classes, version;
 - `KNOWN_ISSUES.md` — architectural debt and known issues (do not make them worse);
 - `CHANGELOG.md` — change log by version (current version at the top of the file);
-- `REORGANIZATION.md` — monorepo plan: `unity\` (active) + `unity-2017\` (legacy) + shared pure C# core in `src\`.
+- `EXTRACTION_PLAN.md` — core-extraction plan: `unity\` (active) + `unity-2017\` (legacy) + shared pure C# core in `src\`;
+- `INDEX.md` — doc map: which document answers which question (entities, execution, wishlist `FEATURE_*.md`).
 
 Read only what the task relates to. Legacy edits stay minimal; `src\External\` is read-only.
 
