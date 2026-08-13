@@ -728,7 +728,7 @@ public class SpineEditorUtilities : AssetPostprocessor {
 
 			TextureImporter texImporter = (TextureImporter)TextureImporter.GetAtPath(texturePath);
 			texImporter.textureType = TextureImporterType.Default;
-			texImporter.textureFormat = TextureImporterFormat.AutomaticTruecolor;
+			texImporter.textureCompression = TextureImporterCompression.Uncompressed;
 			texImporter.mipmapEnabled = false;
 			texImporter.alphaIsTransparency = false;
 			texImporter.maxTextureSize = 2048;

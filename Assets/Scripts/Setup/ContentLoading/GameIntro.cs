@@ -26,7 +26,12 @@ public class GameIntro : MonoBehaviour
         if (++currentLogo < gameLogos.Length)
             gameLogos[currentLogo].Play();
         else
-            gameMovie.Play();
+        {
+            // Intro movie disabled after Unity 2017 -> 6.4 migration (MovieTexture removed,
+            // MoviePlayer is now a stub). Jump straight to the campaign selection instead.
+            // gameMovie.Play();
+            FinishIntro();
+        }
     }
 
     public void FinishIntro()

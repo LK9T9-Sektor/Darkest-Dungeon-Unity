@@ -44,10 +44,10 @@ public static class BuildGame
 
         Debug.Log("[BUILD] Building " + scenes.Length + " scenes to " + outputPath);
 
-        string error = BuildPipeline.BuildPlayer(scenes, outputPath, BuildTarget.StandaloneWindows64, BuildOptions.None);
-        if (!string.IsNullOrEmpty(error))
+        UnityEditor.Build.Reporting.BuildReport report = BuildPipeline.BuildPlayer(scenes, outputPath, BuildTarget.StandaloneWindows64, BuildOptions.None);
+        if (report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
         {
-            Debug.LogError("[BUILD] Build failed: " + error);
+            Debug.LogError("[BUILD] Build failed: " + report.summary);
             EditorApplication.Exit(1);
             return;
         }

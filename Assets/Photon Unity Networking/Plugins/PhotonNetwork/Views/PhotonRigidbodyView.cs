@@ -44,7 +44,7 @@ public class PhotonRigidbodyView : MonoBehaviour, IPunObservable
         {
             if (this.m_SynchronizeVelocity == true)
             {
-                stream.SendNext(this.m_Body.velocity);
+                stream.SendNext(this.m_Body.linearVelocity);
             }
 
             if (this.m_SynchronizeAngularVelocity == true)
@@ -56,7 +56,7 @@ public class PhotonRigidbodyView : MonoBehaviour, IPunObservable
         {
             if (this.m_SynchronizeVelocity == true)
             {
-                this.m_Body.velocity = (Vector3)stream.ReceiveNext();
+                this.m_Body.linearVelocity = (Vector3)stream.ReceiveNext();
             }
 
             if (this.m_SynchronizeAngularVelocity == true)

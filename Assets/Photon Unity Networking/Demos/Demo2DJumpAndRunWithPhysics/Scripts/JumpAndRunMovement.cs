@@ -39,11 +39,11 @@ public class JumpAndRunMovement : MonoBehaviour
 
     void UpdateFacingDirection()
     {
-        if( m_Body.velocity.x > 0.2f )
+        if( m_Body.linearVelocity.x > 0.2f )
         {
             transform.localScale = new Vector3( 1, 1, 1 );
         }
-        else if( m_Body.velocity.x < -0.2f )
+        else if( m_Body.linearVelocity.x < -0.2f )
         {
             transform.localScale = new Vector3( -1, 1, 1 );
         }
@@ -67,7 +67,7 @@ public class JumpAndRunMovement : MonoBehaviour
 
     void UpdateMovement()
     {
-        Vector2 movementVelocity = m_Body.velocity;
+        Vector2 movementVelocity = m_Body.linearVelocity;
 
         if( Input.GetAxisRaw( "Horizontal" ) > 0.5f )
         {
@@ -83,12 +83,12 @@ public class JumpAndRunMovement : MonoBehaviour
             movementVelocity.x = 0;
         }
 
-        m_Body.velocity = movementVelocity;
+        m_Body.linearVelocity = movementVelocity;
     }
 
     void UpdateIsRunning()
     {
-        m_Animator.SetBool( "IsRunning", Mathf.Abs( m_Body.velocity.x ) > 0.1f );
+        m_Animator.SetBool( "IsRunning", Mathf.Abs( m_Body.linearVelocity.x ) > 0.1f );
     }
 
     void UpdateIsGrounded()

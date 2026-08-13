@@ -78,7 +78,7 @@ public class PhotonAnimatorViewEditor : Editor
 		#if UNITY_5 || UNITY_5_0 || UNITY_2017
 		return (this.m_Controller == null) ? 0 : this.m_Controller.layers.Length;
 		#else
-		return (this.m_Controller == null) ? 0 : this.m_Controller.layerCount;
+		return (m_Animator == null) ? 0 : m_Animator.layerCount;
 		#endif
     }
 

@@ -410,14 +410,14 @@ public class PhotonView : Photon.MonoBehaviour
             switch (this.onSerializeRigidBodyOption)
             {
                 case OnSerializeRigidBody.All:
-                    rigidB.velocity = (Vector3) stream.ReceiveNext();
+                    rigidB.linearVelocity = (Vector3) stream.ReceiveNext();
                     rigidB.angularVelocity = (Vector3) stream.ReceiveNext();
                     break;
                 case OnSerializeRigidBody.OnlyAngularVelocity:
                     rigidB.angularVelocity = (Vector3) stream.ReceiveNext();
                     break;
                 case OnSerializeRigidBody.OnlyVelocity:
-                    rigidB.velocity = (Vector3) stream.ReceiveNext();
+                    rigidB.linearVelocity = (Vector3) stream.ReceiveNext();
                     break;
             }
         }
@@ -428,14 +428,14 @@ public class PhotonView : Photon.MonoBehaviour
             switch (this.onSerializeRigidBodyOption)
             {
                 case OnSerializeRigidBody.All:
-                    rigidB.velocity = (Vector2) stream.ReceiveNext();
+                    rigidB.linearVelocity = (Vector2) stream.ReceiveNext();
                     rigidB.angularVelocity = (float) stream.ReceiveNext();
                     break;
                 case OnSerializeRigidBody.OnlyAngularVelocity:
                     rigidB.angularVelocity = (float) stream.ReceiveNext();
                     break;
                 case OnSerializeRigidBody.OnlyVelocity:
-                    rigidB.velocity = (Vector2) stream.ReceiveNext();
+                    rigidB.linearVelocity = (Vector2) stream.ReceiveNext();
                     break;
             }
         }
@@ -489,14 +489,14 @@ public class PhotonView : Photon.MonoBehaviour
             switch (this.onSerializeRigidBodyOption)
             {
                 case OnSerializeRigidBody.All:
-                    stream.SendNext(rigidB.velocity);
+                    stream.SendNext(rigidB.linearVelocity);
                     stream.SendNext(rigidB.angularVelocity);
                     break;
                 case OnSerializeRigidBody.OnlyAngularVelocity:
                     stream.SendNext(rigidB.angularVelocity);
                     break;
                 case OnSerializeRigidBody.OnlyVelocity:
-                    stream.SendNext(rigidB.velocity);
+                    stream.SendNext(rigidB.linearVelocity);
                     break;
             }
         }
@@ -507,14 +507,14 @@ public class PhotonView : Photon.MonoBehaviour
             switch (this.onSerializeRigidBodyOption)
             {
                 case OnSerializeRigidBody.All:
-                    stream.SendNext(rigidB.velocity);
+                    stream.SendNext(rigidB.linearVelocity);
                     stream.SendNext(rigidB.angularVelocity);
                     break;
                 case OnSerializeRigidBody.OnlyAngularVelocity:
                     stream.SendNext(rigidB.angularVelocity);
                     break;
                 case OnSerializeRigidBody.OnlyVelocity:
-                    stream.SendNext(rigidB.velocity);
+                    stream.SendNext(rigidB.linearVelocity);
                     break;
             }
         }
