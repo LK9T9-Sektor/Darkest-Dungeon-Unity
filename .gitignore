@@ -166,3 +166,9 @@ steam_appid.txt
 
 # Ignore for AI-agent
 src/External/
+
+# --- Unity 6 user-specific settings (per-developer: layouts, prefs, search cache) ---
+/[Uu]serSettings/
+
+# --- FMOD generated cache (regenerated on every import) ---
+Assets/FMODStudioCache.asset
