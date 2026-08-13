@@ -6,9 +6,8 @@
 
 - Unity 2017.4.40f1. Scripting Runtime Version поднят с **Stable (.NET 3.5 Equivalent)** до **Experimental (.NET 4.6 Equivalent)**.
 - `ProjectSettings\ProjectSettings.asset`: `scriptingRuntimeVersion: 1`, `apiCompatibilityLevel: 2` (.NET 4.x).
-- После переключения при старте игры появились ошибки загрузки контента — полный лог в `src\issues\Migration-Issues-01.txt`.
 
-## 2. Симптомы (сводка по логу)
+## 2. Симптомы
 
 Все ошибки возникают на старте в `DarkestDungeonManager.Awake` → `DarkestDatabase.Load()` и в следующих за ним `Start()`-методах. Три группы:
 

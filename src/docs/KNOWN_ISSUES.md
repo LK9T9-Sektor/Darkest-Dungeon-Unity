@@ -53,7 +53,7 @@
 ## 8. Культуро-зависимый парсинг чисел
 
 - `float.Parse`/`float.TryParse`/`int.Parse`/`Convert.To*` вызываются без `CultureInfo.InvariantCulture` — **164 места** в `Assets\Scripts`.
-- После перехода runtime на .NET 4.6 (Mono берёт OS-локаль, десятичный разделитель `,`) загрузка контента падает: `FormatException` в `HeroClass.cs:111` + каскад NRE/KeyNotFoundException. Полный разбор — в `RUNTIME_MIGRATION.md`, лог — `src\issues\Migration-Issues-01.txt`.
+- После перехода runtime на .NET 4.6 (Mono берёт OS-локаль, десятичный разделитель `,`) загрузка контента падает: `FormatException` в `HeroClass.cs:111` + каскад NRE/KeyNotFoundException. Полный разбор — в `RUNTIME_MIGRATION.md`.
 
 ## 9. Steamworks.NET несовместим с netstandard2.0
 

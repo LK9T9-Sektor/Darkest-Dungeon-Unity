@@ -129,8 +129,9 @@
 
 - `CHANGELOG.md` — журнал изменений по версиям (см. `1.0.5` — Steam co-op; `1.0.4` — звуковые настройки).
 - `NETWORK_ARCHITECTURE.md` — план миграции сети Photon → альтернативный сетевой провайдер (например, Steam P2P).
+- `NETWORK_RATIONALE.md` — почему не встроенный Unity-неткод; выбор байтового транспорта + session-слоя.
 - `COMPABILITY.md` — как собирать чистое C# ядро для Unity 2017.4 (netstandard2.0, C# 7.3).
 - `KNOWN_ISSUES.md` — архитектурный долг и известные проблемы.
 - `ROADMAP.md` — кооперативная сессия (боевая сессия до 8, город 1–4): эскиз и дорожная карта.
-- `RUNTIME_MIGRATION.md` — переход runtime на .NET 4.6: анализ ошибок загрузки контента (`src\issues\Migration-Issues-01.txt`).
+- `RUNTIME_MIGRATION.md` — переход runtime на .NET 4.6: анализ ошибок загрузки контента.
 - `UNITY_MIGRATION.md` — миграция Unity 2017.4 → Unity 6 (6000.4.5f1 и обновление до 6000.5.8f1): правки устаревших API.
