@@ -4,7 +4,7 @@
 
 ## 1. Текущее состояние
 
-- `Assets\Scripts` — ~485 MonoBehaviour-файлов; весь домен (бой, кампания, данные) всё ещё в презентационном слое.
+- `Assets\Scripts` — ~496 MonoBehaviour-файлов в каждом из двух деревьев; весь домен (бой, кампания, данные) всё ещё в презентационном слое.
 - `src\` — только сетевой слой `Lan\` (Contracts/Steam/Cmd), netstandard2.0, C# 7.3; DLL доставляются пост-билдом в `Assets\Plugins\Internal`.
 - `tests\Lan\` — NUnit-тесты сетевого слоя.
 - Ветки: `master`/`1.0.4` (Unity 2017.3/2017.4), `steam`/`coop` (Unity 2017.4 + Steam co-op), `unity-6.4`/`unity-6.5` (Unity 6000.4/6000.5).
@@ -15,8 +15,8 @@
 repo/
 ├── AGENTS.md            # карта-манифест, правила
 ├── src/                 # чистое C# ядро (общее для ОБОИХ версий)
-│   ├── Lan/             # транспорт
-│   ├── Core/            # домен: Content, Save, Combat, Campaign…
+│   ├── Networking/       # транспорт (Steam + Photon; сейчас `Lan\`)
+│   ├── Core/             # домен: Content, Save, Combat, Campaign…
 │   ├── External/        # вендоренный референс (read-only)
 │   └── docs/
 ├── tests/               # NUnit, зеркалит src/
@@ -35,14 +35,16 @@ repo/
 
 ## 3. Фазы
 
-- **Фаза 0. Реструктуризация в монорепо.** *(в работе)* Перенос активного проекта в `unity\`; `.gitignore` на обе раскладки; тулзы `-ProjectPath`; доставка ядра в оба проекта; compile-check обеих версий.
+- **Фаза 0. Реструктуризация в монорепо.** *(готово)* Перенос активного проекта в `unity\`; `.gitignore` на обе раскладки; тулзы `-ProjectPath`; доставка ядра в оба проекта; compile-check обеих версий. Не завершено: единое решение `Darkest-Dungeon-Unity.slnx`.
+- **Фаза 0б. Фундамент** → `src\Core\Common` (netstandard2.0, C# 7.3): единый `Result`/`Result<T>`, чистые примитивы вместо UnityEngine (`IntVector2`, `IRng`), утилиты `InvariantCulture`; спайк Photon-клиента под netstandard2.0 (риск NU1202 — как Steamworks.NET); `tools\build-core.ps1` (сборка + тесты всех `src\Core`/`src\Networking`).
 - **Фаза 1. Данные** → `src\Core\Content`: модели контента + парсеры (JSON/DSL/CSV/XML) из `DarkestDatabase`; `InvariantCulture`; `DarkestDatabase` → тонкий загрузчик; тесты на реальных данных.
-- **Фаза 2. Сейвы/кампания** → `src\Core\Save`: DTO + бинарный кодек + стартовая кампания.
-- **Фаза 3. Бой** → `src\Core\Combat`: `BattleGround`/`Round`/`BattleSolver`/Effects/AI (детерминизм мультиплеера).
+- **Фаза 2. Сейвы** → `src\Core\Save`: DTO + бинарный кодек + версии; IO в Unity через `ISaveStorage`.
+- **Фаза 3. Бой** → `src\Core\Combat`: `BattleGround`/`Round`/`BattleSolver`/Effects/AI (детерминизм мультиплеера). **Приостановлена:** подход (чистая симуляция + события для view vs минимальный перенос) выбирается отдельным решением.
 - **Фаза 4. Город/рейд-флоу** → `src\Core\Campaign`.
-- **Фаза 5. Презентация** — только тонкие MonoBehaviour-адаптеры + UI.
+- **Фаза 5. Сеть** → `src\Networking` (Steam + Photon) по `NETWORK_LAYER_REUSE.md`: ренейм `Sektor.Networking`, `PhotonTransport`, generic `SessionManager`/`RaidBridge`, единый session-id флоу, удаление PUN из обоих проектов.
+- **Фаза 6. Презентация** — только тонкие MonoBehaviour-адаптеры + UI; расхождения между проектами — только внутри Unity-кода (API Unity 2017.4 vs 6000).
 
-Каждый этап: извлечь → тесты → адаптеры в обоих проектах → compile-check обеих версий → доки → коммит.
+Сквозные правила: оба проекта поддерживаются постоянно; общий источник истины — `src\Core\` и `src\Networking\`. Каждый этап: извлечь → NUnit-тесты → адаптеры в обоих проектах → compile-check активного `unity\` (легаси `unity-2017\` — по возможности, иначе проверку проводит человек) → доки → коммит.
 
 ## 4. `.gitignore` под новую раскладку
 
@@ -65,4 +67,4 @@ repo/
 
 - Карта-манифест в `AGENTS.md`: домен — `src\Core\<модуль>`, презентация — `<проект>\Assets\Scripts\<область>`.
 - Модуль = папка = namespace → поиск через glob/grep предсказуем.
-- Документы: `ARCHITECTURE.md` (структура), `KNOWN_ISSUES.md` (долг), `CHANGELOG.md` (изменения), `UNITY_MIGRATION.md` (переходы редактора).
+- Документы: `ARCHITECTURE.md` (структура), `KNOWN_ISSUES.md` (долг), `CHANGELOG.md` (изменения), `UNITY_MIGRATION.md` (переходы редактора), `NETWORK_LAYER_REUSE.md` (переиспользуемый сетевой слой).
