@@ -177,7 +177,7 @@ namespace DarkestJson
     {
         public string id;
         public JsonReactionData data;
-        public int chance;
+        public float chance;
     }
     public class JsonReactionData
     {
