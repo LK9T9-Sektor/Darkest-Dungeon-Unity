@@ -74,8 +74,9 @@ Before planning or editing, read the relevant documents from `src\docs\`:
 - `KNOWN_ISSUES.md` — architectural debt and known issues (do not make them worse);
 - `CHANGELOG.md` — change log by version (current version at the top of the file);
 - `EXTRACTION_PLAN.md` — core-extraction plan: `unity\` (active) + `unity-2017\` (legacy) + shared pure C# core in `src\`;
+- `TESTING.md` — manual in-game verification checklists; must be kept in sync with behavior changes;
 - `INDEX.md` — doc map: which document answers which question (entities, execution, wishlist `FEATURE_*.md`).
 
 Read only what the task relates to. Legacy edits stay minimal; `src\External\` is read-only.
 
-**Maintenance rule:** if a code change affects a documented fact (paths/structure, god-classes, version, public APIs, new modules, dependencies), update the corresponding document in the same commit. Do not document internals or cosmetics; `CHANGELOG.md` only for user-visible changes.
+**Maintenance rule:** if a code change affects a documented fact (paths/structure, god-classes, version, public APIs, new modules, dependencies), update the corresponding document in the same commit. If a code change affects game behavior, add/update the relevant section in `TESTING.md` (what to verify) in the same commit. Do not document internals or cosmetics; `CHANGELOG.md` only for user-visible changes.
