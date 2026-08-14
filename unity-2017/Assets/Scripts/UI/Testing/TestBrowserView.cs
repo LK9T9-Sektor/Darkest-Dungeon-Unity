@@ -38,12 +38,7 @@ public class TestBrowserView
 
         _browseContent = CreateBrowseScroll(parent, new Vector2(530, -104), new Vector2(960, 300));
 
-        _detail = new TestDetailView(
-            CreateDetailImage(parent, new Vector2(540, -430)),
-            RuntimeUiFactory.CreateText("TestDetailText", parent, "",
-                new Vector2(0, 1f), new Vector2(0, 1f), new Vector2(810, -420), new Vector2(680, 120),
-                UiStyle.LogBody, UiStyle.Label, TextAnchor.UpperLeft),
-            CreateSoundText(parent));
+        _detail = new TestDetailView(parent, new Vector2(530, -430), new Vector2(960, 360));
     }
 
     /// <summary>Browses the given category: fills the list with its entries.</summary>
@@ -124,35 +119,6 @@ public class TestBrowserView
         scrollRect.movementType = ScrollRect.MovementType.Clamped;
 
         return content;
-    }
-
-    private Image CreateDetailImage(Transform parent, Vector2 position)
-    {
-        GameObject imageObject = RuntimeUiFactory.CreateUiObject("TestDetailImage", parent);
-        RectTransform rect = imageObject.GetComponent<RectTransform>();
-        rect.anchorMin = new Vector2(0, 1f);
-        rect.anchorMax = new Vector2(0, 1f);
-        rect.pivot = new Vector2(0, 1f);
-        rect.anchoredPosition = position;
-        rect.sizeDelta = new Vector2(240, 240);
-
-        Image image = imageObject.AddComponent<Image>();
-        image.color = new Color(0, 0, 0, 0.35f);
-        return image;
-    }
-
-    private Text CreateSoundText(Transform parent)
-    {
-        RuntimeUiFactory.CreateText("TestSoundTitle", parent, "SOUND",
-            new Vector2(0, 1f), new Vector2(0, 1f), new Vector2(530, -580), new Vector2(300, 26),
-            UiStyle.Small, UiStyle.Label);
-
-        Text soundText = RuntimeUiFactory.CreateText("TestSoundText", parent, "",
-            new Vector2(0, 1f), new Vector2(0, 1f), new Vector2(530, -612), new Vector2(950, 60),
-            UiStyle.LogBody, UiStyle.Label, TextAnchor.UpperLeft);
-        soundText.horizontalOverflow = HorizontalWrapMode.Wrap;
-        soundText.verticalOverflow = VerticalWrapMode.Overflow;
-        return soundText;
     }
 
     private void CreateBrowseRow(string entry, int index)
