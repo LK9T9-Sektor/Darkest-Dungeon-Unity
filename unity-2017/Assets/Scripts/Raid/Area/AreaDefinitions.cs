@@ -1,20 +1,6 @@
 ﻿using System.IO;
-
-public enum AreaType
-{
-    Empty, 
-    Entrance,
-    Tresure,
-    Curio,
-    Boss,
-    Battle,
-    Trap,
-    Hunger,
-    Obstacle,
-    Door,
-    BattleCurio,
-    BattleTresure,
-}
+using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Content.Save;
 
 public enum Knowledge
 {
@@ -30,24 +16,6 @@ public enum Direction
     Bot,
     Left,
     Right,
-}
-
-public abstract class Prop : IBinarySaveData
-{
-    public string StringId { get; set; }
-    public AreaType Type { get; protected set; }
-
-    public bool IsMeetingSaveCriteria { get { return true; } }
-
-    public virtual void Write(BinaryWriter bw)
-    {
-        bw.Write((int)Type);
-    }
-
-    public virtual void Read(BinaryReader br)
-    {
-        // Type = (AreaType)br.ReadInt32(); called in BinarySaveDataHelper.Create<Prop>()
-    }
 }
 
 public abstract class Area : IBinarySaveData

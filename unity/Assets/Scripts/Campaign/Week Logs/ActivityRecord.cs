@@ -1,4 +1,5 @@
-﻿using System.IO;
+using System.IO;
+using Sektor.DarkestDungeon.Core.Content.Save;
 
 public abstract class ActivityRecord : IBinarySaveData
 {

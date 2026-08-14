@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Sektor.DarkestDungeon.Core.Content.Raid;
 
 public abstract class SkillSelectionDesire : IProportionValue
 {

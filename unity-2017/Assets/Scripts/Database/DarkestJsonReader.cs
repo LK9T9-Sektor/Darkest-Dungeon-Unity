@@ -6,37 +6,6 @@ using Newtonsoft.Json;
 
 namespace DarkestJson
 {
-    #region Narration
-    public class JsonNarration
-    {
-        public List<string> filters;
-        public List<JsonNarrationEntry> entries;
-    }
-
-    public class JsonNarrationEntry
-    {
-        public string id;
-        public string tone;
-        public float chance;
-        public List<JsonNarrationEntryAudioEvent> audio_events;
-    }
-
-    public class JsonNarrationEntryAudioEvent
-    {
-        public bool queue_only_on_empty;
-        public bool queue_while_audio_playing;
-        public string audio_event;
-        public float chance;
-        public float priority;
-        public int max_raid_occurrences;
-        public int max_town_visit_occurrences;
-        public int max_campaign_occurrences;
-        public string filter;
-        public bool check_all_tags;
-        public List<string> tags;
-    }
-    #endregion
-
     #region Town Events
     public class JsonTownEventDatabase
     {
@@ -146,7 +115,7 @@ namespace DarkestJson
     {
         public string id;
         public JsonReactionData data;
-        public int chance;
+        public float chance;
     }
     public class JsonReactionData
     {
@@ -838,11 +807,6 @@ namespace DarkestJson
         public static JsonClass GetJsonObject<JsonClass>(string jsonString)
         {
             return JsonConvert.DeserializeObject<JsonClass>(jsonString);
-        }
-
-        public static JsonNarration GetJsonNarration(string narrationString)
-        {
-            return JsonConvert.DeserializeObject<JsonNarration>(narrationString);
         }
 
         public static JsonTownEventDatabase GetJsonTownEvents(string eventString)

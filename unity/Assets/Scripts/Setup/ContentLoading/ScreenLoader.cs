@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.SceneManagement;
 using System;
+using Sektor.DarkestDungeon.Core.Content.Campaign;
 
 public class ScreenLoader : MonoBehaviour
 {

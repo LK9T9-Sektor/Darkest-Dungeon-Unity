@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using DarkestJson;
 using Sektor.DarkestDungeon.Core.Content.Campaign;
 using Sektor.DarkestDungeon.Core.Content.Database;
+using Sektor.DarkestDungeon.Core.Content.Raid;
 
 public class DarkestDatabase : MonoBehaviour
 {
@@ -1413,32 +1414,8 @@ public class DarkestDatabase : MonoBehaviour
     private void LoadNarration()
     {
         TextAsset jsonText = Resources.Load<TextAsset>(JsonNarrationDataPath);
-        var jsonNarration = JsonDarkestDeserializer.GetJsonNarration(jsonText.text);
-        Narration = new Dictionary<string, NarrationEntry>();
-        foreach(var jsonNarrationEntry in jsonNarration.entries)
-        {
-            NarrationEntry narrationEntry = new NarrationEntry();
-            narrationEntry.Id = jsonNarrationEntry.id;
-            narrationEntry.Chance = jsonNarrationEntry.chance;
-            narrationEntry.Tone = jsonNarrationEntry.tone;
-            foreach(var jsonAudioEvent in jsonNarrationEntry.audio_events)
-            {
-                NarrationAudioEvent audioEvent = new NarrationAudioEvent();
-                audioEvent.QueueOnlyOnEmpty = jsonAudioEvent.queue_only_on_empty;
-                audioEvent.QueueWhilePlaying = jsonAudioEvent.queue_while_audio_playing;
-                audioEvent.AudioEvent = jsonAudioEvent.audio_event;
-                audioEvent.Chance = jsonAudioEvent.chance;
-                audioEvent.Priority = jsonAudioEvent.priority;
-                audioEvent.MaxRaidOccurrences = jsonAudioEvent.max_raid_occurrences;
-                audioEvent.MaxTownVisitOccurrences = jsonAudioEvent.max_town_visit_occurrences;
-                audioEvent.MaxCampaignOccurrences = jsonAudioEvent.max_campaign_occurrences;
-                audioEvent.Filter = jsonAudioEvent.filter;
-                audioEvent.CheckAllTags = jsonAudioEvent.check_all_tags;
-                audioEvent.Tags = jsonAudioEvent.tags;
-                narrationEntry.AudioEvents.Add(audioEvent);
-            }
-            Narration.Add(narrationEntry.Id, narrationEntry);
-        }
+        var jsonNarration = JsonDarkestDeserializer.GetJsonObject<JsonNarration>(jsonText.text);
+        Narration = NarrationMapper.Parse(jsonNarration);
     }
 
     private void LoadJsonAI()
@@ -1722,93 +1699,7 @@ public class DarkestDatabase : MonoBehaviour
 
     private void LoadCsvCurios()
     {
-        Curios = new Dictionary<string, Curio>();
-        string[,] curioGrid = CsvReader.SplitCsvGrid(Resources.Load<TextAsset>(CsvCurioDatabasePath).text);
-        for(int i = 2; i < curioGrid.GetLength(0); i += 15)
-        {
-            Curio curio = new Curio(curioGrid[i + 2, 2]);
-            curio.ResultTypes = curioGrid[i, 4].ToLower();
-            curio.RegionFound = curioGrid[i + 4, 2].ToLower();
-            curio.IsFullCurio = curioGrid[i + 6, 2] == "Yes";
-            if (curioGrid[i + 8, 2] != "")
-                curio.Tags.Add(curioGrid[i + 8, 2].ToLower());
-            if (curioGrid[i + 8, 3] != "")
-                curio.Tags.Add(curioGrid[i + 8, 3].ToLower());
-            if (curioGrid[i + 9, 2] != "")
-                curio.Tags.Add(curioGrid[i + 9, 2].ToLower());
-            if (curioGrid[i + 9, 3] != "")
-                curio.Tags.Add(curioGrid[i + 9, 3].ToLower());
-
-            #region Curio Results
-            for (int resultIndex = 0; resultIndex < 8; resultIndex++ )
-            {
-                if (curioGrid[i + 2 + resultIndex, 5] != null 
-                    && curioGrid[i + 2 + resultIndex, 5] != "")
-                {
-                    CurioInteraction interaction = new CurioInteraction();
-                    interaction.ResultType = curioGrid[i + 2 + resultIndex, 4].ToLower();
-                    interaction.Chance = int.Parse(curioGrid[i + 2 + resultIndex, 5]);
-
-                    for (int typeIndex = 0; typeIndex < 3; typeIndex++)
-                    {
-                        if (curioGrid[i + 2 + resultIndex, 8 + typeIndex * 3] != null
-                            && curioGrid[i + 2 + resultIndex, 8 + typeIndex * 3] != ""
-                            && curioGrid[i + 2 + resultIndex, 8 + typeIndex * 3] != "N/A")
-                        {
-                            CurioResult curioResult = new CurioResult();
-                            curioResult.Item = curioGrid[i + 2 + resultIndex, 7 + typeIndex * 3];
-                            curioResult.Chance = int.Parse(curioGrid[i + 2 + resultIndex, 8 + typeIndex * 3]);
-                            if (curioGrid[i + 2 + resultIndex, 9 + typeIndex * 3] == "<- # Draws")
-                            {
-                                curioResult.Draws = curioResult.Chance;
-                                curioResult.IsCombined = true;
-                            }
-                            else
-                                curioResult.Draws = 1;
-                            interaction.Results.Add(curioResult);
-                        }
-                    }
-
-                    curio.Results.Add(interaction);
-                }
-            }        
-            #endregion
-
-            #region Item Interactions
-            for (int interactIndex = 0; interactIndex < 3 && i + 11 + interactIndex < curioGrid.GetLength(0); interactIndex++)
-            {
-                if (curioGrid[i + 11 + interactIndex, 4] != null && curioGrid[i + 11 + interactIndex, 4] != "")
-                {
-                    ItemInteraction itemInteraction = new ItemInteraction();
-                    itemInteraction.ItemId = curioGrid[i + 11 + interactIndex, 4];
-                    itemInteraction.ResultType = curioGrid[i + 11 + interactIndex, 5].ToLower();
-
-                    for (int itemIndex = 0; itemIndex < 3; itemIndex++)
-                    {
-                        if (curioGrid[i + 11 + interactIndex, 7 + itemIndex * 3] != null &&
-                            curioGrid[i + 11 + interactIndex, 7 + itemIndex * 3] != "")
-                        {
-                            CurioResult curioResult = new CurioResult();
-                            curioResult.Item = curioGrid[i + 11 + interactIndex, 7 + itemIndex * 3];
-                            curioResult.Chance = int.Parse(curioGrid[i + 11 + interactIndex, 8 + itemIndex * 3]);
-                            if (curioGrid[i + 11 + interactIndex, 9 + itemIndex * 3] == "<- # Draws")
-                            {
-                                curioResult.Draws = curioResult.Chance;
-                                curioResult.IsCombined = true;
-                            }
-                            else
-                                curioResult.Draws = 1;
-
-                            itemInteraction.Results.Add(curioResult);
-                        }
-                    }
-                    curio.ItemInteractions.Add(itemInteraction);
-                }
-            }
-            #endregion
-
-            Curios.Add(curio.StringId, curio);
-        }
+        Curios = CurioCsvParser.Parse(Resources.Load<TextAsset>(CsvCurioDatabasePath).text);
     }
 
     private void LoadTraits()

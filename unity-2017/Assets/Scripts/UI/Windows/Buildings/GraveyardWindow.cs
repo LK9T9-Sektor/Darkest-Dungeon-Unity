@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using Sektor.DarkestDungeon.Core.Content.Campaign;
 
 public class GraveyardWindow : BuildingWindow
 {

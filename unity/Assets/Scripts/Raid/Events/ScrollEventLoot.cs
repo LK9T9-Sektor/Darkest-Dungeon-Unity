@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
+using Sektor.DarkestDungeon.Core.Content.Raid;
 
 public enum LootResultType { Waiting, Discard, NotEnoughSpace }
 

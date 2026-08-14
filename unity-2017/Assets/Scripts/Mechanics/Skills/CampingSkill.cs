@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Text;
+using Sektor.DarkestDungeon.Core.Content.Raid;
 
 public enum CampTargetType
 {

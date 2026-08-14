@@ -1,15 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-
-public interface IProportionValue
-{
-    int Chance { get; set; }
-}
-
-public interface ISingleProportion
-{
-    float Chance { get; set; }
-}
+using Sektor.DarkestDungeon.Core.Content.Raid;
 
 public static class RandomSolver 
 {

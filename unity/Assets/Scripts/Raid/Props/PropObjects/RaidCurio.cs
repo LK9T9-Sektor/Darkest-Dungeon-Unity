@@ -1,5 +1,6 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.EventSystems;
+using Sektor.DarkestDungeon.Core.Content.Raid;
 
 public class RaidCurio : RaidProp, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {

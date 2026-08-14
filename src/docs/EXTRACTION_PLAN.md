@@ -13,13 +13,16 @@
   данные) всё ещё в презентационном слое.
 - `src\` — сетевой слой `Lan\` (Contracts/Steam/Cmd), netstandard2.0, C# 7.3; DLL доставляются
   пост-билдом в `Assets\Plugins\Internal` обоих деревьев. `src\Core\` и `src\Networking\` — целевые.
-- `src\Core\Content\` — первый срез данных (Фаза 1, начата): `Campaign\` (модели
-  `HeirloomExchange`, `PartyNameEntry`) + `Database\` (DTO `Json*` и мапперы-парсеры). Ядро **не
-  зависит от Newtonsoft**: DTO-члены названы snake_case в точности по legacy-JSON, поэтому
-  десериализуются любой версией Newtonsoft без атрибутов. Причина: сборки Newtonsoft 11/12/13
-  (включая `net45`/`netstandard2.0`) ссылаются на контрактные сборки net6.0 (`System.Runtime,
-  Version=6.0.0.0`) и не читаются компилятором Unity 2017.4 (`CS0009`). JSON-десериализация пока
-  остаётся на границе презентации (`JsonDarkestDeserializer.GetJsonObject<T>`).
+- `src\Core\Content\` — данные контента (Фаза 1, в работе): `Raid\` (пропы/курio: `Prop`,
+  `Curio`, `CurioResult`, `IProportionValue`, `AreaType`), `Campaign\` (модели `HeirloomExchange`,
+  `PartyNameEntry`, `NarrationEntry`/`NarrationAudioEvent`), `Save\` (бинарный интерфейс
+  `IBinarySaveData` — старт Фазы 2), `Database\` (DTO `Json*` и мапперы-парсеры: `CurioCsvParser`
+  для CSV, `NarrationMapper` для JSON). Ядро **не зависит от Newtonsoft**: DTO-члены названы
+  snake_case в точности по legacy-JSON, поэтому десериализуются любой версией Newtonsoft без
+  атрибутов. Причина: сборки Newtonsoft 11/12/13 (включая `net45`/`netstandard2.0`) ссылаются на
+  контрактные сборки net6.0 (`System.Runtime, Version=6.0.0.0`) и не читаются компилятором Unity
+  2017.4 (`CS0009`). JSON-десериализация пока остаётся на границе презентации
+  (`JsonDarkestDeserializer.GetJsonObject<T>`); CSV-парсер — чистый, в ядре.
 - `src\Core\Ui\` — презентационные токены runtime-оверлеев (engine-free): путь шрифта,
   семантические размеры текста и цвета (`ArgbColor`), доставляются DLL в оба проекта; Unity-side
   конструктор (`RuntimeUiFactory`) дублируется в деревьях и читает токены из ядра. Единый источник

@@ -2,6 +2,7 @@ using UnityEngine;
 using FMODUnity;
 using System.Collections.Generic;
 using System.Linq;
+using Sektor.DarkestDungeon.Core.Content.Campaign;
 
 public class DarkestSoundManager : MonoBehaviour
 {
@@ -71,7 +72,10 @@ public class DarkestSoundManager : MonoBehaviour
         if (!RandomSolver.CheckSuccess(narrationEntry.Chance))
             return;
 
-        var possibleEvents = narrationEntry.AudioEvents.FindAll(audioEvent => audioEvent.IsPossible(place, tags));
+        var possibleEvents = narrationEntry.AudioEvents.FindAll(audioEvent => audioEvent.IsPossible(place,
+            DarkestDungeonManager.Campaign.NarrationRaidInfo,
+            DarkestDungeonManager.Campaign.NarrationTownInfo,
+            DarkestDungeonManager.Campaign.NarrationCampaignInfo, tags));
         if (possibleEvents.Count == 0)
             return;
 

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+using UnityEngine;
+using Sektor.DarkestDungeon.Core.Content.Raid;
 
 public enum PropType { Door, Curio, Obstacle, Trap }
 

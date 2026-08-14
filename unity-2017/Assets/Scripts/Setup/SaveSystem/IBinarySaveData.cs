@@ -2,14 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
-public interface IBinarySaveData
-{
-    bool IsMeetingSaveCriteria { get; }
-
-    void Write(BinaryWriter bw);
-    void Read(BinaryReader br);
-}
+using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Content.Save;
 
 public static class BinarySaveDataHelper
 {

@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
+using Sektor.DarkestDungeon.Core.Content.Raid;
 
 public class Obstacle : Prop
 {

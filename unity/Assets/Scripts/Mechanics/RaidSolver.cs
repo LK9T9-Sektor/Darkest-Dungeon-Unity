@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
+using Sektor.DarkestDungeon.Core.Content.Raid;
 
 public static class RaidSolver
 {

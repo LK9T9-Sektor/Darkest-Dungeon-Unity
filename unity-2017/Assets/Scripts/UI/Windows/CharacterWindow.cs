@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
+using Sektor.DarkestDungeon.Core.Content.Campaign;
 
 public class CharacterWindow : MonoBehaviour
 {

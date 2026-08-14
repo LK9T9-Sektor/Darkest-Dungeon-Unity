@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
+using Sektor.DarkestDungeon.Core.Content.Raid;
 
 public class RaidMapPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {

@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Sektor.DarkestDungeon.Core.Content.Raid;
 
 public class CombatStatBuffEffect : SubEffect
 {

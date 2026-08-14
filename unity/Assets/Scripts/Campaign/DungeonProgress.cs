@@ -1,5 +1,6 @@
-﻿using System.IO;
+using System.IO;
 using UnityEngine;
+using Sektor.DarkestDungeon.Core.Content.Save;
 
 public class DungeonProgress : IBinarySaveData
 {

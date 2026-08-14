@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
+using Sektor.DarkestDungeon.Core.Content.Raid;
 
 public class BuffEffect : SubEffect
 {

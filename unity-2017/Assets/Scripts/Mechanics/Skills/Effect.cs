@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using System;
+using Sektor.DarkestDungeon.Core.Content.Raid;
 
 public class Effect
 {

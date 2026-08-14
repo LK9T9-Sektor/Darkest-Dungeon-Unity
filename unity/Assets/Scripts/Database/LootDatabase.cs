@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using Sektor.DarkestDungeon.Core.Content.Raid;
 
 public enum LootType { Nothing, Table, Item, Trinket, Journal }
 

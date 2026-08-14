@@ -1,5 +1,6 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
+using Sektor.DarkestDungeon.Core.Content.Raid;
 
 public class RaidMapHallSectorSlot : MonoBehaviour
 {

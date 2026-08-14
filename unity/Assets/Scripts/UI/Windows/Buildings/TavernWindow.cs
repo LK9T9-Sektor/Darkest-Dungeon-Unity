@@ -1,5 +1,6 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
+using Sektor.DarkestDungeon.Core.Content.Campaign;
 
 public class TavernWindow : UpgradableBuildingWindow
 {

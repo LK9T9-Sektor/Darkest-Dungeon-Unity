@@ -1,9 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
 using System;
 
 using Random = UnityEngine.Random;
+using Sektor.DarkestDungeon.Core.Content.Raid;
 
 public static class SaveLoadManager
 {

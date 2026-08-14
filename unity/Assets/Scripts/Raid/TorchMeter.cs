@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using System.Text;
+using Sektor.DarkestDungeon.Core.Content.Campaign;
 
 public enum TorchRangeType
 {

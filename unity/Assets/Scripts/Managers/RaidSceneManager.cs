@@ -1,10 +1,12 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Content.Campaign;
 
 public enum DungeonSceneState { Room, Hall }
 public enum StartingMode { Normal, EntranceEncounter, EntranceCurio }

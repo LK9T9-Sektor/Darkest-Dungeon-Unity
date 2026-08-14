@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
+using Sektor.DarkestDungeon.Core.Content.Campaign;
 
 public delegate void HeroInspectEvent(Hero hero, bool interactable);
 public delegate void HeroSlotEvent(HeroSlot heroSlot);
