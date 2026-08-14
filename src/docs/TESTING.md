@@ -36,6 +36,23 @@
 `LoadingScreen` → имение (`EstateManagement`) → снаряжение → рейд (`Dungeon`) →
 возврат в имение.
 
+## TEST-меню (главное меню)
+
+Кнопка **«ТЕСТ»** справа-снизу на экране `CampaignSelection` открывает панель с набором
+проверок и областью лога (результаты также дублируются в консоль `[DD] [TEST] …`).
+
+1. Открыть панель и прогнать действия по одному:
+   - **Database counts** — счётчики контента (HeroClasses/Buffs/Quirks/Curios/Obstacles/Traps/
+     Items/Monsters/Narration/PartyNames/HeirloomExchanges/LootTables); должны быть ненулевыми
+     и совпадать с ожидаемыми (см. «Стартовая загрузка данных»).
+   - **Loot tables** — таблицы добычи + типы записей из ядра (`LootMapper`); «tables/entries»
+     ненулевые.
+   - **Loot roll** — случайный ролл записи из лут-таблицы (`RandomSolver` по core-данным).
+   - **Curio / Narration / Heirloom exchange / Party names** — данные из ядра (количество +
+     пример).
+2. Ожидаемо: каждая проверка возвращает строку без «ERROR», логи видны в окне.
+3. При баге — строка `ERROR: <сообщение>` и/или `[DD] [UNITY-Exception]` в консоли.
+
 ## Чек-листы по областям
 
 ### Стартовая загрузка данных (база данных)
