@@ -24,6 +24,12 @@
     <Content Include="..\..\..\unity\Assets\Resources\Data\PartyNames.json"
              Link="Data\PartyNames.json"
              CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\..\unity\Assets\Resources\Data\Curios\Curios.csv"
+             Link="Data\Curios\Curios.csv"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\..\unity\Assets\Resources\Data\Narration.json"
+             Link="Data\Narration.json"
+             CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
