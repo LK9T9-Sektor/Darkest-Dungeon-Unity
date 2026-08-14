@@ -103,3 +103,15 @@
   (`JsonDarkestDeserializer.GetJsonObject<T>`) штатным Newtonsoft проекта.
 - Переход к целевому состоянию (`[JsonProperty]`/прямая десериализация в ядре) возможен только после
   того, как оба проекта получат Newtonsoft, читаемый компилятором 2017.4.
+
+## 14. Stale GUID: сцена ссылается на скрипт, чей `.meta` перегенерирован
+
+- **Симптом:** «Component at index N could not be loaded», null-ссылки на сценные объекты, чёрный
+  экран после загрузки сцены (например, `EstateSceneManager.Awake` NRE → `Start` не вызывается →
+  ScreenFader остаётся чёрным).
+- **Причина:** squash/миграция пере-импортировала проект и Unity перегенерировала `.meta` скриптов
+  (новые GUID), а сцены/префабы остались со старыми GUID. Уже было: 13 окон зданий
+  (`AbbeyWindow`…`UpgradeWindow`) после `5562173`.
+- **Защита:** `tools\check-script-references.ps1` (в `compile-check.ps1` и pre-commit hook) — падает,
+  если `m_Script`-GUID в `.unity`/`.prefab` не резолвится в закоммиченную `.meta`. Правило в `AGENTS.md`:
+  не давать Unity перегенерировать `.meta`, восстанавливать оригинал при «Imported GUID … new».

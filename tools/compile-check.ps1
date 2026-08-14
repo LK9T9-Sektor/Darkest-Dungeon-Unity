@@ -9,7 +9,8 @@
 # 3. Optionally provisions the Lan transport plugins (-Provision); by default they are
 #    expected to be present in Assets\Plugins\Internal (gitignored).
 # 4. Runs Unity in batch mode (no BuildPlayer), then parses the log for errors.
-# 5. Exit code 0 when compilation succeeded, 1 otherwise.
+# 5. Runs tools\check-script-references.ps1 to catch stale script GUIDs in scenes/prefabs.
+# 6. Exit code 0 when compilation succeeded and references resolve, 1 otherwise.
 #
 # Usage: pwsh tools\compile-check.ps1 [-ProjectPath <project>] [-UnityEditorPath <path>] [-Provision]
 
@@ -159,3 +160,11 @@ if ($failed) {
 }
 
 Write-Host "==> Compilation succeeded."
+
+# Verify that every scene/prefab script reference resolves to a committed .meta GUID.
+# Catches the stale-GUID failure mode (Unity regenerated metas, scenes kept old guids),
+# which silently drops components at load time. See tools\check-script-references.ps1.
+& (Join-Path $PSScriptRoot "check-script-references.ps1") -ProjectPath $ProjectPath
+if ($LASTEXITCODE -ne 0) {
+    exit 1
+}
