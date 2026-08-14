@@ -52,6 +52,7 @@ public class SaveSlot : MonoBehaviour
             titleInput.interactable = true;
             titleInput.enabled = true;
             titleInput.Select();
+            titleInput.ActivateInputField();
             SaveSelector.SaveNamingStart(this);
         }
         else
@@ -82,6 +83,7 @@ public class SaveSlot : MonoBehaviour
 
     public void NukeButtonClick()
     {
+        Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".NukeButtonClick: deleting save");
         SaveLoadManager.DeleteSave(slotId);
         DarkestSoundManager.PlayOneShot("event:/ui/town/button_click");
         FillEmptySave();
@@ -91,8 +93,9 @@ public class SaveSlot : MonoBehaviour
     {
         if(titleInput.text.Length == 0)
         {
-            Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".SaveNamingCompleted: empty name, slot stays empty");
+            Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".SaveNamingCompleted: empty name, aborting naming");
             FillEmptySave();
+            SaveSelector.SaveNamingCompleted();
             return;
         }
         Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".SaveNamingCompleted: naming save '" + titleInput.text + "'");

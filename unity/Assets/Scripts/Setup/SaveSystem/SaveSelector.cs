@@ -59,6 +59,11 @@ public class SaveSelector : MonoBehaviour
                 {
                     selectedSaveSlot.RefocusInput();
                 }
+                else if (Input.GetKeyUp(KeyCode.Escape))
+                {
+                    Debug.Log("[DD] [SAVE] SaveSelector.Update: Escape while naming, aborting naming");
+                    selectedSaveSlot.SaveNamingCompleted();
+                }
             }
             else if (Input.GetKeyUp(KeyCode.Escape))
             {
@@ -99,7 +104,8 @@ public class SaveSelector : MonoBehaviour
         
         selectedSaveSlot = namingSaveSlot;
         for (int i = 0; i < SlotNumber; i++)
-            saveSlots[i].DisableInteraction();
+            if (saveSlots[i] != namingSaveSlot)
+                saveSlots[i].DisableInteraction();
     }
 
     public void SaveNamingCompleted()
