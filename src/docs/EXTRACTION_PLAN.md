@@ -24,9 +24,10 @@
   пост-билдом в `Assets\Plugins\Internal` обоих деревьев. `src\Core\` и `src\Networking\` — целевые.
 - `src\Core\Content\` — данные контента (Фаза 1, в работе): `Raid\` (пропы/курio: `Prop`,
   `Curio`, `CurioResult`, `IProportionValue`, `AreaType`), `Campaign\` (модели `HeirloomExchange`,
-  `PartyNameEntry`, `NarrationEntry`/`NarrationAudioEvent`), `Save\` (бинарный интерфейс
+  `PartyNameEntry`,   `NarrationEntry`/`NarrationAudioEvent`), `Save\` (бинарный интерфейс
   `IBinarySaveData` — старт Фазы 2), `Database\` (DTO `Json*` и мапперы-парсеры: `CurioCsvParser`
-  для CSV, `NarrationMapper` для JSON). Ядро **не зависит от Newtonsoft**: DTO-члены названы
+  для CSV, `NarrationMapper`/`LootMapper` для JSON — loot: `LootDatabase`, `LootTable`,
+  `LootEntry`). Ядро **не зависит от Newtonsoft**: DTO-члены названы
   snake_case в точности по legacy-JSON, поэтому десериализуются любой версией Newtonsoft без
   атрибутов. Причина: сборки Newtonsoft 11/12/13 (включая `net45`/`netstandard2.0`) ссылаются на
   контрактные сборки net6.0 (`System.Runtime, Version=6.0.0.0`) и не читаются компилятором Unity

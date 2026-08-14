@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 // ReSharper disable CollectionNeverUpdated.Global
@@ -461,41 +461,6 @@ namespace DarkestJson
     }
     #endregion
 
-    #region Loot
-    public class JsonLootDatabase
-    {
-        public List<JsonDarknessBonusSet> darkness_bonuses;
-        public List<JsonLootTable> loot_tables;
-    }
-
-    public class JsonDarknessBonusSet
-    {
-        public string type;
-        public List<JsonDarknessBonus> bonuses;
-    }
-
-    public class JsonDarknessBonus
-    {
-        public int darkness;
-        public float chance;
-        public List<string> codes;
-    }
-
-    public class JsonLootTable
-    {
-        public string id;
-        public int difficulty;
-        public string dungeon;
-        public List<JsonLootEntry> entries;
-    }
-
-    public class JsonLootEntry
-    {
-        public string type;
-        public float chances;
-        public Dictionary<string, object> data;
-    }
-    #endregion
 
     #region Quirks
     public class JsonQuirkData
@@ -892,11 +857,6 @@ namespace DarkestJson
         public static List<JsonQuirk> GetJsonQuirks(string quirkString)
         {
             return JsonConvert.DeserializeObject<JsonQuirkData>(quirkString).quirks;
-        }
-
-        public static JsonLootDatabase GetJsonLootDatabase(string lootString)
-        {
-            return JsonConvert.DeserializeObject<JsonLootDatabase>(lootString);
         }
 
         public static JsonTrinketDatabase GetJsonTrinketDatabase(string trinketData)
