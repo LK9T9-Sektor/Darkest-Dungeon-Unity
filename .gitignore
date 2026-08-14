@@ -110,11 +110,14 @@ project.fragment.lock.json
 artifacts/
 *.binlog
 *.ilk
+*.ilk.meta
 *.obj
 *.pch
 *.idb
 *.iobj
+*.iobj.meta
 *.ipdb
+*.ipdb.meta
 *.pgc
 *.pgd
 
@@ -179,3 +182,4 @@ UnityPackageManager/
 
 # --- FMOD generated cache (regenerated on every import) ---
 **/Assets/FMODStudioCache.asset
+**/Assets/FMODStudioCache.asset.meta
