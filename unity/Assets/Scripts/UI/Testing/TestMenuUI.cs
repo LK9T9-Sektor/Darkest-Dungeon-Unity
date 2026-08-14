@@ -21,21 +21,23 @@ public class TestMenuUI : MonoBehaviour
 
     private static TestMenuUI _instanse;
 
+    private Canvas _canvas;
     private GameObject _panel;
     private Text _logText;
     private readonly List<string> _logLines = new List<string>();
 
-    /// <summary>Creates the TEST menu once the campaign selection scene has loaded.</summary>
+    /// <summary>
+    /// Creates the persistent TEST menu object on the first scene load. The menu lives across
+    /// scenes (DontDestroyOnLoad); its canvas is shown only on the campaign selection screen.
+    /// </summary>
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Initialize()
     {
         if (_instanse != null)
             return;
 
-        if (SceneManager.GetActiveScene().name != _campaignSelectionSceneName)
-            return;
-
         GameObject menuObject = new GameObject(nameof(TestMenuUI));
+        DontDestroyOnLoad(menuObject);
         menuObject.AddComponent<TestMenuUI>();
     }
 
@@ -51,6 +53,13 @@ public class TestMenuUI : MonoBehaviour
         CreateUi();
     }
 
+    private void Update()
+    {
+        bool visible = SceneManager.GetActiveScene().name == _campaignSelectionSceneName;
+        if (_canvas != null && _canvas.gameObject.activeSelf != visible)
+            _canvas.gameObject.SetActive(visible);
+    }
+
     private void OnDestroy()
     {
         if (_instanse == this)
@@ -61,9 +70,9 @@ public class TestMenuUI : MonoBehaviour
     {
         RuntimeUiFactory.EnsureEventSystem();
 
-        Canvas canvas = RuntimeUiFactory.CreateCanvas("TestMenuCanvas", transform, _sortingOrder);
-        CreateToggleButton(canvas.transform);
-        CreatePanel(canvas.transform);
+        _canvas = RuntimeUiFactory.CreateCanvas("TestMenuCanvas", transform, _sortingOrder);
+        CreateToggleButton(_canvas.transform);
+        CreatePanel(_canvas.transform);
         _panel.SetActive(false);
     }
 
