@@ -2,6 +2,14 @@
 
 ## Не выпущено (после 1.0.6)
 
+### Вынос контента в чистое ядро (Фаза 1, первый срез)
+
+- Новый модуль `src\Core\Content` (netstandard2.0, C# 7.3): модели `Campaign\` (`HeirloomExchange`, `PartyNameEntry`) и `Database\` (DTO `Json*` с `[JsonProperty]` + мапперы `HeirloomExchangeMapper`/`PartyNameMapper`). DLL доставляются пост-билдом в `Assets\Plugins\Internal` обоих проектов.
+- `DarkestDatabase` стал тоньше: `LoadHeirloomExchanges`/`LoadPartyNames` сводятся к вызовам мапперов ядра; JSON-десериализация (`JsonConvert`) остаётся в адаптере презентации.
+- NUnit-тесты `tests\Core\Content` на реальных данных (`HeirloomExchange.json`, `PartyNames.json`).
+- DTO — PascalCase с `[JsonProperty("snake_case")]`; рукописные мапперы — переходное состояние, целевой путь — прямая десериализация Newtonsoft в ядре (Unity уже содержит Newtonsoft.Json 13.0.0.0).
+
+
 ### Unity 6.5 (6000.5.8f1): EntityId-миграция
 
 - Редактор обновлён 6000.4.5f1 → 6000.5.8f1: устаревшие API стали ошибками компиляции (CS0619): `GetInstanceID()`, `EditorApplication.hierarchyWindowItemOnGUI`, `EditorUtility.InstanceIDToObject(int)`.

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using DarkestJson;
+using Sektor.DarkestDungeon.Core.Content.Campaign;
+using Sektor.DarkestDungeon.Core.Content.Database;
 
 public class DarkestDatabase : MonoBehaviour
 {
@@ -1385,31 +1387,14 @@ public class DarkestDatabase : MonoBehaviour
     {
         TextAsset jsonText = Resources.Load<TextAsset>(JsonExchangePath);
         var jsonExchange = JsonDarkestDeserializer.GetJsonObject<JsonHeirloomExchange>(jsonText.text);
-        HeirloomExchanges = new List<HeirloomExchange>();
-
-        for (int i = 0; i < jsonExchange.markets[0].exchange_rates.Count; i++)
-        {
-            var newHeirloomExchange = new HeirloomExchange();
-            newHeirloomExchange.FromType = jsonExchange.markets[0].exchange_rates[i].exchange_from_type;
-            newHeirloomExchange.FromAmount = jsonExchange.markets[0].exchange_rates[i].exchange_from_amount;
-            newHeirloomExchange.ToType = jsonExchange.markets[0].exchange_rates[i].exchange_to_type;
-            newHeirloomExchange.ToAmount = jsonExchange.markets[0].exchange_rates[i].exchange_to_amount;
-            HeirloomExchanges.Add(newHeirloomExchange);
-        }
+        HeirloomExchanges = HeirloomExchangeMapper.Parse(jsonExchange);
     }
 
     private void LoadPartyNames()
     {
         TextAsset jsonText = Resources.Load<TextAsset>(JsonPartyNameDataPath);
-        var jsonPartyNames = JsonDarkestDeserializer.GetJsonPartyNames(jsonText.text);
-        PartyNames = new List<PartyNameEntry>();
-        for(int i = 0; i < jsonPartyNames.party_names.Count; i++)
-        {
-            var newPartyComp = new PartyNameEntry();
-            newPartyComp.Id = jsonPartyNames.party_names[i].id;
-            newPartyComp.ClassIds = jsonPartyNames.party_names[i].required_hero_class;
-            PartyNames.Add(newPartyComp);
-        }
+        var jsonPartyNames = JsonDarkestDeserializer.GetJsonObject<JsonPartyNameDictionary>(jsonText.text);
+        PartyNames = PartyNameMapper.Parse(jsonPartyNames);
     }
 
     private void LoadNarration()

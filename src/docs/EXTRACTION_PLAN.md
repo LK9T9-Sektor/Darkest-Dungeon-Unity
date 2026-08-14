@@ -13,7 +13,14 @@
   данные) всё ещё в презентационном слое.
 - `src\` — сетевой слой `Lan\` (Contracts/Steam/Cmd), netstandard2.0, C# 7.3; DLL доставляются
   пост-билдом в `Assets\Plugins\Internal` обоих деревьев. `src\Core\` и `src\Networking\` — целевые.
-- `tests\Lan\` — NUnit-тесты сетевого слоя.
+- `src\Core\Content\` — первый срез данных (Фаза 1, начата): `Campaign\` (модели
+  `HeirloomExchange`, `PartyNameEntry`) + `Database\` (DTO `Json*` с `[JsonProperty]` и мапперы-парсеры).
+  Ядро ссылается на Newtonsoft.Json 13.x; Unity-проекты уже содержат `Newtonsoft.Json.dll` 13.0.0.0
+  (в `Assets\Plugins`), так что рантайм-binding совместим. Рукописные мапперы DTO→модель —
+  **переходное состояние** (из-за исходного предположения о старом Newtonsoft 4.x); цель — прямая
+  десериализация Newtonsoft в ядре. JSON-десериализация пока остаётся на границе презентации
+  (`JsonDarkestDeserializer.GetJsonObject<T>`).
+- `tests\Lan\` — NUnit-тесты сетевого слоя; `tests\Core\` — NUnit-тесты ядра контента (на реальных данных).
 
 ## 2. Целевая раскладка
 
@@ -57,6 +64,13 @@ repo/
   `tools\sync-assets.ps1` (см. `FEATURE_SHARED_ASSETS.md`).
 - **Фаза 1. Данные** → `src\Core\Content`: модели контента + парсеры (JSON/DSL/CSV/XML) из
   `DarkestDatabase`; `InvariantCulture`; `DarkestDatabase` → тонкий загрузчик; тесты на реальных данных.
+  *(в работе)* Вынесен первый срез: `HeirloomExchange` + `PartyNames` (модели `Campaign\`, DTO
+  `Json*` и мапперы `Database\`), доставка DLL в оба проекта, NUnit-тесты на реальных JSON. DTO —
+  PascalCase с `[JsonProperty("snake_case")]`; ядро ссылается на Newtonsoft.Json 13.x, присутствующий
+  в Unity (13.0.0.0 в `Assets\Plugins`), поэтому рантайм-binding совместим. `JsonConvert` пока
+  вызывается из адаптера презентации (`GetJsonObject<T>`). Следующий шаг: перенести `JsonConvert`
+  в ядро и убрать ручные мапперы — десериализовать JSON напрямую в модели через `[JsonProperty]`
+  (версия Newtonsoft в Unity это позволяет).
 - **Фаза 2. Сейвы** → `src\Core\Save`: DTO + бинарный кодек + версии; IO в Unity через `ISaveStorage`.
 - **Фаза 3. Бой** → `src\Core\Combat`: `BattleGround`/`Round`/`BattleSolver`/Effects/AI как чистая
   симуляция; архитектура — **симуляция + события для view** (решение принято). Кооп-PvE строится на

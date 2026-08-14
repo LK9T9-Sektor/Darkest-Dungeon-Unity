@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Sektor.DarkestDungeon.Core.Content.Campaign;
 
 public class ExchangeEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {

@@ -4,12 +4,18 @@
   <Project Path="Assembly-CSharp-Editor-firstpass.csproj" />
   <Project Path="Assembly-CSharp-firstpass.csproj" />
   <Folder Name="/src/" />
+  <Folder Name="/src/Core/">
+    <Project Path="src/Core/Sektor.DarkestDungeon.Core.Content/Sektor.DarkestDungeon.Core.Content.csproj" />
+  </Folder>
   <Folder Name="/src/Lan/">
     <Project Path="src/Lan/Sektor.DarkestDungeon.Lan.Cmd/Sektor.DarkestDungeon.Lan.Cmd.csproj" />
     <Project Path="src/Lan/Sektor.DarkestDungeon.Lan.Contracts/Sektor.DarkestDungeon.Lan.Contracts.csproj" />
     <Project Path="src/Lan/Sektor.DarkestDungeon.Lan.Steam/Sektor.DarkestDungeon.Lan.Steam.csproj" />
   </Folder>
   <Folder Name="/tests/" />
+  <Folder Name="/tests/Core/">
+    <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Content.Tests/Sektor.DarkestDungeon.Core.Content.Tests.csproj" />
+  </Folder>
   <Folder Name="/tests/Lan/">
     <Project Path="tests/Lan/Sektor.DarkestDungeon.Lan.Tests/Sektor.DarkestDungeon.Lan.Tests.csproj" />
   </Folder>
