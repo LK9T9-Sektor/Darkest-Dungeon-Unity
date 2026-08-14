@@ -20,6 +20,10 @@
   (включая `net45`/`netstandard2.0`) ссылаются на контрактные сборки net6.0 (`System.Runtime,
   Version=6.0.0.0`) и не читаются компилятором Unity 2017.4 (`CS0009`). JSON-десериализация пока
   остаётся на границе презентации (`JsonDarkestDeserializer.GetJsonObject<T>`).
+- `src\Core\Ui\` — презентационные токены runtime-оверлеев (engine-free): путь шрифта,
+  семантические размеры текста и цвета (`ArgbColor`), доставляются DLL в оба проекта; Unity-side
+  конструктор (`RuntimeUiFactory`) дублируется в деревьях и читает токены из ядра. Единый источник
+  стилей для `MultiplayerLogUI`, `MultiplayerProviderMenu`, `SteamLobbyIdPanel`, `SoundSettingsUI`.
 - `tests\Lan\` — NUnit-тесты сетевого слоя; `tests\Core\` — NUnit-тесты ядра контента (на реальных данных).
 
 ## 2. Целевая раскладка

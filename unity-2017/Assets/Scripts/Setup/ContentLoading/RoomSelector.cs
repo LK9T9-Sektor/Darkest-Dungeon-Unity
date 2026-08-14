@@ -254,6 +254,7 @@ public class RoomSelector : MonoBehaviour
     {
         Debug.Log("[DD] [ROOM] PlayButtonClicked: steamProvider=" + MultiplayerSync.IsSteamProvider +
             ", photonConnected=" + PhotonNetwork.connected);
+        MultiplayerSync.WriteLog("MULTIPLAYER", "Play requested (" + (MultiplayerSync.IsSteamProvider ? "STEAM" : "PHOTON") + ").");
         if (MultiplayerSync.IsSteamProvider)
         {
             HostSteamSession();

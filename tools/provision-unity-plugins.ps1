@@ -1,9 +1,9 @@
-# Provision Unity plugin delivery for the Lan transport and the core Content module.
+# Provision Unity plugin delivery for the Lan transport and the core Content and Ui modules.
 #
 # 1. Builds the Lan transport (dotnet, Steam project builds Contracts transitively);
 #    its post-build target copies the managed assemblies into each Unity project's
 #    Assets\Plugins\Internal\ (gitignored) for unity\ and unity-2017\.
-# 2. Builds the core Content module; its post-build target copies the DLL/PDB into
+# 2. Builds the core Content and Ui modules; their post-build targets copy the DLL/PDB into
 #    the same Assets\Plugins\Internal\ folders (unity\ and unity-2017\).
 # 3. Copies the .NET Standard facade shims from the installed Unity editor into the
 #    target project's Assets\Plugins\Internal\ so the old Mono runtime resolves the
@@ -102,6 +102,10 @@ if ($LASTEXITCODE -ne 0) { throw "dotnet build failed" }
 
 Write-Host "==> Building core Content module"
 dotnet build (Join-Path $repoRoot "src\Core\Sektor.DarkestDungeon.Core.Content\Sektor.DarkestDungeon.Core.Content.csproj") --nologo -v q
+if ($LASTEXITCODE -ne 0) { throw "dotnet build failed" }
+
+Write-Host "==> Building core Ui module"
+dotnet build (Join-Path $repoRoot "src\Core\Sektor.DarkestDungeon.Core.Ui\Sektor.DarkestDungeon.Core.Ui.csproj") --nologo -v q
 if ($LASTEXITCODE -ne 0) { throw "dotnet build failed" }
 
 Write-Host "==> Copying .NET Standard facades"

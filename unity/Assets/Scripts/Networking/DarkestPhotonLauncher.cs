@@ -137,6 +137,7 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
     public override void OnConnectedToMaster()
     {
         Debug.Log("Darkest Photon Network: OnConnectedToMaster() was called!");
+        MultiplayerSync.WriteLog("PHOTON", "Connected to master server.");
         launcherPanel.ProgressLabel.text = "Connected!";
 
         // we don't want to do anything if we are not attempting to join a room. 
@@ -155,6 +156,7 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
     public override void OnPhotonRandomJoinFailed(object[] codeAndMsg)
     {
         Debug.Log("Darkest Photon Network: OnPhotonRandomJoinFailed() was called!");
+        MultiplayerSync.WriteLog("PHOTON", "No available rooms found, creating a new one.");
         launcherPanel.ProgressLabel.text = "No available rooms found!";
 
         // #Critical: we failed to join a random room,
@@ -175,6 +177,7 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
 
     public override void OnPhotonCreateRoomFailed(object[] codeAndMsg)
     {
+        MultiplayerSync.WriteError("PHOTON", "Can't create room!");
         launcherPanel.ProgressLabel.text = "Can't create room!";
 
         CampaignSelectionManager.Instanse.RoomSelector.EnableInteraction();
@@ -185,6 +188,7 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
 
     public override void OnConnectionFail(DisconnectCause cause)
     {
+        MultiplayerSync.WriteError("PHOTON", "Disconnected: " + cause);
         launcherPanel.ProgressLabel.text = "Disconnected! ";
         switch(cause)
         {
@@ -216,8 +220,7 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
     {
         isNamedConnecting = false;
         Debug.Log("Darkest Photon Network: OnPhotonJoinFailed() was called!");
-
-        // #Critical: we failed to join aroom,
+        MultiplayerSync.WriteError("PHOTON", "Room no longer available!");
         launcherPanel.ProgressLabel.text = "Room no longer available!";
 
         CampaignSelectionManager.Instanse.RoomSelector.EnableInteraction();
@@ -229,6 +232,7 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
     public override void OnJoinedRoom()
     {
         Debug.Log("Darkest Photon Network: OnJoinedRoom() was called!");
+        MultiplayerSync.WriteLog("PHOTON", "Joined room " + (PhotonNetwork.room != null ? PhotonNetwork.room.Name : "") + ".");
         launcherPanel.ProgressLabel.text = "Joined " + (PhotonNetwork.room != null ? PhotonNetwork.room.Name : "")  + "!";
 
         launcherPanel.FadeToLoadingScreen();
@@ -237,6 +241,7 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
     public override void OnDisconnectedFromPhoton()
     {
         Debug.LogWarning("Darkest Photon Network: OnDisconnectedFromPhoton() was called!");
+        MultiplayerSync.WriteLog("PHOTON", "Disconnected from Photon.");
 
         if(isNamedConnecting || isRandomConnecting)
         {
@@ -251,18 +256,21 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
     public override void OnConnectedToPhoton()
     {
         Debug.Log("Darkest Photon Network: OnConnectedToPhoton() was called!");
+        MultiplayerSync.WriteLog("PHOTON", "Connected to Photon server.");
 
         launcherPanel.ProgressLabel.text = "Connected!";
     }
 
     public override void OnCreatedRoom()
     {
+        MultiplayerSync.WriteLog("PHOTON", "Created room " + (PhotonNetwork.room != null ? PhotonNetwork.room.Name : "") + ".");
         launcherPanel.ProgressLabel.text = "Creating " + (PhotonNetwork.room != null ? PhotonNetwork.room.Name : "room") + "!";
     }
 
     public override void OnJoinedLobby()
     {
         Debug.Log("Darkest Photon Network: OnJoinedLobby() was called!");
+        MultiplayerSync.WriteLog("PHOTON", "Joined lobby.");
         launcherPanel.ProgressLabel.text = "Connected!";
         // we don't want to do anything if we are not attempting to join a room. 
         // this case where isConnecting is false is typically when you lost or quit the game, when this level is loaded, OnConnectedToMaster will be called, in that case
@@ -303,6 +311,7 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
         // keep track of the will to join a room, because when we come back from the game
         // we will get a callback that we are connected, so we need to know what to do then
         isRandomConnecting = true;
+        MultiplayerSync.WriteLog("PHOTON", "Random connect to region " + RegionToString(selectedRegion) + "...");
 
         UpdateCustomProperties();
 
@@ -341,6 +350,7 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
         // we will get a callback that we are connected, so we need to know what to do then
         isNamedConnecting = true;
         targetRoomName = targetRoom.Name;
+        MultiplayerSync.WriteLog("PHOTON", "Joining room " + targetRoom.Name + "...");
 
         UpdateCustomProperties();
 
@@ -372,6 +382,7 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
             PhotonNetwork.connectionStateDetailed == ClientState.Authenticating)
             return;
 
+        MultiplayerSync.WriteLog("PHOTON", "Connecting to master server (" + RegionToString(selectedRegion) + ")...");
         PhotonNetwork.ConnectToRegion(selectedRegion, GameVersion);
     }
 
@@ -384,6 +395,7 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
 
         if (!PhotonNetwork.connected)
         {
+            MultiplayerSync.WriteError("PHOTON", "Can't create room! No connection!");
             launcherPanel.ProgressLabel.text = "Can't create room! No connection!";
             return PhotonNetwork.ConnectToRegion(selectedRegion, GameVersion);
         }
@@ -410,6 +422,7 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
 
         selectedRegion = AvailableRegions[targetIndex];
         CampaignSelectionManager.Instanse.RoomSelector.RegionLabel.text = "Region: " + RegionToString(selectedRegion);
+        MultiplayerSync.WriteLog("PHOTON", "Region changed to " + RegionToString(selectedRegion) + ".");
 
         if (PhotonNetwork.connected)
             PhotonNetwork.Disconnect();
@@ -426,6 +439,7 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
 
         selectedRegion = AvailableRegions[targetIndex];
         CampaignSelectionManager.Instanse.RoomSelector.RegionLabel.text = "Region: " + RegionToString(selectedRegion);
+        MultiplayerSync.WriteLog("PHOTON", "Region changed to " + RegionToString(selectedRegion) + ".");
 
         if (PhotonNetwork.connected)
             PhotonNetwork.Disconnect();
