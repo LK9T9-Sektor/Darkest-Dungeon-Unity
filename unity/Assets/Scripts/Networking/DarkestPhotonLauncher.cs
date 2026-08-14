@@ -357,8 +357,16 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
 
     public void ConnectToMaster()
     {
-        if (!PhotonNetwork.connected)
-            PhotonNetwork.ConnectToRegion(selectedRegion, GameVersion);
+        if (PhotonNetwork.connected)
+            return;
+
+        if (PhotonNetwork.connectionStateDetailed == ClientState.ConnectingToMasterserver ||
+            PhotonNetwork.connectionStateDetailed == ClientState.ConnectingToNameServer ||
+            PhotonNetwork.connectionStateDetailed == ClientState.ConnectingToGameserver ||
+            PhotonNetwork.connectionStateDetailed == ClientState.Authenticating)
+            return;
+
+        PhotonNetwork.ConnectToRegion(selectedRegion, GameVersion);
     }
 
     public bool CreateNamedRoom(string roomName)

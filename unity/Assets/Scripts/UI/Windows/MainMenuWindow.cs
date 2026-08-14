@@ -16,7 +16,8 @@ public class MainMenuWindow : MonoBehaviour
     {
         gameObject.SetActive(true);
         DarkestDungeonManager.GamePaused = true;
-        UICanvasGroup.blocksRaycasts = false;
+        if (UICanvasGroup != null)
+            UICanvasGroup.blocksRaycasts = false;
     }
 
     public void WindowClosed()
@@ -26,7 +27,8 @@ public class MainMenuWindow : MonoBehaviour
 
         if (EventWindowClosed != null)
             EventWindowClosed();
-        UICanvasGroup.blocksRaycasts = true;
+        if (UICanvasGroup != null)
+            UICanvasGroup.blocksRaycasts = true;
     }
 
     public void ReturnToCampaignSelection()
