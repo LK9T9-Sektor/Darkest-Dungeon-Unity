@@ -70,6 +70,8 @@ public class DarkestDungeonManager : MonoBehaviour
             Instanse = this;
             DontDestroyOnLoad(gameObject);
 
+            Application.logMessageReceived += OnGlobalLogMessage;
+
             RaidingManager = GetComponent<RaidManager>();
             DragManager = GetComponent<DragManager>();
 
@@ -77,8 +79,10 @@ public class DarkestDungeonManager : MonoBehaviour
             MainUICamera = GameObject.FindGameObjectWithTag("Main UI Camera").GetComponent<Camera>();
             UpdateSceneOverlay(MainUICamera);
 
+            Debug.Log("[DD] [MANAGER] DarkestDungeonManager.Awake: initializing on scene " + SceneManager.GetActiveScene().name);
             database = GetComponent<DarkestDatabase>();
             database.Load();
+            Debug.Log("[DD] [MANAGER] DarkestDungeonManager.Awake: database loaded");
         }
         else
         {
@@ -102,21 +106,39 @@ public class DarkestDungeonManager : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        Application.logMessageReceived -= OnGlobalLogMessage;
+    }
+
+    private void OnGlobalLogMessage(string condition, string stackTrace, LogType type)
+    {
+        if (type == LogType.Error || type == LogType.Exception)
+            Debug.Log("[DD] [UNITY-" + type + "] " + System.DateTime.Now.ToString("HH:mm:ss.fff") + " " + condition + "\n" + stackTrace);
+    }
+
     public void LoadSave()
     {
+        Debug.Log("[DD] [MANAGER] LoadSave: SaveData is " + (SaveData == null ? "null" : "set") +
+            ", scene " + SceneManager.GetActiveScene().name);
         if (SaveData == null)
         {
             SaveLoadManager.WriteStartingSave(new SaveCampaignData(1, "Darkest"));
             SaveLoadManager.WriteTestingSave(new SaveCampaignData(2, "Middle"));
             SaveData = SaveLoadManager.ReadSave(2);
+            Debug.Log("[DD] [MANAGER] LoadSave: created starting saves, SaveData=" +
+                (SaveData == null ? "null" : SaveData.HamletTitle));
         }
         campaign = new Campaign();
         campaign.Load(SaveData);
+        Debug.Log("[DD] [MANAGER] LoadSave: campaign loaded, week " + campaign.CurrentWeek);
     }
 
     public void SaveGame()
     {
+        Debug.Log("[DD] [MANAGER] SaveGame: writing save, SaveData is " + (SaveData == null ? "null" : "set"));
         SaveLoadManager.WriteSave(SaveData);
+        Debug.Log("[DD] [MANAGER] SaveGame: written");
     }
 
     public void UpdateSceneOverlay(Camera screenOverlayCam)

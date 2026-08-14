@@ -19,12 +19,14 @@ public class ScreenFader : MonoBehaviour
 
     public void StartFaded()
     {
+        Debug.Log("[DD] [SCENE] ScreenFader.StartFaded");
         rawImage.enabled = true;
         screenAnimator.SetTrigger("initial_fade");
     }
 
     public void Fade(float speed = 1)
     {
+        Debug.Log("[DD] [SCENE] ScreenFader.Fade speed=" + speed);
         rawImage.enabled = true;
         screenAnimator.SetBool("fade", true);
         screenAnimator.speed = speed;
@@ -32,12 +34,14 @@ public class ScreenFader : MonoBehaviour
 
     public void Appear(float speed = 1)
     {
+        Debug.Log("[DD] [SCENE] ScreenFader.Appear speed=" + speed);
         screenAnimator.SetBool("appear", true);
         screenAnimator.speed = speed;
     }
 
     public void Reset()
     {
+        Debug.Log("[DD] [SCENE] ScreenFader.Reset");
         screenAnimator.speed = 1;
         screenAnimator.SetBool("appear", false);
         screenAnimator.SetBool("fade", false);
@@ -46,6 +50,7 @@ public class ScreenFader : MonoBehaviour
 
     public void FadeEnded()
     {
+        Debug.Log("[DD] [SCENE] ScreenFader.FadeEnded");
         screenAnimator.SetBool("fade", false);
 
         if (EventFadeEnded != null)
@@ -54,6 +59,7 @@ public class ScreenFader : MonoBehaviour
 
     public void AppearEnded()
     {
+        Debug.Log("[DD] [SCENE] ScreenFader.AppearEnded");
         screenAnimator.SetBool("appear", false);
         rawImage.enabled = false;
 

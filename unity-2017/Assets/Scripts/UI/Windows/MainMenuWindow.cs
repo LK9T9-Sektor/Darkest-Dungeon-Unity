@@ -14,6 +14,7 @@ public class MainMenuWindow : MonoBehaviour
 
     public void OpenMenu()
     {
+        Debug.Log("[DD] [MENU] MainMenuWindow.OpenMenu: uiCanvasGroup=" + (uiCanvasGroup == null ? "null" : "set"));
         gameObject.SetActive(true);
         DarkestDungeonManager.GamePaused = true;
         UICanvasGroup.blocksRaycasts = false;
@@ -21,6 +22,7 @@ public class MainMenuWindow : MonoBehaviour
 
     public void WindowClosed()
     {
+        Debug.Log("[DD] [MENU] MainMenuWindow.WindowClosed: uiCanvasGroup=" + (uiCanvasGroup == null ? "null" : "set"));
         DarkestDungeonManager.GamePaused = false;
         gameObject.SetActive(false);
 
@@ -31,6 +33,7 @@ public class MainMenuWindow : MonoBehaviour
 
     public void ReturnToCampaignSelection()
     {
+        Debug.Log("[DD] [MENU] MainMenuWindow.ReturnToCampaignSelection: scene " + SceneManager.GetActiveScene().name);
         if(SceneManager.GetActiveScene().name == "DungeonMultiplayer")
         {
             WindowClosed();

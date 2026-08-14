@@ -26,6 +26,8 @@ public class Estate
 
 	public Estate(SaveCampaignData saveData)
     {
+        Debug.Log("[DD] [ESTATE] Estate ctor: start, title=" + saveData.HamletTitle +
+            ", gold=" + saveData.GoldAmount);
         RosterIds = new List<int>();
         for (int i = 1; i < 100; i++)
             RosterIds.Add(i);
@@ -73,6 +75,8 @@ public class Estate
         NomadWagon.InitializeBuilding(TownPurchases);
         StageCoach.InitializeBuilding(TownPurchases);
         Graveyard.Records.AddRange(saveData.DeathRecords);
+        Debug.Log("[DD] [ESTATE] Estate ctor: done, buildings=" + Buildings.Count +
+            ", currencies=" + Currencies.Count);
     }
 
     public void RedeployCaretaker()

@@ -35,6 +35,7 @@ public class SaveSlot : MonoBehaviour
     public void LoadSaveFrame()
     {
         saveData = SaveLoadManager.ReadSave(slotId);
+        Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".LoadSaveFrame: " + (saveData == null ? "empty" : "populated '" + saveData.HamletTitle + "'"));
 
         if (saveData == null)
             FillEmptySave();
@@ -46,6 +47,7 @@ public class SaveSlot : MonoBehaviour
     {
         if(saveData == null)
         {
+            Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".SaveButtonClick: empty slot, starting naming");
             title.color = Color.white;
             titleInput.interactable = true;
             titleInput.enabled = true;
@@ -54,6 +56,8 @@ public class SaveSlot : MonoBehaviour
         }
         else
         {
+            Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".SaveButtonClick: loading slot '" + saveData.HamletTitle +
+                "' InRaid=" + saveData.InRaid);
             DarkestDungeonManager.SaveData = saveData;
             if(DarkestDungeonManager.SaveData.InRaid)
             {
@@ -68,8 +72,11 @@ public class SaveSlot : MonoBehaviour
             else
                 DarkestDungeonManager.LoadingInfo.SetNextScene("EstateManagement", "Screen/loading_screen.town_visit");
 
+            Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".SaveButtonClick: next scene " +
+                DarkestDungeonManager.LoadingInfo.NextScene + " / " + DarkestDungeonManager.LoadingInfo.TextureName);
             DarkestDungeonManager.Instanse.LoadSave();
             SaveSelector.FadeToLoadingScreen();
+            Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".SaveButtonClick: LoadSave + FadeToLoadingScreen invoked");
         }
     }
 
@@ -84,14 +91,18 @@ public class SaveSlot : MonoBehaviour
     {
         if(titleInput.text.Length == 0)
         {
+            Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".SaveNamingCompleted: empty name, slot stays empty");
             FillEmptySave();
             return;
         }
+        Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".SaveNamingCompleted: naming save '" + titleInput.text + "'");
         saveData = new SaveCampaignData();
         saveData.HamletTitle = titleInput.text;
         saveData.SaveId = slotId;
         SaveLoadManager.WriteStartingSave(saveData);
         saveData = SaveLoadManager.ReadSave(slotId);
+        Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".SaveNamingCompleted: after write+read saveData is " +
+            (saveData == null ? "null" : "set"));
         FillPopulatedSave();
 
         titleInput.interactable = false;

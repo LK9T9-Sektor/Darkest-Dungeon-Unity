@@ -43,6 +43,7 @@ public class SaveSelector : MonoBehaviour
         saveFrame.gameObject.SetActive(false);
         if(SaveLoadManager.ReadSave(1) == null && SaveLoadManager.ReadSave(2) == null)
         {
+            Debug.Log("[DD] [SAVE] SaveSelector.Start: no saves found, creating starting + testing saves");
             SaveLoadManager.WriteStartingSave(new SaveCampaignData(1, "Darkest"));
             SaveLoadManager.WriteTestingSave(new SaveCampaignData(2, "Middle"));
         }
@@ -70,6 +71,7 @@ public class SaveSelector : MonoBehaviour
 
     public void FadeToLoadingScreen()
     {
+        Debug.Log("[DD] [SAVE] SaveSelector.FadeToLoadingScreen: photon connected=" + PhotonNetwork.connected);
         for (int i = 0; i < SlotNumber; i++)
             saveSlots[i].DisableInteraction();
 
@@ -82,6 +84,7 @@ public class SaveSelector : MonoBehaviour
 
     public void SaveSelectionStart()
     {
+        Debug.Log("[DD] [SAVE] SaveSelector.SaveSelectionStart: opening save frame");
         CampaignSelectionManager.OnSelectionStart(CampaignSelection.Singleplayer);
         saveFrame.gameObject.SetActive(true);
 
@@ -91,6 +94,7 @@ public class SaveSelector : MonoBehaviour
 
     public void SaveNamingStart(SaveSlot namingSaveSlot)
     {
+        Debug.Log("[DD] [SAVE] SaveSelector.SaveNamingStart: naming slot");
         DarkestSoundManager.PlayOneShot("event:/general/title_screen/letter_open");
         
         selectedSaveSlot = namingSaveSlot;
@@ -100,6 +104,7 @@ public class SaveSelector : MonoBehaviour
 
     public void SaveNamingCompleted()
     {
+        Debug.Log("[DD] [SAVE] SaveSelector.SaveNamingCompleted: re-enabling slots");
         selectedSaveSlot = null;
         for (int i = 0; i < SlotNumber; i++)
             saveSlots[i].EnableInteraction();
@@ -134,6 +139,7 @@ public class SaveSelector : MonoBehaviour
         }
         isSelecting = true;
 
+        Debug.Log("[DD] [SAVE] SaveSelector.SceneSlider: slide finished, loading save frames");
         for (int i = 0; i < SlotNumber; i++)
         {
             saveSlots[i].LoadSaveFrame();
@@ -203,6 +209,7 @@ public class SaveSelector : MonoBehaviour
             sceneryRect.offsetMin = offsetMin;
             yield return null;
         }
+        Debug.Log("[DD] [SAVE] SaveSelector.SceneFade: fade finished, loading LoadingScreen");
         SceneManager.LoadScene("LoadingScreen");
     }
 }

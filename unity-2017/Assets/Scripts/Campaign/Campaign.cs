@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Campaign
 {
@@ -37,6 +38,8 @@ public class Campaign
 
     public void Load(SaveCampaignData saveData)
     {
+        Debug.Log("[DD] [CAMPAIGN] Campaign.Load: start, InRaid=" + saveData.InRaid +
+            ", week=" + saveData.CurrentWeek + ", title=" + saveData.HamletTitle);
         EventModifiers = saveData.EventModifers;
 
         foreach (var townEvent in DarkestDungeonManager.Data.EventDatabase.Events)
@@ -96,6 +99,7 @@ public class Campaign
         NarrationCampaignInfo = saveData.CampaignNarrations;
         NarrationRaidInfo = saveData.RaidNarrations;
         NarrationTownInfo = saveData.TownNarrations;
+        Debug.Log("[DD] [CAMPAIGN] Campaign.Load: done, heroes=" + Heroes.Count + ", estateTitle=" + Estate.EstateTitle);
     }
 
     public void ExecuteProgress()

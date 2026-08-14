@@ -12,6 +12,8 @@ public static class SaveLoadManager
 
     public static void WriteSave(SaveCampaignData saveData)
     {
+        Debug.Log("[DD] [SAVE] WriteSave: slot " + saveData.SaveId + " -> " + GenerateSaveFileName(saveData.SaveId) +
+            ", InRaid=" + saveData.InRaid + ", title=" + saveData.HamletTitle);
         try
         {
             RecreateSaveDirectory();
@@ -153,6 +155,10 @@ public static class SaveLoadManager
             Debug.LogError("Error while writing save slot " + saveData.SaveId + "! " + ex.Message +
                 "Inner: " + (ex.InnerException != null ? ex.InnerException.Message : "None"));
         }
+        finally
+        {
+            Debug.Log("[DD] [SAVE] WriteSave: slot " + saveData.SaveId + " finished");
+        }
     }
 
     public static void DeleteSave(int slotId)
@@ -165,12 +171,12 @@ public static class SaveLoadManager
         if (!File.Exists(GenerateSaveFileName(slotId)))
             return null;
 
+        Debug.Log("[DD] [SAVE] ReadSave: slot " + slotId + " -> " + GenerateSaveFileName(slotId));
         try
         {
             RecreateSaveDirectory();
 
-            SaveCampaignData saveData = new SaveCampaignData();
-            using (var fs = new FileStream(GenerateSaveFileName(slotId), FileMode.Open, FileAccess.Read))
+            SaveCampaignData saveData = new SaveCampaignData();            using (var fs = new FileStream(GenerateSaveFileName(slotId), FileMode.Open, FileAccess.Read))
             {
                 using (var br = new BinaryReader(fs))
                 {
@@ -226,6 +232,8 @@ public static class SaveLoadManager
                     #region Raid
 
                     saveData.InRaid = br.ReadBoolean();
+                    Debug.Log("[DD] [SAVE] ReadSave: slot " + slotId + " InRaid=" + saveData.InRaid +
+                        ", title=" + saveData.HamletTitle + ", week=" + saveData.CurrentWeek);
                     if (!saveData.InRaid)
                         return saveData;
 
@@ -310,13 +318,17 @@ public static class SaveLoadManager
                     #region Battle
                     saveData.InBattle = br.ReadBoolean();
                     if (saveData.InBattle == false)
+                    {
+                        Debug.Log("[DD] [SAVE] ReadSave: slot " + slotId + " read OK (not in battle)");
                         return saveData;
+                    }
 
                     saveData.BattleGroundSaveData.ReadBattlegroundData(br);
                     #endregion
 
                     #endregion
 
+                    Debug.Log("[DD] [SAVE] ReadSave: slot " + slotId + " read OK (in battle)");
                     return saveData;
                 }
             }
@@ -376,6 +388,7 @@ public static class SaveLoadManager
 
     public static SaveCampaignData WriteStartingSave(SaveCampaignData saveData)
     {
+        Debug.Log("[DD] [SAVE] WriteStartingSave: slot " + saveData.SaveId + " populating starting data");
         saveData.PopulateStartingEstateData();
         saveData.PopulateStartingRaidInfo("room1_1");
         saveData.PopulateStartingDungeonInfo(false);

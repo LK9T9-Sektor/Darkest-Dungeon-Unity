@@ -17,6 +17,8 @@ public class ScreenLoader : MonoBehaviour
 
     private void Awake()
     {
+        Debug.Log("[DD] [SCENE] ScreenLoader.Awake: NextScene=" + DarkestDungeonManager.LoadingInfo.NextScene +
+            ", TextureName=" + DarkestDungeonManager.LoadingInfo.TextureName);
         DarkestDungeonManager.ScreenFader.StartFaded();
 
         if (DarkestDungeonManager.LoadingInfo.NextScene == "EstateManagement")
@@ -58,6 +60,9 @@ public class ScreenLoader : MonoBehaviour
             var loadingScreen = Resources.Load<Sprite>(DarkestDungeonManager.LoadingInfo.TextureName);
             if (loadingScreen != null)
                 loadingImage.sprite = loadingScreen;
+            else
+                Debug.LogWarning("[DD] [SCENE] ScreenLoader.Awake: loading screen sprite not found: " +
+                    DarkestDungeonManager.LoadingInfo.TextureName);
         }
         else
             SceneManager.LoadScene(DarkestDungeonManager.LoadingInfo.NextScene);
@@ -71,6 +76,7 @@ public class ScreenLoader : MonoBehaviour
 
     private IEnumerator SceneLoading()
     {
+        Debug.Log("[DD] [SCENE] ScreenLoader.SceneLoading: starting, NextScene=" + DarkestDungeonManager.LoadingInfo.NextScene);
         Resources.UnloadUnusedAssets();
         GC.Collect();
 
@@ -86,6 +92,7 @@ public class ScreenLoader : MonoBehaviour
                 break;
             yield return null;
         }
+        Debug.Log("[DD] [SCENE] ScreenLoader.SceneLoading: async progress reached " + async.progress);
         yield return new WaitForSeconds(0.5f);
 
         while (DarkestSoundManager.NarrationQueue.Count > 0)
@@ -94,5 +101,6 @@ public class ScreenLoader : MonoBehaviour
         DarkestDungeonManager.ScreenFader.Fade();
         yield return new WaitForSeconds(1f);
         async.allowSceneActivation = true;
+        Debug.Log("[DD] [SCENE] ScreenLoader.SceneLoading: activating scene " + DarkestDungeonManager.LoadingInfo.NextScene);
     }
 }

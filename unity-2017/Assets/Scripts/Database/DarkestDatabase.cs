@@ -88,7 +88,9 @@ public class DarkestDatabase : MonoBehaviour
 
     public void Load()
     {
+        Debug.Log("[DD] [DATABASE] DarkestDatabase.Load: start");
         LoadSprites();
+        Debug.Log("[DD] [DATABASE] Load: sprites=" + Sprites.Count);
 
         LoadJsonUpgrades();
         LoadJsonBuildings();
@@ -106,6 +108,8 @@ public class DarkestDatabase : MonoBehaviour
         LoadJsonObstacles();
         LoadJsonTraps();
         LoadCsvCurios();
+        Debug.Log("[DD] [DATABASE] Load: json content done, heroClasses=" + HeroClasses.Count +
+            ", effects=" + Effects.Count + ", buffs=" + Buffs.Count + ", quirks=" + Quirks.Count);
 
         LoadCampaignGenerationData();
         LoadItems();
@@ -116,9 +120,14 @@ public class DarkestDatabase : MonoBehaviour
         LoadMonsters();
         LoadJsonTownEvents();
         LoadNarration();
+        Debug.Log("[DD] [DATABASE] Load: dungeon/monsters/icons done, monsters=" + Monsters.Count +
+            ", dungeonSprites=" + DungeonSprites.Count + ", narration=" + Narration.Count);
         LoadPartyNames();
+        Debug.Log("[DD] [DATABASE] Load: party names=" + (PartyNames != null ? PartyNames.Count : -1));
         LoadHeirloomExchanges();
+        Debug.Log("[DD] [DATABASE] Load: heirloom exchanges=" + (HeirloomExchanges != null ? HeirloomExchanges.Count : -1));
 
+        Debug.Log("[DD] [DATABASE] DarkestDatabase.Load: finished");
         GC.Collect();
     }
 
@@ -1385,16 +1394,20 @@ public class DarkestDatabase : MonoBehaviour
 
     private void LoadHeirloomExchanges()
     {
+        Debug.Log("[DD] [DATABASE] LoadHeirloomExchanges: loading " + JsonExchangePath);
         TextAsset jsonText = Resources.Load<TextAsset>(JsonExchangePath);
         var jsonExchange = JsonDarkestDeserializer.GetJsonObject<JsonHeirloomExchange>(jsonText.text);
         HeirloomExchanges = HeirloomExchangeMapper.Parse(jsonExchange);
+        Debug.Log("[DD] [DATABASE] LoadHeirloomExchanges: " + (HeirloomExchanges != null ? HeirloomExchanges.Count : -1) + " entries");
     }
 
     private void LoadPartyNames()
     {
+        Debug.Log("[DD] [DATABASE] LoadPartyNames: loading " + JsonPartyNameDataPath);
         TextAsset jsonText = Resources.Load<TextAsset>(JsonPartyNameDataPath);
         var jsonPartyNames = JsonDarkestDeserializer.GetJsonObject<JsonPartyNameDictionary>(jsonText.text);
         PartyNames = PartyNameMapper.Parse(jsonPartyNames);
+        Debug.Log("[DD] [DATABASE] LoadPartyNames: " + (PartyNames != null ? PartyNames.Count : -1) + " entries");
     }
 
     private void LoadNarration()

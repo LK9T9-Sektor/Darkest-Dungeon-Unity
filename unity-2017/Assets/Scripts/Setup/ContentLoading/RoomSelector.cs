@@ -120,6 +120,8 @@ public class RoomSelector : MonoBehaviour
 
     public void RefreshRoomList()
     {
+        Debug.Log("[DD] [ROOM] RefreshRoomList: connected=" + PhotonNetwork.connected +
+            ", insideLobby=" + PhotonNetwork.insideLobby);
         if (MultiplayerSync.IsSteamProvider)
         {
             CleanRoomList();
@@ -250,6 +252,8 @@ public class RoomSelector : MonoBehaviour
 
     public void PlayButtonClicked()
     {
+        Debug.Log("[DD] [ROOM] PlayButtonClicked: steamProvider=" + MultiplayerSync.IsSteamProvider +
+            ", photonConnected=" + PhotonNetwork.connected);
         if (MultiplayerSync.IsSteamProvider)
         {
             HostSteamSession();
@@ -399,6 +403,7 @@ public class RoomSelector : MonoBehaviour
         DarkestSoundManager.PlayOneShot("event:/general/title_screen/campaign_button");
 
         bool steam = MultiplayerSync.IsSteamProvider;
+        Debug.Log("[DD] [ROOM] SceneSlider: steamProvider=" + steam);
         if (steam)
             ConfigureSteamStatusLayout();
 
@@ -434,6 +439,7 @@ public class RoomSelector : MonoBehaviour
         }
         yield return new WaitForSeconds(1f);
         isSelecting = true;
+        Debug.Log("[DD] [ROOM] SceneSlider: connecting done, photonConnected=" + PhotonNetwork.connected);
 
         if (steam)
             CleanRoomList();

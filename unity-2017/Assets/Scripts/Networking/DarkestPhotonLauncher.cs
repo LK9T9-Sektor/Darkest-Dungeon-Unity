@@ -291,6 +291,8 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
     /// </summary>
     public void RandomConnect()
     {
+        Debug.Log("[DD] [PHOTON] RandomConnect: connected=" + PhotonNetwork.connected +
+            ", state=" + PhotonNetwork.connectionStateDetailed + ", region=" + selectedRegion);
         if (!CheckSelectedSkills())
             return;
 
@@ -326,6 +328,8 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
     /// </summary>
     public void Connect(RoomInfo targetRoom)
     {
+        Debug.Log("[DD] [PHOTON] Connect: room=" + targetRoom.Name + ", connected=" + PhotonNetwork.connected +
+            ", state=" + PhotonNetwork.connectionStateDetailed);
         if(!CheckSelectedSkills())
             return;
 
@@ -357,6 +361,8 @@ public class DarkestPhotonLauncher : Photon.PunBehaviour
 
     public void ConnectToMaster()
     {
+        Debug.Log("[DD] [PHOTON] ConnectToMaster: connected=" + PhotonNetwork.connected +
+            ", state=" + PhotonNetwork.connectionStateDetailed);
         if (!PhotonNetwork.connected)
             PhotonNetwork.ConnectToRegion(selectedRegion, GameVersion);
     }
