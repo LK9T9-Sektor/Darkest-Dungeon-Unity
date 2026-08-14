@@ -174,7 +174,7 @@ public class TestBrowserView
         button.onClick.AddListener(() => ShowDetail(captured));
 
         RuntimeUiFactory.CreateText("BrowseLabel_" + index, rowObject.transform, entry,
-            new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(8, 0), new Vector2(0, 28),
+            new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(8, 0), new Vector2(944, 28),
             UiStyle.Small, UiStyle.Label, TextAnchor.MiddleLeft);
     }
 
