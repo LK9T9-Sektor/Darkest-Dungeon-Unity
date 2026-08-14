@@ -751,90 +751,6 @@ public class DarkestDatabase : MonoBehaviour
         return questData;
     }
 
-    private LootDatabase GetJsonLootDatabase()
-    {
-        TextAsset jsonText = Resources.Load<TextAsset>(JsonLootDatabasePath);
-        var lootDatabase = JsonDarkestDeserializer.GetJsonLootDatabase(jsonText.text);
-
-        LootDatabase newLootDatabase = new LootDatabase();
-        foreach(var bonusType in lootDatabase.darkness_bonuses)
-        {
-            List<DarknessBonus> bonuses = new List<DarknessBonus>();
-            foreach(var bonus in bonusType.bonuses)
-            {
-                DarknessBonus darkBonus = new DarknessBonus();
-                darkBonus.DarknessLevel = bonus.darkness;
-                darkBonus.Chance = bonus.chance;
-                darkBonus.Codes = bonus.codes;
-                bonuses.Add(darkBonus);
-            }
-
-            newLootDatabase.DarknessLoot.Add(bonusType.type, bonuses);
-        }
-
-        foreach(var table in lootDatabase.loot_tables)
-        {
-            LootTable lootTable = new LootTable();
-            lootTable.Id = table.id;
-            lootTable.Difficulty = table.difficulty;
-            lootTable.Dungeon = table.dungeon;
-            
-            foreach(var entry in table.entries)
-            {
-                switch(entry.type)
-                {
-                    case "nothing":
-                        LootEntry lootEntry = new LootEntry();
-                        lootEntry.Chance = entry.chances;
-                        lootTable.Entries.Add(lootEntry);
-                        break;
-                    case "table":
-                        LootEntryTable lootEntryTable = new LootEntryTable();
-                        lootEntryTable.Chance = entry.chances;
-                        lootEntryTable.TableId = (string)entry.data["table"];
-                        lootTable.Entries.Add(lootEntryTable);
-                        break;
-                    case "item":
-                        LootEntryItem lootEntryItem = new LootEntryItem();
-                        lootEntryItem.Chance = entry.chances;
-                        lootEntryItem.ItemType = (string)entry.data["type"];
-                        lootEntryItem.ItemId = (string)entry.data["id"];
-                        lootEntryItem.ItemAmount = (int)(long)entry.data["amount"];
-                        lootTable.Entries.Add(lootEntryItem);                        
-                        break;
-                    case "trinket":
-                        LootEntryTrinket lootEntryTrinket = new LootEntryTrinket();
-                        lootEntryTrinket.Chance = entry.chances;
-                        lootEntryTrinket.Rarity = (string)entry.data["rarity"];
-                        lootTable.Entries.Add(lootEntryTrinket);
-                        break;
-                    case "journal_page":
-                        LootEntryJournal lootEntryJournal = new LootEntryJournal();
-                        lootEntryJournal.Chance = entry.chances;
-                        if (entry.data.ContainsKey("specific_page_index"))
-                        {
-                            lootEntryJournal.SpecificId = (int)(long)entry.data["specific_page_index"];
-                        }
-                        else
-                        {
-                            lootEntryJournal.MinIndex = (int)(long)entry.data["min_page_index"];
-                            lootEntryJournal.MaxIndex = (int)(long)entry.data["max_page_index"];
-                        }
-                        lootTable.Entries.Add(lootEntryJournal);
-                        break;
-                    default:
-                        Debug.LogError("Unknown loot entry type: " + entry.type);
-                        break;
-                }
-            }
-            if (!newLootDatabase.LootTables.ContainsKey(lootTable.Id))
-                newLootDatabase.LootTables.Add(lootTable.Id, new List<LootTable>());
-
-            newLootDatabase.LootTables[lootTable.Id].Add(lootTable);
-        }
-        return newLootDatabase;
-    }
-
     private ProvisionDatabase GetJsonProvisionDatabase()
     {
         TextAsset jsonText = Resources.Load<TextAsset>(JsonProvisionPath);
@@ -1678,7 +1594,8 @@ public class DarkestDatabase : MonoBehaviour
 
     private void LoadJsonLoot()
     {
-        LootDatabase = GetJsonLootDatabase();
+        LootDatabase = LootMapper.Parse(JsonDarkestDeserializer.GetJsonObject<JsonLootDatabase>(
+            Resources.Load<TextAsset>(JsonLootDatabasePath).text));
     }
 
     private void LoadJsonObstacles()

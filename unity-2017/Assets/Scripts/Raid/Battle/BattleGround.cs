@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
 using Sektor.DarkestDungeon.Core.Content.Campaign;
+using Sektor.DarkestDungeon.Core.Content.Database;
 
 public enum Team { Heroes, Monsters }
 public enum TurnType { HeroTurn, MonsterTurn }

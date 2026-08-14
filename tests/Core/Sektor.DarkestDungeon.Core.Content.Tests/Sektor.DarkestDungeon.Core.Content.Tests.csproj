@@ -30,6 +30,9 @@
     <Content Include="..\..\..\unity\Assets\Resources\Data\Narration.json"
              Link="Data\Narration.json"
              CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\..\unity\Assets\Resources\Data\JsonLoot.json"
+             Link="Data\JsonLoot.json"
+             CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
