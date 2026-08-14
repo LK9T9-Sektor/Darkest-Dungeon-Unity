@@ -137,6 +137,12 @@ public class EstateSceneManager : MonoBehaviour
 
         shopManager.PartyInventory.Initialize();
         DarkestDungeonManager.SkipTransactions = false;
+        Debug.Log("[DD] [ESTATE] Awake: townManager=" + (townManager == null ? "null" : "set") +
+            ", windows=" + (townManager == null || townManager.BuildingWindows == null ? -1 : townManager.BuildingWindows.Count) +
+            ", [8]=" + (townManager != null && townManager.BuildingWindows != null && townManager.BuildingWindows.Count > 8
+                ? (townManager.BuildingWindows[8] == null ? "null" : townManager.BuildingWindows[8].GetType().Name) : "n/a") +
+            ", realmInventory=" + (realmInventoryWindow == null ? "null" : "set") +
+            ", shopManager=" + (shopManager == null ? "null" : "set"));
         ((NomadWagonWindow) townManager.BuildingWindows[8]).Inventory.EventTrinketSell += realmInventoryWindow.AddTrinket;
 
         CharacterWindow.EventWindowClosed += RosterCharacterInfoClose;
@@ -175,6 +181,8 @@ public class EstateSceneManager : MonoBehaviour
         if (Instanse != this)
             return;
 
+        Debug.Log("[DD] [ESTATE] Start: RaidStatus=" + DarkestDungeonManager.RaidManager.Status +
+            ", InRaid=" + (DarkestDungeonManager.SaveData != null ? DarkestDungeonManager.SaveData.InRaid.ToString() : "SaveData null"));
         if (DarkestDungeonManager.RaidManager.Status != RaidStatus.Preparation)
         {
             DarkestDungeonManager.Campaign.NarrationRaidInfo.Clear();
@@ -264,6 +272,7 @@ public class EstateSceneManager : MonoBehaviour
         }
 
         DarkestSoundManager.StartTownSoundtrack();
+        Debug.Log("[DD] [ESTATE] Start: finished");
     }
 
     private void OnDestroy()
@@ -276,12 +285,14 @@ public class EstateSceneManager : MonoBehaviour
 
     private IEnumerator LoadEstateEvent()
     {
+        Debug.Log("[DD] [ESTATE] LoadEstateEvent: starting");
         sharedUICanvasGroup.blocksRaycasts = false;
         DarkestDungeonManager.ScreenFader.StartFaded();
         yield return new WaitForEndOfFrame();
         DarkestDungeonManager.ScreenFader.Appear(2);
         yield return new WaitForSeconds(0.5f);
         sharedUICanvasGroup.blocksRaycasts = true;
+        Debug.Log("[DD] [ESTATE] LoadEstateEvent: finished");
     }
 
     private void EnableEmbarkToProvision()

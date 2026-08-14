@@ -25,6 +25,11 @@ public class HeirloomExchangePanel : MonoBehaviour
 
     private void Start()
     {
+        Debug.Log("[DD] [ESTATE] HeirloomExchangePanel.Start: data=" + (DarkestDungeonManager.Data == null ? "null" : "set") +
+            ", exchanges=" + (DarkestDungeonManager.Data == null || DarkestDungeonManager.Data.HeirloomExchanges == null
+                ? -1 : DarkestDungeonManager.Data.HeirloomExchanges.Count) +
+            ", entries=" + exchangeEntries.Count);
+
         for(int i = 0; i < exchangeEntries.Count; i++)
         {
             exchangeEntries[i].ConnectArrow = UpdateExchangeArrows;
@@ -112,6 +117,11 @@ public class HeirloomExchangePanel : MonoBehaviour
 
     private void UpdateExchanges(bool trySetMinimum = false)
     {
+        Debug.Log("[DD] [ESTATE] HeirloomExchangePanel.UpdateExchanges: data=" + (DarkestDungeonManager.Data == null ? "null" : "set") +
+            ", exchanges=" + (DarkestDungeonManager.Data == null || DarkestDungeonManager.Data.HeirloomExchanges == null
+                ? "null" : DarkestDungeonManager.Data.HeirloomExchanges.Count.ToString()) +
+            ", current=" + CurrentHeirloom + ", trySetMinimum=" + trySetMinimum);
+
         int minPossible = DarkestDungeonManager.Data.HeirloomExchanges.
             FindAll(ex => ex.FromType == CurrentHeirloom).
             Min(currentEx => currentEx.FromAmount);
