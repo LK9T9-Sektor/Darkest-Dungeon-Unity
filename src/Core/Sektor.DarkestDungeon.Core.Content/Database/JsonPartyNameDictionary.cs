@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 
-using Newtonsoft.Json;
-
 namespace Sektor.DarkestDungeon.Core.Content.Database
 {
     /// <summary>
@@ -10,7 +8,6 @@ namespace Sektor.DarkestDungeon.Core.Content.Database
     public class JsonPartyNameDictionary
     {
         /// <summary>Gets the available party names.</summary>
-        [JsonProperty("party_names")]
-        public List<JsonPartyNameEntry> PartyNames { get; set; }
+        public List<JsonPartyNameEntry> party_names { get; set; }
     }
 }

@@ -1,15 +1,17 @@
-# Provision Unity plugin delivery for the Lan Steam transport.
+# Provision Unity plugin delivery for the Lan transport and the core Content module.
 #
 # 1. Builds the Lan transport (dotnet, Steam project builds Contracts transitively);
 #    its post-build target copies the managed assemblies into each Unity project's
 #    Assets\Plugins\Internal\ (gitignored) for unity\ and unity-2017\.
-# 2. Copies the .NET Standard facade shims from the installed Unity editor into the
+# 2. Builds the core Content module; its post-build target copies the DLL/PDB into
+#    the same Assets\Plugins\Internal\ folders (unity\ and unity-2017\).
+# 3. Copies the .NET Standard facade shims from the installed Unity editor into the
 #    target project's Assets\Plugins\Internal\ so the old Mono runtime resolves the
 #    BCL types referenced by the netstandard2.0 assemblies (see src\docs\COMPABILITY.md).
 #    Required only for Unity 2017.4; Unity 6+ resolves those types natively and
 #    the MonoBleedingEdge unityjit\Facades folder no longer exists, so it is skipped.
-# 3. Copies steam_api64.dll into the target project's Assets\Plugins\x86_64\ as a native plugin.
-# 4. Ensures a local (gitignored) steam_appid.txt exists for editor/dev runs.
+# 4. Copies steam_api64.dll into the target project's Assets\Plugins\x86_64\ as a native plugin.
+# 5. Ensures a local (gitignored) steam_appid.txt exists for editor/dev runs.
 #
 # Usage: pwsh tools\provision-unity-plugins.ps1 [-ProjectPath <project>] [-UnityEditorPath <path>] [-AppId <uint>]
 
@@ -96,6 +98,10 @@ $facadesSource = Join-Path $UnityEditorPath "Editor\Data\MonoBleedingEdge\lib\mo
 
 Write-Host "==> Building Lan transport (Steam project builds Contracts transitively)"
 dotnet build (Join-Path $repoRoot "src\Lan\Sektor.DarkestDungeon.Lan.Steam\Sektor.DarkestDungeon.Lan.Steam.csproj") --nologo -v q -p:AllowMissingPrunePackageData=true
+if ($LASTEXITCODE -ne 0) { throw "dotnet build failed" }
+
+Write-Host "==> Building core Content module"
+dotnet build (Join-Path $repoRoot "src\Core\Sektor.DarkestDungeon.Core.Content\Sektor.DarkestDungeon.Core.Content.csproj") --nologo -v q
 if ($LASTEXITCODE -ne 0) { throw "dotnet build failed" }
 
 Write-Host "==> Copying .NET Standard facades"

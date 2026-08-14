@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 
-using Newtonsoft.Json;
-
 namespace Sektor.DarkestDungeon.Core.Content.Database
 {
     /// <summary>
@@ -10,11 +8,9 @@ namespace Sektor.DarkestDungeon.Core.Content.Database
     public class JsonHeirLoomMarket
     {
         /// <summary>Gets the identifier of the market.</summary>
-        [JsonProperty("id")]
-        public string Id { get; set; }
+        public string id { get; set; }
 
         /// <summary>Gets the exchange rates available in this market.</summary>
-        [JsonProperty("exchange_rates")]
-        public List<JsonHeirloomExchangeEntry> ExchangeRates { get; set; }
+        public List<JsonHeirloomExchangeEntry> exchange_rates { get; set; }
     }
 }

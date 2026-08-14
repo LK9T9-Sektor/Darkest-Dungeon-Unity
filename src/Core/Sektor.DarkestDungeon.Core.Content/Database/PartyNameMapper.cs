@@ -18,13 +18,13 @@ namespace Sektor.DarkestDungeon.Core.Content.Database
         {
             var partyNames = new List<PartyNameEntry>();
 
-            for (int i = 0; i < jsonPartyNames.PartyNames.Count; i++)
+            for (int i = 0; i < jsonPartyNames.party_names.Count; i++)
             {
-                var entry = jsonPartyNames.PartyNames[i];
+                var entry = jsonPartyNames.party_names[i];
                 var partyName = new PartyNameEntry
                 {
-                    Id = entry.Id,
-                    ClassIds = entry.RequiredHeroClass
+                    Id = entry.id,
+                    ClassIds = entry.required_hero_class
                 };
                 partyNames.Add(partyName);
             }

@@ -18,15 +18,15 @@ namespace Sektor.DarkestDungeon.Core.Content.Database
         {
             var exchanges = new List<HeirloomExchange>();
 
-            for (int i = 0; i < jsonExchange.Markets[0].ExchangeRates.Count; i++)
+            for (int i = 0; i < jsonExchange.markets[0].exchange_rates.Count; i++)
             {
-                var entry = jsonExchange.Markets[0].ExchangeRates[i];
+                var entry = jsonExchange.markets[0].exchange_rates[i];
                 var exchange = new HeirloomExchange
                 {
-                    FromType = entry.ExchangeFromType,
-                    FromAmount = entry.ExchangeFromAmount,
-                    ToType = entry.ExchangeToType,
-                    ToAmount = entry.ExchangeToAmount
+                    FromType = entry.exchange_from_type,
+                    FromAmount = entry.exchange_from_amount,
+                    ToType = entry.exchange_to_type,
+                    ToAmount = entry.exchange_to_amount
                 };
                 exchanges.Add(exchange);
             }

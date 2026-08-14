@@ -91,3 +91,15 @@
 - Вероятные причины (требуют дальнейшего разбора): приложение не зарегистрировано как Steam-игра
   (steam_appid.txt локальный, не поставляется в сборке), связка AppID ↔ аккаунт, обработка
   `steam://joinlobby/` самим клиентом Steam.
+
+## 13. Newtonsoft.Json и Unity 2017.4: контракты net6.0 не читаются
+
+- Сборки Newtonsoft.Json 11/12/13 из nuget (включая `lib\net45` и `lib\netstandard2.0`) ссылаются на
+  контрактные сборки net6.0 (`System.Runtime, Version=6.0.0.0` и т.д.). Компилятор Unity 2017.4 не
+  резолвит их → `error CS0009: Metadata file '...Newtonsoft.Json.dll' does not contain valid metadata`.
+- Оба проекта поставляют Newtonsoft 4.0.2.0 (`Assets\Plugins`, корень) / 4.5.0.0 (`Photon Unity
+  Networking\Plugins`). Поэтому ядро `src\Core\Content` **не ссылается на Newtonsoft**: DTO-члены —
+  snake_case по legacy-JSON, без `[JsonProperty]`, десериализация в адаптере презентации
+  (`JsonDarkestDeserializer.GetJsonObject<T>`) штатным Newtonsoft проекта.
+- Переход к целевому состоянию (`[JsonProperty]`/прямая десериализация в ядре) возможен только после
+  того, как оба проекта получат Newtonsoft, читаемый компилятором 2017.4.

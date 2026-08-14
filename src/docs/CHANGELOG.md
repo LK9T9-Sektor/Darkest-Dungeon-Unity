@@ -4,10 +4,11 @@
 
 ### Вынос контента в чистое ядро (Фаза 1, первый срез)
 
-- Новый модуль `src\Core\Content` (netstandard2.0, C# 7.3): модели `Campaign\` (`HeirloomExchange`, `PartyNameEntry`) и `Database\` (DTO `Json*` с `[JsonProperty]` + мапперы `HeirloomExchangeMapper`/`PartyNameMapper`). DLL доставляются пост-билдом в `Assets\Plugins\Internal` обоих проектов.
+- Новый модуль `src\Core\Content` (netstandard2.0, C# 7.3): модели `Campaign\` (`HeirloomExchange`, `PartyNameEntry`) и `Database\` (DTO `Json*` + мапперы `HeirloomExchangeMapper`/`PartyNameMapper`). DLL доставляются пост-билдом в `Assets\Plugins\Internal` обоих проектов.
 - `DarkestDatabase` стал тоньше: `LoadHeirloomExchanges`/`LoadPartyNames` сводятся к вызовам мапперов ядра; JSON-десериализация (`JsonConvert`) остаётся в адаптере презентации.
 - NUnit-тесты `tests\Core\Content` на реальных данных (`HeirloomExchange.json`, `PartyNames.json`).
-- DTO — PascalCase с `[JsonProperty("snake_case")]`; рукописные мапперы — переходное состояние, целевой путь — прямая десериализация Newtonsoft в ядре (Unity уже содержит Newtonsoft.Json 13.0.0.0).
+- DTO — snake_case-члены без `[JsonProperty]`, ядро не зависит от Newtonsoft: сборки Newtonsoft 11/12/13 (включая `net45`/`netstandard2.0`) ссылаются на контракты net6.0 и дают `CS0009` в Unity 2017.4, поэтому атрибуты невозможны до перехода проектов на совместимый Newtonsoft.
+- Исправление стартовой загрузки данных/кампании после синка с веткой: `tools\provision-unity-plugins.ps1` теперь также собирает `src\Core\Content` и доставляет его DLL/PDB в `Assets\Plugins\Internal` обоих проектов (ранее сборка отсутствовала → `CS0246`, игра не стартовала).
 
 
 ### Unity 6.5 (6000.5.8f1): EntityId-миграция
