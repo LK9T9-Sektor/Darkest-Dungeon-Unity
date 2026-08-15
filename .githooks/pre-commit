@@ -5,7 +5,7 @@
 
 ROOT=$(git rev-parse --show-toplevel)
 
-pwsh -NoProfile -File "$ROOT/tools/check-script-references.ps1" -ProjectPath unity || exit 1
-pwsh -NoProfile -File "$ROOT/tools/check-script-references.ps1" -ProjectPath unity-2017 || exit 1
+pwsh -NoProfile -File "$ROOT/tools/unity-check-script-references.ps1" -ProjectPath unity || exit 1
+pwsh -NoProfile -File "$ROOT/tools/unity-check-script-references.ps1" -ProjectPath unity-2017 || exit 1
 
 exit 0

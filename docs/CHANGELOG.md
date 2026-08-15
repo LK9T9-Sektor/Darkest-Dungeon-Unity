@@ -21,7 +21,7 @@
 - `DarkestDatabase` стал тоньше: `LoadHeirloomExchanges`/`LoadPartyNames` сводятся к вызовам мапперов ядра; JSON-десериализация (`JsonConvert`) остаётся в адаптере презентации.
 - NUnit-тесты `tests\Core\Content` на реальных данных (`HeirloomExchange.json`, `PartyNames.json`).
 - DTO — snake_case-члены без `[JsonProperty]`, ядро не зависит от Newtonsoft: сборки Newtonsoft 11/12/13 (включая `net45`/`netstandard2.0`) ссылаются на контракты net6.0 и дают `CS0009` в Unity 2017.4, поэтому атрибуты невозможны до перехода проектов на совместимый Newtonsoft.
-- Исправление стартовой загрузки данных/кампании после синка с веткой: `tools\provision-unity-plugins.ps1` теперь также собирает `src\Core\Content` и доставляет его DLL/PDB в `Assets\Plugins\Internal` обоих проектов (ранее сборка отсутствовала → `CS0246`, игра не стартовала).
+- Исправление стартовой загрузки данных/кампании после синка с веткой: `tools\unity-provision-plugins.ps1` теперь также собирает `src\Core\Content` и доставляет его DLL/PDB в `Assets\Plugins\Internal` обоих проектов (ранее сборка отсутствовала → `CS0246`, игра не стартовала).
 
 
 ### Unity 6.5 (6000.5.8f1): EntityId-миграция
@@ -49,8 +49,8 @@
 
 ### Запуск игры без редактора
 
-- Скрипты `tools\build-game.ps1`, `tools\run-game.ps1`, `tools\dev-run.ps1` и точка сборки `BuildGame.Build` (`Assets\Editor\BuildGame.cs`): сборка standalone Windows x64 через Unity batchmode (включает проверку блокировки проекта, доставку плагинов Lan, размещение `steam_appid.txt` рядом с exe) и запуск собранного плеера без открытия редактора. Вывод — `Build\Darkest Dungeon\Darkest Dungeon.exe`.
-- `tools\compile-check.ps1` — быстрая проверка компиляции скриптов (включая `Assets\Editor`) в таргетной Unity 2017.4 без сборки плеера: batchmode импорт + компиляция, разбор лога на `error CS`/`Compilation failed`.
+- Скрипты `tools\unity-build-game.ps1`, `tools\unity-run-game.ps1`, `tools\unity-dev-run.ps1` и точка сборки `BuildGame.Build` (`Assets\Editor\BuildGame.cs`): сборка standalone Windows x64 через Unity batchmode (включает проверку блокировки проекта, доставку плагинов Lan, размещение `steam_appid.txt` рядом с exe) и запуск собранного плеера без открытия редактора. Вывод — `Build\Darkest Dungeon\Darkest Dungeon.exe`.
+- `tools\unity-compile-check.ps1` — быстрая проверка компиляции скриптов (включая `Assets\Editor`) в таргетной Unity 2017.4 без сборки плеера: batchmode импорт + компиляция, разбор лога на `error CS`/`Compilation failed`.
 
 ### Steam Lobby ID в интерфейсе
 
@@ -100,7 +100,7 @@
 - `Sektor.DarkestDungeon.Lan.Contracts` — интерфейс транспорта `ITransport` (сессия = лобби, сообщения = `TransportMessage`), `Result`/`Result<T>`, кодек `ITransportCodec`. Без зависимостей.
 - `Sektor.DarkestDungeon.Lan.Steam` — `SteamTransport`: Steam P2P (надёжный канал, channel 1), сессии Steam Lobies, собственный interop-слой (`Interop\`, P/Invoke на flat-API с manual dispatch), rich presence `connect` для входа по приглашению.
 - Автодоставка: post-build копирует `*.dll`/`*.pdb` в `Assets\Plugins\Internal\` (вместе с .NET Standard facade-шимами из редактора — см. `COMPABILITY.md`); `steam_api64.dll` — native-плагин `Assets\Plugins\x86_64\`; локальный `steam_appid.txt` (480) для dev-запусков.
-- Скрипт доставки: `tools\provision-unity-plugins.ps1`.
+- Скрипт доставки: `tools\unity-provision-plugins.ps1`.
 
 ### Unity-слой (`Assets\Scripts\Networking\`)
 

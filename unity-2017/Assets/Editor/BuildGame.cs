@@ -6,7 +6,7 @@ using UnityEngine;
 
 /// <summary>
 /// Headless Windows x64 build entry point for the game. Invoked from the batch-mode
-/// build script (tools\build-game.ps1) via -executeMethod BuildGame.Build and also
+/// build script (tools\unity-build-game.ps1) via -executeMethod BuildGame.Build and also
 /// exposed as a manual editor menu item. The version is synchronized automatically
 /// before the build by the GameInfoVersionSync preprocess callback.
 /// </summary>

@@ -91,8 +91,8 @@ src\Networking\                       (чистый C#, без Unity/игров�
 
 ### 6. Сборка/проверка
 
-- `dotnet build` + `dotnet test`; `pwsh tools\compile-check.ps1` (проект закрыт;
-  `-Provision` для плагинов); опционально `build-game.ps1`.
+- `dotnet build` + `dotnet test`; `pwsh tools\unity-compile-check.ps1` (проект закрыт;
+  `-Provision` для плагинов); опционально `unity-build-game.ps1`.
 
 ### 7. Документация (один коммит с кодом)
 
@@ -107,5 +107,5 @@ src\Networking\                       (чистый C#, без Unity/игров�
 2. **`Cmd`-консоль:** оставить `src\Networking\Cmd` как generic smoke-клиент (по умолчанию)
    или вынести в `samples\`.
 3. **Два дерева:** изменения применяются к обоим (`unity\` и `unity-2017\`). Проверка компиляции активного
-   `unity\` — скриптом `compile-check.ps1`; легаси `unity-2017\` — вручную (если в окружении нет Unity 2017.4),
+   `unity\` — скриптом `unity-compile-check.ps1`; легаси `unity-2017\` — вручную (если в окружении нет Unity 2017.4),
    ошибки правятся по ходу их появления.

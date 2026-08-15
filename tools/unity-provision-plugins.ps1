@@ -7,13 +7,13 @@
 #    the same Assets\Plugins\Internal\ folders (unity\ and unity-2017\).
 # 3. Copies the .NET Standard facade shims from the installed Unity editor into the
 #    target project's Assets\Plugins\Internal\ so the old Mono runtime resolves the
-#    BCL types referenced by the netstandard2.0 assemblies (see src\docs\COMPABILITY.md).
+#    BCL types referenced by the netstandard2.0 assemblies (see docs\COMPABILITY.md).
 #    Required only for Unity 2017.4; Unity 6+ resolves those types natively and
 #    the MonoBleedingEdge unityjit\Facades folder no longer exists, so it is skipped.
 # 4. Copies steam_api64.dll into the target project's Assets\Plugins\x86_64\ as a native plugin.
 # 5. Ensures a local (gitignored) steam_appid.txt exists for editor/dev runs.
 #
-# Usage: pwsh tools\provision-unity-plugins.ps1 [-ProjectPath <project>] [-UnityEditorPath <path>] [-AppId <uint>]
+# Usage: pwsh tools\unity-provision-plugins.ps1 [-ProjectPath <project>] [-UnityEditorPath <path>] [-AppId <uint>]
 
 param(
     [string]$ProjectPath = "",

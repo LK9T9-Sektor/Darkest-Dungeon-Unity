@@ -1,23 +1,20 @@
-# Compile-only verification of the Unity scripts without building the player.
-#
-# Imports the project in batch mode (Unity compiles all scripts, including Assets\Editor)
-# and then checks the log for compilation errors. Much faster than a full player build,
-# so it is the recommended check after changing code in Assets\Scripts or Assets\Editor.
+# Build the standalone Windows x64 player without opening the Unity editor.
 #
 # 1. Locates the Unity editor (known roots / UNITY_EDITOR_PATH / -UnityEditorPath).
 # 2. Aborts when the project is already open in the editor (Temp\UnityLockfile).
-# 3. Optionally provisions the Lan transport plugins (-Provision); by default they are
-#    expected to be present in Assets\Plugins\Internal (gitignored).
-# 4. Runs Unity in batch mode (no BuildPlayer), then parses the log for errors.
-# 5. Runs tools\check-script-references.ps1 to catch stale script GUIDs in scenes/prefabs.
-# 6. Exit code 0 when compilation succeeded and references resolve, 1 otherwise.
+# 3. Provisions the Lan transport plugins (tools\unity-provision-plugins.ps1).
+# 4. Runs Unity in batch mode: BuildGame.Build -> Build\Darkest Dungeon\Darkest Dungeon.exe.
+# 5. Fails (exit 1) on compilation/build errors.
+# 6. Drops steam_appid.txt next to the executable so SteamAPI_Init works in the player.
 #
-# Usage: pwsh tools\compile-check.ps1 [-ProjectPath <project>] [-UnityEditorPath <path>] [-Provision]
+# Usage: pwsh tools\unity-build-game.ps1 [-ProjectPath <project>] [-UnityEditorPath <path>] [-BuildDir <path>] [-AppId <uint>] [-SkipProvision]
 
 param(
     [string]$ProjectPath = "",
     [string]$UnityEditorPath = "",
-    [switch]$Provision
+    [string]$BuildDir = "",
+    [uint32]$AppId = 480,
+    [switch]$SkipProvision
 )
 
 $ErrorActionPreference = "Stop"
@@ -26,6 +23,12 @@ if (-not $ProjectPath) {
     $ProjectPath = "unity"
 }
 $projectRoot = Join-Path $repoRoot $ProjectPath
+
+if (-not $BuildDir) {
+    $BuildDir = Join-Path $projectRoot "Build\Darkest Dungeon"
+}
+$executableName = "Darkest Dungeon.exe"
+$executablePath = Join-Path $BuildDir $executableName
 
 function Find-UnityEditor {
     param([string]$Preferred)
@@ -79,7 +82,7 @@ function Assert-ProjectNotLocked {
     $running = Get-CimInstance Win32_Process -Filter "Name = 'Unity.exe'" -ErrorAction SilentlyContinue |
         Where-Object { $_.CommandLine -and $_.CommandLine.Contains($projectRoot) }
     if ($running) {
-        throw "The project is open in the Unity editor. Close it first, then rerun the check."
+        throw "The project is open in the Unity editor. Close it first, then rerun the build."
     }
 
     Write-Host "==> Removing stale Unity lock file ($lockPath)"
@@ -97,74 +100,76 @@ Write-Host "==> Unity editor: $UnityEditorPath"
 
 Assert-ProjectNotLocked
 
-if ($Provision) {
+if (-not $SkipProvision) {
     Write-Host "==> Provisioning Lan transport plugins"
-    & (Join-Path $PSScriptRoot "provision-unity-plugins.ps1") -ProjectPath $ProjectPath -UnityEditorPath $UnityEditorPath
+    & (Join-Path $PSScriptRoot "unity-provision-plugins.ps1") -ProjectPath $ProjectPath -UnityEditorPath $UnityEditorPath -AppId $AppId
     if ($LASTEXITCODE -ne 0) {
         throw "Plugin provisioning failed."
     }
 }
 
-$logPath = Join-Path $env:TEMP ("unity-compile-" + [DateTime]::Now.ToString("yyyyMMdd-HHmmss") + ".log")
+Write-Host "==> Building player to: $BuildDir"
+New-Item -ItemType Directory -Force -Path $BuildDir | Out-Null
+
+$logPath = Join-Path $env:TEMP ("unity-build-" + [DateTime]::Now.ToString("yyyyMMdd-HHmmss") + ".log")
+$previousBuildDir = $env:DD_BUILD_DIR
+$env:DD_BUILD_DIR = $BuildDir
 
 # Unity.exe is a GUI subsystem application: a plain "&" call returns immediately, so
 # the process is waited on explicitly and its real exit code is captured.
 $unityArguments = @(
     "-batchmode", "-quit", "-nographics",
     "-projectPath", ('"' + $projectRoot + '"'),
+    "-executeMethod", "BuildGame.Build",
     "-logFile", ('"' + $logPath + '"')
 )
-
-function Test-CompileResult {
-    param([string]$CompileLogPath)
-
-    if (-not (Test-Path $CompileLogPath)) {
-        return $true
+try {
+    $unityProcess = Start-Process -FilePath $unityExe -ArgumentList $unityArguments -PassThru -Wait
+    $unityExitCode = $unityProcess.ExitCode
+}
+finally {
+    if ($previousBuildDir -eq $null) {
+        Remove-Item Env:DD_BUILD_DIR -ErrorAction SilentlyContinue
     }
-
-    $logText = Get-Content $CompileLogPath -Raw
-    $hasErrorMarker = $logText -match "error CS\d+|Compilation failed|: error :"
-    $hasLoadMarker = $logText -match "Compilation succeeded|Reloading assemblies after script compilation|successfully reloaded assembly"
-    return ($hasErrorMarker -or -not $hasLoadMarker)
+    else {
+        $env:DD_BUILD_DIR = $previousBuildDir
+    }
 }
 
-$unityProcess = Start-Process -FilePath $unityExe -ArgumentList $unityArguments -PassThru -Wait
-$unityExitCode = $unityProcess.ExitCode
 Write-Host "==> Unity exited with code $unityExitCode. Log: $logPath"
 
-$failed = Test-CompileResult -CompileLogPath $logPath
-
-# A deleted source file can leave a stale entry in the incremental compile cache
-# (error CS2001); clear the compiled script assemblies and retry once.
-if ($failed -and (Test-Path $logPath)) {
+$failed = $false
+if (Test-Path $logPath) {
     $logText = Get-Content $logPath -Raw
-    if ($logText -match "error CS2001:") {
-        Write-Host "==> Stale script cache detected (deleted source file). Clearing Library\ScriptAssemblies and retrying."
-        Remove-Item (Join-Path $projectRoot "Library\ScriptAssemblies\*") -Force -ErrorAction SilentlyContinue
-
-        $logPath = Join-Path $env:TEMP ("unity-compile-" + [DateTime]::Now.ToString("yyyyMMdd-HHmmss") + ".log")
-        $unityArguments[$unityArguments.Length - 1] = ('"' + $logPath + '"')
-        $unityProcess = Start-Process -FilePath $unityExe -ArgumentList $unityArguments -PassThru -Wait
-        $unityExitCode = $unityProcess.ExitCode
-        Write-Host "==> Unity exited with code $unityExitCode. Log: $logPath"
-        $failed = Test-CompileResult -CompileLogPath $logPath
+    if ($logText -match "error CS\d+|Compilation failed|Build failed|BuildGame\.Build.*failed|: error :") {
+        $failed = $true
     }
+}
+
+if (-not (Test-Path $executablePath)) {
+    $failed = $true
 }
 
 if ($failed) {
-    Write-Host "==> Compilation FAILED. Last lines of the log:"
+    Write-Host "==> Build FAILED. Last lines of the log:"
     if (Test-Path $logPath) {
         Get-Content $logPath -Tail 40
     }
     exit 1
 }
 
-Write-Host "==> Compilation succeeded."
+Write-Host "==> Build succeeded: $executablePath"
 
-# Verify that every scene/prefab script reference resolves to a committed .meta GUID.
-# Catches the stale-GUID failure mode (Unity regenerated metas, scenes kept old guids),
-# which silently drops components at load time. See tools\check-script-references.ps1.
-& (Join-Path $PSScriptRoot "check-script-references.ps1") -ProjectPath $ProjectPath
-if ($LASTEXITCODE -ne 0) {
-    exit 1
+Write-Host "==> Placing steam_appid.txt next to the executable"
+$appIdFile = Join-Path $repoRoot "steam_appid.txt"
+$targetAppIdFile = Join-Path $BuildDir "steam_appid.txt"
+if (-not (Test-Path $targetAppIdFile)) {
+    if (Test-Path $appIdFile) {
+        Copy-Item -Path $appIdFile -Destination $targetAppIdFile -Force
+    }
+    else {
+        Set-Content -Path $targetAppIdFile -Value $AppId -NoNewline
+    }
 }
+
+Write-Host "Done. Run with tools\unity-run-game.ps1 or tools\unity-dev-run.ps1"

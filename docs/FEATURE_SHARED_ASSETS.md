@@ -20,7 +20,7 @@ content\    (трекается, малое)  data\ локализация\ шр
 assets\     (локально, gitignored)  spine\ sprites\ audio\ fmod\  → unity\Assets\Sprites|Audio|StreamingAssets + unity-2017\…
 ```
 - **`tools\sync-assets.ps1`** — зеркалит `content\`+`assets\` в оба проекта (по хэшам, копирует только
-  изменённое); запуск перед `compile-check.ps1`/сборкой.
+  изменённое); запуск перед `unity-compile-check.ps1`/сборкой.
 - Каждый проект импортирует **свои копии** → свой `.meta` → ноль коллизий GUID.
 - **Десктоп** читает `content\`+`assets\` напрямую (без Unity и без синка).
 - Правка: изменили источник → синк → реимпорт в Unity.

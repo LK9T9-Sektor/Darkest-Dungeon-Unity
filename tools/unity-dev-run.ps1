@@ -3,7 +3,7 @@
 # Builds Build\Darkest Dungeon\Darkest Dungeon.exe when it is missing and then launches
 # it. Pass through options are forwarded to the underlying scripts.
 #
-# Usage: pwsh tools\dev-run.ps1 [-ProjectPath <project>] [-UnityEditorPath <path>] [-BuildDir <path>] [-AppId <uint>] [-SkipProvision]
+# Usage: pwsh tools\unity-dev-run.ps1 [-ProjectPath <project>] [-UnityEditorPath <path>] [-BuildDir <path>] [-AppId <uint>] [-SkipProvision]
 
 param(
     [string]$ProjectPath = "",
@@ -34,7 +34,7 @@ if (-not (Test-Path $executablePath)) {
     $buildParams.AppId = $AppId
     if ($SkipProvision) { $buildParams.SkipProvision = $true }
 
-    & (Join-Path $PSScriptRoot "build-game.ps1") @buildParams
+    & (Join-Path $PSScriptRoot "unity-build-game.ps1") @buildParams
     if ($LASTEXITCODE -ne 0) {
         throw "Build failed; the game was not launched."
     }
@@ -44,4 +44,4 @@ $runParams = @{}
 if ($ProjectPath) { $runParams.ProjectPath = $ProjectPath }
 if ($BuildDir) { $runParams.BuildDir = $BuildDir }
 $runParams.AppId = $AppId
-& (Join-Path $PSScriptRoot "run-game.ps1") @runParams
+& (Join-Path $PSScriptRoot "unity-run-game.ps1") @runParams

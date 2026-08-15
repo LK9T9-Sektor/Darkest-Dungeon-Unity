@@ -46,7 +46,7 @@
 - Сетевые контракты компилируются под netstandard2.0; основной игровой код — нет.
 - Доставка в `Assets\Plugins\Internal` пост-билдом копирует собранные DLL/PDB (см. `EXTRACTION_PLAN.md` §5).
   .NET Standard facade-шимы (`COMPABILITY.md` §1) требовались старому Mono Unity 2017.4; после перехода на
-  Unity 6000.5.8f1 фасады не нужны (нативный type-forwarding) — `tools\provision-unity-plugins.ps1` их
+  Unity 6000.5.8f1 фасады не нужны (нативный type-forwarding) — `tools\unity-provision-plugins.ps1` их
   пропускает. Доставка идёт автоматически: `-UnityEditorPath` → `UNITY_EDITOR_PATH` → `editors.json` Unity Hub
   → типовые каталоги установки; собранные DLL и `steam_appid.txt` остаются gitignored.
 
@@ -112,6 +112,6 @@
 - **Причина:** squash/миграция пере-импортировала проект и Unity перегенерировала `.meta` скриптов
   (новые GUID), а сцены/префабы остались со старыми GUID. Уже было: 13 окон зданий
   (`AbbeyWindow`…`UpgradeWindow`) после `5562173`.
-- **Защита:** `tools\check-script-references.ps1` (в `compile-check.ps1` и pre-commit hook) — падает,
+- **Защита:** `tools\unity-check-script-references.ps1` (в `unity-compile-check.ps1` и pre-commit hook) — падает,
   если `m_Script`-GUID в `.unity`/`.prefab` не резолвится в закоммиченную `.meta`. Правило в `AGENTS.md`:
   не давать Unity перегенерировать `.meta`, восстанавливать оригинал при «Imported GUID … new».

@@ -10,7 +10,7 @@
 # 4. Flags .cs files that are missing their .cs.meta (Unity would regenerate a new guid).
 # Exit code 0 when clean, 1 otherwise.
 #
-# Usage: pwsh tools\check-script-references.ps1 [-ProjectPath <project>]
+# Usage: pwsh tools\unity-check-script-references.ps1 [-ProjectPath <project>]
 
 param(
     [string]$ProjectPath = ""

@@ -10,7 +10,7 @@
 ## 0. Рабочий процесс git
 
 - Работа ведётся на **отдельных ветках под задачу** (`core/<срез>`, от `main`).
-- После завершения работы и авто-проверок (`dotnet test`, `compile-check`) открывается
+- После завершения работы и авто-проверок (`dotnet test`, `unity-compile-check`) открывается
   **pull request `core/<срез>` → `main`**.
 - **Мердж — только после явного одобрения пользователя** (он сначала проверяет в игре).
   Squash-мердж по одобрению; ветка удаляется после мерджа.
@@ -45,11 +45,11 @@
 ```
 repo/
 ├── AGENTS.md            # карта-манифест, правила
+├── docs/                # документация (см. INDEX.md)
 ├── src/
 │   ├── Core/            # домен: Common, Content, Save, Combat, Campaign, Modes
 │   ├── Networking/      # транспорт: Contracts, Steam, Photon (из Lan\)
-│   ├── External/        # вендоренный референс (read-only)
-│   └── docs/
+│   └── External/        # вендоренный референс (read-only)
 ├── content/             # общие ресурсы-данные (трекаются): контент, локализация (см. FEATURE_SHARED_ASSETS)
 ├── assets/              # тяжёлые ассеты (локально, gitignored): spine, спрайты, аудио
 ├── tests/               # NUnit, зеркалит src/
@@ -112,7 +112,7 @@ repo/
 
 - `tools\*.ps1` получают параметр `-ProjectPath` (по умолчанию `unity\`): compile-check, сборка, запуск,
   провижнинг.
-- `provision-unity-plugins.ps1` собирает ядро и доставляет DLL/PDB в `Assets\Plugins\Internal` обоих
+- `unity-provision-plugins.ps1` собирает ядро и доставляет DLL/PDB в `Assets\Plugins\Internal` обоих
   проектов; фасады .NET Standard — только для 2017-редактора.
 - `sync-assets.ps1` — зеркалит общие ресурсы в оба проекта (см. `FEATURE_SHARED_ASSETS.md`).
 - `build-core.ps1` — сборка + тесты всех `src\Core`/`src\Networking`.

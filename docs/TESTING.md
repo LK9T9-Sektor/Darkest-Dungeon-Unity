@@ -1,7 +1,7 @@
 # TESTING.md — Как проверить в игре
 
 Ручная проверка поведения после изменений кода. Автопроверки (`dotnet test`,
-`tools\compile-check.ps1`) не заменяют её: они ловят компиляцию и ссылки, а поведение
+`tools\unity-compile-check.ps1`) не заменяют её: они ловят компиляцию и ссылки, а поведение
 проверяется в игре.
 
 ## Правило поддержки
@@ -14,11 +14,11 @@
 ## Как запустить
 
 - Активная версия: `unity\` (Unity 6000). Легаси: `unity-2017\` (Unity 2017.4).
-- Плагины ядра (gitignored): `pwsh tools\compile-check.ps1 -ProjectPath unity -Provision`
+- Плагины ядра (gitignored): `pwsh tools\unity-compile-check.ps1 -ProjectPath unity -Provision`
   (собирает Lan + Content + Ui и доставляет DLL/PDB в `Assets\Plugins\Internal`).
 - Локальный `steam_appid.txt` создаётся автоматически; для Photon нужен AppID из
   `PhotonServerSettings.asset` и доступ к облаку Photon.
-- Запуск: открыть проект в редакторе и нажать Play, либо `pwsh tools\dev-run.ps1`.
+- Запуск: открыть проект в редакторе и нажать Play, либо `pwsh tools\unity-dev-run.ps1`.
 
 ## Где смотреть логи
 
@@ -144,7 +144,7 @@
 
 ```
 dotnet test tests/Core/Sektor.DarkestDungeon.Core.Content.Tests/Sektor.DarkestDungeon.Core.Content.Tests.csproj
-pwsh tools\compile-check.ps1 -ProjectPath unity            # редактор unity\ закрыт
-pwsh tools\compile-check.ps1 -ProjectPath unity-2017 -UnityEditorPath "E:\ProgramFiles\Unity2017.4.40f1"
-pwsh tools\check-script-references.ps1 -ProjectPath unity  # проверка скрипт-ссылок (GUID)
+pwsh tools\unity-compile-check.ps1 -ProjectPath unity            # редактор unity\ закрыт
+pwsh tools\unity-compile-check.ps1 -ProjectPath unity-2017 -UnityEditorPath "E:\ProgramFiles\Unity2017.4.40f1"
+pwsh tools\unity-check-script-references.ps1 -ProjectPath unity  # проверка скрипт-ссылок (GUID)
 ```

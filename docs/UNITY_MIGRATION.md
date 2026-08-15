@@ -74,5 +74,5 @@ Path 'traits[0].reaction_act_outs[0].chance'
   - `Assets\Spine\SpineUnity\Editor\SpineEditorUtilities.cs` — три `Dictionary<int, …>` → `Dictionary<EntityId, …>`, событие → `hierarchyWindowItemByEntityIdOnGUI`, сигнатура обработчика `(EntityId instanceId, Rect)`.
 - FMOD (vendored, минимальный дифф):
   - `Assets\Plugins\Editor\FMOD\EventBrowser.cs` — событие → `hierarchyWindowItemByEntityIdOnGUI`, обработчик `(EntityId instance, Rect rect)`, `InstanceIDToObject(instance)` → `EntityIdToObject(instance)`.
-- Инструменты: `tools\compile-check.ps1`/`build-game.ps1`/`provision-unity-plugins.ps1` находят редактор 6000.5.8f1 (`C:\Program Files\Unity\Hub\Editor\6000.5.8f1`). Фасады .NET Standard для Unity 6+ не требуются (нативный type-forwarding; каталог `MonoBleedingEdge\lib\mono\unityjit\Facades` в 6.5 отсутствует) — доставка фасадов пропускается.
-- Проверка: `pwsh tools\compile-check.ps1 -UnityEditorPath <editor 6.5> -Provision` → `Compilation succeeded`.
+- Инструменты: `tools\unity-compile-check.ps1`/`unity-build-game.ps1`/`unity-provision-plugins.ps1` находят редактор 6000.5.8f1 (`C:\Program Files\Unity\Hub\Editor\6000.5.8f1`). Фасады .NET Standard для Unity 6+ не требуются (нативный type-forwarding; каталог `MonoBleedingEdge\lib\mono\unityjit\Facades` в 6.5 отсутствует) — доставка фасадов пропускается.
+- Проверка: `pwsh tools\unity-compile-check.ps1 -UnityEditorPath <editor 6.5> -Provision` → `Compilation succeeded`.
