@@ -1,8 +1,25 @@
 ﻿<Solution>
-  <Project Path="Assembly-CSharp.csproj" />
-  <Project Path="Assembly-CSharp-Editor.csproj" />
-  <Project Path="Assembly-CSharp-Editor-firstpass.csproj" />
-  <Project Path="Assembly-CSharp-firstpass.csproj" />
+  <Folder Name="/unity/">
+    <Project Path="unity/Assembly-CSharp.csproj" />
+    <Project Path="unity/Assembly-CSharp-Editor.csproj" />
+    <Project Path="unity/Assembly-CSharp-Editor-firstpass.csproj" />
+    <Project Path="unity/Assembly-CSharp-firstpass.csproj" />
+  </Folder>
+  <Folder Name="/unity-2017/">
+    <Project Path="unity-2017/Assembly-CSharp.csproj">
+      <Name>Assembly-CSharp (2017)</Name>
+    </Project>
+    <Project Path="unity-2017/Assembly-CSharp-Editor.csproj">
+      <Name>Assembly-CSharp-Editor (2017)</Name>
+    </Project>
+    <Project Path="unity-2017/Assembly-CSharp-Editor-firstpass.csproj">
+      <Name>Assembly-CSharp-Editor-firstpass (2017)</Name>
+    </Project>
+    <Project Path="unity-2017/Assembly-CSharp-firstpass.csproj">
+      <Name>Assembly-CSharp-firstpass (2017)</Name>
+    </Project>
+  </Folder>
+  <Folder Name="/docs/" />
   <Folder Name="/src/" />
   <Folder Name="/src/Core/">
     <Project Path="src/Core/Sektor.DarkestDungeon.Core.Content/Sektor.DarkestDungeon.Core.Content.csproj" />
