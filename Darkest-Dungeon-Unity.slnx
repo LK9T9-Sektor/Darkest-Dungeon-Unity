@@ -1,4 +1,4 @@
-﻿<Solution>
+<Solution>
   <Folder Name="/unity/">
     <Project Path="unity/Assembly-CSharp.csproj" />
     <Project Path="unity/Assembly-CSharp-Editor.csproj" />
@@ -6,20 +6,46 @@
     <Project Path="unity/Assembly-CSharp-firstpass.csproj" />
   </Folder>
   <Folder Name="/unity-2017/">
-    <Project Path="unity-2017/Assembly-CSharp.csproj">
+    <Project Path="unity-2017/Assembly-CSharp.csproj" Id="8f1eb6df-d88e-5dec-6770-1b02ea2153bc">
       <Name>Assembly-CSharp (2017)</Name>
     </Project>
-    <Project Path="unity-2017/Assembly-CSharp-Editor.csproj">
+    <Project Path="unity-2017/Assembly-CSharp-Editor.csproj" Id="89feacb8-e56e-9fd1-93d5-6d577f11e27b">
       <Name>Assembly-CSharp-Editor (2017)</Name>
     </Project>
-    <Project Path="unity-2017/Assembly-CSharp-Editor-firstpass.csproj">
+    <Project Path="unity-2017/Assembly-CSharp-Editor-firstpass.csproj" Id="ec507cbe-af66-6d29-8281-f5fcd9998c37">
       <Name>Assembly-CSharp-Editor-firstpass (2017)</Name>
     </Project>
-    <Project Path="unity-2017/Assembly-CSharp-firstpass.csproj">
+    <Project Path="unity-2017/Assembly-CSharp-firstpass.csproj" Id="75d59b53-76ba-9050-9b91-aed94df050ad">
       <Name>Assembly-CSharp-firstpass (2017)</Name>
     </Project>
   </Folder>
-  <Folder Name="/docs/" />
+  <Folder Name="/docs/">
+    <File Path="docs/ARCHITECTURE.md" />
+    <File Path="docs/CHANGELOG.md" />
+    <File Path="docs/COMPABILITY.md" />
+    <File Path="docs/EXTRACTION_PLAN.md" />
+    <File Path="docs/FEATURE_COOP.md" />
+    <File Path="docs/FEATURE_COOP_CAMPAIGN.md" />
+    <File Path="docs/FEATURE_DESKTOP_CLIENT.md" />
+    <File Path="docs/FEATURE_FLAGS.md" />
+    <File Path="docs/FEATURE_GAME_MODES.md" />
+    <File Path="docs/FEATURE_SHARED_ASSETS.md" />
+    <File Path="docs/FEATURE_STS_MODE.md" />
+    <File Path="docs/INDEX.md" />
+    <File Path="docs/ISSUE_SAVE_UI.md" />
+    <File Path="docs/KNOWN_ISSUES.md" />
+    <File Path="docs/NETWORK.md" />
+    <File Path="docs/NETWORK_LAYER_REUSE.md" />
+    <File Path="docs/NETWORK_RATIONALE.md" />
+    <File Path="docs/RUNTIME_MIGRATION.md" />
+    <File Path="docs/TESTING.md" />
+    <File Path="docs/UNITY_MIGRATION.md" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="AGENTS.md" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
   <Folder Name="/src/" />
   <Folder Name="/src/Core/">
     <Project Path="src/Core/Sektor.DarkestDungeon.Core.Content/Sektor.DarkestDungeon.Core.Content.csproj" />
