@@ -65,6 +65,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             };
             foreach (var hero in heroes)
                 HeroSlots.Add(new UnitSlotViewModel(hero));
+            heroes[0].Tray[0].IsActive = true;
 
             var monsters = new[]
             {
@@ -75,6 +76,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             foreach (var monster in monsters)
                 MonsterSlots.Add(new UnitSlotViewModel(monster));
             MonsterSlots.Add(new UnitSlotViewModel(null));
+            monsters[0].Tray[1].IsActive = true;
+            monsters[0].Tray[2].IsActive = true;
         }
 
         private void OpenStats(UnitViewModel? unit)

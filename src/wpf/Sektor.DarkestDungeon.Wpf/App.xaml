@@ -31,8 +31,39 @@
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
 
+                    <!-- Tray: buff/debuff/status icons floating above the unit -->
+                    <ItemsControl ItemsSource="{Binding Tray}" HorizontalAlignment="Center"
+                                  VerticalAlignment="Top" Margin="0,6,0,0">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Width="16" Height="16" Margin="1,0" CornerRadius="2"
+                                        ToolTip="{Binding Tooltip}"
+                                        Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibility}}">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#8A6A3A" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Tone}" Value="Debuff">
+                                                    <Setter Property="Background" Value="#7A3030" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Tone}" Value="Dot">
+                                                    <Setter Property="Background" Value="#3A6A4A" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
                     <!-- Unit body placeholder: same width as the HP/stress bars -->
-                    <Border HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="175" Margin="16,16,16,0"
+                    <Border HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="168" Margin="16,28,16,0"
                             CornerRadius="8">
                         <Border.Style>
                             <Style TargetType="Border">
@@ -50,20 +81,20 @@
 
                     <!-- Selection frame -->
                     <Border BorderBrush="{x:Static ui:UiBrushes.Label}" BorderThickness="3" CornerRadius="10"
-                            HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="179" Margin="14,14,14,0"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="172" Margin="14,26,14,0"
                             Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibility}}" />
 
                     <!-- Name -->
                     <TextBlock Text="{Binding Name}" Foreground="#E8D9B0" FontSize="18"
-                               HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,194,0,0" />
+                               HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,198,0,0" />
 
                     <!-- Health bar: fixed width, fill varies with HP -->
                     <ProgressBar Minimum="0" Maximum="1" Value="{Binding HpRatio, Mode=OneWay}"
-                                 Height="12" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="16,220,16,0" />
+                                 Height="12" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="16,222,16,0" />
 
                     <!-- Stress bar: same full width as the health bar, split into 10 squares -->
                     <ItemsControl ItemsSource="{Binding StressPips}" HorizontalAlignment="Stretch"
-                                  VerticalAlignment="Top" Margin="16,236,16,0">
+                                  VerticalAlignment="Top" Margin="16,238,16,0">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <UniformGrid Columns="10" />

@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
@@ -30,6 +31,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private bool _isSelected;
 
+        /// <summary>Gets the buff/debuff/status tray icons floating above the unit.</summary>
+        public ObservableCollection<TraySlotViewModel> Tray { get; } = new ObservableCollection<TraySlotViewModel>();
+
         /// <summary>Gets the hit point ratio (0-1) for the health bar.</summary>
         public double HpRatio
         {
@@ -48,6 +52,13 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             _hpMax = hpMax;
             _stress = stress;
             IsEnemy = isEnemy;
+
+            Tray.Add(new TraySlotViewModel("B", "Buff", "Combat buffs"));
+            Tray.Add(new TraySlotViewModel("D", "Debuff", "Combat debuffs"));
+            Tray.Add(new TraySlotViewModel("Bd", "Dot", "Bleeding"));
+            Tray.Add(new TraySlotViewModel("Po", "Dot", "Poisoned"));
+            Tray.Add(new TraySlotViewModel("T", "Debuff", "Marked"));
+            Tray.Add(new TraySlotViewModel("St", "Debuff", "Stunned"));
         }
 
         partial void OnHpCurrentChanged(int value)
