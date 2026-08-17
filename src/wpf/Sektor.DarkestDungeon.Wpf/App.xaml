@@ -16,7 +16,7 @@
 
             <!-- Unit card inside an occupied slot: body, HP/stress bars, selection frame -->
             <DataTemplate x:Key="UnitTemplate">
-                <Grid Width="200" Height="265">
+                <Grid Width="170" Height="250">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseEnter">
                             <i:InvokeCommandAction Command="{Binding DataContext.HoverCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
@@ -32,7 +32,7 @@
                     </i:Interaction.Triggers>
 
                     <!-- Unit body placeholder: same width as the HP/stress bars -->
-                    <Border HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="190" Margin="16,18,16,0"
+                    <Border HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="175" Margin="16,16,16,0"
                             CornerRadius="8">
                         <Border.Style>
                             <Style TargetType="Border">
@@ -44,26 +44,26 @@
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
-                        <TextBlock Text="{Binding ClassName}" Foreground="#E8D9B0" FontSize="16"
+                        <TextBlock Text="{Binding ClassName}" Foreground="#E8D9B0" FontSize="15"
                                    HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,8" />
                     </Border>
 
                     <!-- Selection frame -->
                     <Border BorderBrush="{x:Static ui:UiBrushes.Label}" BorderThickness="3" CornerRadius="10"
-                            HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="194" Margin="14,16,14,0"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="179" Margin="14,14,14,0"
                             Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibility}}" />
 
                     <!-- Name -->
                     <TextBlock Text="{Binding Name}" Foreground="#E8D9B0" FontSize="18"
-                               HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,210,0,0" />
+                               HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,194,0,0" />
 
                     <!-- Health bar: fixed width, fill varies with HP -->
                     <ProgressBar Minimum="0" Maximum="1" Value="{Binding HpRatio, Mode=OneWay}"
-                                 Height="12" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="16,236,16,0" />
+                                 Height="12" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="16,220,16,0" />
 
                     <!-- Stress bar: same full width as the health bar, split into 10 squares -->
                     <ItemsControl ItemsSource="{Binding StressPips}" HorizontalAlignment="Stretch"
-                                  VerticalAlignment="Top" Margin="16,252,16,0">
+                                  VerticalAlignment="Top" Margin="16,236,16,0">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <UniformGrid Columns="10" />
@@ -80,7 +80,7 @@
 
             <!-- Fixed battle slot: always visible frame; gray when empty, warm when occupied -->
             <DataTemplate x:Key="BattleSlotTemplate">
-                <Border Width="200" Height="265" Margin="18,0" BorderThickness="2">
+                <Border Width="170" Height="250" Margin="10,0" BorderThickness="2">
                     <Border.Style>
                         <Style TargetType="Border">
                             <Setter Property="BorderBrush" Value="#6A6A6A" />
