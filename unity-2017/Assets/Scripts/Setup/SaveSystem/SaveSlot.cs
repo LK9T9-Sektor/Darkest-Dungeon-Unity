@@ -47,6 +47,12 @@ public class SaveSlot : MonoBehaviour
     {
         if(saveData == null)
         {
+            if (SaveSelector.IsNamingSlot(this))
+            {
+                Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".SaveButtonClick: confirming naming");
+                SaveNamingCompleted();
+                return;
+            }
             Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".SaveButtonClick: empty slot, starting naming");
             title.color = Color.white;
             titleInput.interactable = true;
@@ -59,6 +65,7 @@ public class SaveSlot : MonoBehaviour
         {
             Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".SaveButtonClick: loading slot '" + saveData.HamletTitle +
                 "' InRaid=" + saveData.InRaid);
+            SaveSelector.SaveNamingCompleted();
             DarkestDungeonManager.SaveData = saveData;
             if(DarkestDungeonManager.SaveData.InRaid)
             {
@@ -93,10 +100,8 @@ public class SaveSlot : MonoBehaviour
     {
         if(titleInput.text.Length == 0)
         {
-            Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".SaveNamingCompleted: empty name, aborting naming");
-            FillEmptySave();
-            SaveSelector.SaveNamingCompleted();
-            return;
+            Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".SaveNamingCompleted: empty name, using default name");
+            titleInput.text = "Campaign " + slotId;
         }
         Debug.Log("[DD] [SAVE] SaveSlot " + slotId + ".SaveNamingCompleted: naming save '" + titleInput.text + "'");
         saveData = new SaveCampaignData();
@@ -118,6 +123,14 @@ public class SaveSlot : MonoBehaviour
     {
         titleInput.Select();
         titleInput.ActivateInputField();
+    }
+
+    public void CancelNaming()
+    {
+        titleInput.text = "";
+        titleInput.interactable = false;
+        titleInput.enabled = false;
+        FillEmptySave();
     }
 
     public void EnableInteraction()

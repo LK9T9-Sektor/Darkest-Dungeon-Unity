@@ -55,14 +55,10 @@ public class SaveSelector : MonoBehaviour
         {
             if (selectedSaveSlot != null)
             {
-                if(Input.GetMouseButtonDown(0))
-                {
-                    selectedSaveSlot.RefocusInput();
-                }
-                else if (Input.GetKeyUp(KeyCode.Escape))
+                if (Input.GetKeyUp(KeyCode.Escape))
                 {
                     Debug.Log("[DD] [SAVE] SaveSelector.Update: Escape while naming, aborting naming");
-                    selectedSaveSlot.SaveNamingCompleted();
+                    AbortNaming();
                 }
             }
             else if (Input.GetKeyUp(KeyCode.Escape))
@@ -90,6 +86,9 @@ public class SaveSelector : MonoBehaviour
     public void SaveSelectionStart()
     {
         Debug.Log("[DD] [SAVE] SaveSelector.SaveSelectionStart: opening save frame");
+        if (selectedSaveSlot != null)
+            SaveNamingCompleted();
+        isSelecting = false;
         CampaignSelectionManager.OnSelectionStart(CampaignSelection.Singleplayer);
         saveFrame.gameObject.SetActive(true);
 
@@ -102,10 +101,27 @@ public class SaveSelector : MonoBehaviour
         Debug.Log("[DD] [SAVE] SaveSelector.SaveNamingStart: naming slot");
         DarkestSoundManager.PlayOneShot("event:/general/title_screen/letter_open");
         
+        if (selectedSaveSlot != null && selectedSaveSlot != namingSaveSlot)
+            AbortNaming();
         selectedSaveSlot = namingSaveSlot;
+    }
+
+    /// <summary>Gets a value indicating whether the given slot is the active naming slot.</summary>
+    public bool IsNamingSlot(SaveSlot slot)
+    {
+        return selectedSaveSlot == slot;
+    }
+
+    /// <summary>Cancels the active save naming without creating a save.</summary>
+    public void AbortNaming()
+    {
+        if (selectedSaveSlot == null)
+            return;
+
+        selectedSaveSlot.CancelNaming();
+        selectedSaveSlot = null;
         for (int i = 0; i < SlotNumber; i++)
-            if (saveSlots[i] != namingSaveSlot)
-                saveSlots[i].DisableInteraction();
+            saveSlots[i].EnableInteraction();
     }
 
     public void SaveNamingCompleted()
