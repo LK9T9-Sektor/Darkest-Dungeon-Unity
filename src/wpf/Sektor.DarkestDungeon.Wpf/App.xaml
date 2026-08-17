@@ -3,19 +3,20 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:ui="clr-namespace:Sektor.DarkestDungeon.Wpf.Ui"
+             xmlns:converters="clr-namespace:Sektor.DarkestDungeon.Wpf.Converters"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Ui/Styles.xaml" />
+                <ResourceDictionary Source="Styles/Hud.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
-            <ui:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility" />
-            <ui:StringToVisibilityConverter x:Key="StringToVisibility" />
+            <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility" />
+            <converters:StringToVisibilityConverter x:Key="StringToVisibility" />
 
-            <!-- Shared stage unit card: body, HP/stress bars, selection frame -->
+            <!-- Unit card inside an occupied slot: body, HP/stress bars, selection frame -->
             <DataTemplate x:Key="UnitTemplate">
-                <Grid Width="200" Height="265" Margin="18,0">
+                <Grid Width="200" Height="265">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseEnter">
                             <i:InvokeCommandAction Command="{Binding DataContext.HoverCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
@@ -75,6 +76,24 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </Grid>
+            </DataTemplate>
+
+            <!-- Fixed battle slot: always visible frame; gray when empty, warm when occupied -->
+            <DataTemplate x:Key="BattleSlotTemplate">
+                <Border Width="200" Height="265" Margin="18,0" BorderThickness="2">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="#6A6A6A" />
+                            <Setter Property="CornerRadius" Value="8" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasUnit}" Value="True">
+                                    <Setter Property="BorderBrush" Value="#8A6A3A" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <ContentControl Content="{Binding Unit}" ContentTemplate="{StaticResource UnitTemplate}" />
+                </Border>
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>

@@ -13,10 +13,10 @@
         <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="100,200,100,390"
                 Background="#0C0C0C" BorderBrush="#3A2E22" BorderThickness="2" CornerRadius="12" />
 
-        <!-- Player party (left of stage) -->
-        <ItemsControl ItemsSource="{Binding Heroes}"
+        <!-- Player party: four fixed slots, empty ones stay visible -->
+        <ItemsControl ItemsSource="{Binding HeroSlots}"
                       HorizontalAlignment="Left" VerticalAlignment="Center"
-                      Margin="120,0,0,0">
+                      Margin="110,0,0,0">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" />
@@ -24,15 +24,15 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource UnitTemplate}" />
+                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource BattleSlotTemplate}" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <!-- Enemies (right of stage) -->
-        <ItemsControl ItemsSource="{Binding Monsters}"
+        <!-- Enemies: four fixed slots, empty ones stay visible -->
+        <ItemsControl ItemsSource="{Binding MonsterSlots}"
                       HorizontalAlignment="Right" VerticalAlignment="Center"
-                      Margin="0,0,120,0">
+                      Margin="0,0,110,0">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" />
@@ -40,7 +40,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource UnitTemplate}" />
+                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource BattleSlotTemplate}" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

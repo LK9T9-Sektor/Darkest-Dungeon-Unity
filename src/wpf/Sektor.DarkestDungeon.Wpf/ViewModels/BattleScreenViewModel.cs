@@ -19,11 +19,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the events overlay view model (round, announcement, popup).</summary>
         public EventsLayerViewModel Events { get; } = new EventsLayerViewModel();
 
-        /// <summary>Gets the player party units on stage.</summary>
-        public ObservableCollection<UnitViewModel> Heroes { get; } = new ObservableCollection<UnitViewModel>();
+        /// <summary>Gets the four fixed player party slots (some may be empty).</summary>
+        public ObservableCollection<UnitSlotViewModel> HeroSlots { get; } = new ObservableCollection<UnitSlotViewModel>();
 
-        /// <summary>Gets the enemy units on stage.</summary>
-        public ObservableCollection<UnitViewModel> Monsters { get; } = new ObservableCollection<UnitViewModel>();
+        /// <summary>Gets the four fixed enemy slots (some may be empty).</summary>
+        public ObservableCollection<UnitSlotViewModel> MonsterSlots { get; } = new ObservableCollection<UnitSlotViewModel>();
 
         /// <summary>Gets or sets the currently hovered/selected unit shown in the monster tooltip.</summary>
         [ObservableProperty]
@@ -56,14 +56,25 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             HoverCommand = new RelayCommand<UnitViewModel?>(Hover);
             UnhoverCommand = new RelayCommand(Unhover);
 
-            Heroes.Add(new UnitViewModel("Reynauld", "Crusader", 100, 100, 20));
-            Heroes.Add(new UnitViewModel("Dismas", "Highwayman", 88, 92, 35));
-            Heroes.Add(new UnitViewModel("Paracelsus", "Plague Doctor", 72, 85, 10));
-            Heroes.Add(new UnitViewModel("Junia", "Vestal", 64, 78, 15));
+            var heroes = new[]
+            {
+                new UnitViewModel("Reynauld", "Crusader", 100, 100, 20),
+                new UnitViewModel("Dismas", "Highwayman", 88, 92, 35),
+                new UnitViewModel("Paracelsus", "Plague Doctor", 72, 85, 10),
+                new UnitViewModel("Junia", "Vestal", 64, 78, 15),
+            };
+            foreach (var hero in heroes)
+                HeroSlots.Add(new UnitSlotViewModel(hero));
 
-            Monsters.Add(new UnitViewModel("Cultist Acolyte", "Cultist", 40, 40, 40, true));
-            Monsters.Add(new UnitViewModel("Bone Soldier", "Bone", 55, 55, 25, true));
-            Monsters.Add(new UnitViewModel("Swine Wretch", "Swine", 48, 48, 5, true));
+            var monsters = new[]
+            {
+                new UnitViewModel("Cultist Acolyte", "Cultist", 40, 40, 40, true),
+                new UnitViewModel("Bone Soldier", "Bone", 55, 55, 25, true),
+                new UnitViewModel("Swine Wretch", "Swine", 48, 48, 5, true),
+            };
+            foreach (var monster in monsters)
+                MonsterSlots.Add(new UnitSlotViewModel(monster));
+            MonsterSlots.Add(new UnitSlotViewModel(null));
         }
 
         private void OpenStats(UnitViewModel? unit)

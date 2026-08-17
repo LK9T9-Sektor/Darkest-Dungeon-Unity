@@ -11,11 +11,9 @@
                 <ColumnDefinition Width="707" />
             </Grid.ColumnDefinitions>
 
-            <!-- Left: selected hero banner + always-visible stats sheet -->
-            <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Top">
-                <views:HeroBannerView DataContext="{Binding Hero}" Height="136" />
-                <views:HeroStatsView DataContext="{Binding Hero.Stats}" Height="196" />
-            </StackPanel>
+            <!-- Left: framed hero info (banner + stats) -->
+            <views:HeroInfoPanelView Grid.Column="0" DataContext="{Binding}"
+                                     HorizontalAlignment="Center" VerticalAlignment="Top" Width="690" />
 
             <!-- Right: inventory / map, toggled by the buttons below -->
             <Grid Grid.Column="2">
