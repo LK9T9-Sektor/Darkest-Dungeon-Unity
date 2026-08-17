@@ -2,36 +2,40 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views">
-    <Border Background="#E6000000" BorderBrush="#3A2E22" BorderThickness="0,2,0,0">
-        <!-- Margins align the HUD panels with the battle field backdrop edges -->
+    <Border Background="{StaticResource AreaBackground}" BorderBrush="{StaticResource FieldBorder}" BorderThickness="0,2,0,0">
         <Grid Margin="8,8,8,8">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <!-- Left: framed hero info, flush with the left field border -->
-            <views:HeroInfoPanelView Grid.Column="0" DataContext="{Binding}"
+            <views:HeroInfoPanelView Grid.Column="0" DataContext="{Binding RaidHud}"
                                      HorizontalAlignment="Left" VerticalAlignment="Top" Width="690" />
 
+            <!-- Center: unit tooltip, between the hero card and the inventory/map -->
+            <views:UnitTooltipView Grid.Column="1" DataContext="{Binding TooltipTarget}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Top" Width="360" />
+
             <!-- Right: inventory/map pinned to the top, buttons in their own row below -->
-            <Grid Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="707">
+            <Grid Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="707">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0">
-                    <views:InventoryView DataContext="{Binding Inventory}"
-                                         Visibility="{Binding DataContext.IsInventoryShown, RelativeSource={RelativeSource AncestorType={x:Type views:RaidHudView}}, Converter={StaticResource BoolToVisibility}}" />
-                    <views:MapView DataContext="{Binding Map}"
-                                   Visibility="{Binding DataContext.IsInventoryShown, RelativeSource={RelativeSource AncestorType={x:Type views:RaidHudView}}, Converter={StaticResource InverseBoolToVisibility}}" />
+                    <views:InventoryView DataContext="{Binding RaidHud.Inventory}"
+                                         Visibility="{Binding RaidHud.IsInventoryShown, Converter={StaticResource BoolToVisibility}}" />
+                    <views:MapView DataContext="{Binding RaidHud.Map}"
+                                   Visibility="{Binding RaidHud.IsInventoryShown, Converter={StaticResource InverseBoolToVisibility}}" />
                 </Grid>
 
                 <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
-                    <Button Content="INVENTORY" Command="{Binding ShowInventoryCommand}" Margin="0,0,8,0"
+                    <Button Content="INVENTORY" Command="{Binding RaidHud.ShowInventoryCommand}" Margin="0,0,8,0"
                             Style="{StaticResource HudButton}" Padding="14,4" FontSize="16" />
-                    <Button Content="MAP" Command="{Binding ShowMapCommand}"
+                    <Button Content="MAP" Command="{Binding RaidHud.ShowMapCommand}"
                             Style="{StaticResource HudButton}" Padding="14,4" FontSize="16" />
                 </StackPanel>
             </Grid>

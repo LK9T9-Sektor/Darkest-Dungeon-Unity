@@ -19,6 +19,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the events overlay view model (round, announcement, popup).</summary>
         public EventsLayerViewModel Events { get; } = new EventsLayerViewModel();
 
+        /// <summary>Gets the turn order panel placeholder.</summary>
+        public TurnOrderViewModel TurnOrder { get; } = new TurnOrderViewModel();
+
         /// <summary>Gets the four fixed player party slots (some may be empty).</summary>
         public ObservableCollection<UnitSlotViewModel> HeroSlots { get; } = new ObservableCollection<UnitSlotViewModel>();
 

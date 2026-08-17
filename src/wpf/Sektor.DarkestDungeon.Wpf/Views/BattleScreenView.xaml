@@ -4,43 +4,59 @@
              xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views"
              Width="1920" Height="1080">
     <Grid Background="Black">
-        <views:BattleViewport DataContext="{Binding}" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="170" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="360" />
+        </Grid.RowDefinitions>
 
-        <views:TorchView DataContext="{Binding Torch}"
-                         HorizontalAlignment="Center" VerticalAlignment="Top"
-                         Width="722" Height="90" Margin="{StaticResource TopBarOffset}" />
+        <!-- TOP AREA: quest (left), torch (center), turn order (right) -->
+        <Grid Grid.Row="0" Background="{StaticResource AreaBackground}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-        <views:QuestLogView DataContext="{Binding QuestLog}"
-                            HorizontalAlignment="Left" VerticalAlignment="Top"
-                            Width="360" Height="158" Margin="8,12,0,0" />
+            <views:QuestLogView Grid.Column="0" DataContext="{Binding QuestLog}"
+                                HorizontalAlignment="Left" VerticalAlignment="Center"
+                                Width="360" Height="150" Margin="8,0,0,0" />
 
-        <!-- Monster tooltip appears centered, between the hero card and the inventory/map -->
-        <views:MonsterTooltipView DataContext="{Binding TooltipTarget}"
-                                  HorizontalAlignment="Center" VerticalAlignment="Center"
-                                  Width="360" Height="330" />
+            <views:TorchView Grid.Column="1" DataContext="{Binding Torch}"
+                             HorizontalAlignment="Center" VerticalAlignment="Center"
+                             Width="500" Height="90" />
 
-        <!-- Stats sheet, opened by right-clicking a unit on the stage -->
-        <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Width="560" Height="330" Margin="60,220,0,0"
-              Visibility="{Binding IsStatsVisible, Converter={StaticResource BoolToVisibility}}">
-            <Border Style="{StaticResource OverlayPanel}">
-                <Grid Margin="{StaticResource SpacingMedium}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <Button Grid.Row="0" Content="X" Command="{Binding CloseStatsCommand}"
-                            HorizontalAlignment="Right" Width="30" Height="30"
-                            Style="{StaticResource HudButton}" FontWeight="Bold" />
-                    <views:HeroStatsView Grid.Row="1" DataContext="{Binding StatsTarget}" Margin="0,8,0,0" />
-                </Grid>
-            </Border>
+            <views:TurnOrderView Grid.Column="2" DataContext="{Binding TurnOrder}"
+                                 HorizontalAlignment="Right" VerticalAlignment="Center"
+                                 Margin="0,0,8,0" />
         </Grid>
 
-        <views:EventsLayerView DataContext="{Binding Events}"
-                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        <!-- CENTER AREA: battle field + overlay events + right-click stats -->
+        <Grid Grid.Row="1">
+            <views:BattleViewport DataContext="{Binding}" />
 
-        <views:RaidHudView DataContext="{Binding RaidHud}"
-                           HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
-                           Height="360" />
+            <views:EventsLayerView DataContext="{Binding Events}"
+                                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+
+            <!-- Stats sheet, opened by right-clicking a unit on the stage -->
+            <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Width="560" Height="330" Margin="60,40,0,0"
+                  Visibility="{Binding IsStatsVisible, Converter={StaticResource BoolToVisibility}}">
+                <Border Style="{StaticResource OverlayPanel}">
+                    <Grid Margin="{StaticResource SpacingMedium}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Button Grid.Row="0" Content="X" Command="{Binding CloseStatsCommand}"
+                                HorizontalAlignment="Right" Width="30" Height="30"
+                                Style="{StaticResource HudButton}" FontWeight="Bold" />
+                        <views:HeroStatsView Grid.Row="1" DataContext="{Binding StatsTarget}" Margin="0,8,0,0" />
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- BOTTOM AREA: hero info (left), unit tooltip (center), inventory/map (right) -->
+        <views:RaidHudView Grid.Row="2" DataContext="{Binding}" />
     </Grid>
 </UserControl>

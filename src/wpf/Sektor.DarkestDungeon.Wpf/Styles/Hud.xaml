@@ -10,6 +10,13 @@
     <!-- Top offsets of the floating top bars -->
     <Thickness x:Key="TopBarOffset">0,12,0,0</Thickness>
 
+    <!-- Common area background: top (quest/torch/turn order) and bottom (raid info) bars -->
+    <SolidColorBrush x:Key="AreaBackground" Color="#C8000000" />
+
+    <!-- Battle field background and border -->
+    <SolidColorBrush x:Key="FieldBackground" Color="#0C0C0C" />
+    <SolidColorBrush x:Key="FieldBorder" Color="#3A2E22" />
+
     <!-- Shared overlay panel chrome -->
     <Style x:Key="OverlayPanel" TargetType="Border">
         <Setter Property="Background" Value="#A0000000" />
