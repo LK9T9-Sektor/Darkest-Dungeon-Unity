@@ -10,7 +10,7 @@
         </Grid.Background>
 
         <!-- Room backdrop placeholder: stretches to frame every unit on stage -->
-        <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="100,170,100,390"
+        <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="100,200,100,390"
                 Background="#0C0C0C" BorderBrush="#3A2E22" BorderThickness="2" CornerRadius="12" />
 
         <!-- Player party (left of stage) -->

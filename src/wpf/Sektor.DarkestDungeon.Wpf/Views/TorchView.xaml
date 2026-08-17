@@ -3,13 +3,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="clr-namespace:Sektor.DarkestDungeon.Wpf.Ui">
     <Border Background="#A0000000" BorderBrush="#3A2E22" BorderThickness="2" CornerRadius="8">
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
             <TextBlock Text="Torch" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="22"
-                       VerticalAlignment="Center" Width="90" />
-            <Slider Minimum="0" Maximum="100" Value="{Binding TorchValue, Mode=TwoWay}"
-                    Width="440" VerticalAlignment="Center" />
-            <TextBlock Text="{Binding TorchValue, StringFormat={}{0:0} / 100}" Foreground="#E8D9B0"
-                       FontSize="22" VerticalAlignment="Center" Margin="16,0,0,0" Width="120" />
+                       HorizontalAlignment="Center" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,0">
+                <Button Content="&#9664;" Command="{Binding DecreaseCommand}" Width="52" Height="34"
+                        Background="{x:Static ui:UiBrushes.ButtonBackground}"
+                        Foreground="{x:Static ui:UiBrushes.Label}" FontSize="18" />
+                <TextBlock Text="{Binding TorchValue, StringFormat={}{0:0}}" Foreground="#E8D9B0" FontSize="26"
+                           Width="90" TextAlignment="Center" VerticalAlignment="Center" />
+                <Button Content="&#9654;" Command="{Binding IncreaseCommand}" Width="52" Height="34"
+                        Background="{x:Static ui:UiBrushes.ButtonBackground}"
+                        Foreground="{x:Static ui:UiBrushes.Label}" FontSize="18" />
+            </StackPanel>
         </StackPanel>
     </Border>
 </UserControl>

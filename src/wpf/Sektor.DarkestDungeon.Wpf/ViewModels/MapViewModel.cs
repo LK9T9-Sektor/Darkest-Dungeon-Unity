@@ -12,11 +12,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Initializes a new instance of the <see cref="MapViewModel"/> class with a placeholder corridor.</summary>
         public MapViewModel()
         {
-            Rooms.Add(new MapRoomViewModel("Start", 40, 220, true));
-            Rooms.Add(new MapRoomViewModel("Room", 190, 150, true));
-            Rooms.Add(new MapRoomViewModel("Room", 340, 130));
-            Rooms.Add(new MapRoomViewModel("Room", 480, 200));
-            Rooms.Add(new MapRoomViewModel("Boss", 600, 250));
+            Rooms.Add(new MapRoomViewModel("Start", 24, 250, true));
+            Rooms.Add(new MapRoomViewModel("Room", 128, 120, true));
+            Rooms.Add(new MapRoomViewModel("Room", 236, 208));
+            Rooms.Add(new MapRoomViewModel("Room", 168, 44));
+            Rooms.Add(new MapRoomViewModel("Boss", 268, 60));
         }
     }
 }

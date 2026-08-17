@@ -3,49 +3,57 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="clr-namespace:Sektor.DarkestDungeon.Wpf.Ui">
     <Border Background="#80000000" BorderBrush="#3A2E22" BorderThickness="2" CornerRadius="8" Margin="0,44,0,0">
-        <Canvas ClipToBounds="True">
-            <!-- Corridor path placeholder -->
-            <Path Stroke="#5A4A3A" StrokeThickness="14"
-                  Data="M 60,245 C 110,200 140,170 190,175 C 240,180 280,160 340,155 C 400,150 430,180 480,225 C 510,250 560,265 600,272" />
+        <Grid>
+            <!-- Square map area with a grid, as in Darkest Dungeon -->
+            <Canvas Width="340" Height="340" HorizontalAlignment="Center" VerticalAlignment="Center" ClipToBounds="True">
 
-            <!-- Room nodes -->
-            <ItemsControl ItemsSource="{Binding Rooms}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemContainerStyle>
-                    <Style TargetType="ContentPresenter">
-                        <Setter Property="Canvas.Left" Value="{Binding X}" />
-                        <Setter Property="Canvas.Top" Value="{Binding Y}" />
-                    </Style>
-                </ItemsControl.ItemContainerStyle>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Width="70" Height="54" CornerRadius="10"
-                                BorderBrush="{x:Static ui:UiBrushes.Label}" BorderThickness="2">
-                            <Border.Style>
-                                <Style TargetType="Border">
-                                    <Setter Property="Background" Value="#3A2E22" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsVisited}" Value="True">
-                                            <Setter Property="Background" Value="#5A4A3A" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-                            <TextBlock Text="{Binding Type}" Foreground="#E8D9B0" FontSize="14"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                <!-- Grid lines: 6x6 over 340px -->
+                <Path Stroke="#2A2018" StrokeThickness="1"
+                      Data="M0,0 L340,0 M0,68 L340,68 M0,136 L340,136 M0,204 L340,204 M0,272 L340,272 M0,340 L340,340 M0,0 L0,340 M68,0 L68,340 M136,0 L136,340 M204,0 L204,340 M272,0 L272,340 M340,0 L340,340" />
 
-            <!-- Current position marker -->
-            <Border Width="18" Height="18" CornerRadius="9"
-                    Background="{x:Static ui:UiBrushes.Label}"
-                    Canvas.Left="46" Canvas.Top="226" />
-        </Canvas>
+                <!-- Corridor path between rooms -->
+                <Path Stroke="#5A4A3A" StrokeThickness="10"
+                      Data="M 52,272 C 80,220 96,150 150,142 C 200,135 220,190 250,210 C 270,224 262,80 190,68 C 140,58 200,54 280,60" />
+
+                <!-- Room nodes -->
+                <ItemsControl ItemsSource="{Binding Rooms}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Canvas.Left" Value="{Binding X}" />
+                            <Setter Property="Canvas.Top" Value="{Binding Y}" />
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Width="56" Height="42" CornerRadius="8"
+                                    BorderBrush="{x:Static ui:UiBrushes.Label}" BorderThickness="2">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="#3A2E22" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsVisited}" Value="True">
+                                                <Setter Property="Background" Value="#5A4A3A" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock Text="{Binding Type}" Foreground="#E8D9B0" FontSize="13"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Current position marker -->
+                <Border Width="18" Height="18" CornerRadius="9"
+                        Background="{x:Static ui:UiBrushes.Label}"
+                        Canvas.Left="30" Canvas.Top="256" />
+            </Canvas>
+        </Grid>
     </Border>
 </UserControl>

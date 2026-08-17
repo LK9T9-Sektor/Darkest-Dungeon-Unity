@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="clr-namespace:Sektor.DarkestDungeon.Wpf.Ui">
     <Grid IsHitTestVisible="False">
-        <!-- Round indicator -->
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,180,0,0">
+        <!-- Round indicator, directly under the torch -->
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,124,0,0">
             <TextBlock Text="ROUND" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="20"
                        HorizontalAlignment="Center" />
             <TextBlock Text="{Binding Round}" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="48" FontWeight="Bold"
