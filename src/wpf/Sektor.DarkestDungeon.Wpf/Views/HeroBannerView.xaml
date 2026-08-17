@@ -4,57 +4,40 @@
              xmlns:ui="clr-namespace:Sektor.DarkestDungeon.Wpf.Ui">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="90" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="70" />
-            <ColumnDefinition Width="4*" />
-            <ColumnDefinition Width="70" />
         </Grid.ColumnDefinitions>
 
-        <!-- Portrait placeholder -->
-        <Border Grid.Column="0" Width="85" Height="85" VerticalAlignment="Center"
-                Background="#5A4A3A" BorderBrush="#3A2E22" BorderThickness="2" CornerRadius="6">
-            <TextBlock Text="?" Foreground="#E8D9B0" FontSize="40"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-        </Border>
-
-        <!-- Name / class -->
-        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="8,0">
-            <TextBlock Text="{Binding Name}" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="24" FontWeight="Bold" />
-            <TextBlock Text="{Binding ClassName}" Foreground="#C8C0B0" FontSize="18" />
+        <!-- Portrait + name/class, pinned to the top -->
+        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,6,0,0">
+            <Border Width="85" Height="85" Background="#5A4A3A" BorderBrush="#3A2E22" BorderThickness="2" CornerRadius="6">
+                <TextBlock Text="?" Foreground="#E8D9B0" FontSize="40"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <StackPanel VerticalAlignment="Center" Margin="10,0,0,0">
+                <TextBlock Text="{Binding Name}" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="22" FontWeight="Bold" />
+                <TextBlock Text="{Binding ClassName}" Foreground="#C8C0B0" FontSize="16" />
+            </StackPanel>
         </StackPanel>
 
-        <!-- Move slot -->
-        <Border Grid.Column="2" Margin="2" VerticalAlignment="Center" Height="70"
-                Background="{x:Static ui:UiBrushes.ButtonBackground}" CornerRadius="6"
-                BorderBrush="#3A2E22" BorderThickness="1">
-            <TextBlock Text="{Binding Move.Name}" Foreground="#E8D9B0" FontSize="13"
-                       TextAlignment="Center" VerticalAlignment="Center" />
-        </Border>
-
-        <!-- Combat skills -->
-        <ItemsControl Grid.Column="3" ItemsSource="{Binding CombatSkills}" VerticalAlignment="Center">
+        <!-- Skill slots: square icons with the name below, pinned to the top -->
+        <ItemsControl Grid.Column="1" ItemsSource="{Binding BannerSkills}"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" Margin="8,6,0,0">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <UniformGrid Columns="4" />
+                    <UniformGrid Columns="6" />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border Margin="2" Background="{x:Static ui:UiBrushes.ButtonBackground}" CornerRadius="6"
-                            BorderBrush="#3A2E22" BorderThickness="1" Height="70">
-                        <TextBlock Text="{Binding Name}" Foreground="#E8D9B0" FontSize="13"
-                                   TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center" />
-                    </Border>
+                    <StackPanel Width="64" Margin="3">
+                        <Border Width="58" Height="58" Background="{x:Static ui:UiBrushes.ButtonBackground}"
+                                CornerRadius="4" BorderBrush="#3A2E22" BorderThickness="1" />
+                        <TextBlock Text="{Binding Name}" Foreground="#E8D9B0" FontSize="11"
+                                   TextAlignment="Center" TextWrapping="Wrap" Margin="0,3,0,0" />
+                    </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-
-        <!-- Pass slot -->
-        <Border Grid.Column="4" Margin="2" VerticalAlignment="Center" Height="70"
-                Background="#4A3A2A" CornerRadius="6" BorderBrush="#3A2E22" BorderThickness="1">
-            <TextBlock Text="{Binding Pass.Name}" Foreground="#E8D9B0" FontSize="13"
-                       TextAlignment="Center" VerticalAlignment="Center" />
-        </Border>
     </Grid>
 </UserControl>

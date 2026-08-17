@@ -42,11 +42,19 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the command that closes the stats sheet.</summary>
         public IRelayCommand CloseStatsCommand { get; }
 
+        /// <summary>Gets the command raised when the mouse hovers a stage unit.</summary>
+        public IRelayCommand<UnitViewModel?> HoverCommand { get; }
+
+        /// <summary>Gets the command raised when the mouse leaves a stage unit.</summary>
+        public IRelayCommand UnhoverCommand { get; }
+
         /// <summary>Initializes the mockup with placeholder stage data.</summary>
         public BattleScreenViewModel()
         {
             OpenStatsCommand = new RelayCommand<UnitViewModel?>(OpenStats);
             CloseStatsCommand = new RelayCommand(() => IsStatsVisible = false);
+            HoverCommand = new RelayCommand<UnitViewModel?>(Hover);
+            UnhoverCommand = new RelayCommand(Unhover);
 
             Heroes.Add(new UnitViewModel("Reynauld", "Crusader", 100, 100, 20));
             Heroes.Add(new UnitViewModel("Dismas", "Highwayman", 88, 92, 35));
@@ -65,6 +73,22 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
             StatsTarget.Apply(unit);
             IsStatsVisible = true;
+        }
+
+        private void Hover(UnitViewModel? unit)
+        {
+            if (unit == null)
+                return;
+
+            unit.IsSelected = true;
+            TooltipTarget = unit;
+        }
+
+        private void Unhover()
+        {
+            if (TooltipTarget != null)
+                TooltipTarget.IsSelected = false;
+            TooltipTarget = null;
         }
     }
 }

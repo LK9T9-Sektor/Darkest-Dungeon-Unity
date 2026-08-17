@@ -35,7 +35,19 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             new SkillViewModel("Battle Repetition"),
         };
 
+        /// <summary>Gets the banner skill slots in display order (move, combat, pass).</summary>
+        public System.Collections.Generic.IReadOnlyList<SkillViewModel> BannerSkills { get; }
+
         /// <summary>Gets the hero stat sheet.</summary>
         public HeroStatsViewModel Stats { get; } = new HeroStatsViewModel();
+
+        /// <summary>Initializes a new instance of the <see cref="HeroViewModel"/> class.</summary>
+        public HeroViewModel()
+        {
+            var bannerSkills = new System.Collections.Generic.List<SkillViewModel> { Move };
+            bannerSkills.AddRange(CombatSkills);
+            bannerSkills.Add(Pass);
+            BannerSkills = bannerSkills;
+        }
     }
 }

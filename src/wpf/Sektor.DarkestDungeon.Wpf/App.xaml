@@ -14,10 +14,11 @@
             <Grid Width="170" Height="240" Margin="18,0">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="MouseEnter">
-                        <i:ChangePropertyAction TargetObject="{Binding}" PropertyName="IsSelected" Value="True" />
+                        <i:InvokeCommandAction Command="{Binding DataContext.HoverCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                               CommandParameter="{Binding}" />
                     </i:EventTrigger>
                     <i:EventTrigger EventName="MouseLeave">
-                        <i:ChangePropertyAction TargetObject="{Binding}" PropertyName="IsSelected" Value="False" />
+                        <i:InvokeCommandAction Command="{Binding DataContext.UnhoverCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
                     </i:EventTrigger>
                     <i:EventTrigger EventName="MouseRightButtonDown">
                         <i:InvokeCommandAction Command="{Binding DataContext.OpenStatsCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"

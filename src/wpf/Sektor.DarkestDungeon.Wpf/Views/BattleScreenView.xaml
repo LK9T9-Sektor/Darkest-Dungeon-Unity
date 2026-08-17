@@ -9,18 +9,18 @@
 
         <views:TorchView DataContext="{Binding Torch}"
                          HorizontalAlignment="Center" VerticalAlignment="Top"
-                         Width="722" Height="90" Margin="0,56,0,0" />
+                         Width="722" Height="90" Margin="0,24,0,0" />
 
         <views:QuestLogView DataContext="{Binding QuestLog}"
                             HorizontalAlignment="Left" VerticalAlignment="Top"
-                            Width="360" Height="158" Margin="20,72,0,0" />
+                            Width="360" Height="158" Margin="20,28,0,0" />
 
         <views:MonsterTooltipView DataContext="{Binding TooltipTarget}"
                                   HorizontalAlignment="Right" VerticalAlignment="Top"
                                   Width="360" Height="330" Margin="0,180,140,0" />
 
         <!-- Stats sheet, opened by right-clicking a unit on the stage -->
-        <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Width="560" Margin="60,240,0,0"
+        <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Width="560" Height="330" Margin="60,220,0,0"
               Visibility="{Binding IsStatsVisible, Converter={StaticResource BoolToVisibility}}">
             <Border Background="#E6000000" BorderBrush="{x:Static ui:UiBrushes.Label}" BorderThickness="2"
                     CornerRadius="8">

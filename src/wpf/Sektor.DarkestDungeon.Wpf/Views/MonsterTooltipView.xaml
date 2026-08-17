@@ -3,6 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="clr-namespace:Sektor.DarkestDungeon.Wpf.Ui">
     <Border Background="#E6000000" BorderBrush="#3A2E22" BorderThickness="2" CornerRadius="8">
+        <Border.Style>
+            <Style TargetType="Border">
+                <Setter Property="Visibility" Value="Visible" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding}" Value="{x:Null}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
         <StackPanel Margin="14">
             <TextBlock Text="{Binding Name, TargetNullValue=Hover a unit}"
                        Foreground="{x:Static ui:UiBrushes.Label}" FontSize="20" FontWeight="Bold" />
