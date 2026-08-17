@@ -4,7 +4,7 @@
              xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views">
     <Border Background="#E6000000" BorderBrush="#3A2E22" BorderThickness="0,2,0,0">
         <!-- Margins align the HUD panels with the battle field backdrop edges -->
-        <Grid Margin="40,8,40,8">
+        <Grid Margin="8,8,8,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
