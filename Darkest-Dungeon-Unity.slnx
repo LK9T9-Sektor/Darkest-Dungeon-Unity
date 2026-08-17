@@ -56,6 +56,9 @@
     <Project Path="src/Lan/Sektor.DarkestDungeon.Lan.Contracts/Sektor.DarkestDungeon.Lan.Contracts.csproj" />
     <Project Path="src/Lan/Sektor.DarkestDungeon.Lan.Steam/Sektor.DarkestDungeon.Lan.Steam.csproj" />
   </Folder>
+  <Folder Name="/src/wpf/">
+    <Project Path="src/wpf/Sektor.DarkestDungeon.Wpf/Sektor.DarkestDungeon.Wpf.csproj" />
+  </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/Core/">
     <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Content.Tests/Sektor.DarkestDungeon.Core.Content.Tests.csproj" />

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <!-- src\Directory.Build.props pins src to C# 7.3; the WPF client overrides it (client-zone carve-out). -->
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Sektor.DarkestDungeon.Wpf</RootNamespace>
+    <AssemblyName>Sektor.DarkestDungeon.Wpf</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Content\Sektor.DarkestDungeon.Core.Content.csproj" />
+    <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Ui\Sektor.DarkestDungeon.Core.Ui.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,28 @@
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.BattleScreenView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views"
+             Width="1920" Height="1080">
+    <Grid Background="Black">
+        <views:BattleViewport DataContext="{Binding}" />
+
+        <views:TorchView DataContext="{Binding Torch}"
+                         HorizontalAlignment="Center" VerticalAlignment="Top"
+                         Width="722" Height="90" Margin="0,56,0,0" />
+
+        <views:QuestLogView DataContext="{Binding QuestLog}"
+                            HorizontalAlignment="Left" VerticalAlignment="Top"
+                            Width="360" Height="158" Margin="20,72,0,0" />
+
+        <views:MonsterTooltipView DataContext="{Binding TooltipTarget}"
+                                  HorizontalAlignment="Right" VerticalAlignment="Top"
+                                  Width="360" Height="330" Margin="0,180,140,0" />
+
+        <views:EventsLayerView DataContext="{Binding Events}"
+                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+
+        <views:RaidHudView DataContext="{Binding RaidHud}"
+                           HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+                           Height="360" />
+    </Grid>
+</UserControl>

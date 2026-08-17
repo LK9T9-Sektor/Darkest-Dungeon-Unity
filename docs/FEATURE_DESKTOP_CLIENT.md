@@ -8,7 +8,15 @@
 
 ## Состав
 
-- **Расположение:** в DD-монорепо, `clients\wpf\` (net8.0, ссылки на `src\Core` + `src\Lan`/`src\Networking`).
+- **Расположение:** в DD-монорепо, `src\wpf\Sektor.DarkestDungeon.Wpf\` (net8.0-windows, C# latest,
+  ссылки на `src\Core` + `src\Lan`). Клиентская зона `src\` переопределяет
+  `LangVersion`/`Nullable` из `src\Directory.Build.props` (см. AGENTS.md).
+- **Зависимости (NuGet):** `CommunityToolkit.Mvvm` (ObservableObject/RelayCommand), `Microsoft.Xaml.Behaviors.Wpf`.
+- **Боевой экран (макет):** MVVM-каркас по сцене боя (`unity\Assets\Scenes\Dungeon.unity`, canvas
+  `UI_RaidInterface`) — `BattleViewport` (сцена: ранги героев/монстров + оверлеи HP/стресс),
+  `TorchView`, `QuestLogView`, `RaidHudView` (`HeroBannerView`/`HeroStatsView`/
+  `InventoryView`⇄`MapView`/`MonsterTooltipView`), `EventsLayerView`. Данные — заглушки;
+  визуал — плейсхолдеры до синка ассетов (`FEATURE_SHARED_ASSETS.md`).
 - **Мини-слой дуэли** в `src\Core\Combat` (2×4 юнита, атака/лечение/статус/ход/победа) — затравка Фазы 3.
 - **Сеть:** `SteamTransport` (host/join по session id, уже работает); `PhotonTransport` — после Фазы 5.
 - **UI:** XAML по паттерну session/snapshot — лобби (nickname, host/join, ROOM_ID) + бой (юниты, HP,
