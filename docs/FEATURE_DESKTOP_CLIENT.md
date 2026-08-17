@@ -8,7 +8,7 @@
 
 ## Состав
 
-- **Расположение:** в DD-монорепо, `src\wpf\Sektor.DarkestDungeon.Wpf\` (net8.0-windows, C# latest,
+- **Расположение:** в DD-монорепо, `src\Wpf\Sektor.DarkestDungeon.Wpf\` (net8.0-windows, C# latest,
   ссылки на `src\Core` + `src\Lan`). Клиентская зона `src\` переопределяет
   `LangVersion`/`Nullable` из `src\Directory.Build.props` (см. AGENTS.md).
 - **Зависимости (NuGet):** `CommunityToolkit.Mvvm` (ObservableObject/RelayCommand), `Microsoft.Xaml.Behaviors.Wpf`.
