@@ -10,13 +10,13 @@
         </Grid.Background>
 
         <!-- Room backdrop placeholder: stretches to frame every unit on stage -->
-        <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="100,200,100,390"
+        <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="40,200,40,390"
                 Background="#0C0C0C" BorderBrush="#3A2E22" BorderThickness="2" CornerRadius="12" />
 
         <!-- Player party: four fixed slots on the left half, clear center gap -->
         <ItemsControl ItemsSource="{Binding HeroSlots}"
                       HorizontalAlignment="Left" VerticalAlignment="Center"
-                      Margin="110,0,0,0">
+                      Margin="40,0,0,0">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" />
@@ -32,7 +32,7 @@
         <!-- Enemies: four fixed slots on the right half, clear center gap -->
         <ItemsControl ItemsSource="{Binding MonsterSlots}"
                       HorizontalAlignment="Right" VerticalAlignment="Center"
-                      Margin="0,0,110,0">
+                      Margin="0,0,40,0">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" />
