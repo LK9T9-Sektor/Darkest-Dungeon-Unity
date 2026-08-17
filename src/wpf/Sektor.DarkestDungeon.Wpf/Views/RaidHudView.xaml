@@ -5,21 +5,21 @@
     <Border Background="{StaticResource AreaBackground}" BorderBrush="{StaticResource FieldBorder}" BorderThickness="0,2,0,0">
         <Grid Margin="8,8,8,8">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="690" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="707" />
             </Grid.ColumnDefinitions>
 
             <!-- Left: framed hero info, flush with the left field border -->
             <views:HeroInfoPanelView Grid.Column="0" DataContext="{Binding RaidHud}"
-                                     HorizontalAlignment="Left" VerticalAlignment="Top" Width="690" />
+                                     HorizontalAlignment="Left" VerticalAlignment="Top" />
 
             <!-- Center: unit tooltip, between the hero card and the inventory/map -->
             <views:UnitTooltipView Grid.Column="1" DataContext="{Binding TooltipTarget}"
                                    HorizontalAlignment="Center" VerticalAlignment="Top" Width="360" />
 
             <!-- Right: inventory/map pinned to the top, buttons in their own row below -->
-            <Grid Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="707">
+            <Grid Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />

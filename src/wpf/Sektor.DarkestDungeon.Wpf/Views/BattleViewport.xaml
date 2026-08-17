@@ -14,10 +14,10 @@
                 Background="{StaticResource FieldBackground}" BorderBrush="{StaticResource FieldBorder}"
                 BorderThickness="2" CornerRadius="12" />
 
-        <!-- Player party: four fixed slots on the left half, clear center gap -->
+        <!-- Player party: four fixed slots on the left half, clear center gap, near the bottom -->
         <ItemsControl ItemsSource="{Binding HeroSlots}"
-                      HorizontalAlignment="Left" VerticalAlignment="Center"
-                      Margin="40,0,0,0">
+                      HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                      Margin="40,0,0,40">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" />
@@ -30,10 +30,10 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <!-- Enemies: four fixed slots on the right half, clear center gap -->
+        <!-- Enemies: four fixed slots on the right half, clear center gap, near the bottom -->
         <ItemsControl ItemsSource="{Binding MonsterSlots}"
-                      HorizontalAlignment="Right" VerticalAlignment="Center"
-                      Margin="0,0,40,0">
+                      HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                      Margin="0,0,40,40">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" />

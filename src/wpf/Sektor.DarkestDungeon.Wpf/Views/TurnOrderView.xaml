@@ -2,22 +2,23 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="clr-namespace:Sektor.DarkestDungeon.Wpf.Ui">
-    <Border Style="{StaticResource OverlayPanel}" Width="320">
+    <Border Style="{StaticResource OverlayPanel}" Width="500">
         <StackPanel Margin="{StaticResource SpacingSmall}">
             <TextBlock Text="TURN ORDER" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="16"
                        FontWeight="Bold" HorizontalAlignment="Center" />
-            <ItemsControl ItemsSource="{Binding Slots}" Margin="0,6,0,0">
+            <!-- One row, reading right-to-left like the in-game turn order -->
+            <ItemsControl ItemsSource="{Binding Slots}" FlowDirection="RightToLeft" Margin="0,6,0,0">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <UniformGrid Columns="4" />
+                        <StackPanel Orientation="Horizontal" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Width="54" Height="40" Margin="3" CornerRadius="4"
+                        <Border Width="50" Height="34" Margin="3" CornerRadius="4"
                                 Background="{x:Static ui:UiBrushes.ButtonBackground}"
                                 BorderBrush="#3A2E22" BorderThickness="1">
-                            <TextBlock Text="{Binding}" Foreground="#6A6A6A" FontSize="16"
+                            <TextBlock Text="{Binding}" Foreground="#6A6A6A" FontSize="15"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                     </DataTemplate>

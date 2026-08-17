@@ -19,16 +19,16 @@
             </Grid.ColumnDefinitions>
 
             <views:QuestLogView Grid.Column="0" DataContext="{Binding QuestLog}"
-                                HorizontalAlignment="Left" VerticalAlignment="Center"
-                                Width="360" Height="150" Margin="8,0,0,0" />
+                                HorizontalAlignment="Left" VerticalAlignment="Top"
+                                Width="360" Height="150" Margin="8,8,0,0" />
 
             <views:TorchView Grid.Column="1" DataContext="{Binding Torch}"
-                             HorizontalAlignment="Center" VerticalAlignment="Center"
-                             Width="500" Height="90" />
+                             HorizontalAlignment="Center" VerticalAlignment="Top"
+                             Width="500" Height="90" Margin="0,8,0,0" />
 
             <views:TurnOrderView Grid.Column="2" DataContext="{Binding TurnOrder}"
-                                 HorizontalAlignment="Right" VerticalAlignment="Center"
-                                 Margin="0,0,8,0" />
+                                 HorizontalAlignment="Right" VerticalAlignment="Top"
+                                 Margin="0,8,8,0" />
         </Grid>
 
         <!-- CENTER AREA: battle field + overlay events + right-click stats -->
