@@ -90,7 +90,8 @@ repo/
 - **Фаза 2. Сейвы** → `src\Core\Save`: DTO + бинарный кодек + версии; IO в Unity через `ISaveStorage`.
 - **Фаза 3. Бой** → `src\Core\Combat`: `BattleGround`/`Round`/`BattleSolver`/Effects/AI как чистая
   симуляция; архитектура — **симуляция + события для view** (решение принято). Кооп-PvE строится на
-  результате этой фазы (см. `FEATURE_COOP.md`).
+  результате этой фазы (см. `FEATURE_COOP.md`); сетевой бой — детерминированный локстап
+  (`NETWORK.md` §6): сид сессии и разрешение должны совпадать между клиентами.
 - **Фаза 4. Кампания** → `src\Core\Campaign`: имение, здания, квесты, week log, события города.
 - **Фаза 5. Сеть** → `src\Networking` (Steam + Photon) по `NETWORK_LAYER_REUSE.md`: ренейм
   `Sektor.Networking`, `PhotonTransport`, generic `SessionManager`/`RaidBridge`, единый session-id флоу,

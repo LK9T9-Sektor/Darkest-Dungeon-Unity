@@ -18,6 +18,9 @@
   `InventoryView`⇄`MapView`/`MonsterTooltipView`), `EventsLayerView`. Данные — заглушки;
   визуал — плейсхолдеры до синка ассетов (`FEATURE_SHARED_ASSETS.md`).
 - **Мини-слой дуэли** в `src\Core\Combat` (2×4 юнита, атака/лечение/статус/ход/победа) — затравка Фазы 3.
+  Сетевой бой — **детерминированный локстап** (модель в `NETWORK.md` §6): обе стороны гоняют одну
+  симуляцию, по сети идут только вводы (скилл+цель, pass/move) и `party_config`; сид сессии и
+  генерация героев из сидов должны совпадать с Unity, чтобы стороны сходились.
 - **Сеть:** `SteamTransport` (host/join по session id, уже работает); `PhotonTransport` — после Фазы 5.
 - **UI:** XAML по паттерну session/snapshot — лобби (nickname, host/join, ROOM_ID) + бой (юниты, HP,
   скилл+цель, лог).
