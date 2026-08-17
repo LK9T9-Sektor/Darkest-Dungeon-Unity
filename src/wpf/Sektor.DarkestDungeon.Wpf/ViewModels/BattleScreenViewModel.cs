@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
@@ -28,9 +29,25 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private UnitViewModel? _tooltipTarget;
 
+        /// <summary>Gets the stat sheet shown when a unit is right-clicked.</summary>
+        public HeroStatsViewModel StatsTarget { get; } = new HeroStatsViewModel();
+
+        /// <summary>Gets or sets a value indicating whether the stats sheet overlay is visible.</summary>
+        [ObservableProperty]
+        private bool _isStatsVisible;
+
+        /// <summary>Gets the command that opens the stats sheet for the given unit.</summary>
+        public IRelayCommand<UnitViewModel?> OpenStatsCommand { get; }
+
+        /// <summary>Gets the command that closes the stats sheet.</summary>
+        public IRelayCommand CloseStatsCommand { get; }
+
         /// <summary>Initializes the mockup with placeholder stage data.</summary>
         public BattleScreenViewModel()
         {
+            OpenStatsCommand = new RelayCommand<UnitViewModel?>(OpenStats);
+            CloseStatsCommand = new RelayCommand(() => IsStatsVisible = false);
+
             Heroes.Add(new UnitViewModel("Reynauld", "Crusader", 100, 100, 20));
             Heroes.Add(new UnitViewModel("Dismas", "Highwayman", 88, 92, 35));
             Heroes.Add(new UnitViewModel("Paracelsus", "Plague Doctor", 72, 85, 10));
@@ -39,6 +56,15 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             Monsters.Add(new UnitViewModel("Cultist Acolyte", "Cultist", 40, 40, 40, true));
             Monsters.Add(new UnitViewModel("Bone Soldier", "Bone", 55, 55, 25, true));
             Monsters.Add(new UnitViewModel("Swine Wretch", "Swine", 48, 48, 5, true));
+        }
+
+        private void OpenStats(UnitViewModel? unit)
+        {
+            if (unit == null)
+                return;
+
+            StatsTarget.Apply(unit);
+            IsStatsVisible = true;
         }
     }
 }

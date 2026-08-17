@@ -2,37 +2,64 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
-    /// <summary>Stat sheet of the selected hero.</summary>
+    /// <summary>Stat sheet of the inspected hero/unit (opened on right-click).</summary>
     public partial class HeroStatsViewModel : ObservableObject
     {
-        /// <summary>Gets the current hit points.</summary>
-        public string HitPoints { get; } = "78 / 78";
+        /// <summary>Gets or sets the hero name.</summary>
+        [ObservableProperty]
+        private string _heroName = "Reynauld";
 
-        /// <summary>Gets the current stress value.</summary>
-        public string Stress { get; } = "0 / 100";
+        /// <summary>Gets or sets the hero class.</summary>
+        [ObservableProperty]
+        private string _heroClass = "Crusader";
 
-        /// <summary>Gets the speed value.</summary>
-        public string Speed { get; } = "4";
+        /// <summary>Gets or sets the current hit points text.</summary>
+        [ObservableProperty]
+        private string _hitPoints = "78 / 78";
 
-        /// <summary>Gets the damage range.</summary>
-        public string Damage { get; } = "8 - 15";
+        /// <summary>Gets or sets the current stress text.</summary>
+        [ObservableProperty]
+        private string _stress = "0 / 100";
 
-        /// <summary>Gets the accuracy modifier.</summary>
-        public string Accuracy { get; } = "+85";
+        /// <summary>Gets or sets the speed value.</summary>
+        [ObservableProperty]
+        private string _speed = "4";
 
-        /// <summary>Gets the critical chance.</summary>
-        public string Crit { get; } = "7%";
+        /// <summary>Gets or sets the damage range.</summary>
+        [ObservableProperty]
+        private string _damage = "8 - 15";
 
-        /// <summary>Gets the dodge value.</summary>
-        public string Dodge { get; } = "15";
+        /// <summary>Gets or sets the accuracy modifier.</summary>
+        [ObservableProperty]
+        private string _accuracy = "+85";
 
-        /// <summary>Gets the protection value.</summary>
-        public string Protection { get; } = "10%";
+        /// <summary>Gets or sets the critical chance.</summary>
+        [ObservableProperty]
+        private string _crit = "7%";
 
-        /// <summary>Gets the weapon level label.</summary>
-        public string WeaponLevel { get; } = "Lv. 1";
+        /// <summary>Gets or sets the dodge value.</summary>
+        [ObservableProperty]
+        private string _dodge = "15";
 
-        /// <summary>Gets the armor level label.</summary>
-        public string ArmorLevel { get; } = "Lv. 1";
+        /// <summary>Gets or sets the protection value.</summary>
+        [ObservableProperty]
+        private string _protection = "10%";
+
+        /// <summary>Gets or sets the weapon level label.</summary>
+        [ObservableProperty]
+        private string _weaponLevel = "Lv. 1";
+
+        /// <summary>Gets or sets the armor level label.</summary>
+        [ObservableProperty]
+        private string _armorLevel = "Lv. 1";
+
+        /// <summary>Fills the sheet from a stage unit, keeping placeholder values for the rest.</summary>
+        public void Apply(UnitViewModel unit)
+        {
+            HeroName = unit.Name;
+            HeroClass = unit.ClassName;
+            HitPoints = unit.HpCurrent + " / " + unit.HpMax;
+            Stress = unit.Stress + " / 100";
+        }
     }
 }

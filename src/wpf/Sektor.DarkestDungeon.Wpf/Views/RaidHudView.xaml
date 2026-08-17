@@ -3,10 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views"
              xmlns:ui="clr-namespace:Sektor.DarkestDungeon.Wpf.Ui">
-    <UserControl.Resources>
-        <ui:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility" />
-    </UserControl.Resources>
-
     <Border Background="#E6000000" BorderBrush="#3A2E22" BorderThickness="0,2,0,0">
         <Grid Margin="0,12">
             <Grid.ColumnDefinitions>
@@ -15,24 +11,26 @@
                 <ColumnDefinition Width="707" />
             </Grid.ColumnDefinitions>
 
-            <!-- Left: hero banner + stats -->
-            <StackPanel Grid.Column="0" HorizontalAlignment="Center">
-                <views:HeroBannerView DataContext="{Binding Hero}" Height="136" />
-                <views:HeroStatsView DataContext="{Binding Hero.Stats}" Height="204" />
-            </StackPanel>
+            <!-- Left: selected hero banner -->
+            <views:HeroBannerView Grid.Column="0" DataContext="{Binding Hero}"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center" Height="136" />
 
-            <!-- Right: inventory / map (toggle) -->
+            <!-- Right: inventory / map, toggled by the buttons below -->
             <Grid Grid.Column="2">
                 <views:InventoryView DataContext="{Binding Inventory}"
-                                     Visibility="{Binding IsInventoryShown, Converter={StaticResource BoolToVisibility}}" />
+                                     Visibility="{Binding DataContext.IsInventoryShown, RelativeSource={RelativeSource AncestorType={x:Type views:RaidHudView}}, Converter={StaticResource BoolToVisibility}}" />
                 <views:MapView DataContext="{Binding Map}"
-                               Visibility="{Binding IsInventoryShown, Converter={StaticResource InverseBoolToVisibility}}" />
-                <Button Content="MAP / INVENTORY"
-                        Command="{Binding ToggleRightPanelCommand}"
-                        HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,4,0,0"
-                        Background="{x:Static ui:UiBrushes.ButtonBackground}"
-                        Foreground="{x:Static ui:UiBrushes.Label}"
-                        Padding="14,4" FontSize="16" />
+                               Visibility="{Binding DataContext.IsInventoryShown, RelativeSource={RelativeSource AncestorType={x:Type views:RaidHudView}}, Converter={StaticResource InverseBoolToVisibility}}" />
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top"
+                            Margin="0,4,12,0">
+                    <Button Content="INVENTORY" Command="{Binding ShowInventoryCommand}" Margin="0,0,8,0"
+                            Background="{x:Static ui:UiBrushes.ButtonBackground}"
+                            Foreground="{x:Static ui:UiBrushes.Label}" Padding="14,4" FontSize="16" />
+                    <Button Content="MAP" Command="{Binding ShowMapCommand}"
+                            Background="{x:Static ui:UiBrushes.ButtonBackground}"
+                            Foreground="{x:Static ui:UiBrushes.Label}" Padding="14,4" FontSize="16" />
+                </StackPanel>
             </Grid>
         </Grid>
     </Border>

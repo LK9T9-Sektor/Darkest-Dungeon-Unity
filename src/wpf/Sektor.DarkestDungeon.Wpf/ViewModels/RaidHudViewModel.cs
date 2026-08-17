@@ -19,12 +19,20 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private bool _isInventoryShown = true;
 
+        /// <summary>Gets the command that switches the right panel to the inventory.</summary>
+        public IRelayCommand ShowInventoryCommand { get; }
+
+        /// <summary>Gets the command that switches the right panel to the map.</summary>
+        public IRelayCommand ShowMapCommand { get; }
+
         /// <summary>Gets the command that toggles the right panel between inventory and map.</summary>
         public IRelayCommand ToggleRightPanelCommand { get; }
 
         /// <summary>Initializes a new instance of the <see cref="RaidHudViewModel"/> class.</summary>
         public RaidHudViewModel()
         {
+            ShowInventoryCommand = new RelayCommand(() => IsInventoryShown = true);
+            ShowMapCommand = new RelayCommand(() => IsInventoryShown = false);
             ToggleRightPanelCommand = new RelayCommand(ToggleRightPanel);
         }
 

@@ -6,6 +6,7 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <ui:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility" />
         <ui:StringToVisibilityConverter x:Key="StringToVisibility" />
 
         <!-- Shared stage unit card: portrait placeholder, HP bar, stress pips, selection frame -->
@@ -17,6 +18,10 @@
                     </i:EventTrigger>
                     <i:EventTrigger EventName="MouseLeave">
                         <i:ChangePropertyAction TargetObject="{Binding}" PropertyName="IsSelected" Value="False" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseRightButtonDown">
+                        <i:InvokeCommandAction Command="{Binding DataContext.OpenStatsCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                               CommandParameter="{Binding}" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
 
@@ -46,20 +51,21 @@
                 <TextBlock Text="{Binding Name}" Foreground="#E8D9B0" FontSize="18"
                            HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,182,0,0" />
 
-                <!-- Health bar -->
+                <!-- Health bar: fixed width, fill varies with HP -->
                 <ProgressBar Minimum="0" Maximum="1" Value="{Binding HpRatio, Mode=OneWay}"
                              Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10,210,10,0" />
 
-                <!-- Stress pips -->
-                <ItemsControl ItemsSource="{Binding StressPips}" VerticalAlignment="Top" Margin="55,228,0,0">
+                <!-- Stress bar: same full width as the health bar, split into 10 squares -->
+                <ItemsControl ItemsSource="{Binding StressPips}" HorizontalAlignment="Stretch"
+                              VerticalAlignment="Top" Margin="10,224,10,0">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
+                            <UniformGrid Columns="10" />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Rectangle Width="8" Height="8" Margin="1,0" Fill="#4A5A6A" />
+                            <Rectangle Height="8" Margin="1,0" Fill="#4A5A6A" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
