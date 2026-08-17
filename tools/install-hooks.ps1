@@ -1,5 +1,5 @@
 # Installs the repository git hooks (committed under .githooks\) by pointing git at that folder.
-# The pre-commit hook runs tools\check-script-references.ps1 on both Unity trees so stale script
+# The pre-commit hook runs tools\unity-check-script-references.ps1 on both Unity trees so stale script
 # GUIDs in scenes/prefabs are rejected before they are committed.
 #
 # Usage: pwsh tools\install-hooks.ps1
