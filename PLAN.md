@@ -27,8 +27,8 @@
 
 ### Этап B. WPF battle-runtime
 
-- [ ] **B1** Реализации `IBattleContext`/`IBattleEvents`/`IBattleGround`/`ICombatUnit` в WPF над core-моделью
-- [ ] **B2** Контроллер дуэли: старт по двум `party_config`, локальный `Round`+`BattleSolver`, приём вводов, фидбек в `BattleScreenViewModel`
+- [x] **B1** `DuelBattleEvents`/`DuelBattleContext` в `src\Wpf\...\Combat\` (реализуют `IBattleEvents`/`IBattleContext` над core-моделью)
+- [x] **B2** `DuelClasses` (образцы классов героев, общие для обоих клиентов) + `DuelController` (старт дуэли из пиков, `BattleSolver`, ход/раунд, приём вводов)
 
 ### Этап C. WPF сетевой glue (над `ITransport`)
 
