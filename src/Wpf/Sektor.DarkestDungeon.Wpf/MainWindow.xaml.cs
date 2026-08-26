@@ -1,5 +1,7 @@
 using System.Windows;
+using Sektor.DarkestDungeon.Wpf.Networking;
 using Sektor.DarkestDungeon.Wpf.ViewModels;
+using Sektor.DarkestDungeon.Wpf.Views;
 
 namespace Sektor.DarkestDungeon.Wpf
 {
@@ -11,6 +13,15 @@ namespace Sektor.DarkestDungeon.Wpf
         {
             InitializeComponent();
             DataContext = new BattleScreenViewModel();
+        }
+
+        private void OpenDuelLobby_Click(object sender, RoutedEventArgs e)
+        {
+            var lobby = new DuelLobbyView(new DuelLobbyViewModel(DuelTransportFactory.CreateSteamTransport()))
+            {
+                Owner = this,
+            };
+            lobby.ShowDialog();
         }
     }
 }

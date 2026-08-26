@@ -1,0 +1,35 @@
+<Window x:Class="Sektor.DarkestDungeon.Wpf.Views.DuelLobbyView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Darkest Dungeon — Duel Lobby"
+        Width="720" Height="560"
+        Background="#1E1E1E"
+        WindowStartupLocation="CenterOwner"
+        TextElement.Foreground="White">
+    <StackPanel Margin="20">
+        <TextBlock Text="Pick 4 heroes, then Host or Join." FontSize="18" Margin="0,0,0,12" />
+        <ItemsControl ItemsSource="{Binding Slots}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Margin="0,4">
+                        <Button Content="&#x25C0;" Width="28" Command="{Binding PrevClassCommand}" />
+                        <TextBlock Text="{Binding ClassName}" Width="180" VerticalAlignment="Center" Margin="8,0" />
+                        <Button Content="&#x25B6;" Width="28" Command="{Binding NextClassCommand}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Margin="0,14,0,0" Foreground="#D9B46A" />
+
+        <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+            <TextBox Text="{Binding SessionIdText, UpdateSourceTrigger=PropertyChanged}"
+                     Width="220" VerticalContentAlignment="Center"
+                     Background="#2B2B2B" BorderBrush="#555" Foreground="White" />
+            <Button Content="Host" Width="70" Margin="8,0,0,0" Command="{Binding HostCommand}" />
+            <Button Content="Join" Width="70" Margin="8,0,0,0" Command="{Binding JoinCommand}" />
+            <Button Content="Copy ID" Width="70" Margin="8,0,0,0" Command="{Binding CopyIdCommand}" />
+            <Button Content="Leave" Width="70" Margin="8,0,0,0" Command="{Binding LeaveCommand}" />
+        </StackPanel>
+    </StackPanel>
+</Window>

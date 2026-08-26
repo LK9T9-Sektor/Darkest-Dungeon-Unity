@@ -41,13 +41,13 @@
 
 ### Этап D. Лобби с выбором героев (WPF)
 
-- [ ] **D1** Лобби: 4 слота героев (выбор класса), Host/Join, копирование session id
-- [ ] **D2** Отправка `party_config` при джойне; старт дуэли по обоим config
+- [x] **D1** `DuelLobbyView`/`DuelLobbyViewModel`/`HeroSlotViewModel`: 4 слота героев (цикл по классам), Host/Join, Copy ID, Leave, статус, pump-таймер; кнопка «Multiplayer Duel» в MainWindow
+- [x] **D2** Отправка `party_config` при джойне; барьер готовности → `DuelController.StartDuel` (сид сессии §6)
 
 ### Этап E. Де-риск и интеграция
 
 - [x] **E1** Локстап + выбор героев проверены интеграционным тестом на `InMemoryTransport` (две стороны сходятся)
-- [ ] **E2** Переключение на `SteamTransport` (Steam-комната, LAN→интернет) + упаковка `steam_api64.dll`
+- [x] **E2** `SteamTransport` подключён (`DuelTransportFactory`); `steam_api64.dll` копируется в вывод WPF пост-билдом; `steam_appid.txt` — dev-локальный (gitignored)
 
 ### Тесты
 

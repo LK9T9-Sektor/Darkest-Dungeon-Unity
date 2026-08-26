@@ -25,4 +25,10 @@
     <ProjectReference Include="..\..\Lan\Sektor.DarkestDungeon.Lan.Steam\Sektor.DarkestDungeon.Lan.Steam.csproj" />
   </ItemGroup>
 
+  <Target Name="CopySteamRuntime" AfterTargets="Build">
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\..\unity\Assets\Plugins\x86_64\steam_api64.dll"
+          DestinationFolder="$(OutputPath)"
+          Condition="Exists('$(MSBuildThisFileDirectory)..\..\..\unity\Assets\Plugins\x86_64\steam_api64.dll')" />
+  </Target>
+
 </Project>

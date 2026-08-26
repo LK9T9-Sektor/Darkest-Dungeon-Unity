@@ -48,6 +48,16 @@ namespace Sektor.DarkestDungeon.Wpf.Networking
         /// <summary>Gets the local player id.</summary>
         public string LocalPlayerId { get { return transport.LocalPlayerId; } }
 
+        /// <summary>Gets the rival player id (empty when none).</summary>
+        public string RivalPlayerId
+        {
+            get
+            {
+                var players = transport.GetSessionPlayers();
+                return players.Length > 0 ? players[0] : string.Empty;
+            }
+        }
+
         /// <summary>Gets a value indicating whether the local player is the host.</summary>
         public bool IsHost
         {
