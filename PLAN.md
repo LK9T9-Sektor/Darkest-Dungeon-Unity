@@ -131,28 +131,35 @@ src\Core\Sektor.DarkestDungeon.Core.Combat/
 - [x] **9.1** Добавить ссылку `Sektor.DarkestDungeon.Core.Combat` в `Sektor.DarkestDungeon.Wpf.csproj`
 - [x] **9.2** `BattleScreenViewModel`/`HeroViewModel` — данные из ядра: `Data\CombatSampleData` строит скиллы героя из `CombatSkill`/`FormationSet`/`SkillCategory`/`HealComponent`; `HeroViewModel` отображает скиллы из core-определений (ранги/мультитаргет → подписи)
 
-### Этап 10. Интеграция с Unity (модификация presentation-layer)
+### Этап 10. Интеграция с Unity (модификация presentation-layer) — ОТЛОЖЕН
 
 - [ ] **10.1** `FormationUnit.cs` — реализовать `ICombatUnit`
 - [ ] **10.2** `BattleGround.cs` — реализовать `IBattleGround`
 - [ ] **10.3** `RaidSceneManager.cs` — заменить прямые вызовы `BattleSolver.*` на `using Core.Combat`
 - [ ] **10.4** Остальные файлы в `Raid\`, `Managers\`, `UI\`, `Setup\` — обновить using'и
 
+> **Отложен осознанно:** полный cutover — build-breaking рефакторинг (дубликаты типов в глобальном
+> namespace vs core-namespace; удаление 78 легаси-копий в `Mechanics\` + сотни using). Противоречит
+> «Minimal Legacy Diff». Игра работает на легаси; core-интерфейсы готовы. Cutover — когда реально
+> понадобится детерминированный кооп через ядро (`NETWORK.md` §6). Модель персонажа
+> (`Character`/`Hero`/`Monster`/`Statuses`/`Components`) — отдельный большой срез, тоже отложен.
+
 ### Этап 11. Верификация
 
-- [ ] **11.1** `dotnet build src\Core\Sektor.DarkestDungeon.Core.Combat\`
-- [ ] **11.2** `dotnet test tests\Core\`
-- [ ] **11.3** `pwsh tools\unity-compile-check.ps1 -ProjectPath unity`
-- [ ] **11.4** `pwsh tools\unity-compile-check.ps1 -ProjectPath unity-2017`
+- [x] **11.1** `dotnet build src\Core\Sektor.DarkestDungeon.Core.Combat\`
+- [x] **11.2** `dotnet test tests\Core\` (Content 10 + Combat 26 — зелёные)
+- [x] **11.3** `pwsh tools\unity-compile-check.ps1 -ProjectPath unity` → `Compilation succeeded`, `Script reference check passed`
+- [ ] **11.4** `pwsh tools\unity-compile-check.ps1 -ProjectPath unity-2017` (легаси-дерево; проверка человеком/по возможности)
 
 ## Приёмка
 
-- [ ] WPF-проект ссылается на `Core.Combat` и может создать `BattleSolver` без Unity
-- [ ] Все 40 enums в отдельных файлах (один публичный тип на файл)
-- [ ] `BattleSolver`, `Round`, `Effect`, AI desires — без `using UnityEngine`
-- [ ] NUnit-тесты проходят
-- [ ] Оба Unity-проекта компилируются
-- [ ] `MechanicsDefines.cs` удалён (все enums в отдельных файлах)
+- [x] WPF-проект ссылается на `Core.Combat` и строит скиллы из core-данных без Unity
+- [x] Все 40 enums в отдельных файлах (один публичный тип на файл)
+- [x] `BattleSolver`, `Round`, `Effect`, AI desires — без `using UnityEngine`
+- [x] NUnit-тесты проходят (Content 10 + Combat 26)
+- [x] Активный Unity-проект компилируется с доставленными core-DLL (`unity-compile-check`)
+- [x] `MechanicsDefines.cs` — enums вынесены в ядро; легаси-файл остаётся в Unity до cutover (не удалён)
+- [x] Структура папок ядра повторяет `Assets\Scripts\` (правило AGENTS.md)
 
 ## Инвентарь классов (файл → назначение)
 

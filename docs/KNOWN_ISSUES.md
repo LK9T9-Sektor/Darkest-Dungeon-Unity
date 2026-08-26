@@ -40,10 +40,15 @@
 
 ## 7. Расхождение с AGENTS.md
 
-- Основной домен всё ещё лежит в презентационном слое (`Assets\Scripts`); чистый C# ядро существует пока только
-  для сетевого слоя (`src\Lan\`): интерфейсы, `Result`-типы вместо исключений, NUnit-тесты, пост-билд доставка
-  DLL в `Assets\Plugins\Internal` (см. `NETWORK.md` §4).
-- Сетевые контракты компилируются под netstandard2.0; основной игровой код — нет.
+- Основной домен всё ещё лежит в презентационном слое (`Assets\Scripts`); чистое C# ядро растёт:
+  сетевой слой `src\Lan\` + ядро контента `src\Core\Content` (Фаза 1) + ядро боя
+  `src\Core\Sektor.DarkestDungeon.Core.Combat` (Фаза 3 — скиллы, эффекты, AI, `BattleSolver`, тесты).
+  Интерфейсы, `Result`-типы, NUnit-тесты, пост-билд доставка DLL в `Assets\Plugins\Internal`
+  (см. `NETWORK.md` §4).
+- Сетевые контракты и core-модули компилируются под netstandard2.0; основной игровой код — нет.
+  Ядро боя **не потребляется игрой**: Unity работает на легаси-дублях в `Assets\Scripts\Mechanics\`
+  (78 файлов); cutover (реализация `ICharacter`/`ICombatUnit`/`IBattleGround` и удаление дублей)
+  отложен до востребованности (кооп через ядро, см. `EXTRACTION_PLAN.md` Фаза 3).
 - Доставка в `Assets\Plugins\Internal` пост-билдом копирует собранные DLL/PDB (см. `EXTRACTION_PLAN.md` §5).
   .NET Standard facade-шимы (`COMPABILITY.md` §1) требовались старому Mono Unity 2017.4; после перехода на
   Unity 6000.5.8f1 фасады не нужны (нативный type-forwarding) — `tools\unity-provision-plugins.ps1` их

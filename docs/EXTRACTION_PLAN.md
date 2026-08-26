@@ -16,10 +16,17 @@
 
 ## 1. Текущее состояние
 
-- `Assets\Scripts` — ~496 MonoBehaviour-файлов в каждом из двух деревьев; весь домен (бой, кампания,
-  данные) всё ещё в презентационном слое.
+- `Assets\Scripts` — ~496 MonoBehaviour-файлов в каждом из двух деревьев; домен (бой, кампания,
+  данные) по-прежнему в презентационном слое (игра работает на легаси-копиях боя; cutover на ядро
+  отложен, см. Фазу 3).
 - `src\` — сетевой слой `Lan\` (Contracts/Steam/Cmd), netstandard2.0, C# 7.3; DLL доставляются
   пост-билдом в `Assets\Plugins\Internal` обоих деревьев. `src\Core\` и `src\Networking\` — целевые.
+- `src\Core\Combat\` — **Фаза 3, вынесено (готово)**: скиллы, 29 эффектов, `Round`, `BattleSolver`,
+  AI (9+8+6 desires), `RandomSolver`, баффы, интерфейсы границы (`ICharacter`, `ICombatUnit`,
+  `IBattleGround`, `IBattleContext`, `IBattleEvents`). Раскладка зеркалирует `Assets\Scripts\`
+  после корня (правило «Preserve Folder Structure»): `Mechanics\`, `Raid\`, `Character\`, `Campaign\`.
+  Тесты — `tests\Core\Sektor.DarkestDungeon.Core.Combat.Tests` (NUnit + NSubstitute, 26). WPF-клиент
+  уже потребляет core-скиллы. Конкретная модель персонажа/юнитов и cutover Unity — отложены.
 - `src\Core\Content\` — данные контента (Фаза 1, в работе): `Raid\` (пропы/курio: `Prop`,
   `Curio`, `CurioResult`, `IProportionValue`, `AreaType`), `Campaign\` (модели `HeirloomExchange`,
   `PartyNameEntry`,   `NarrationEntry`/`NarrationAudioEvent`), `Save\` (бинарный интерфейс
@@ -35,7 +42,8 @@
   семантические размеры текста и цвета (`ArgbColor`), доставляются DLL в оба проекта; Unity-side
   конструктор (`RuntimeUiFactory`) дублируется в деревьях и читает токены из ядра. Единый источник
   стилей для `MultiplayerLogUI`, `MultiplayerProviderMenu`, `SteamLobbyIdPanel`, `SoundSettingsUI`.
-- `tests\Lan\` — NUnit-тесты сетевого слоя; `tests\Core\` — NUnit-тесты ядра контента (на реальных данных).
+- `tests\Lan\` — NUnit-тесты сетевого слоя; `tests\Core\` — NUnit-тесты ядра контента и боя
+  (`Sektor.DarkestDungeon.Core.Combat.Tests`).
 
 ## 2. Целевая раскладка
 
@@ -88,10 +96,16 @@ repo/
   компилятором 2017.4 (сейчас сборки Newtonsoft 11/12/13 ссылаются на контракты net6.0 и дают
   `CS0009` в 2017.4; см. `KNOWN_ISSUES.md` §13).
 - **Фаза 2. Сейвы** → `src\Core\Save`: DTO + бинарный кодек + версии; IO в Unity через `ISaveStorage`.
-- **Фаза 3. Бой** → `src\Core\Combat`: `BattleGround`/`Round`/`BattleSolver`/Effects/AI как чистая
-  симуляция; архитектура — **симуляция + события для view** (решение принято). Кооп-PvE строится на
-  результате этой фазы (см. `FEATURE_COOP.md`); сетевой бой — детерминированный локстап
-  (`NETWORK.md` §6): сид сессии и разрешение должны совпадать между клиентами.
+- **Фаза 3. Бой** → `src\Core\Combat`: `BattleSolver`/`Round`/Effects/AI как чистая
+  симуляция; архитектура — **симуляция + события для view** (решение принято). *(вынесено, готово)*:
+  `Sektor.DarkestDungeon.Core.Combat` (netstandard2.0, C# 7.3) — скиллы, 29 эффектов, раунды,
+  `BattleSolver`, AI (desires), `RandomSolver`, баффы; структура папок повторяет `Assets\Scripts\`
+  (правило «Preserve Folder Structure»). NUnit-тесты (26) + WPF-потребление. **Отложено до
+  востребованности** (детерминированный кооп через ядро, `NETWORK.md` §6): конкретная модель
+  персонажа/юнитов (`Character`, `Hero`, `Monster`, `FormationUnit`, `BattleGround`) в ядре и cutover
+  Unity (реализация `ICharacter`/`ICombatUnit`/`IBattleGround`, удаление легаси-дублей в
+  `Assets\Scripts\Mechanics\`). Сейчас игра работает на легаси-копиях; интерфейсы ядра готовы к
+  реализации при cutover.
 - **Фаза 4. Кампания** → `src\Core\Campaign`: имение, здания, квесты, week log, события города.
 - **Фаза 5. Сеть** → `src\Networking` (Steam + Photon) по `NETWORK_LAYER_REUSE.md`: ренейм
   `Sektor.Networking`, `PhotonTransport`, generic `SessionManager`/`RaidBridge`, единый session-id флоу,
