@@ -119,11 +119,12 @@ src\Core\Sektor.DarkestDungeon.Core.Combat/
 
 ### Этап 8. Тесты (5+ файлов)
 
-- [ ] **8.1** Создать `tests\Core\Sektor.DarkestDungeon.Core.Combat.Tests\` проект
-- [ ] **8.2** Тесты симуляции: `RoundTests.cs`, `BattleSolverTests.cs`
-- [ ] **8.3** Тесты эффектов: `EffectTests.cs`
-- [ ] **8.4** Тесты AI: `MonsterBrainTests.cs`
-- [ ] **8.5** Тесты RNG: `RandomSolverTests.cs`
+- [x] **8.1** Создать `tests\Core\Sektor.DarkestDungeon.Core.Combat.Tests\` проект (NUnit + NSubstitute)
+- [x] **8.2** Тесты симуляции: `BattleSolverTests.cs` (IsSkillUsable, ExecuteSkill damage/heal), `RoundTests.cs`
+- [x] **8.3** Тесты эффектов: `EffectTests.cs` (OnMiss/ApplyOnce/TargetType.Global torch)
+- [x] **8.4** Тесты AI: `MonsterBrainTests.cs` (контейнер + решение)
+- [x] **8.5** Тесты RNG: `RandomSolverTests.cs` (детерминизм сида, границы), `FormationSetTests.cs` (парсинг/ранги)
+- [x] Итог: 26 тестов зелёные; проект добавлен в `.slnx`
 
 ### Этап 9. Интеграция с WPF
 
