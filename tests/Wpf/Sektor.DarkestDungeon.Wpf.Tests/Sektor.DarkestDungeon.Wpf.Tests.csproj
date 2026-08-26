@@ -6,6 +6,7 @@
     <IsTestProject>true</IsTestProject>
     <UseWPF>true</UseWPF>
     <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

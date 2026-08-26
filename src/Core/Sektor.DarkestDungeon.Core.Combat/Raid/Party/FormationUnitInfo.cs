@@ -107,5 +107,17 @@ namespace Sektor.DarkestDungeon.Core.Combat.Raid.Party
             if (CurrentInitiative > TotalInitiatives)
                 CurrentInitiative = 1;
         }
+
+        /// <inheritdoc/>
+        public void UpdateNextRound()
+        {
+            RoundsAlive++;
+            SkillsUsedThisTurn.Clear();
+            CurrentInitiative = 0;
+            BlockedMoveUnitIds.Clear();
+            BlockedHealUnitIds.Clear();
+            BlockedBuffUnitIds.Clear();
+            BlockedItems.Clear();
+        }
     }
 }

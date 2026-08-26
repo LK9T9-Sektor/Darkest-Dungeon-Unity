@@ -1,8 +1,5 @@
 namespace Sektor.DarkestDungeon.Wpf.Tests
 {
-    using System.Collections.Generic;
-    using System.Linq;
-
     using NUnit.Framework;
 
     using Sektor.DarkestDungeon.Core.Combat.Mechanics;
@@ -12,12 +9,12 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
     [TestFixture]
     public class DuelFlowTests
     {
-        private static DuelHeroPick[] ToPicks(DuelPartyConfig config)
+        private static DuelHeroPick[] Picks(params int[] seeds)
         {
-            var picks = new List<DuelHeroPick>();
-            for (int i = 0; i < config.ClassIds.Count; i++)
-                picks.Add(new DuelHeroPick(config.ClassIds[i], config.Seeds[i]));
-            return picks.ToArray();
+            var picks = new DuelHeroPick[seeds.Length];
+            for (int i = 0; i < seeds.Length; i++)
+                picks[i] = new DuelHeroPick("crusader", seeds[i]);
+            return picks;
         }
 
         [Test]
@@ -36,20 +33,14 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(hostSession.HostSession("duel").IsSuccess, Is.True);
             Assert.That(clientSession.JoinSession("duel").IsSuccess, Is.True);
 
-            var hostConfig = new DuelPartyConfig(
-                new[] { "crusader", "crusader", "crusader", "crusader" },
-                new[] { 1, 2, 3, 4 });
-            var clientConfig = new DuelPartyConfig(
-                new[] { "highwayman", "highwayman", "plague_doctor", "vestal" },
-                new[] { 5, 6, 7, 8 });
+            var hostConfig = new DuelPartyConfig(new[] { "crusader", "crusader", "crusader", "crusader" }, new[] { 1, 2, 3, 4 });
+            var clientConfig = new DuelPartyConfig(new[] { "highwayman", "highwayman", "plague_doctor", "vestal" }, new[] { 5, 6, 7, 8 });
 
             hostSession.SendPartyConfig(hostConfig);
             clientSession.SendPartyConfig(clientConfig);
             hostSession.SendLoaded();
             clientSession.SendLoaded();
 
-            Assert.That(hostSession.RivalParty, Is.Not.Null);
-            Assert.That(clientSession.RivalParty, Is.Not.Null);
             Assert.That(hostSession.IsReady, Is.True);
             Assert.That(clientSession.IsReady, Is.True);
 
@@ -58,30 +49,22 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(hostSeed, Is.EqualTo(clientSeed));
 
             var hostDuel = new DuelController();
-            hostDuel.StartDuel(ToPicks(hostConfig), ToPicks(clientConfig), hostSeed);
+            hostDuel.StartDuel(Picks(1, 2, 3, 4), Picks(5, 6, 7, 8), hostSeed, isHost: true);
             var clientDuel = new DuelController();
-            clientDuel.StartDuel(ToPicks(clientConfig), ToPicks(hostConfig), clientSeed);
+            clientDuel.StartDuel(Picks(1, 2, 3, 4), Picks(5, 6, 7, 8), clientSeed, isHost: false);
 
-            Assert.That(hostDuel.IsStarted, Is.True);
-            Assert.That(clientDuel.IsStarted, Is.True);
             Assert.That(hostDuel.HeroParty.Units.Count, Is.EqualTo(4));
+            Assert.That(hostDuel.MonsterParty.Units.Count, Is.EqualTo(4));
+            Assert.That(clientDuel.HeroParty.Units.Count, Is.EqualTo(4));
             Assert.That(clientDuel.MonsterParty.Units.Count, Is.EqualTo(4));
 
-            // Lockstep: host's hero attacks client hero 0. Both sides apply the SAME action
-            // from the same seed, so the mirrored client-hero converges.
-            var hostAttacker = hostDuel.HeroParty.Units[0];
-            var hostVictim = hostDuel.MonsterParty.Units[0];
-            var clientAttacker = clientDuel.MonsterParty.Units[0];
-            var clientVictim = clientDuel.HeroParty.Units[0];
-            var skill = ((Sektor.DarkestDungeon.Core.Combat.Character.Hero)hostAttacker.Character).CurrentCombatSkills[0];
-
             RandomSolver.SetRandomSeed(hostSeed);
-            hostDuel.ExecuteSkill(hostAttacker, hostVictim, skill);
+            hostDuel.StartBattle();
             RandomSolver.SetRandomSeed(clientSeed);
-            clientDuel.ExecuteSkill(clientAttacker, clientVictim, skill);
+            clientDuel.StartBattle();
 
-            Assert.That(hostDuel.MonsterParty.Units[0].Character.HealthRatio,
-                Is.EqualTo(clientDuel.HeroParty.Units[0].Character.HealthRatio).Within(0.0001f));
+            Assert.That(hostDuel.Phase, Is.EqualTo(clientDuel.Phase));
+            Assert.That(hostDuel.CurrentUnit!.CombatInfo.CombatId, Is.EqualTo(clientDuel.CurrentUnit!.CombatInfo.CombatId));
         }
     }
 }

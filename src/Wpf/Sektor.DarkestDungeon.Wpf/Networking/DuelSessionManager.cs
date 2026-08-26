@@ -39,6 +39,9 @@ namespace Sektor.DarkestDungeon.Wpf.Networking
         /// <summary>Occurs when the rival signals readiness.</summary>
         public event Action? RivalLoaded;
 
+        /// <summary>Occurs when an RPC input arrives from the rival (method, payload).</summary>
+        public event Action<string, string>? RivalInputReceived;
+
         /// <summary>Occurs when the session is lost.</summary>
         public event Action? Disconnected;
 
@@ -164,6 +167,13 @@ namespace Sektor.DarkestDungeon.Wpf.Networking
                 case DuelWire.PlayerLoaded:
                     IsReady = RivalParty != null;
                     RivalLoaded?.Invoke();
+                    break;
+                default:
+                    if (message.Type.StartsWith(DuelWire.RpcPrefix))
+                    {
+                        string method = message.Type.Substring(DuelWire.RpcPrefix.Length);
+                        RivalInputReceived?.Invoke(method, message.Payload);
+                    }
                     break;
             }
         }

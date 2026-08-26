@@ -151,7 +151,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             int sessionSeed = DuelSeed.ComputeSessionSeed(orderedIds);
 
             var duel = new DuelController();
-            duel.StartDuel(ToPicks(BuildConfig()), ToPicks(session.RivalParty), sessionSeed);
+            if (session.IsHost)
+                duel.StartDuel(ToPicks(BuildConfig()), ToPicks(session.RivalParty), sessionSeed, isHost: true);
+            else
+                duel.StartDuel(ToPicks(session.RivalParty), ToPicks(BuildConfig()), sessionSeed, isHost: false);
             Status = "Duel started. Round 1.";
             DuelStarted?.Invoke(duel);
         }

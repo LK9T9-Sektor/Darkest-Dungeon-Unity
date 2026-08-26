@@ -60,7 +60,7 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
                 },
                 CombatSkills = new List<CombatSkill>
                 {
-                    Skill("point_blank_shot", 5, 9, 0.9f, 0.07f, "12", "1234"),
+                    Skill("point_blank_shot", 5, 9, 0.9f, 0.07f, "1234", "1234"),
                     Skill("wicked_slice", 4, 7, 0.95f, 0.05f, "12", "1234"),
                 },
             };

@@ -69,5 +69,8 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
 
         /// <summary>Updates the next turn initiative.</summary>
         void UpdateNextTurn();
+
+        /// <summary>Prepares the unit for the next round.</summary>
+        void UpdateNextRound();
     }
 }

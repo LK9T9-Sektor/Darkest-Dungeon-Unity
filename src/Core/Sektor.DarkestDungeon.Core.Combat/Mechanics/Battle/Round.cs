@@ -1,11 +1,10 @@
 using System.Collections.Generic;
+using System.Linq;
 using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
-using Sektor.DarkestDungeon.Core.Combat.Character;
-using Sektor.DarkestDungeon.Core.Combat.Character.Components;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Events;
@@ -37,7 +36,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
         public ICombatUnit SelectedTarget { get; set; }
 
         /// <summary>Gets the ordered units for initiative.</summary>
-        public List<ICombatUnit> OrderedUnits { get; }
+        public List<ICombatUnit> OrderedUnits { get; private set; }
 
         /// <summary>Initializes a new instance of the <see cref="Round"/> class.</summary>
         public Round()
@@ -118,6 +117,55 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
         {
             HeroAction = actionType;
             SelectedTarget = selectedTarget;
+        }
+
+        /// <summary>Starts the battle: resets the round and computes the first round order.</summary>
+        /// <param name="battleGround">The battlefield.</param>
+        public void StartBattle(IBattleGround battleGround)
+        {
+            RoundNumber = 0;
+            RoundNumber = NextRound(battleGround);
+        }
+
+        /// <summary>Computes the next round's unit order by speed (Unity-compatible).</summary>
+        /// <param name="battleGround">The battlefield.</param>
+        /// <returns>The new round number.</returns>
+        public int NextRound(IBattleGround battleGround)
+        {
+            RoundStatus = RoundStatus.Start;
+            OrderedUnits.Clear();
+
+            foreach (var unit in battleGround.HeroParty.Units)
+            {
+                unit.CombatInfo.UpdateNextRound();
+                OrderedUnits.Add(unit);
+            }
+
+            foreach (var unit in battleGround.MonsterParty.Units)
+            {
+                unit.CombatInfo.UpdateNextRound();
+                OrderedUnits.Add(unit);
+            }
+
+            OrderedUnits = new List<ICombatUnit>(OrderedUnits.OrderByDescending(unit =>
+                unit.Character.Speed + RandomSolver.Next(0, 3) + RandomSolver.NextDouble()));
+
+            return ++RoundNumber;
+        }
+
+        /// <summary>Inserts a unit into the order by speed (for bonus initiative).</summary>
+        /// <param name="unit">The unit to insert.</param>
+        public void InsertInitiativeRoll(ICombatUnit unit)
+        {
+            for (int i = 0; i < OrderedUnits.Count; i++)
+            {
+                if (OrderedUnits[i].Character.Speed < unit.Character.Speed - 2)
+                {
+                    OrderedUnits.Insert(i, unit);
+                    return;
+                }
+            }
+            OrderedUnits.Add(unit);
         }
     }
 }
