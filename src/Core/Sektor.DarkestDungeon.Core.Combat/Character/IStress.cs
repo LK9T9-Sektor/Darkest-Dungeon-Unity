@@ -4,14 +4,14 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
     public interface IStress
     {
         /// <summary>Gets the current stress value.</summary>
-        int CurrentValue { get; }
+        float CurrentValue { get; }
 
         /// <summary>Increases the stress value by the given amount.</summary>
         /// <param name="amount">The amount to increase.</param>
-        void IncreaseValue(int amount);
+        void IncreaseValue(float amount);
 
         /// <summary>Decreases the stress value by the given amount.</summary>
         /// <param name="amount">The amount to decrease.</param>
-        void DecreaseValue(int amount);
+        void DecreaseValue(float amount);
     }
 }

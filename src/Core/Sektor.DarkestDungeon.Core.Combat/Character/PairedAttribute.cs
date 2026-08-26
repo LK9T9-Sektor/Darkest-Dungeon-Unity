@@ -1,7 +1,7 @@
 namespace Sektor.DarkestDungeon.Core.Combat.Character
 {
     /// <summary>A paired attribute with current and max value (hit points, stress, ...).</summary>
-    public class PairedAttribute : BaseAttribute
+    public class PairedAttribute : BaseAttribute, IPairedAttribute, IStress
     {
         private bool PreservePercentage { get; set; }
         private float currentValue;
