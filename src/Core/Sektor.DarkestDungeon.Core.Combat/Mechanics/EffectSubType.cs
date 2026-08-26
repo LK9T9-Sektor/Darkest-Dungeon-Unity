@@ -1,0 +1,39 @@
+namespace Sektor.DarkestDungeon.Core.Combat.Mechanics
+{
+    /// <summary>Subtypes of combat effects.</summary>
+    public enum EffectSubType
+    {
+        None,
+        Kill,
+        KillType,
+        Control,
+        Buff,
+        Immobilize,
+        Unimmobilize,
+        Pull,
+        Push,
+        Stress,
+        StressHeal,
+        StatBuff,
+        Debuff,
+        Stun,
+        Unstun,
+        Poison,
+        Bleeding,
+        Heal,
+        Cure,
+        LifeDrain,
+        Tag,
+        Untag,
+        Shuffle,
+        Summon,
+        Disease,
+        Mode,
+        Capture,
+        Rank,
+        ClearTargetRanks,
+        GuardAlly,
+        Riposte,
+        ClearGuard
+    }
+}
