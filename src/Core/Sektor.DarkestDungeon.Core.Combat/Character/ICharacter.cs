@@ -84,6 +84,11 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         /// <summary>Gets a single attribute value.</summary>
         IAttribute GetSingleAttribute(AttributeType type);
 
+        /// <summary>Gets a paired attribute value.</summary>
+        /// <param name="type">The attribute type.</param>
+        /// <returns>The paired attribute.</returns>
+        IPairedAttribute GetPairedAttribute(AttributeType type);
+
         /// <summary>Heals the character by the given amount.</summary>
         /// <param name="amount">The heal amount.</param>
         /// <param name="isCrit">Whether the heal is a crit.</param>

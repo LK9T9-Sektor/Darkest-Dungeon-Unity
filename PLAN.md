@@ -1,227 +1,62 @@
-# PLAN.md — Фаза 3: Извлечение боя и ИИ в чистое ядро
+# PLAN.md — WPF↔WPF Steam-дуэль с выбором героев в лобби
 
 ## Цель
 
-Вынести всю боевую симуляцию, систему эффектов и ИИ монстров из презентационного слоя (`unity\Assets\Scripts\Mechanics\`) в чистое C#-ядро (`src\Core\Combat\`), чтобы WPF-клиент и оба Unity-проекта могли переиспользовать единую боевую логику.
+Мультиплеерная дуэль «как в Unity» между двумя WPF-клиентами: Steam-комната (лобби), выбор 4 героев
+**до комнаты** (в лобби), детерминированный локстап (`NETWORK.md` §6). Обе стороны локально считают
+состояние через общее ядро, по сети идут только `party_config` и вводы.
 
-## Структура ядра
+## Ключевые решения
 
-Структура папок сохраняется по `Assets\Scripts\` (правило AGENTS.md «Preserve Folder Structure on Extraction»; корень `Assets\Scripts\` игнорируется):
+- **Выбор героев — ДО комнаты** (в лобби): одно состояние, `party_config` отправляется сразу при джойне, проще протокол.
+- **Только hero-срез модели**: «враги» = отряд соперника (по §6), обе стороны — герои. `Monster`/`MonsterData`/AI-brain не нужны (вводы от игроков).
+- **Локстап обязан сходиться**: общая детерминированная модель + `RandomSolver` с сидом сессии — в ядре.
+- **Де-риск:** этап 1 — `InMemoryTransport` (два WPF-инстанса), этап 2 — `SteamTransport`.
 
-```
-src\Core\Sektor.DarkestDungeon.Core.Combat/
-├── Mechanics/                  # enums из MechanicsDefines + RandomSolver
-│   ├── Battle/                 # Round, SkillResult, FormationSet, ICombatUnit, IBattleContext…
-│   ├── Skills/                 # Skill, CombatSkill, Effect, SubEffect + конкретные эффекты
-│   │   └── Effects/            # 29 SubEffect-реализаций (после Этапа 5)
-│   └── AI/                     # MonsterBrain, BrainDecisionType, базовые desire
-│       ├── SkillDesires/       # 9 + SkillSelectRestriction
-│       ├── TargetDesires/      # 8 + TargetSelectParameter, TargetDesireType
-│       └── BonusDesires/       # 6
-├── Raid/
-│   ├── Battle/                 # enums из BattleGround + IBattleGround
-│   └── Events/                 # EffectEvent + IEffectEvent
-├── Character/                  # enums из Buff/Hero/Trait + ICharacter, IStatusEffect, IAttribute
-│   ├── Components/             # IBattleModifier, ICharacterMode
-│   └── Utils/                  # CharacterHelper
-├── Campaign/                   # CurrencyCost
-└── Sektor.DarkestDungeon.Core.Combat.csproj
-```
+## Этапы
 
-## Шаги
+### Этап A. Модель героя в ядре (обязательный фундамент)
 
-### Этап 1. Инфраструктура (3 файла)
+- [ ] **A1** `Attribute`/`AttributeModifier` в `src\Core\...\Character\` (модифицируемые статы)
+- [ ] **A2** Статусы в `Character\Statuses\`: `StatusEffect`(база) + `BleedingStatusEffect`, `PoisonStatusEffect`, `StunStatusEffect`, `MarkStatusEffect`, `RiposteStatusEffect`, `GuardStatusEffect`, `GuardedStatusEffect`, `DeathsDoorStatusEffect`, `DeathRecoveryStatusEffect`, `DamageOverTimeStatusEffect` — реализуют core-интерфейсы (`IDotStatusEffect` и др.)
+- [ ] **A3** `Character`(база) + `Hero` + `HeroClass`(мин.: id, базовые статы, скиллы, теги, моды) + `Stress` + `Resolve` + `Trait`(мин.) — реализуют `ICharacter`
+- [ ] **A4** Поле/формации как чистое состояние: `FormationUnit`(ICombatUnit), `FormationParty`(IFormationParty), `FormationUnitInfo`(IFormationUnitInfo), `FormationRanks`, `BattleGround`(IBattleGround) в `Raid\Battle\`/`Raid\Party\`
+- [ ] **A5** `HeroGeneration` — детерминированная генерация героя из сида
+- [ ] **A6** Движок баффов (`ApplyAllBuffRules`/`RemoveConditionalBuffs`) — нужно `BattleSolver.ApplyConditions`
+- [ ] **A7** Тест детерминизма: одинаковый сид → идентичный исход боя на обеих «сторонах» (ключевой тест локстапа)
 
-- [x] **1.1** Создать `src\Core\Sektor.DarkestDungeon.Core.Combat\Sektor.DarkestDungeon.Core.Combat.csproj` (netstandard2.0, C# 7.3, PostBuild доставка DLL)
-- [x] **1.2** Добавить ссылку на `Core.Content` (для `IProportionValue`, `ISingleProportion`)
-- [x] **1.3** Создать `src\Core\Sektor.DarkestDungeon.Core.Combat\Enums\` (пустая папка для Enums)
+### Этап B. WPF battle-runtime
 
-### Этап 2. Enums (40 файлов)
+- [ ] **B1** Реализации `IBattleContext`/`IBattleEvents`/`IBattleGround`/`ICombatUnit` в WPF над core-моделью
+- [ ] **B2** Контроллер дуэли: старт по двум `party_config`, локальный `Round`+`BattleSolver`, приём вводов, фидбек в `BattleScreenViewModel`
 
-Создать по одному файлу на каждый enum из:
-- `MechanicsDefines.cs` (21 enum)
-- `BattleGround.cs` (6 enum)
-- `CampingSkill.cs` (3 enum)
-- `MonsterBrainDecision.cs` (1 enum)
-- `SkillSelectRestriction.cs`, `TargetSelectParameter.cs`, `TargetDesireType.cs` (3 enum)
-- `Buff.cs`, `Hero.cs`, `Trait.cs` (6 enum)
+### Этап C. WPF сетевой glue (над `ITransport`)
 
-- [x] **2.1** Enum-файлы из `MechanicsDefines.cs`: `AttributeType.cs`, `AttributeCategory.cs`, `EffectBoolParams.cs`, `EffectIntParams.cs`, `EffectTargetType.cs`, `EffectSubType.cs`, `TrinketSlot.cs`, `Rarity.cs`, `MonsterType.cs`, `DeathClassType.cs`, `StatusType.cs`, `DurationType.cs`, `HeroEquipmentSlot.cs`, `CampingPhase.cs`, `BuffDurationType.cs`, `BuffSourceType.cs`, `QuestVisitType.cs`, `SkillResultType.cs`, `SkillTargetType.cs`, `HeroTurnAction.cs`, `SkillCategory.cs`
-- [x] **2.2** Enum-файлы из `BattleGround.cs`: `Team.cs`, `TurnType.cs`, `RoundStatus.cs`, `TurnStatus.cs`, `BattleStatus.cs`, `SurpriseStatus.cs`
-- [x] **2.3** Enum-файлы из AI: `BrainDecisionType.cs`, `SkillSelectRestriction.cs`, `TargetSelectParameter.cs`, `TargetDesireType.cs`
-- [x] **2.4** Enum-файлы из CampingSkill: `CampTargetType.cs`, `CampEffectRequirement.cs`, `CampEffectType.cs`
-- [x] **2.5** Enum-файлы из Character: `BuffType.cs`, `BuffRule.cs`, `HeroStatus.cs`, `OverstressType.cs`, `StartTurnActType.cs`, `ReactionType.cs`
+- [ ] **C1** `DuelSessionManager` — хост/джоин Steam-комнаты, `RunCallbacks`, события
+- [ ] **C2** `DuelBridge` — wire: `party_config` + вводы (`hero_skill_selected`/`move`/`pass`) + барьер `player_loaded`
+- [ ] **C3** Сид сессии по формуле §6 (упорядоченные player id → `sessionSeed`)
+- [ ] **C4** `party_config` DTO: 4× {класс, имя, сид, флаги скиллов}
+- [ ] **C5** Steam runtime в WPF: `steam_api64.dll` + `steam_appid.txt` рядом с exe
 
-### Этап 3. Интерфейсы (3 файла)
+### Этап D. Лобби с выбором героев (WPF)
 
-- [x] **3.1** `ICombatUnit.cs` — абстракция юнита на поле боя (Rank, Team, CombatInfo, Character)
-- [x] **3.2** `IBattleGround.cs` — абстракция поля боя (HeroParty, MonsterParty, Round, состояние)
-- [x] **3.3** `IBattleContext.cs` — computed-свойства battlefield (MonsterNumber, MarkedHeroes, HeroNumber и т.д.)
+- [ ] **D1** Лобби: 4 слота героев (выбор класса), Host/Join, копирование session id
+- [ ] **D2** Отправка `party_config` при джойне; старт дуэли по обоим config
 
-### Этап 4. Базовые типы скиллов (14 файлов)
+### Этап E. Де-риск и интеграция
 
-- [x] **4.1** `Skill.cs` (перенести из `Mechanics\Skills\Skill.cs` — чистый)
-- [x] **4.2** `HealComponent.cs` (выделить из `Skill.cs`)
-- [x] **4.3** `MoveComponent.cs` (выделить из `Skill.cs`)
-- [x] **4.4** `CombatSkill.cs` (адаптировать: заменить `FormationUnit` → `ICombatUnit`)
-- [x] **4.5** `MoveSkill.cs` (перенести)
-- [x] **4.6** `CampingSkill.cs` + `CampEffect.cs` + `CampEffectRequirement.cs` (перенести, отделить от UI)
-- [x] **4.7** `FormationSet.cs` (перенести, заменить `FormationUnit` → `ICombatUnit`)
-- [x] **4.8** `SkillArtInfo.cs` (перенести, заменить `Vector2` → `float x, float y`)
-- [x] **4.9** `SkillCooldown.cs` (перенести — чистый)
-- [x] **4.10** `SkillTargetInfo.cs` (адаптировать: `FormationUnit` → `ICombatUnit`)
-- [x] **4.11** `HeroActionInfo.cs` (перенести — чистый)
-- [x] **4.12** `SkillResult.cs` (адаптировать: `CombatSkill` остаётся в ядре)
-- [x] **4.13** `SkillResultEntry.cs` (адаптировать: `FormationUnit` → `ICombatUnit`)
-- [x] **4.14** `SubEffect.cs` (адаптировать: `FormationUnit` → `ICombatUnit`, `Effect` → core)
+- [ ] **E1** Дуэль двух WPF-инстансов на `InMemoryTransport` (без Steam): локстап + выбор героев
+- [ ] **E2** Переключение на `SteamTransport` (Steam-комната, LAN→интернет)
 
-### Этап 5. Эффекты (31 файл)
+### Тесты
 
-- [x] **5.1** `Effect.cs` (адаптировать: заменить `RaidSceneManager` → `IBattleContext`, `FormationUnit` → `ICombatUnit`)
-- [x] **5.2–5.30** Перенести 29 конкретных SubEffect'ов, каждый адаптировать:
-  - Заменить `FormationUnit` → `ICombatUnit`
-  - Заменить `RaidSceneManager` → `IBattleContext`/`IBattleEvents` (popup/halo/overlay/звук/суммон/контроль/торч)
-  - Заменить `UnityEngine.Random` → `RandomSolver` (ядро)
-  - Заменить `Mathf` → локальные хелперы (Clamp/Approximately/RoundToInt)
-  - Заменить `Debug`/`LocalizationManager`/`Resources` → убраны/за абстракцией
-  - Статусы: `BleedingStatusEffect` и др. → интерфейсы `IDotStatusEffect`/`IStunStatusEffect`/`IMarkStatusEffect`/`IRiposteStatusEffect`/`IGuardStatusEffect`/`IGuardedStatusEffect`
-  - `Buff`/`BuffInfo` вынесены в ядро (`Character\`); `ICharacter` расширен (`Heal`, `TakeDamagePercent`, `AddBuff`, `Stress`, `RevertTrait`, `AddQuirk`, `CurrentMode`, `ControllerCaptor`, `EmptyCaptor`)
-
-**Список эффектов (все готово, в `Mechanics\Skills\Effects\`):**
-`BleedEffect`, `BuffEffect`, `CaptureEffect`, `ClearGuardEffect`, `ClearRankTargetEffect`, `CombatStatBuffEffect`, `ControlEffect`, `CureEffect`, `DiseaseEffect`, `GuardEffect`, `HealEffect`, `ImmobilizeEffect`, `KillEffect`, `KillEnemyTypeEffect`, `PerformerRankTargetEffect`, `PoisonEffect`, `PullEffect`, `PushEffect`, `RiposteEffect`, `SetModeEffect`, `ShuffleTargetEffect`, `StressEffect`, `StressHealEffect`, `StunEffect`, `SummonMonstersEffect`, `TagEffect`, `UnimmobilizeEffect`, `UnstunEffect`, `UntagEffect`
-
-### Этап 6. AI (39 файлов)
-
-- [x] **6.1** `MonsterBrain.cs` (перенести — чистый контейнер)
-- [x] **6.2** `MonsterBrainDecision.cs` (перенести — DTO)
-
-**Skill Desires (11 файлов):**
-- [x] **6.3** `SkillSelectionDesire.cs` (базовый, адаптировать: `RaidSceneManager` → `IBattleContext`)
-- [x] **6.4–6.12** Конкретные: `SkillSelectionRandom`, `SkillSelectionPreferred`, `SkillSelectionSpecific`, `SkillSelectionHeal`, `SkillSelectionStatus`, `SkillSelectionPerformingTurn`, `SkillSelectionAllyDead`, `SkillSelectionAllyAlive`, `SkillSelectionFillEmptyCaptor`
-
-**Target Desires (10 файлов):**
-- [x] **6.13** `TargetSelectionDesire.cs` (базовый, заменить `Random.Range` → `IRng`)
-- [x] **6.14–6.21** Конкретные: `TargetSelectionRandom`, `TargetSelectionMarked`, `TargetSelectionHealth`, `TargetSelectionStress`, `TargetSelectionRank`, `TargetSelectionResistance`, `TargetSelectionFillCaptor`, `TargetSelectionAllyClass`
-
-**Bonus Desires (7 файлов):**
-- [x] **6.22** `BonusInitiativeDesire.cs` (базовый)
-- [x] **6.23–6.28** Конкретные: `BonusInitiativeGuaranteed`, `BonusInitiativeHpRatio`, `BonusInitiativeLastSkill`, `BonusInitiativeDeath`, `BonusInitiativeAllyLastDamaged`, `BonusInitiativeAllyClassCount`
-
-### Этап 7. Симуляция (3 файла)
-
-- [x] **7.1** `RandomSolver.cs` (перенести, заменить `UnityEngine.Random.Range` → `IRng`)
-- [x] **7.2** `Round.cs` (адаптировать: `FormationUnit` → `ICombatUnit`, `RaidSceneManager` → `IBattleGround`)
-- [x] **7.3** `BattleSolver.cs` (адаптировать: все зависимости → интерфейсы)
-  - Экземплярный класс с DI (`BattleSolver(IBattleContext)`), 13 методов
-  - `ICharacter` расширен: `Dodge`, `Protection`, `MinDamage`, `MaxDamage`, `DamageMod`, `TakeDamage`, `RemoveConditionalBuffs`, `RiposteSkill`, `CurrentCombatSkills`, `IsReligious`
-  - `IBattleContext` расширен: `CampingTimeLeft`, `ApplyCombatUnitRules`, `ApplyIdleUnitRules`, `ApplyEffectById`
-  - `IBattleEvents.Pull/Push` + `changeUnitOrder`
-
-### Этап 8. Тесты (5+ файлов)
-
-- [x] **8.1** Создать `tests\Core\Sektor.DarkestDungeon.Core.Combat.Tests\` проект (NUnit + NSubstitute)
-- [x] **8.2** Тесты симуляции: `BattleSolverTests.cs` (IsSkillUsable, ExecuteSkill damage/heal), `RoundTests.cs`
-- [x] **8.3** Тесты эффектов: `EffectTests.cs` (OnMiss/ApplyOnce/TargetType.Global torch)
-- [x] **8.4** Тесты AI: `MonsterBrainTests.cs` (контейнер + решение)
-- [x] **8.5** Тесты RNG: `RandomSolverTests.cs` (детерминизм сида, границы), `FormationSetTests.cs` (парсинг/ранги)
-- [x] Итог: 26 тестов зелёные; проект добавлен в `.slnx`
-
-### Этап 9. Интеграция с WPF
-
-- [x] **9.1** Добавить ссылку `Sektor.DarkestDungeon.Core.Combat` в `Sektor.DarkestDungeon.Wpf.csproj`
-- [x] **9.2** `BattleScreenViewModel`/`HeroViewModel` — данные из ядра: `Data\CombatSampleData` строит скиллы героя из `CombatSkill`/`FormationSet`/`SkillCategory`/`HealComponent`; `HeroViewModel` отображает скиллы из core-определений (ранги/мультитаргет → подписи)
-
-### Этап 10. Интеграция с Unity (модификация presentation-layer) — ОТЛОЖЕН
-
-- [ ] **10.1** `FormationUnit.cs` — реализовать `ICombatUnit`
-- [ ] **10.2** `BattleGround.cs` — реализовать `IBattleGround`
-- [ ] **10.3** `RaidSceneManager.cs` — заменить прямые вызовы `BattleSolver.*` на `using Core.Combat`
-- [ ] **10.4** Остальные файлы в `Raid\`, `Managers\`, `UI\`, `Setup\` — обновить using'и
-
-> **Отложен осознанно:** полный cutover — build-breaking рефакторинг (дубликаты типов в глобальном
-> namespace vs core-namespace; удаление 78 легаси-копий в `Mechanics\` + сотни using). Противоречит
-> «Minimal Legacy Diff». Игра работает на легаси; core-интерфейсы готовы. Cutover — когда реально
-> понадобится детерминированный кооп через ядро (`NETWORK.md` §6). Модель персонажа
-> (`Character`/`Hero`/`Monster`/`Statuses`/`Components`) — отдельный большой срез, тоже отложен.
-
-### Этап 11. Верификация
-
-- [x] **11.1** `dotnet build src\Core\Sektor.DarkestDungeon.Core.Combat\`
-- [x] **11.2** `dotnet test tests\Core\` (Content 10 + Combat 26 — зелёные)
-- [x] **11.3** `pwsh tools\unity-compile-check.ps1 -ProjectPath unity` → `Compilation succeeded`, `Script reference check passed`
-- [ ] **11.4** `pwsh tools\unity-compile-check.ps1 -ProjectPath unity-2017` (легаси-дерево; проверка человеком/по возможности)
+- [ ] Детерминизм (A7)
+- [ ] Codec `party_config`, round-trip
+- [ ] Флоу дуэли на `InMemoryTransport` (два клиента, барьер, старт)
 
 ## Приёмка
 
-- [x] WPF-проект ссылается на `Core.Combat` и строит скиллы из core-данных без Unity
-- [x] Все 40 enums в отдельных файлах (один публичный тип на файл)
-- [x] `BattleSolver`, `Round`, `Effect`, AI desires — без `using UnityEngine`
-- [x] NUnit-тесты проходят (Content 10 + Combat 26)
-- [x] Активный Unity-проект компилируется с доставленными core-DLL (`unity-compile-check`)
-- [x] `MechanicsDefines.cs` — enums вынесены в ядро; легаси-файл остаётся в Unity до cutover (не удалён)
-- [x] Структура папок ядра повторяет `Assets\Scripts\` (правило AGENTS.md)
-
-## Инвентарь классов (файл → назначение)
-
-### Бой (`Mechanics\Battle\`)
-| Файл | Назначение |
-|---|---|
-| `BattleSolver` | Центральный солвер: юзабельность скиллов, резолюция урона/хила, AI-мозг, условия баффов |
-| `Round` | State-машина раунда/хода (HeroTurn/MonsterTurn, инициатива) |
-| `SkillResult` / `SkillResultEntry` | Контейнеры результата применения скилла (хит/крит/мисс/хил) |
-| `SkillTargetInfo` | Контекст целей: список целей, тип, скилл, арт |
-| `SkillCooldown` | Кулдаун скилла (по ходам) |
-| `HeroActionInfo` | Превью действия героя (шанс хита/крита, мин/макс урон) |
-| `FormationSet` | Парсинг строки формации (`@~?1234`): ранги запуска/целей |
-| `PopupType` | Типы всплывающих сообщений боя |
-| `IBattleContext` | Абстракция контекста боя: computed-свойства, солвер-сервисы, события |
-| `IBattleEvents` | Сервис фидбека эффектов: попуп/хало/звук/суммон/контроль/торч |
-| `ICombatUnit`, `IFormationParty`, `IFormationUnitInfo` | Абстракции юнита/отряда/состояния юнита |
-
-### Скиллы (`Mechanics\Skills\`)
-| Файл | Назначение |
-|---|---|
-| `Skill` (абстр.), `HealComponent`, `MoveComponent` | База скилла + хил/мув-компоненты |
-| `CombatSkill` | Боевой скилл: урон/аккураси/крит, ранги, эффекты, режимы, лимиты |
-| `MoveSkill` | Скилл перемещения |
-| `CampingSkill` / `CampEffect` | Кемпинг-скиллы и их эффекты |
-| `FormationSet` | см. Бой (парсинг формаций) |
-| `SkillArtInfo` | Визуальные токены скилла (fx/offset, engine-free) |
-| `Effect` / `SubEffect` / `EffectEvent` | Контейнер эффектов, базовый sub-effect, очередь событий |
-| `ITorchHandler` → удалён (заменён `IBattleEvents`) |
-
-### Эффекты (`Mechanics\Skills\Effects\`, 29)
-`BleedEffect`, `PoisonEffect`, `StunEffect`, `UnstunEffect`, `CureEffect`, `HealEffect`, `StressEffect`, `StressHealEffect`, `TagEffect`, `UntagEffect`, `RiposteEffect`, `BuffEffect`, `CombatStatBuffEffect`, `GuardEffect`, `ClearGuardEffect`, `ImmobilizeEffect`, `UnimmobilizeEffect`, `KillEffect`, `KillEnemyTypeEffect`, `PullEffect`, `PushEffect`, `ShuffleTargetEffect`, `ClearRankTargetEffect`, `PerformerRankTargetEffect`, `ControlEffect`, `DiseaseEffect`, `SetModeEffect`, `SummonMonstersEffect`, `CaptureEffect`
-
-### AI (`Mechanics\AI\` + подпапки)
-| Файл | Назначение |
-|---|---|
-| `MonsterBrain` / `MonsterBrainDecision` | Контейнер AI-желаний + результат решения (Pass/Perform) |
-| `BrainDecisionType`, `SkillSelectRestriction`, `TargetSelectParameter`, `TargetDesireType` | Enums AI |
-| `SkillSelectionDesire` (база) + 9 в `SkillDesires\` | Выбор скилла (random/preferred/specific/heal/status/performing_turn/ally_alive/ally_dead/fill_captor) |
-| `TargetSelectionDesire` (база) + 8 в `TargetDesires\` | Выбор целей (random/marked/health/stress/rank/resistance/fill_captor/ally_class) |
-| `BonusInitiativeDesire` (база) + 6 в `BonusDesires\` | Бонусная инициатива (guaranteed/hp_ratio/last_skill/death/ally_last_damaged/ally_class_count) |
-
-### Механика (`Mechanics\`, корень)
-| Файл | Назначение |
-|---|---|
-| `RandomSolver` | Детерминированный RNG (взвешенный выбор, сид) |
-| 21 enum (`AttributeType`…`SkillCategory`) | Типы из `MechanicsDefines` |
-
-### Персонажи (`Character\`)
-| Файл | Назначение |
-|---|---|
-| `ICharacter` | Абстракция персонажа (статы, хил, баффы, стресс, статусы, квирки) |
-| `IStress`, `IQuirk`, `IEmptyCaptor`, `IAttribute`, `IStatusEffect` | Абстракции стресса/квирков/каптора/атрибутов/статусов |
-| `Buff` / `BuffInfo` | Бафф и применённый бафф (данные, без локализации) |
-| `IDotStatusEffect`, `IStunStatusEffect`, `IMarkStatusEffect`, `IRiposteStatusEffect`, `IGuardStatusEffect`, `IGuardedStatusEffect`, `IResetableStatusEffect` | Абстракции статус-эффектов |
-| 6 enum (`BuffType`, `BuffRule`, `HeroStatus`, `OverstressType`, `StartTurnActType`, `ReactionType`) | из `Buff`/`Hero`/`Trait` |
-| `Components\IBattleModifier`, `ICharacterMode` | Боевые модификаторы и режимы персонажа |
-| `Utils\CharacterHelper` | Парсинг строк → `AttributeType` |
-
-### Прочее
-| Файл | Назначение |
-|---|---|
-| `Raid\Battle\` (6 enum + `IBattleGround`) | Enum'ы поля боя (`Team`, `RoundStatus`…) + абстракция поля |
-| `Raid\Events\EffectEvent`, `IEffectEvent` | Очередь событий эффектов |
-| `Campaign\CurrencyCost` | Стоимость кемпинг-скиллов в валюте |
+- [ ] Два WPF-клиента сходятся в локстапе (одинаковый исход при одном сиде)
+- [ ] Выбор героев в лобби, `party_config` обменивается до старта
+- [ ] Бой идёт через core `BattleSolver` без Unity
+- [ ] Steam-комната создаётся/входит по session id; дуэль играбельна
