@@ -50,6 +50,7 @@
   <Folder Name="/src/Core/">
     <Project Path="src/Core/Sektor.DarkestDungeon.Core.Content/Sektor.DarkestDungeon.Core.Content.csproj" />
     <Project Path="src/Core/Sektor.DarkestDungeon.Core.Ui/Sektor.DarkestDungeon.Core.Ui.csproj" />
+    <Project Path="src/Core/Sektor.DarkestDungeon.Core.Combat/Sektor.DarkestDungeon.Core.Combat.csproj" />
   </Folder>
   <Folder Name="/src/Lan/">
     <Project Path="src/Lan/Sektor.DarkestDungeon.Lan.Cmd/Sektor.DarkestDungeon.Lan.Cmd.csproj" />

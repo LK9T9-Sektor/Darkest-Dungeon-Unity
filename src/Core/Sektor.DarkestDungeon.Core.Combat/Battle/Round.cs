@@ -1,0 +1,115 @@
+using System.Collections.Generic;
+using Sektor.DarkestDungeon.Core.Combat.Enums;
+using Sektor.DarkestDungeon.Core.Combat.Interfaces;
+
+namespace Sektor.DarkestDungeon.Core.Combat.Battle
+{
+    /// <summary>Round/turn state machine for combat.</summary>
+    public class Round
+    {
+        /// <summary>Gets or sets the round number.</summary>
+        public int RoundNumber { get; set; }
+
+        /// <summary>Gets or sets the round status.</summary>
+        public RoundStatus RoundStatus { get; set; }
+
+        /// <summary>Gets or sets the current turn type.</summary>
+        public TurnType TurnType { get; set; }
+
+        /// <summary>Gets or sets the current turn status.</summary>
+        public TurnStatus TurnStatus { get; set; }
+
+        /// <summary>Gets or sets the hero's current action.</summary>
+        public HeroTurnAction HeroAction { get; set; }
+
+        /// <summary>Gets or sets the selected unit.</summary>
+        public ICombatUnit SelectedUnit { get; set; }
+
+        /// <summary>Gets or sets the selected target.</summary>
+        public ICombatUnit SelectedTarget { get; set; }
+
+        /// <summary>Gets the ordered units for initiative.</summary>
+        public List<ICombatUnit> OrderedUnits { get; }
+
+        /// <summary>Initializes a new instance of the <see cref="Round"/> class.</summary>
+        public Round()
+        {
+            OrderedUnits = new List<ICombatUnit>();
+        }
+
+        /// <summary>Prepares for a hero turn.</summary>
+        /// <param name="heroUnit">The hero unit taking the turn.</param>
+        /// <param name="battleGround">The battlefield.</param>
+        public void PreHeroTurn(ICombatUnit heroUnit, IBattleGround battleGround)
+        {
+            battleGround.LastSkillUsed = null;
+            heroUnit.CombatInfo.UpdateNextTurn();
+            TurnType = TurnType.HeroTurn;
+            TurnStatus = TurnStatus.PreTurn;
+
+            HeroAction = HeroTurnAction.Waiting;
+            SelectedUnit = heroUnit;
+            SelectedTarget = null;
+
+            OrderedUnits.Remove(heroUnit);
+        }
+
+        /// <summary>Called when the hero turn starts.</summary>
+        public void OnHeroTurn()
+        {
+            TurnStatus = TurnStatus.Progress;
+        }
+
+        /// <summary>Called when the hero turn ends.</summary>
+        public void PostHeroTurn()
+        {
+            TurnStatus = TurnStatus.PostTurn;
+
+            HeroAction = HeroTurnAction.Waiting;
+            SelectedUnit = null;
+            SelectedTarget = null;
+        }
+
+        /// <summary>Prepares for a monster turn.</summary>
+        /// <param name="monsterUnit">The monster unit taking the turn.</param>
+        /// <param name="battleGround">The battlefield.</param>
+        public void PreMonsterTurn(ICombatUnit monsterUnit, IBattleGround battleGround)
+        {
+            battleGround.LastSkillUsed = null;
+            monsterUnit.CombatInfo.UpdateNextTurn();
+            TurnType = TurnType.MonsterTurn;
+            TurnStatus = TurnStatus.PreTurn;
+
+            HeroAction = HeroTurnAction.Waiting;
+            SelectedUnit = monsterUnit;
+            SelectedTarget = null;
+
+            OrderedUnits.Remove(monsterUnit);
+        }
+
+        /// <summary>Called when the monster turn starts.</summary>
+        public void OnMonsterTurn()
+        {
+            TurnStatus = TurnStatus.Progress;
+        }
+
+        /// <summary>Called when the monster turn ends.</summary>
+        public void PostMonsterTurn()
+        {
+            TurnStatus = TurnStatus.PostTurn;
+
+            HeroAction = HeroTurnAction.Waiting;
+            SelectedUnit = null;
+            SelectedTarget = null;
+        }
+
+        /// <summary>Selects a hero action.</summary>
+        /// <param name="actionType">The action type.</param>
+        /// <param name="selectedTarget">The selected target.</param>
+        public void HeroActionSelected(HeroTurnAction actionType, ICombatUnit selectedTarget)
+        {
+            HeroAction = actionType;
+            SelectedTarget = selectedTarget;
+        }
+    }
+}
