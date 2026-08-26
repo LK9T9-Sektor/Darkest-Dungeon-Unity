@@ -111,7 +111,11 @@ src\Core\Sektor.DarkestDungeon.Core.Combat/
 
 - [x] **7.1** `RandomSolver.cs` (перенести, заменить `UnityEngine.Random.Range` → `IRng`)
 - [x] **7.2** `Round.cs` (адаптировать: `FormationUnit` → `ICombatUnit`, `RaidSceneManager` → `IBattleGround`)
-- [ ] **7.3** `BattleSolver.cs` (адаптировать: все зависимости → интерфейсы)
+- [x] **7.3** `BattleSolver.cs` (адаптировать: все зависимости → интерфейсы)
+  - Экземплярный класс с DI (`BattleSolver(IBattleContext)`), 13 методов
+  - `ICharacter` расширен: `Dodge`, `Protection`, `MinDamage`, `MaxDamage`, `DamageMod`, `TakeDamage`, `RemoveConditionalBuffs`, `RiposteSkill`, `CurrentCombatSkills`, `IsReligious`
+  - `IBattleContext` расширен: `CampingTimeLeft`, `ApplyCombatUnitRules`, `ApplyIdleUnitRules`, `ApplyEffectById`
+  - `IBattleEvents.Pull/Push` + `changeUnitOrder`
 
 ### Этап 8. Тесты (5+ файлов)
 
@@ -148,3 +152,68 @@ src\Core\Sektor.DarkestDungeon.Core.Combat/
 - [ ] NUnit-тесты проходят
 - [ ] Оба Unity-проекта компилируются
 - [ ] `MechanicsDefines.cs` удалён (все enums в отдельных файлах)
+
+## Инвентарь классов (файл → назначение)
+
+### Бой (`Mechanics\Battle\`)
+| Файл | Назначение |
+|---|---|
+| `BattleSolver` | Центральный солвер: юзабельность скиллов, резолюция урона/хила, AI-мозг, условия баффов |
+| `Round` | State-машина раунда/хода (HeroTurn/MonsterTurn, инициатива) |
+| `SkillResult` / `SkillResultEntry` | Контейнеры результата применения скилла (хит/крит/мисс/хил) |
+| `SkillTargetInfo` | Контекст целей: список целей, тип, скилл, арт |
+| `SkillCooldown` | Кулдаун скилла (по ходам) |
+| `HeroActionInfo` | Превью действия героя (шанс хита/крита, мин/макс урон) |
+| `FormationSet` | Парсинг строки формации (`@~?1234`): ранги запуска/целей |
+| `PopupType` | Типы всплывающих сообщений боя |
+| `IBattleContext` | Абстракция контекста боя: computed-свойства, солвер-сервисы, события |
+| `IBattleEvents` | Сервис фидбека эффектов: попуп/хало/звук/суммон/контроль/торч |
+| `ICombatUnit`, `IFormationParty`, `IFormationUnitInfo` | Абстракции юнита/отряда/состояния юнита |
+
+### Скиллы (`Mechanics\Skills\`)
+| Файл | Назначение |
+|---|---|
+| `Skill` (абстр.), `HealComponent`, `MoveComponent` | База скилла + хил/мув-компоненты |
+| `CombatSkill` | Боевой скилл: урон/аккураси/крит, ранги, эффекты, режимы, лимиты |
+| `MoveSkill` | Скилл перемещения |
+| `CampingSkill` / `CampEffect` | Кемпинг-скиллы и их эффекты |
+| `FormationSet` | см. Бой (парсинг формаций) |
+| `SkillArtInfo` | Визуальные токены скилла (fx/offset, engine-free) |
+| `Effect` / `SubEffect` / `EffectEvent` | Контейнер эффектов, базовый sub-effect, очередь событий |
+| `ITorchHandler` → удалён (заменён `IBattleEvents`) |
+
+### Эффекты (`Mechanics\Skills\Effects\`, 29)
+`BleedEffect`, `PoisonEffect`, `StunEffect`, `UnstunEffect`, `CureEffect`, `HealEffect`, `StressEffect`, `StressHealEffect`, `TagEffect`, `UntagEffect`, `RiposteEffect`, `BuffEffect`, `CombatStatBuffEffect`, `GuardEffect`, `ClearGuardEffect`, `ImmobilizeEffect`, `UnimmobilizeEffect`, `KillEffect`, `KillEnemyTypeEffect`, `PullEffect`, `PushEffect`, `ShuffleTargetEffect`, `ClearRankTargetEffect`, `PerformerRankTargetEffect`, `ControlEffect`, `DiseaseEffect`, `SetModeEffect`, `SummonMonstersEffect`, `CaptureEffect`
+
+### AI (`Mechanics\AI\` + подпапки)
+| Файл | Назначение |
+|---|---|
+| `MonsterBrain` / `MonsterBrainDecision` | Контейнер AI-желаний + результат решения (Pass/Perform) |
+| `BrainDecisionType`, `SkillSelectRestriction`, `TargetSelectParameter`, `TargetDesireType` | Enums AI |
+| `SkillSelectionDesire` (база) + 9 в `SkillDesires\` | Выбор скилла (random/preferred/specific/heal/status/performing_turn/ally_alive/ally_dead/fill_captor) |
+| `TargetSelectionDesire` (база) + 8 в `TargetDesires\` | Выбор целей (random/marked/health/stress/rank/resistance/fill_captor/ally_class) |
+| `BonusInitiativeDesire` (база) + 6 в `BonusDesires\` | Бонусная инициатива (guaranteed/hp_ratio/last_skill/death/ally_last_damaged/ally_class_count) |
+
+### Механика (`Mechanics\`, корень)
+| Файл | Назначение |
+|---|---|
+| `RandomSolver` | Детерминированный RNG (взвешенный выбор, сид) |
+| 21 enum (`AttributeType`…`SkillCategory`) | Типы из `MechanicsDefines` |
+
+### Персонажи (`Character\`)
+| Файл | Назначение |
+|---|---|
+| `ICharacter` | Абстракция персонажа (статы, хил, баффы, стресс, статусы, квирки) |
+| `IStress`, `IQuirk`, `IEmptyCaptor`, `IAttribute`, `IStatusEffect` | Абстракции стресса/квирков/каптора/атрибутов/статусов |
+| `Buff` / `BuffInfo` | Бафф и применённый бафф (данные, без локализации) |
+| `IDotStatusEffect`, `IStunStatusEffect`, `IMarkStatusEffect`, `IRiposteStatusEffect`, `IGuardStatusEffect`, `IGuardedStatusEffect`, `IResetableStatusEffect` | Абстракции статус-эффектов |
+| 6 enum (`BuffType`, `BuffRule`, `HeroStatus`, `OverstressType`, `StartTurnActType`, `ReactionType`) | из `Buff`/`Hero`/`Trait` |
+| `Components\IBattleModifier`, `ICharacterMode` | Боевые модификаторы и режимы персонажа |
+| `Utils\CharacterHelper` | Парсинг строк → `AttributeType` |
+
+### Прочее
+| Файл | Назначение |
+|---|---|
+| `Raid\Battle\` (6 enum + `IBattleGround`) | Enum'ы поля боя (`Team`, `RoundStatus`…) + абстракция поля |
+| `Raid\Events\EffectEvent`, `IEffectEvent` | Очередь событий эффектов |
+| `Campaign\CurrencyCost` | Стоимость кемпинг-скиллов в валюте |

@@ -61,12 +61,14 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
         /// <summary>Pulls a unit forward by the given amount.</summary>
         /// <param name="unit">The unit.</param>
         /// <param name="amount">The pull distance.</param>
-        void Pull(ICombatUnit unit, int amount);
+        /// <param name="changeUnitOrder">Whether the unit order is recomputed.</param>
+        void Pull(ICombatUnit unit, int amount, bool changeUnitOrder = true);
 
         /// <summary>Pushes a unit backward by the given amount.</summary>
         /// <param name="unit">The unit.</param>
         /// <param name="amount">The push distance.</param>
-        void Push(ICombatUnit unit, int amount);
+        /// <param name="changeUnitOrder">Whether the unit order is recomputed.</param>
+        void Push(ICombatUnit unit, int amount, bool changeUnitOrder = true);
 
         /// <summary>Controls (takes over) a target unit for a duration.</summary>
         /// <param name="target">The controlled unit.</param>

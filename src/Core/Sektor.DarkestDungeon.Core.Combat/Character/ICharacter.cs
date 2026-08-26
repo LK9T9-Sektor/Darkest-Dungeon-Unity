@@ -118,5 +118,37 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
 
         /// <summary>Gets the character's accuracy.</summary>
         float Accuracy { get; }
+
+        /// <summary>Gets the character's dodge.</summary>
+        float Dodge { get; }
+
+        /// <summary>Gets the character's protection.</summary>
+        float Protection { get; }
+
+        /// <summary>Gets the character's minimum damage.</summary>
+        float MinDamage { get; }
+
+        /// <summary>Gets the character's maximum damage.</summary>
+        float MaxDamage { get; }
+
+        /// <summary>Gets the character's damage modifier.</summary>
+        float DamageMod { get; }
+
+        /// <summary>Gets the riposte skill (null for most characters).</summary>
+        CombatSkill RiposteSkill { get; }
+
+        /// <summary>Gets the hero's current combat skills (heroes only).</summary>
+        List<CombatSkill> CurrentCombatSkills { get; }
+
+        /// <summary>Gets a value indicating whether the hero's class is religious.</summary>
+        bool IsReligious { get; }
+
+        /// <summary>Deals direct damage to the character.</summary>
+        /// <param name="damageAmount">The damage amount.</param>
+        /// <returns>The actual damage taken.</returns>
+        int TakeDamage(float damageAmount);
+
+        /// <summary>Removes conditional buffs from the character.</summary>
+        void RemoveConditionalBuffs();
     }
 }

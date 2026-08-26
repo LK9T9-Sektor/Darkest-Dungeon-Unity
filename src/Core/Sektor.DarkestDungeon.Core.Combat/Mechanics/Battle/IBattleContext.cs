@@ -40,6 +40,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
         /// <summary>Gets the current round number.</summary>
         int RoundNumber { get; }
 
+        /// <summary>Gets the camping time left (for camping skills).</summary>
+        int CampingTimeLeft { get; }
+
         /// <summary>Gets the list of alive hero units.</summary>
         IReadOnlyList<ICombatUnit> AliveHeroes { get; }
 
@@ -63,5 +66,22 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
         /// <param name="skill">The skill to check.</param>
         /// <returns>True if the skill is usable.</returns>
         bool IsSkillUsable(ICombatUnit performer, CombatSkill skill);
+
+        /// <summary>Applies the combat unit buff rules for a skill.</summary>
+        /// <param name="unit">The unit receiving the buffs.</param>
+        /// <param name="other">The opposing unit.</param>
+        /// <param name="skill">The skill being used.</param>
+        /// <param name="isRiposte">Whether the skill is a riposte skill.</param>
+        void ApplyCombatUnitRules(ICombatUnit unit, ICombatUnit other, CombatSkill skill, bool isRiposte);
+
+        /// <summary>Applies the idle unit buff rules.</summary>
+        /// <param name="unit">The unit.</param>
+        void ApplyIdleUnitRules(ICombatUnit unit);
+
+        /// <summary>Applies an effect by its identifier to a unit.</summary>
+        /// <param name="effectId">The effect identifier.</param>
+        /// <param name="target">The target unit.</param>
+        /// <param name="independent">Whether the effect applies independently.</param>
+        void ApplyEffectById(string effectId, ICombatUnit target, bool independent);
     }
 }
