@@ -14,9 +14,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
     public partial class DuelLobbyViewModel : ObservableObject, IDisposable
     {
         private readonly DuelSessionManager session;
+        private DuelBattleViewModel? activeBattle;
 
-        /// <summary>Occurs when the duel starts with a ready controller.</summary>
-        public event Action<DuelController>? DuelStarted;
+        /// <summary>Occurs when the duel starts with a ready controller and battle view model.</summary>
+        public event Action<DuelController, DuelBattleViewModel>? DuelStarted;
 
         /// <summary>Gets the four hero slots.</summary>
         public System.Collections.ObjectModel.ObservableCollection<HeroSlotViewModel> Slots { get; } =
@@ -59,6 +60,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             session.SessionReady += OnSessionReady;
             session.RivalPartyReceived += OnRivalPartyReceived;
             session.RivalLoaded += OnRivalLoaded;
+            session.RivalInputReceived += OnRivalInputReceived;
             session.Disconnected += () => Status = "Disconnected from the session.";
 
             HostCommand = new RelayCommand(Host);
@@ -135,6 +137,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             TryStartDuel();
         }
 
+        private void OnRivalInputReceived(string method, string payload)
+        {
+            activeBattle?.ApplyRivalInput(payload);
+        }
+
         private void SendPartyConfig()
         {
             session.SendPartyConfig(BuildConfig());
@@ -155,8 +162,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 duel.StartDuel(ToPicks(BuildConfig()), ToPicks(session.RivalParty), sessionSeed, isHost: true);
             else
                 duel.StartDuel(ToPicks(session.RivalParty), ToPicks(BuildConfig()), sessionSeed, isHost: false);
+
+            duel.StartBattle();
+            activeBattle = new DuelBattleViewModel(duel, session.SendInput);
             Status = "Duel started. Round 1.";
-            DuelStarted?.Invoke(duel);
+            DuelStarted?.Invoke(duel, activeBattle);
         }
 
         private DuelPartyConfig BuildConfig()

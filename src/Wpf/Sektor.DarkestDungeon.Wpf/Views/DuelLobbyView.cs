@@ -17,10 +17,17 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             InitializeComponent();
             this.viewModel = viewModel;
             DataContext = viewModel;
+            viewModel.DuelStarted += OnDuelStarted;
 
             pumpTimer = new DispatcherTimer { Interval = System.TimeSpan.FromMilliseconds(50) };
             pumpTimer.Tick += (s, e) => Pump();
             pumpTimer.Start();
+        }
+
+        private void OnDuelStarted(Sektor.DarkestDungeon.Wpf.Combat.DuelController controller, DuelBattleViewModel battle)
+        {
+            var battleView = new DuelBattleView(battle) { Owner = this };
+            battleView.Show();
         }
 
         private void Pump()

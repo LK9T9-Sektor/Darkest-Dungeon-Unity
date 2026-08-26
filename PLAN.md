@@ -17,13 +17,13 @@
 
 ### Этап A. Модель героя в ядре (обязательный фундамент)
 
-- [ ] **A1** `Attribute`/`AttributeModifier` в `src\Core\...\Character\` (модифицируемые статы)
-- [ ] **A2** Статусы в `Character\Statuses\`: `StatusEffect`(база) + `BleedingStatusEffect`, `PoisonStatusEffect`, `StunStatusEffect`, `MarkStatusEffect`, `RiposteStatusEffect`, `GuardStatusEffect`, `GuardedStatusEffect`, `DeathsDoorStatusEffect`, `DeathRecoveryStatusEffect`, `DamageOverTimeStatusEffect` — реализуют core-интерфейсы (`IDotStatusEffect` и др.)
-- [ ] **A3** `Character`(база) + `Hero` + `HeroClass`(мин.: id, базовые статы, скиллы, теги, моды) + `Stress` + `Resolve` + `Trait`(мин.) — реализуют `ICharacter`
-- [ ] **A4** Поле/формации как чистое состояние: `FormationUnit`(ICombatUnit), `FormationParty`(IFormationParty), `FormationUnitInfo`(IFormationUnitInfo), `FormationRanks`, `BattleGround`(IBattleGround) в `Raid\Battle\`/`Raid\Party\`
-- [ ] **A5** `HeroGeneration` — детерминированная генерация героя из сида
-- [ ] **A6** Движок баффов (`ApplyAllBuffRules`/`RemoveConditionalBuffs`) — нужно `BattleSolver.ApplyConditions`
-- [ ] **A7** Тест детерминизма: одинаковый сид → идентичный исход боя на обеих «сторонах» (ключевой тест локстапа)
+- [x] **A1** `Attribute`/`AttributeModifier` в `src\Core\...\Character\` (модифицируемые статы)
+- [x] **A2** Статусы в `Character\Statuses\`: `StatusEffect`(база) + конкретные — реализуют core-интерфейсы
+- [x] **A3** `Character`(база) + `Hero` + `HeroClass` + `CharacterMode` + `Stress` + `Resolve` + `Trait` — реализуют `ICharacter`
+- [x] **A4** Поле/формации как чистое состояние (`FormationUnit`, `FormationParty`, `FormationUnitInfo`, `FormationRanks`, `BattleGround`)
+- [x] **A5** `HeroGeneration` — детерминированная генерация героя из сида
+- [x] **A6** Движок баффов (`ApplyAllBuffRules`/`RemoveConditionalBuffs`)
+- [x] **A7** Тест детерминизма: одинаковый сид → идентичный исход (ключевой тест локстапа)
 
 ### Этап B. WPF battle-runtime
 
