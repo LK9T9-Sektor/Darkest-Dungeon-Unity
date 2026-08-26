@@ -1,5 +1,47 @@
 # PLAN.md — WPF↔WPF Steam-дуэль с выбором героев в лобби
 
+> **СТАТУС (восстановление контекста).** Весь план выполнен и запушен в ветку `wpf`
+> (`git push origin wpf`). Рабочее дерево чистое. Ниже — что сделано, как проверить, что осталось.
+
+## Итог: сделано (по этапам, с коммитами)
+
+| Этап | Что | Коммиты |
+|---|---|---|
+| **A. Модель героя в ядре** | `Attribute`/`SingleAttribute`/`PairedAttribute`/`FlatModifier`; статусы (`Statuses\`, 9 шт. + база); `Character` (движок баффов `ApplyAllBuffRules` + `BattleRulesContext`), `Hero`, `HeroClass`, `CharacterMode`, `Trait`, `Resolve`; поле (`FormationUnit`/`Party`/`UnitInfo`/`Ranks`/`BattleGround`); `HeroGeneration` (герой из сида); **тесты детерминизма** | `f9c3ee7`, `85388c0`, `457799b` |
+| **B. WPF battle-runtime** | `DuelBattleEvents`/`DuelBattleContext` (реализуют `IBattleEvents`/`IBattleContext`), `DuelClasses` (образцы 4 классов), `DuelController` (старт дуэли, `BattleSolver`) | `be6c6d4` |
+| **C. Сетевой glue** | `DuelSessionManager` (хост/джоин, pump, события, `RivalInputReceived`), `DuelWire`, `DuelPartyConfig`, `DuelSeed` (сид §6), `InMemoryTransport`, `DuelTransportFactory` (Steam/InMemory); интеграционный тест локстапа | `5b7e6a1` |
+| **D. Лобби** | `DuelLobbyView`/`DuelLobbyViewModel`/`HeroSlotViewModel` (4 слота героев, Host/Join/Copy/Leave), кнопка «Multiplayer Duel» в MainWindow | `c4ff68e` |
+| **Вводы (ходы 1:1 как в Unity)** | `Round.StartBattle/NextRound/InsertInitiativeRoll` (порядок по скорости), `FormationUnitInfo.UpdateNextRound`; `DuelController` — **обе стороны строят одинаковые формирования** (Heroes=отряд хоста, Monsters=отряд клиента; хост вводит за Heroes, клиент за Monsters), `DuelPhase`, `ExecuteLocalSkill`/`ApplyRemoteSkill`; wire `rpc.hero_skill`; тесты `DuelTurnFlowTests` | `69fd29a` |
+| **Рендер состояния** | `DuelBattleViewModel` (снапшот юнитов/скиллов/статуса/лога из core) + `DuelBattleView` (клики: скилл → цель → Execute → отправка ввода), `Refresh()`; тесты `DuelRenderTests` | `8677072` |
+| **Steam runtime (E2)** | `steam_api64.dll` копируется пост-билдом в вывод WPF; `steam_appid.txt` — dev-локальный (gitignored) | `c4ff68e` |
+
+## Как проверить (всё зелёное)
+
+```
+dotnet test tests/Core/Sektor.DarkestDungeon.Core.Combat.Tests   # 28
+dotnet test tests/Core/Sektor.DarkestDungeon.Core.Content.Tests  # 10
+dotnet test tests/Wpf/Sektor.DarkestDungeon.Wpf.Tests            # 4 (локстап, turn-флоу, рендер)
+dotnet build src/Wpf/Sektor.DarkestDungeon.Wpf                   # 0 ошибок
+```
+
+**Играть:** 2 инстанса WPF, `steam_appid.txt` рядом с exe, Steam запущен → «Multiplayer Duel» → на одном Host, на втором Join по session id → обмен партиями → живой бой по кликам (свой ход подсвечен, скиллы активны, цели золотые).
+
+## Ключевые точки архитектуры (для продолжения)
+
+- **Локстап**: `NETWORK.md` §6. Обе стороны строят ИДЕНТИЧНЫЕ формирования (`DuelController.StartDuel(hostPicks, clientPicks, seed, isHost)`) — это было критично (иначе не сходилось). По сети — только вводы (`rpc.hero_skill` = `skillId|targetId`; действующий юнит определяется порядком хода) и `party_config`.
+- **RNG**: `RandomSolver` статический (общий на процесс). Для дуэли это ок (1 дуэль на процесс); в одиночных тестах пере-сидим перед каждым действием обеих сторон.
+- **Ядро**: `src\Core\Sektor.DarkestDungeon.Core.Combat` (netstandard2.0, C# 7.3), структура папок = `Assets\Scripts\` (правило AGENTS.md). Интерфейсы: `ICharacter`, `ICombatUnit`, `IBattleGround`, `IBattleContext`, `IBattleEvents`.
+- **WPF**: `src\Wpf\Sektor.DarkestDungeon.Wpf` (net8.0-windows, latest), ссылки на Core.Combat + Lan.Contracts + Lan.Steam.
+
+## Что осталось / возможные следующие шаги
+
+1. **Живой рендер в существующий `BattleScreenView` (мокап)** — сейчас бой в отдельном `DuelBattleView`; можно перевести мокап на `DuelBattleViewModel` (заменить хардкод).
+2. **Победа/поражение в UI** — статус «Battle finished» есть, но без явной панели победителя.
+3. **`steam_appid.txt` автосоздание** рядом с exe (как в Unity-тулзах) — сейчас dev-локальный.
+4. **Проверка на реальном Steam** (2 машины / 2 аккаунта) — не гонялось; in-memory-тесты покрыли логику.
+5. **Выбор героев из полного контента** (`HeroClass`-данные сейчас образцы в `DuelClasses`), полный статус-набор эффектов в дуэли.
+6. **Полировка UI** (хелс-бары, анимации, тултипы, звук).
+
 ## Цель
 
 Мультиплеерная дуэль «как в Unity» между двумя WPF-клиентами: Steam-комната (лобби), выбор 4 героев
