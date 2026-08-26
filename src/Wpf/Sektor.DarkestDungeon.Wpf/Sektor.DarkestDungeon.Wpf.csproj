@@ -21,6 +21,8 @@
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Content\Sektor.DarkestDungeon.Core.Content.csproj" />
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Ui\Sektor.DarkestDungeon.Core.Ui.csproj" />
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Combat\Sektor.DarkestDungeon.Core.Combat.csproj" />
+    <ProjectReference Include="..\..\Lan\Sektor.DarkestDungeon.Lan.Contracts\Sektor.DarkestDungeon.Lan.Contracts.csproj" />
+    <ProjectReference Include="..\..\Lan\Sektor.DarkestDungeon.Lan.Steam\Sektor.DarkestDungeon.Lan.Steam.csproj" />
   </ItemGroup>
 
 </Project>

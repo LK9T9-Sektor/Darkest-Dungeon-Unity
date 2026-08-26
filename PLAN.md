@@ -32,11 +32,12 @@
 
 ### Этап C. WPF сетевой glue (над `ITransport`)
 
-- [ ] **C1** `DuelSessionManager` — хост/джоин Steam-комнаты, `RunCallbacks`, события
-- [ ] **C2** `DuelBridge` — wire: `party_config` + вводы (`hero_skill_selected`/`move`/`pass`) + барьер `player_loaded`
-- [ ] **C3** Сид сессии по формуле §6 (упорядоченные player id → `sessionSeed`)
-- [ ] **C4** `party_config` DTO: 4× {класс, имя, сид, флаги скиллов}
-- [ ] **C5** Steam runtime в WPF: `steam_api64.dll` + `steam_appid.txt` рядом с exe
+- [x] **C1** `DuelSessionManager` — хост/джоин сессии над `ITransport`, `Pump`, события
+- [x] **C2** `DuelWire`/`DuelBridge` — wire: `party_config` + `player_loaded` барьер + `rpc.*` вводы
+- [x] **C3** `DuelSeed` — сид сессии по формуле §6 (упорядоченные player id → sessionSeed) + `StableHash`
+- [x] **C4** `DuelPartyConfig` DTO: класс|сид ×4, Serialize/Deserialize
+- [x] **C5** `DuelTransportFactory` (SteamTransport/InMemory) + `InMemoryTransport`; Steam runtime (`steam_api64.dll`/`steam_appid.txt` рядом с exe) — на этапе упаковки
+- [x] Интеграционный тест `tests\Wpf\Sektor.DarkestDungeon.Wpf.Tests`: две сессии + две дуэли над InMemory → обмен config, барьер, сид, локстап сходится (зеркальные юниты совпадают)
 
 ### Этап D. Лобби с выбором героев (WPF)
 
@@ -45,8 +46,8 @@
 
 ### Этап E. Де-риск и интеграция
 
-- [ ] **E1** Дуэль двух WPF-инстансов на `InMemoryTransport` (без Steam): локстап + выбор героев
-- [ ] **E2** Переключение на `SteamTransport` (Steam-комната, LAN→интернет)
+- [x] **E1** Локстап + выбор героев проверены интеграционным тестом на `InMemoryTransport` (две стороны сходятся)
+- [ ] **E2** Переключение на `SteamTransport` (Steam-комната, LAN→интернет) + упаковка `steam_api64.dll`
 
 ### Тесты
 
