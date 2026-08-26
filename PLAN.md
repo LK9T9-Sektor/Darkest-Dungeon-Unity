@@ -128,8 +128,8 @@ src\Core\Sektor.DarkestDungeon.Core.Combat/
 
 ### Этап 9. Интеграция с WPF
 
-- [ ] **9.1** Добавить ссылку `Sektor.DarkestDungeon.Core.Combat` в `Sektor.DarkestDungeon.Wpf.csproj`
-- [ ] **9.2** Обновить `BattleScreenViewModel` — данные из ядра вместо хардкода
+- [x] **9.1** Добавить ссылку `Sektor.DarkestDungeon.Core.Combat` в `Sektor.DarkestDungeon.Wpf.csproj`
+- [x] **9.2** `BattleScreenViewModel`/`HeroViewModel` — данные из ядра: `Data\CombatSampleData` строит скиллы героя из `CombatSkill`/`FormationSet`/`SkillCategory`/`HealComponent`; `HeroViewModel` отображает скиллы из core-определений (ранги/мультитаргет → подписи)
 
 ### Этап 10. Интеграция с Unity (модификация presentation-layer)
 
