@@ -1,0 +1,43 @@
+namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
+{
+    /// <summary>Types of popup messages shown over combat units.</summary>
+    public enum PopupType
+    {
+        Miss,
+        Dodge,
+        ZeroDamage,
+        Damage,
+        CritDamage,
+        Heal,
+        CritHeal,
+        Pass,
+        Tagged,
+        Cured,
+        Bleed,
+        Poison,
+        Stunned,
+        BleedResist,
+        PoisonResist,
+        StunResist,
+        MoveResist,
+        DebuffResist,
+        Buff,
+        Debuff,
+        Unstun,
+        Untagged,
+        DiseaseResist,
+        Stress,
+        StressHeal,
+        Disease,
+        PositiveQuirk,
+        NegativeQuirk,
+        QuirkRemoved,
+        DeathsDoor,
+        DeathBlow,
+        HeartAttack,
+        Guard,
+        Riposte,
+        DiseaseCured,
+        RetreatFailed
+    }
+}

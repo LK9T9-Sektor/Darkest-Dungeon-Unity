@@ -1,16 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
-using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
-using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
-using Sektor.DarkestDungeon.Core.Combat.Character;
-using Sektor.DarkestDungeon.Core.Combat.Character.Components;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
-using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
-using Sektor.DarkestDungeon.Core.Combat.Raid.Events;
 
 namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
 {
@@ -49,8 +41,8 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
         /// <param name="performer">The performing unit.</param>
         /// <param name="target">The target unit.</param>
         /// <param name="skillResult">The skill result.</param>
-        /// <param name="torchHandler">Optional torch handler for global effects.</param>
-        public void Apply(ICombatUnit performer, ICombatUnit target, SkillResult skillResult, ITorchHandler torchHandler = null)
+        /// <param name="battleContext">The battle context.</param>
+        public void Apply(ICombatUnit performer, ICombatUnit target, SkillResult skillResult, IBattleContext battleContext)
         {
             if (BooleanParams[EffectBoolParams.ApplyOnce].HasValue)
                 if (BooleanParams[EffectBoolParams.ApplyOnce].Value)
@@ -69,37 +61,37 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
             {
                 case EffectTargetType.Performer:
                     foreach (var subEffect in SubEffects)
-                        subEffect.Apply(performer, performer, this);
+                        subEffect.Apply(performer, performer, this, battleContext);
                     break;
                 case EffectTargetType.Target:
                     foreach (var subEffect in SubEffects)
-                        subEffect.Apply(performer, target, this);
+                        subEffect.Apply(performer, target, this, battleContext);
                     break;
                 case EffectTargetType.PerformersOther:
                     foreach (var unit in performer.Party.Units)
                     {
                         if (unit != performer)
                             foreach (var subEffect in SubEffects)
-                                subEffect.Apply(performer, unit, this);
+                                subEffect.Apply(performer, unit, this, battleContext);
                     }
                     break;
                 case EffectTargetType.TargetGroup:
                     foreach (var unit in target.Party.Units)
                     {
                         foreach (var subEffect in SubEffects)
-                            subEffect.Apply(performer, unit, this);
+                            subEffect.Apply(performer, unit, this, battleContext);
                     }
                     break;
                 case EffectTargetType.Global:
-                    if (IntegerParams[EffectIntParams.Torch].HasValue && torchHandler != null)
+                    if (IntegerParams[EffectIntParams.Torch].HasValue && battleContext != null)
                     {
                         if (IntegerParams[EffectIntParams.Torch] < 0)
-                            torchHandler.DecreaseTorch(-IntegerParams[EffectIntParams.Torch].Value);
+                            battleContext.Events.DecreaseTorch(-IntegerParams[EffectIntParams.Torch].Value);
                         else
-                            torchHandler.IncreaseTorch(IntegerParams[EffectIntParams.Torch].Value);
+                            battleContext.Events.IncreaseTorch(IntegerParams[EffectIntParams.Torch].Value);
                     }
                     foreach (var subEffect in SubEffects)
-                        subEffect.Apply(performer, target, this);
+                        subEffect.Apply(performer, target, this, battleContext);
                     break;
             }
 
@@ -109,36 +101,37 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
         /// <summary>Applies target conditions.</summary>
         /// <param name="performer">The performing unit.</param>
         /// <param name="target">The target unit.</param>
-        public void ApplyTargetConditions(ICombatUnit performer, ICombatUnit target)
+        /// <param name="battleContext">The battle context.</param>
+        public void ApplyTargetConditions(ICombatUnit performer, ICombatUnit target, IBattleContext battleContext)
         {
             switch (TargetType)
             {
                 case EffectTargetType.Performer:
                     foreach (var subEffect in SubEffects)
-                        subEffect.ApplyTargetConditions(performer, performer, target, this);
+                        subEffect.ApplyTargetConditions(performer, performer, target, this, battleContext);
                     break;
                 case EffectTargetType.Target:
                     foreach (var subEffect in SubEffects)
-                        subEffect.ApplyTargetConditions(performer, target, target, this);
+                        subEffect.ApplyTargetConditions(performer, target, target, this, battleContext);
                     break;
                 case EffectTargetType.PerformersOther:
                     foreach (var unit in performer.Party.Units)
                     {
                         if (unit != performer)
                             foreach (var subEffect in SubEffects)
-                                subEffect.ApplyTargetConditions(performer, unit, unit, this);
+                                subEffect.ApplyTargetConditions(performer, unit, unit, this, battleContext);
                     }
                     break;
                 case EffectTargetType.TargetGroup:
                     foreach (var unit in target.Party.Units)
                     {
                         foreach (var subEffect in SubEffects)
-                            subEffect.ApplyTargetConditions(performer, unit, unit, this);
+                            subEffect.ApplyTargetConditions(performer, unit, unit, this, battleContext);
                     }
                     break;
                 case EffectTargetType.Global:
                     foreach (var subEffect in SubEffects)
-                        subEffect.ApplyTargetConditions(performer, target, performer, this);
+                        subEffect.ApplyTargetConditions(performer, target, performer, this, battleContext);
                     break;
             }
         }
@@ -146,9 +139,10 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
         /// <summary>Applies the effect independently.</summary>
         /// <param name="performer">The performing unit.</param>
         /// <param name="target">The target unit.</param>
-        public void ApplyIndependent(ICombatUnit performer, ICombatUnit target)
+        /// <param name="battleContext">The battle context.</param>
+        public void ApplyIndependent(ICombatUnit performer, ICombatUnit target, IBattleContext battleContext)
         {
-            SubEffects.ForEach(sub => sub.Apply(performer, target, this));
+            SubEffects.ForEach(sub => sub.Apply(performer, target, this, battleContext));
         }
 
         /// <summary>Gets the tooltip text for this effect.</summary>

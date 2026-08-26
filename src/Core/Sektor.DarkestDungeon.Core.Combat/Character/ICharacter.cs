@@ -1,12 +1,8 @@
 using System.Collections.Generic;
-using Sektor.DarkestDungeon.Core.Combat.Character;
+using Sektor.DarkestDungeon.Core.Combat.Character.Components;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
-using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
-using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
-
-using Sektor.DarkestDungeon.Core.Combat.Character.Components;
 
 namespace Sektor.DarkestDungeon.Core.Combat.Character
 {
@@ -43,8 +39,11 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         /// <summary>Gets a value indicating whether the character is in a special mode.</summary>
         bool InMode { get; }
 
-        /// <summary>Gets the character's current mode.</summary>
-        ICharacterMode Mode { get; }
+        /// <summary>Gets or sets the character's current mode.</summary>
+        ICharacterMode CurrentMode { get; set; }
+
+        /// <summary>Gets the character's available modes.</summary>
+        List<ICharacterMode> Modes { get; }
 
         /// <summary>Gets the character's battle modifiers.</summary>
         IBattleModifier BattleModifiers { get; }
@@ -59,7 +58,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         List<CombatSkill> CombatSkills { get; }
 
         /// <summary>Gets the character's monster brain (null for non-monsters).</summary>
-        Mechanics.AI.MonsterBrain Brain { get; }
+        MonsterBrain Brain { get; }
 
         /// <summary>Gets the character's current health ratio (0-1).</summary>
         float HealthRatio { get; }
@@ -71,13 +70,45 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         bool HasZeroHealth { get; }
 
         /// <summary>Gets the empty captor component (null for most characters).</summary>
-        object EmptyCaptor { get; }
+        IEmptyCaptor EmptyCaptor { get; }
+
+        /// <summary>Gets the controller captor component (null for most monsters).</summary>
+        object ControllerCaptor { get; }
+
+        /// <summary>Gets the character's stress meter.</summary>
+        IStress Stress { get; }
 
         /// <summary>Gets a status effect by type.</summary>
         IStatusEffect GetStatusEffect(StatusType type);
 
         /// <summary>Gets a single attribute value.</summary>
         IAttribute GetSingleAttribute(AttributeType type);
+
+        /// <summary>Heals the character by the given amount.</summary>
+        /// <param name="amount">The heal amount.</param>
+        /// <param name="isCrit">Whether the heal is a crit.</param>
+        /// <returns>The actual health restored.</returns>
+        int Heal(float amount, bool isCrit);
+
+        /// <summary>Deals damage equal to a fraction of max health.</summary>
+        /// <param name="amount">The fraction in [0, 1].</param>
+        void TakeDamagePercent(float amount);
+
+        /// <summary>Adds a buff to the character.</summary>
+        /// <param name="buffInfo">The buff instance.</param>
+        void AddBuff(BuffInfo buffInfo);
+
+        /// <summary>Reverts the hero's affliction trait (heroes only).</summary>
+        void RevertTrait();
+
+        /// <summary>Adds a quirk/disease to a hero.</summary>
+        /// <param name="quirk">The quirk to add.</param>
+        /// <returns>True if the quirk was added.</returns>
+        bool AddQuirk(IQuirk quirk);
+
+        /// <summary>Adds a random disease to a hero.</summary>
+        /// <returns>The added disease.</returns>
+        IQuirk AddRandomDisease();
 
         /// <summary>Gets the character's speed.</summary>
         float Speed { get; }

@@ -6,15 +6,25 @@
 
 ## Структура ядра
 
+Структура папок сохраняется по `Assets\Scripts\` (правило AGENTS.md «Preserve Folder Structure on Extraction»; корень `Assets\Scripts\` игнорируется):
+
 ```
 src\Core\Sektor.DarkestDungeon.Core.Combat/
-├── Enums/                          # один файл — один enum
-├── Interfaces/                     # ICombatUnit, IBattleGround, IBattleContext
-├── Skills/                         # Skill, CombatSkill, MoveSkill, CampingSkill, FormationSet
-├── Effects/                        # Effect, SubEffect + 29 конкретных эффектов
-├── Battle/                         # BattleSolver, Round, SkillResult, SkillCooldown
-├── AI/                             # MonsterBrain, MonsterBrainDecision + desires
-├── Random/                         # RandomSolver
+├── Mechanics/                  # enums из MechanicsDefines + RandomSolver
+│   ├── Battle/                 # Round, SkillResult, FormationSet, ICombatUnit, IBattleContext…
+│   ├── Skills/                 # Skill, CombatSkill, Effect, SubEffect + конкретные эффекты
+│   │   └── Effects/            # 29 SubEffect-реализаций (после Этапа 5)
+│   └── AI/                     # MonsterBrain, BrainDecisionType, базовые desire
+│       ├── SkillDesires/       # 9 + SkillSelectRestriction
+│       ├── TargetDesires/      # 8 + TargetSelectParameter, TargetDesireType
+│       └── BonusDesires/       # 6
+├── Raid/
+│   ├── Battle/                 # enums из BattleGround + IBattleGround
+│   └── Events/                 # EffectEvent + IEffectEvent
+├── Character/                  # enums из Buff/Hero/Trait + ICharacter, IStatusEffect, IAttribute
+│   ├── Components/             # IBattleModifier, ICharacterMode
+│   └── Utils/                  # CharacterHelper
+├── Campaign/                   # CurrencyCost
 └── Sektor.DarkestDungeon.Core.Combat.csproj
 ```
 
@@ -68,14 +78,16 @@ src\Core\Sektor.DarkestDungeon.Core.Combat/
 ### Этап 5. Эффекты (31 файл)
 
 - [x] **5.1** `Effect.cs` (адаптировать: заменить `RaidSceneManager` → `IBattleContext`, `FormationUnit` → `ICombatUnit`)
-- [ ] **5.2–5.30** Перенести 29 конкретных SubEffect'ов, каждый адаптировать:
+- [x] **5.2–5.30** Перенести 29 конкретных SubEffect'ов, каждый адаптировать:
   - Заменить `FormationUnit` → `ICombatUnit`
-  - Заменить `RaidSceneManager` → `IBattleContext`
-  - Заменить `UnityEngine.Random.Range` → `IRng`
-  - Заменить `Debug.Log/LogError` → `ILog` (или убрать)
-  - Заменить `Resources.Load` / `GameObject` → интерфейс `IMonsterFactory`
+  - Заменить `RaidSceneManager` → `IBattleContext`/`IBattleEvents` (popup/halo/overlay/звук/суммон/контроль/торч)
+  - Заменить `UnityEngine.Random` → `RandomSolver` (ядро)
+  - Заменить `Mathf` → локальные хелперы (Clamp/Approximately/RoundToInt)
+  - Заменить `Debug`/`LocalizationManager`/`Resources` → убраны/за абстракцией
+  - Статусы: `BleedingStatusEffect` и др. → интерфейсы `IDotStatusEffect`/`IStunStatusEffect`/`IMarkStatusEffect`/`IRiposteStatusEffect`/`IGuardStatusEffect`/`IGuardedStatusEffect`
+  - `Buff`/`BuffInfo` вынесены в ядро (`Character\`); `ICharacter` расширен (`Heal`, `TakeDamagePercent`, `AddBuff`, `Stress`, `RevertTrait`, `AddQuirk`, `CurrentMode`, `ControllerCaptor`, `EmptyCaptor`)
 
-**Список эффектов:**
+**Список эффектов (все готово, в `Mechanics\Skills\Effects\`):**
 `BleedEffect`, `BuffEffect`, `CaptureEffect`, `ClearGuardEffect`, `ClearRankTargetEffect`, `CombatStatBuffEffect`, `ControlEffect`, `CureEffect`, `DiseaseEffect`, `GuardEffect`, `HealEffect`, `ImmobilizeEffect`, `KillEffect`, `KillEnemyTypeEffect`, `PerformerRankTargetEffect`, `PoisonEffect`, `PullEffect`, `PushEffect`, `RiposteEffect`, `SetModeEffect`, `ShuffleTargetEffect`, `StressEffect`, `StressHealEffect`, `StunEffect`, `SummonMonstersEffect`, `TagEffect`, `UnimmobilizeEffect`, `UnstunEffect`, `UntagEffect`
 
 ### Этап 6. AI (39 файлов)

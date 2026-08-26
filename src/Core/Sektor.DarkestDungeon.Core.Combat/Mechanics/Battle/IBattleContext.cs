@@ -4,7 +4,6 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
-using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 
 namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
 {
@@ -13,6 +12,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
     {
         /// <summary>Gets the battlefield.</summary>
         IBattleGround BattleGround { get; }
+
+        /// <summary>Gets the battle events service for effect feedback.</summary>
+        IBattleEvents Events { get; }
 
         /// <summary>Gets the number of alive monsters (excluding corpses).</summary>
         int MonsterNumber { get; }

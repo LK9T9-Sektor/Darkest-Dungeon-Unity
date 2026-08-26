@@ -1,13 +1,6 @@
-using System.Collections.Generic;
 using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
-using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
-using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
-using Sektor.DarkestDungeon.Core.Combat.Character;
-using Sektor.DarkestDungeon.Core.Combat.Character.Components;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
-using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Events;
 
 namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
@@ -28,39 +21,43 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
         /// <param name="performer">The performing unit.</param>
         /// <param name="target">The target unit.</param>
         /// <param name="effect">The parent effect.</param>
-        public virtual void Apply(ICombatUnit performer, ICombatUnit target, Effect effect)
+        /// <param name="battleContext">The battle context.</param>
+        public virtual void Apply(ICombatUnit performer, ICombatUnit target, Effect effect, IBattleContext battleContext)
         {
             if (effect.BooleanParams[EffectBoolParams.Queue].HasValue)
             {
                 if (effect.BooleanParams[EffectBoolParams.Queue] == false)
-                    ApplyInstant(performer, target, effect);
+                    ApplyInstant(performer, target, effect, battleContext);
                 else
-                    target.EventQueue.Add(new EffectEvent(performer, target, effect, this));
+                    target.EventQueue.Add(new EffectEvent(performer, target, effect, this, battleContext));
             }
             else
-                target.EventQueue.Add(new EffectEvent(performer, target, effect, this));
+                target.EventQueue.Add(new EffectEvent(performer, target, effect, this, battleContext));
         }
 
         /// <summary>Applies the effect when queued.</summary>
         /// <param name="performer">The performing unit.</param>
         /// <param name="target">The target unit.</param>
         /// <param name="effect">The parent effect.</param>
+        /// <param name="battleContext">The battle context.</param>
         /// <returns>True if the effect was applied.</returns>
-        public abstract bool ApplyQueued(ICombatUnit performer, ICombatUnit target, Effect effect);
+        public abstract bool ApplyQueued(ICombatUnit performer, ICombatUnit target, Effect effect, IBattleContext battleContext);
 
         /// <summary>Applies the effect instantly.</summary>
         /// <param name="performer">The performing unit.</param>
         /// <param name="target">The target unit.</param>
         /// <param name="effect">The parent effect.</param>
+        /// <param name="battleContext">The battle context.</param>
         /// <returns>True if the effect was applied.</returns>
-        public abstract bool ApplyInstant(ICombatUnit performer, ICombatUnit target, Effect effect);
+        public abstract bool ApplyInstant(ICombatUnit performer, ICombatUnit target, Effect effect, IBattleContext battleContext);
 
         /// <summary>Applies target conditions.</summary>
         /// <param name="performer">The performing unit.</param>
         /// <param name="target">The target unit.</param>
         /// <param name="primaryTarget">The primary target.</param>
         /// <param name="effect">The parent effect.</param>
-        public virtual void ApplyTargetConditions(ICombatUnit performer, ICombatUnit target, ICombatUnit primaryTarget, Effect effect)
+        /// <param name="battleContext">The battle context.</param>
+        public virtual void ApplyTargetConditions(ICombatUnit performer, ICombatUnit target, ICombatUnit primaryTarget, Effect effect, IBattleContext battleContext)
         {
         }
 
@@ -69,8 +66,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
         /// <param name="target">The target unit.</param>
         /// <param name="effect">The parent effect.</param>
         /// <param name="fuseParameter">The fuse parameter.</param>
+        /// <param name="battleContext">The battle context.</param>
         /// <returns>True if the effect was applied.</returns>
-        public virtual bool ApplyFused(ICombatUnit performer, ICombatUnit target, Effect effect, int fuseParameter)
+        public virtual bool ApplyFused(ICombatUnit performer, ICombatUnit target, Effect effect, int fuseParameter, IBattleContext battleContext)
         {
             return false;
         }
@@ -79,8 +77,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
         /// <param name="performer">The performing unit.</param>
         /// <param name="target">The target unit.</param>
         /// <param name="effect">The parent effect.</param>
+        /// <param name="battleContext">The battle context.</param>
         /// <returns>The fuse parameter value.</returns>
-        public virtual int Fuse(ICombatUnit performer, ICombatUnit target, Effect effect)
+        public virtual int Fuse(ICombatUnit performer, ICombatUnit target, Effect effect, IBattleContext battleContext)
         {
             return 0;
         }

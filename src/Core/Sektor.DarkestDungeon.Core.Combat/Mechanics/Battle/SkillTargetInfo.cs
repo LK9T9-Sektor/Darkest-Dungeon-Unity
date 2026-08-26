@@ -37,7 +37,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
         /// <returns>This instance for chaining.</returns>
         public SkillTargetInfo UpdateSkillInfo(ICombatUnit performer, CombatSkill skill)
         {
-            Mode = performer.Character.Mode;
+            Mode = performer.Character.CurrentMode;
             Skill = skill;
             SkillArtInfo = performer.Character.SkillArtInfo.Find(info => info.SkillId == skill.Id);
 
