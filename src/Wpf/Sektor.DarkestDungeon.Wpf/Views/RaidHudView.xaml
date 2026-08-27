@@ -14,11 +14,11 @@
             <views:HeroInfoPanelView Grid.Column="0" DataContext="{Binding RaidHud}"
                                      HorizontalAlignment="Left" VerticalAlignment="Top" />
 
-            <!-- Center: unit tooltip, between the hero card and the inventory/map -->
+            <!-- Center: unit tooltip, between the hero card and the log/inventory/map -->
             <views:UnitTooltipView Grid.Column="1" DataContext="{Binding TooltipTarget}"
                                    HorizontalAlignment="Center" VerticalAlignment="Top" Width="360" />
 
-            <!-- Right: inventory/map pinned to the top, buttons in their own row below -->
+            <!-- Right: log/inventory/map pinned to the top, buttons in their own row below -->
             <Grid Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
@@ -26,13 +26,17 @@
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0">
+                    <views:LogView DataContext="{Binding}"
+                                   Visibility="{Binding DataContext.RaidHud.IsLogShown, RelativeSource={RelativeSource AncestorType={x:Type views:RaidHudView}}, Converter={StaticResource BoolToVisibility}}" />
                     <views:InventoryView DataContext="{Binding RaidHud.Inventory}"
                                          Visibility="{Binding DataContext.RaidHud.IsInventoryShown, RelativeSource={RelativeSource AncestorType={x:Type views:RaidHudView}}, Converter={StaticResource BoolToVisibility}}" />
                     <views:MapView DataContext="{Binding RaidHud.Map}"
-                                   Visibility="{Binding DataContext.RaidHud.IsInventoryShown, RelativeSource={RelativeSource AncestorType={x:Type views:RaidHudView}}, Converter={StaticResource InverseBoolToVisibility}}" />
+                                   Visibility="{Binding DataContext.RaidHud.IsMapShown, RelativeSource={RelativeSource AncestorType={x:Type views:RaidHudView}}, Converter={StaticResource BoolToVisibility}}" />
                 </Grid>
 
                 <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                    <Button Content="LOG" Command="{Binding RaidHud.ShowLogCommand}" Margin="0,0,8,0"
+                            Style="{StaticResource HudButton}" Padding="14,4" FontSize="16" />
                     <Button Content="INVENTORY" Command="{Binding RaidHud.ShowInventoryCommand}" Margin="0,0,8,0"
                             Style="{StaticResource HudButton}" Padding="14,4" FontSize="16" />
                     <Button Content="MAP" Command="{Binding RaidHud.ShowMapCommand}"

@@ -54,12 +54,29 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private string _armorLevel = "Lv. 1";
 
         /// <summary>Fills the sheet from a stage unit, keeping placeholder values for the rest.</summary>
+        /// <param name="unit">The inspected stage unit.</param>
         public void Apply(UnitViewModel unit)
         {
             HeroName = unit.Name;
             HeroClass = unit.ClassName;
             HitPoints = unit.HpCurrent + " / " + unit.HpMax;
             Stress = unit.Stress + " / 100";
+        }
+
+        /// <summary>Fills the sheet from a duel unit.</summary>
+        /// <param name="unit">The inspected unit.</param>
+        public void Apply(DuelUnitViewModel unit)
+        {
+            HeroName = unit.Name;
+            HeroClass = unit.ClassName;
+            HitPoints = unit.HpCurrent + " / " + unit.HpMax;
+            Stress = unit.Stress + " / 100";
+            Speed = unit.Speed.ToString();
+            Damage = unit.Damage;
+            Accuracy = "+" + unit.Accuracy;
+            Crit = unit.Crit + "%";
+            Dodge = unit.Dodge.ToString();
+            Protection = unit.Protection + "%";
         }
     }
 }

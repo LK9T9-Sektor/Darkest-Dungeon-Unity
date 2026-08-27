@@ -7,7 +7,7 @@
             <TextBlock Text="TURN ORDER" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="16"
                        FontWeight="Bold" HorizontalAlignment="Center" />
             <!-- One row, reading right-to-left like the in-game turn order -->
-            <ItemsControl ItemsSource="{Binding Slots}" FlowDirection="RightToLeft" Margin="0,6,0,0">
+            <ItemsControl ItemsSource="{Binding TurnOrder}" FlowDirection="RightToLeft" Margin="0,6,0,0">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal" />
@@ -15,11 +15,26 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Width="50" Height="34" Margin="3" CornerRadius="4"
-                                Background="{x:Static ui:UiBrushes.ButtonBackground}"
-                                BorderBrush="#3A2E22" BorderThickness="1">
-                            <TextBlock Text="{Binding}" Foreground="#6A6A6A" FontSize="15"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Border Width="50" Height="34" Margin="3" CornerRadius="4">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="{x:Static ui:UiBrushes.ButtonBackground}" />
+                                    <Setter Property="BorderBrush" Value="#3A2E22" />
+                                    <Setter Property="BorderThickness" Value="1" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsEnemy}" Value="True">
+                                            <Setter Property="Background" Value="#33190F" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{x:Static ui:UiBrushes.Label}" />
+                                            <Setter Property="BorderThickness" Value="2" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="{Binding Name}" Foreground="#CBB98F" FontSize="13"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis" />
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

@@ -1,36 +1,63 @@
-# PLAN.md — Пост-рефакторный коммит: вернуть разметку, починить пумп лобби, убрать переусложнённость
+# PLAN.md — Полный HUD боя в живом DuelBattleView
 
 ## Цель
 
-После коммита большого WPF-рефактора (навигация/меню/vs AI/ростер):
-1. Вернуть в текущий код информативную разметку из предыдущего коммита — строку `Stress` на карточках юнитов боя.
-2. Починить найденный баг: `DuelLobbyViewModel` не реализует `IPumpable`, поэтому пумп мультиплеер-лобби (транспорт + таймер ожидания) не работает.
-3. Убрать мёртвый код и дублирование pump-таймера. Пограничные абстракции (`INavigationService`, `IDuelRivalLink`) оставить.
+Встроить в живой экран дуэли (`DuelBattleView`) полный HUD из мокапа `BattleScreenView`
+(три панели), подключив его к реальному состоянию `DuelController`:
+верх — квест+Retreat / факел / очередь хода; центр — поле, раунд, тултип при наведении,
+лист статов по правому клику, статус, лог; низ — скиллы ходящего, инфо ходящего,
+тултип, инвентарь/карта (плейсхолдеры). Мокап-вью/VM переиспользуются, ядро не трогается.
+
+## Решения
+
+- Скиллы ходящего — **отдельный кликабельный ряд** над нижней панелью.
+- Инвентарь/карта/факел — **плейсхолдеры** (в дуэли их нет).
+- Реальные HP (не проценты); тултип/статы читают живые атрибуты персонажа.
 
 ## Шаги
 
-1. [x] **S1** Коммит и пуш стейдженного рефактора в `origin/wpf` (сообщение «Add WPF screen navigation, vs AI mode and full hero roster.»).
-2. [x] **S2** `Views\DuelBattleView.xaml`: в `DuelUnitTemplate` добавить `TextBlock` `{Binding Stress, StringFormat=Stress {0}}` (свойство `Stress` во вью-модели уже есть).
-3. [x] **S3** `ViewModels\DuelLobbyViewModel.cs`: добавить `IPumpable` к списку реализуемых интерфейсов (метод `Pump()` уже есть).
-4. [x] **S4** `Views\DuelLobbyView.cs`: удалить пустой `OnDataContextChanged` + подписку, неиспользуемые `using`.
-5. [x] **S5** Новый `Views\PumpableScreenBase.cs` (общий DispatcherTimer 50мс + `Loaded`/`Unloaded` + `(DataContext as IPumpable)?.Pump()`); `DuelLobbyView` и `DuelBattleView` наследуются от него.
-6. [x] **S6** Проход по переусложнённости: только баг-фиксы/дубликаты (пп. S3–S5), абстракции не трогаем.
-7. [x] **S7** Проверка: `dotnet build` WPF + Core.Combat (0 ошибок); тесты WPF / Core.Combat / Core.Content — зелёные.
-8. [x] **S8** Документация: `TESTING.md` (Stress на карточках боя), `CHANGELOG.md` (починка пумпа лобби).
-9. [x] **S9** Финальный коммит и пуш (сообщение «Fix multiplayer lobby pump, restore stress on duel cards and share screen pump.»).
+1. [ ] **S1** `DuelBattleView.xaml`: раскладка в 3 панели как у `BattleScreenView`:
+   верх `QuestLogView` + `TorchView` + `TurnOrderView`; центр — поле с карточками юнитов
+   (+`EventsLayerView` раунд, Status-оверлей, лог справа-снизу); низ — ряд скиллов +
+   `RaidHudView`. Карточки получают `Interaction.Triggers` (MouseEnter/Leave/RightButtonDown).
+2. [x] **S2** `DuelUnitViewModel`: `Hp`→`HpCurrent` (реальные HP из `CurrentHealth`/`MaxHealth`),
+   добавить `IsSelected`. Обновить `HpText`, карточку и `DuelRenderTests`.
+3. [x] **S3** `DuelBattleViewModel`: добавить `TooltipTarget`, `Hover/Unhover/OpenStats/CloseStats`
+   команды, `StatsTarget` (HeroStatsViewModel), `Events` (раунд), `Quest` (Title/Goal+Retreat→Leave),
+   `RaidHud` (актёр=`CurrentUnit`), `Torch`. Обновление в `Refresh()`.
+4. [x] **S4** `HeroStatsViewModel.Apply(...)`: живые статы из атрибутов персонажа
+   (Speed/Damage/ACC/Crit/Dodge/Prot).
+5. [x] **S5** `HeroViewModel`: наблюдаемые `Name/ClassName` + `Apply(имя, класс, скиллы, hp, stress)`;
+   `RaidHudViewModel`: метод передачи ходящего. `QuestLogViewModel`: наблюдаемые `Title/Goal`
+   + опциональный `onRetreat`-экшен.
+6. [x] **S6** `TurnOrderView.xaml`: шаблон слота → `DuelTurnEntryViewModel` (имя, текущий, враг).
+   Инлайн-полоса очереди из текущего `DuelBattleView` удаляется.
+7. [x] **S7** Тесты: `DuelRenderTests` под `HpCurrent`; новые — тултип при наведении, статы
+   правым кликом, раунд, актёр в `RaidHud`. `dotnet build` WPF (0 ошибок) + тесты
+   WPF / Core.Combat / Core.Content зелёные.
+8. [x] **S8** Доки: `TESTING.md` (ручные чеки HUD), `CHANGELOG.md` (полный HUD дуэли).
+9. [ ] **S9** Коммит и пуш в `origin/wpf`.
 
 ## Затронутые файлы
 
-- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\DuelBattleView.xaml` (S2)
-- `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\DuelLobbyViewModel.cs` (S3)
-- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\DuelLobbyView.cs` (S4, S5)
-- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\DuelBattleView.cs` (S5)
-- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\PumpableScreenBase.cs` (новый, S5)
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\DuelBattleView.xaml` (S1, S6)
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\TurnOrderView.xaml` (S6)
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\DuelBattleViewModel.cs` (S3)
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\DuelUnitViewModel.cs` (S2)
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\HeroStatsViewModel.cs` (S4)
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\HeroViewModel.cs` (S5)
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\RaidHudViewModel.cs` (S5)
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\QuestLogViewModel.cs` (S5)
+- `tests\Wpf\Sektor.DarkestDungeon.Wpf.Tests\DuelRenderTests.cs` (S7)
 - `docs\TESTING.md`, `docs\CHANGELOG.md`, `PLAN.md` (S8)
+
+Ядро (`src\Core\...\Core.Combat`) и `src\External\` не изменяются. Мокап `BattleScreenView`
+остаётся как референс.
 
 ## Приёмка
 
-- [ ] На карточках юнитов боя виден «Stress N».
-- [ ] Мультиплеер-лобби: транспорт пумпится, счётчик «Waiting mm:ss» тикает (проверяется ручным запуском).
-- [ ] Оба экрана (лобби и бой) используют общий pump-базис без дублирования.
+- [ ] Три панели как в мокапе: квест+Retreat / факел / очередь сверху; поле+раунд в центре;
+      скиллы, инфо ходящего, тултип, инвентарь/карта снизу.
+- [ ] Наведение на юнита — тултип (HP/стресс), правый клик — лист статов.
+- [ ] Очередь, раунд, актёр, скиллы, HP/стресс — живые из `DuelController`.
 - [ ] `dotnet build` 0 ошибок; тесты WPF/Combat/Content зелёные.

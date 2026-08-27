@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
@@ -35,6 +36,29 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the battle log lines.</summary>
         public ObservableCollection<string> Log { get; } = new ObservableCollection<string>();
 
+        /// <summary>Gets the events overlay (round number, announcements).</summary>
+        public EventsLayerViewModel Events { get; } = new EventsLayerViewModel();
+
+        /// <summary>Gets the quest panel (title, goal).</summary>
+        public QuestLogViewModel Quest { get; } = new QuestLogViewModel();
+
+        /// <summary>Gets the bottom raid HUD (actor info, tooltip, log/inventory/map).</summary>
+        public RaidHudViewModel RaidHud { get; } = new RaidHudViewModel();
+
+        /// <summary>Gets the top-center torch meter (placeholder for duels).</summary>
+        public TorchViewModel Torch { get; } = new TorchViewModel();
+
+        /// <summary>Gets the stat sheet shown when a unit is right-clicked.</summary>
+        public HeroStatsViewModel StatsTarget { get; } = new HeroStatsViewModel();
+
+        /// <summary>Gets or sets the unit shown in the hover tooltip.</summary>
+        [ObservableProperty]
+        private DuelUnitViewModel? _tooltipTarget;
+
+        /// <summary>Gets or sets a value indicating whether the stats sheet overlay is visible.</summary>
+        [ObservableProperty]
+        private bool _isStatsVisible;
+
         /// <summary>Gets or sets the status line (round / turn / result).</summary>
         [ObservableProperty]
         private string _status = string.Empty;
@@ -48,6 +72,18 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the command that abandons the duel and returns to the main menu.</summary>
         public IRelayCommand LeaveCommand { get; }
 
+        /// <summary>Gets the command that shows a unit in the hover tooltip.</summary>
+        public IRelayCommand<DuelUnitViewModel> HoverCommand { get; }
+
+        /// <summary>Gets the command that hides the hover tooltip.</summary>
+        public IRelayCommand UnhoverCommand { get; }
+
+        /// <summary>Gets the command that opens the stats sheet for the given unit.</summary>
+        public IRelayCommand<DuelUnitViewModel> OpenStatsCommand { get; }
+
+        /// <summary>Gets the command that closes the stats sheet.</summary>
+        public IRelayCommand CloseStatsCommand { get; }
+
         /// <summary>Initializes a new instance of the <see cref="DuelBattleViewModel"/> class.</summary>
         /// <param name="controller">The duel controller.</param>
         /// <param name="rivalLink">The rival input channel (network or AI).</param>
@@ -60,9 +96,14 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             SelectSkillCommand = new RelayCommand<DuelSkillViewModel>(SelectSkill);
             TargetCommand = new RelayCommand<DuelUnitViewModel>(SelectTarget);
             LeaveCommand = new RelayCommand(Leave);
+            HoverCommand = new RelayCommand<DuelUnitViewModel>(Hover);
+            UnhoverCommand = new RelayCommand(Unhover);
+            OpenStatsCommand = new RelayCommand<DuelUnitViewModel>(OpenStats);
+            CloseStatsCommand = new RelayCommand(() => IsStatsVisible = false);
             controller.Events.StateChanged += Refresh;
             rivalLink.RivalActionReceived += OnRivalActionReceived;
             rivalLink.Attach(controller);
+            Quest.Title = "Duel";
             Refresh();
         }
 
@@ -96,6 +137,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             RefreshSkills();
             RefreshStatus();
             RefreshLog();
+            RefreshEvents();
+            RefreshActor();
         }
 
         private void OnRivalActionReceived(string payload)
@@ -170,6 +213,53 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 Log.Add(controller.Events.Log[Log.Count]);
         }
 
+        private void RefreshEvents()
+        {
+            Events.Round = controller.BattleGround?.Round.RoundNumber ?? 1;
+        }
+
+        private void RefreshActor()
+        {
+            var unit = controller.CurrentUnit;
+            if (unit == null)
+                return;
+
+            var character = unit.Character;
+            RaidHud.ApplyActor(
+                character.Name,
+                character.Class,
+                character.CurrentCombatSkills ?? Enumerable.Empty<CombatSkill>(),
+                (int)character.GetPairedAttribute(AttributeType.HitPoints).CurrentValue,
+                (int)character.GetPairedAttribute(AttributeType.HitPoints).ModifiedValue,
+                (int)character.Stress.CurrentValue);
+            Quest.Goal = Status;
+        }
+
+        private void Hover(DuelUnitViewModel? unit)
+        {
+            if (unit == null)
+                return;
+
+            unit.IsSelected = true;
+            TooltipTarget = unit;
+        }
+
+        private void Unhover()
+        {
+            if (TooltipTarget != null)
+                TooltipTarget.IsSelected = false;
+            TooltipTarget = null;
+        }
+
+        private void OpenStats(DuelUnitViewModel? unit)
+        {
+            if (unit == null)
+                return;
+
+            StatsTarget.Apply(unit);
+            IsStatsVisible = true;
+        }
+
         private void SelectSkill(DuelSkillViewModel? skill)
         {
             if (skill == null || !controller.IsLocalTurn)
@@ -223,15 +313,22 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private DuelUnitViewModel ToUnit(ICombatUnit unit, bool isEnemy)
         {
             var character = unit.Character;
+            var hp = character.GetPairedAttribute(AttributeType.HitPoints);
             return new DuelUnitViewModel(
                 unit.CombatInfo.CombatId,
                 character.Name,
                 character.Class)
             {
                 IsEnemy = isEnemy,
-                Hp = (int)character.HealthRatio * 100,
-                HpMax = 100,
+                HpCurrent = (int)hp.CurrentValue,
+                HpMax = (int)hp.ModifiedValue,
                 Stress = (int)character.Stress.CurrentValue,
+                Speed = (int)character.Speed,
+                Damage = (int)character.MinDamage + " - " + (int)character.MaxDamage,
+                Accuracy = (int)character.Accuracy,
+                Crit = (int)(character.Crit * 100),
+                Dodge = (int)character.Dodge,
+                Protection = (int)character.Protection,
             };
         }
     }

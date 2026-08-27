@@ -1,32 +1,16 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
-    /// <summary>Quest log state and retreat action.</summary>
+    /// <summary>Quest log state shown in the top-left panel.</summary>
     public partial class QuestLogViewModel : ObservableObject
     {
-        /// <summary>Gets the quest title placeholder.</summary>
-        public string Title { get; } = "The Old Road";
-
-        /// <summary>Gets the quest goal text placeholder.</summary>
-        public string Goal { get; } = "Clear the first room and reach the exit.";
-
-        /// <summary>Gets or sets a value indicating whether retreat is allowed.</summary>
+        /// <summary>Gets or sets the quest title.</summary>
         [ObservableProperty]
-        private bool _canRetreat = true;
+        private string _title = "The Old Road";
 
-        /// <summary>Gets the retreat command (mock).</summary>
-        public IRelayCommand RetreatCommand { get; }
-
-        /// <summary>Initializes a new instance of the <see cref="QuestLogViewModel"/> class.</summary>
-        public QuestLogViewModel()
-        {
-            RetreatCommand = new RelayCommand(Retreat);
-        }
-
-        private void Retreat()
-        {
-        }
+        /// <summary>Gets or sets the quest goal text.</summary>
+        [ObservableProperty]
+        private string _goal = "Clear the first room and reach the exit.";
     }
 }
