@@ -36,7 +36,7 @@
    правым кликом, раунд, актёр в `RaidHud`. `dotnet build` WPF (0 ошибок) + тесты
    WPF / Core.Combat / Core.Content зелёные.
 8. [x] **S8** Доки: `TESTING.md` (ручные чеки HUD), `CHANGELOG.md` (полный HUD дуэли).
-9. [ ] **S9** Коммит и пуш в `origin/wpf`.
+9. [x] **S9** Коммит и пуш в `origin/wpf`.
 
 ## Затронутые файлы
 
