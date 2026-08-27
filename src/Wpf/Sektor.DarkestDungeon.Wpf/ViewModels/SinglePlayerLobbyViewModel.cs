@@ -89,13 +89,24 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private DuelHeroPick[] RandomPicks()
         {
             return PickRandomParty()
-                .Select((classId, index) => new DuelHeroPick(classId, index * 7 + 13))
+                .Select((classId, index) => new DuelHeroPick(classId, index * 7 + 13, RandomActiveSkills(classId)))
                 .ToArray();
+        }
+
+        private IReadOnlyList<string> RandomActiveSkills(string classId)
+        {
+            var heroClass = DuelClasses.Get(classId);
+            if (heroClass == null || heroClass.CombatSkills.Count == 0)
+                return Array.Empty<string>();
+
+            var skills = heroClass.CombatSkills.Select(skill => skill.Id).ToList();
+            int count = Math.Min(heroClass.NumberOfSelectedCombatSkills > 0 ? heroClass.NumberOfSelectedCombatSkills : 4, skills.Count);
+            return skills.OrderBy(_ => Rng.Next()).Take(count).ToList();
         }
 
         private static DuelHeroPick[] ToPicks(IEnumerable<HeroSlotViewModel> slots)
         {
-            return slots.Select(slot => new DuelHeroPick(slot.ClassId, slot.Seed)).ToArray();
+            return slots.Select(slot => new DuelHeroPick(slot.ClassId, slot.Seed, slot.SelectedSkillIds)).ToArray();
         }
     }
 }

@@ -15,12 +15,16 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <!-- Bundled hero class definitions consumed by the core parser at runtime (linked from unity content, not duplicated). -->
   <ItemGroup>
     <None Include="..\..\..\unity\Assets\Resources\Data\Heroes\Info\*.bytes"
           Link="Content\Heroes\%(Filename).bytes"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\unity\Assets\Resources\Data\JsonQuirks.json"
+          Link="Content\Quirks\JsonQuirks.json"
           CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

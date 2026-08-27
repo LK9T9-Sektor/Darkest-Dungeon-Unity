@@ -188,7 +188,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         {
             var classIds = Slots.Select(s => s.ClassId).ToList();
             var seeds = Slots.Select(s => s.Seed).ToList();
-            return new DuelPartyConfig(classIds, seeds);
+            var skillIds = Slots.Select(s => s.SelectedSkillIds).ToList();
+            return new DuelPartyConfig(classIds, seeds, skillIds);
         }
 
         private static DuelHeroPick[] ToPicks(DuelPartyConfig config)
