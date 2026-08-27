@@ -29,6 +29,7 @@ combat_skill: .id ""smite"" .level 1 .type ""melee"" .atk 90% .dmg -30% .launch 
 combat_skill: .id ""smite"" .level 0 .type ""melee"" .atk 85% .dmg -40% .crit 1% .launch 21 .target 12 .is_crit_valid True
 combat_skill: .id ""smite"" .level 4 .type ""melee"" .atk 105% .dmg -20% .launch 21 .target 12
 combat_skill: .id ""mend"" .level 0 .heal 2 3 .launch 12 .target @123
+skill_selection: .can_select_combat_skills true .number_of_selected_combat_skills_max 4
 tag: .id ""religious""
 id_index: .index 7
 .end
@@ -43,6 +44,8 @@ id_index: .index 7
             Assert.That(heroClass.StringId, Is.EqualTo("test_knight"));
             Assert.That(heroClass.IndexId, Is.EqualTo(7));
             Assert.That(heroClass.IsReligious, Is.True);
+            Assert.That(heroClass.CanSelectCombatSkills, Is.True);
+            Assert.That(heroClass.NumberOfSelectedCombatSkills, Is.EqualTo(4));
 
             Assert.That(heroClass.Attributes[AttributeType.HitPoints], Is.EqualTo(33f));
             Assert.That(heroClass.Attributes[AttributeType.DamageLow], Is.EqualTo(6f));

@@ -199,6 +199,11 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+
+                <Button Content="MOVE" Width="80" Height="32" Margin="12,4,0,4" FontSize="14"
+                        Style="{StaticResource HudButton}" Command="{Binding MoveCommand}" />
+                <Button Content="PASS" Width="80" Height="32" Margin="4,4,0,4" FontSize="14"
+                        Style="{StaticResource HudButton}" Command="{Binding PassCommand}" />
             </StackPanel>
 
             <views:RaidHudView Grid.Row="1" DataContext="{Binding}" />

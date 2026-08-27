@@ -81,6 +81,12 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
                         float weaponAccuracy = hasWeapon ? GetOrZero(weaponStats, AttributeType.AttackRating) : 0f;
                         ApplyCombatSkill(result.CombatSkills, tokens, weaponAccuracy);
                         break;
+                    case "skill_selection":
+                        result.CanSelectCombatSkills = "true" == GetValue(tokens, "can_select_combat_skills");
+                        int maxSelected;
+                        if (int.TryParse(GetValue(tokens, "number_of_selected_combat_skills_max"), NumberStyles.Integer, CultureInfo.InvariantCulture, out maxSelected))
+                            result.NumberOfSelectedCombatSkills = maxSelected;
+                        break;
                     case "tag":
                         string tagId = GetValue(tokens, "id");
                         if (tagId != null && !result.Tags.Contains(tagId))

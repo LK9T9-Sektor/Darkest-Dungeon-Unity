@@ -37,6 +37,12 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         /// <summary>Gets or sets the class tags (e.g. "religious").</summary>
         public List<string> Tags { get; set; }
 
+        /// <summary>Gets or sets a value indicating whether the player may select the active combat skills.</summary>
+        public bool CanSelectCombatSkills { get; set; }
+
+        /// <summary>Gets or sets the maximum number of active combat skills the hero may bring into battle.</summary>
+        public int NumberOfSelectedCombatSkills { get; set; }
+
         /// <summary>Initializes a new instance of the <see cref="HeroClass"/> class.</summary>
         public HeroClass()
         {

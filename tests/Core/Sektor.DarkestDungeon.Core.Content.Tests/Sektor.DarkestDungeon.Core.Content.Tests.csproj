@@ -33,6 +33,9 @@
     <Content Include="..\..\..\unity\Assets\Resources\Data\JsonLoot.json"
              Link="Data\JsonLoot.json"
              CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\..\unity\Assets\Resources\Data\JsonQuirks.json"
+             Link="Data\JsonQuirks.json"
+             CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

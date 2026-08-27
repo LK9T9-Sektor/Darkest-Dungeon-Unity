@@ -8,6 +8,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the combat id.</summary>
         public int CombatId { get; }
 
+        /// <summary>Gets the formation rank (1-based).</summary>
+        public int Rank { get; }
+
         /// <summary>Gets the display name.</summary>
         public string Name { get; }
 
@@ -94,11 +97,13 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Initializes a new instance of the <see cref="DuelUnitViewModel"/> class.</summary>
         /// <param name="combatId">The combat id.</param>
+        /// <param name="rank">The formation rank.</param>
         /// <param name="name">The name.</param>
         /// <param name="className">The class label.</param>
-        public DuelUnitViewModel(int combatId, string name, string className)
+        public DuelUnitViewModel(int combatId, int rank, string name, string className)
         {
             CombatId = combatId;
+            Rank = rank;
             Name = name;
             ClassName = className;
         }

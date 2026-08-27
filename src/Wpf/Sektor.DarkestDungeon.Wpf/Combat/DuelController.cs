@@ -19,13 +19,18 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
         /// <summary>Gets the deterministic seed.</summary>
         public int Seed { get; }
 
+        /// <summary>Gets the active combat skill ids selected by the player (empty = all class skills).</summary>
+        public IReadOnlyList<string> SelectedSkillIds { get; }
+
         /// <summary>Initializes a new instance of the <see cref="DuelHeroPick"/> class.</summary>
         /// <param name="classId">The class id.</param>
         /// <param name="seed">The seed.</param>
-        public DuelHeroPick(string classId, int seed)
+        /// <param name="selectedSkillIds">The selected active skill ids.</param>
+        public DuelHeroPick(string classId, int seed, IReadOnlyList<string>? selectedSkillIds = null)
         {
             ClassId = classId;
             Seed = seed;
+            SelectedSkillIds = selectedSkillIds ?? Array.Empty<string>();
         }
     }
 
@@ -179,7 +184,7 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
             return skillId + "|" + targetId;
         }
 
-        /// <summary>Applies a remote action payload ("skillId|targetId").</summary>
+        /// <summary>Applies a remote action payload ("skillId|targetId", "pass|0" or "move|rank").</summary>
         /// <param name="payload">The payload.</param>
         public void ApplyRemoteSkill(string payload)
         {
@@ -187,6 +192,22 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
                 return;
 
             var parts = payload.Split('|');
+            if (parts.Length < 1)
+                return;
+
+            if (parts[0] == "pass")
+            {
+                CompleteTurn();
+                return;
+            }
+            if (parts[0] == "move")
+            {
+                int rank;
+                if (parts.Length == 2 && int.TryParse(parts[1], out rank) && TryMove(CurrentUnit, rank))
+                    CompleteTurn();
+                return;
+            }
+
             if (parts.Length != 2)
                 return;
 
@@ -198,6 +219,59 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
 
             ExecuteSkill(unit, target, skill);
             CompleteTurn();
+        }
+
+        /// <summary>Executes a pass: skips the acting unit's turn.</summary>
+        /// <returns>The wire payload, or null if not the local turn.</returns>
+        public string? ExecuteLocalPass()
+        {
+            if (!IsLocalTurn || BattleGround == null)
+                return null;
+
+            CompleteTurn();
+            return "pass|0";
+        }
+
+        /// <summary>Executes a move of the acting unit to an adjacent rank.</summary>
+        /// <param name="newRank">The destination rank.</param>
+        /// <returns>The wire payload, or null if invalid or not the local turn.</returns>
+        public string? ExecuteLocalMove(int newRank)
+        {
+            if (!IsLocalTurn || BattleGround == null)
+                return null;
+
+            var unit = CurrentUnit;
+            if (unit == null || !TryMove(unit, newRank))
+                return null;
+
+            CompleteTurn();
+            return "move|" + newRank;
+        }
+
+        /// <summary>Swaps a unit with the ally standing in an adjacent rank.</summary>
+        /// <param name="unit">The moving unit.</param>
+        /// <param name="newRank">The destination rank (must be adjacent).</param>
+        /// <returns>True if the move was performed.</returns>
+        private bool TryMove(ICombatUnit? unit, int newRank)
+        {
+            if (unit == null)
+                return false;
+
+            var party = unit.Team == Team.Heroes ? HeroParty : MonsterParty;
+            if (newRank < 1 || newRank > party.Units.Count || Math.Abs(newRank - unit.Rank) != 1)
+                return false;
+
+            int fromIndex = party.Units.IndexOf(unit);
+            int toIndex = party.Units.FindIndex(candidate => candidate.Rank == newRank);
+            if (fromIndex < 0 || toIndex < 0)
+                return false;
+
+            var swap = party.Units[fromIndex];
+            party.Units[fromIndex] = party.Units[toIndex];
+            party.Units[toIndex] = swap;
+            for (int i = 0; i < party.Units.Count; i++)
+                ((FormationUnit)party.Units[i]).Rank = i + 1;
+            return true;
         }
 
         /// <summary>Completes the current turn and advances to the next unit or round.</summary>
@@ -270,6 +344,7 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
             if (heroClass == null)
                 return;
             var hero = HeroGeneration.GenerateHero(heroClass, pick.Seed);
+            hero.SelectCombatSkills(pick.SelectedSkillIds);
             var unit = new FormationUnit(hero, team);
             unit.PrepareForBattle(combatId++);
             if (team == Team.Heroes)

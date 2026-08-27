@@ -89,10 +89,12 @@ repo/
   `tools\sync-assets.ps1` (см. `FEATURE_SHARED_ASSETS.md`).
 - **Фаза 1. Данные** → `src\Core\Content`: модели контента + парсеры (JSON/DSL/CSV/XML) из
   `DarkestDatabase`; `InvariantCulture`; `DarkestDatabase` → тонкий загрузчик; тесты на реальных данных.
-  *(в работе)* Вынесен первый срез: `HeirloomExchange` + `PartyNames` (модели `Campaign\`, DTO
-  `Json*` и мапперы `Database\`), доставка DLL в оба проекта, NUnit-тесты на реальных JSON. Ядро —
-  чистое netstandard2.0 **без Newtonsoft**: DTO-члены snake_case по legacy-JSON (без `[JsonProperty]`),
-  десериализация остаётся в адаптере презентации (`GetJsonObject<T>`), где Newtonsoft 4.0.2.0
+*(в работе)* Вынесен первый срез: `HeirloomExchange` + `PartyNames` (модели `Campaign\`, DTO
+   `Json*` и мапперы `Database\`), доставка DLL в оба проекта, NUnit-тесты на реальных JSON. Ядро —
+   чистое netstandard2.0 **без Newtonsoft**: DTO-члены snake_case по legacy-JSON (без `[JsonProperty]`),
+   десериализация остаётся в адаптере презентации (`GetJsonObject<T>`), где Newtonsoft 4.0.2.0.
+   Добавлены квирки героев: модель `Character\Quirk`, DTO `JsonQuirk`/`JsonQuirkData`, `QuirkMapper`
+   (положительные/отрицательные, buffs, несовместимости) + тесты на `JsonQuirks.json`.
   (оба проекта) мапит их напрямую. Следующий шаг: перенести `JsonConvert` в ядро и десериализовать
   JSON напрямую в модели — но только после того, как Unity-проекты получат Newtonsoft, читаемый
   компилятором 2017.4 (сейчас сборки Newtonsoft 11/12/13 ссылаются на контракты net6.0 и дают

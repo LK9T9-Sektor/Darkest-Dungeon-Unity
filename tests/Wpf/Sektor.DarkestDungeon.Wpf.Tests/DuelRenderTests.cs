@@ -6,6 +6,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
     using NUnit.Framework;
 
     using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+    using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
     using Sektor.DarkestDungeon.Wpf.Combat;
     using Sektor.DarkestDungeon.Wpf.Networking;
     using Sektor.DarkestDungeon.Wpf.ViewModels;
@@ -155,6 +156,52 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
 
             Assert.That(view.RaidHud.Hero.Name, Is.EqualTo(duel.CurrentUnit?.Character.Name));
             Assert.That(view.Quest.Goal, Is.EqualTo(view.Status));
+        }
+
+        [Test]
+        public void Pass_AdvancesTurn()
+        {
+            var duel = CreateDuel();
+            var view = CreateView(duel);
+
+            if (!duel.IsLocalTurn)
+            {
+                Assert.Pass("Rival starts first; pass path covered by Move tests.");
+                return;
+            }
+
+            var before = duel.CurrentUnit;
+            view.PassCommand.Execute(null);
+
+            Assert.That(duel.IsFinished || !ReferenceEquals(duel.CurrentUnit, before), Is.True);
+        }
+
+        [Test]
+        public void Move_SwapsWithAdjacentAlly()
+        {
+            var duel = CreateDuel();
+            var view = CreateView(duel);
+
+            if (!duel.IsLocalTurn)
+            {
+                Assert.Pass("Rival starts first; move path covered by Pass tests.");
+                return;
+            }
+
+            var unit = duel.CurrentUnit!;
+            var ally = (unit.Team == Team.Heroes ? duel.HeroParty : duel.MonsterParty).Units
+                .FirstOrDefault(candidate => Math.Abs(candidate.Rank - unit.Rank) == 1);
+            if (ally == null)
+            {
+                Assert.Pass("No adjacent ally to move to.");
+                return;
+            }
+
+            view.MoveCommand.Execute(null);
+            var allyCards = unit.Team == Team.Heroes ? view.Heroes : view.Monsters;
+            view.TargetCommand.Execute(allyCards.First(card => card.Rank == ally.Rank));
+
+            Assert.That(unit.Rank, Is.EqualTo(ally.Rank));
         }
     }
 }

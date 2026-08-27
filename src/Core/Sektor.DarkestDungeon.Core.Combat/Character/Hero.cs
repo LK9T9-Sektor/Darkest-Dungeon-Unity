@@ -71,7 +71,29 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         /// <inheritdoc/>
         public override List<CombatSkill> CurrentCombatSkills
         {
-            get { return HeroClass.CombatSkills; }
+            get
+            {
+                return SelectedCombatSkills.Count > 0 ? SelectedCombatSkills : HeroClass.CombatSkills;
+            }
+        }
+
+        /// <summary>Gets the active combat skills selected by the player (empty means all class skills).</summary>
+        public List<CombatSkill> SelectedCombatSkills { get; } = new List<CombatSkill>();
+
+        /// <summary>Sets the active combat skills from the given ids (only skills known to the class).</summary>
+        /// <param name="skillIds">The selected skill ids.</param>
+        public void SelectCombatSkills(IEnumerable<string> skillIds)
+        {
+            SelectedCombatSkills.Clear();
+            if (skillIds == null)
+                return;
+
+            foreach (var skillId in skillIds)
+            {
+                var skill = HeroClass.CombatSkills.FirstOrDefault(candidate => candidate.Id == skillId);
+                if (skill != null && !SelectedCombatSkills.Contains(skill))
+                    SelectedCombatSkills.Add(skill);
+            }
         }
 
         /// <summary>Initializes a new instance of the <see cref="Hero"/> class.</summary>

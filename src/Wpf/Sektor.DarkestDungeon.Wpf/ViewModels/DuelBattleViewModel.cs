@@ -20,6 +20,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private readonly Action onLeave;
         private string? selectedSkillId;
         private DuelSkillViewModel? selectedSkill;
+        private bool isMoveMode;
 
         /// <summary>Gets the local party unit cards (left ranks).</summary>
         public ObservableCollection<DuelUnitViewModel> Heroes { get; } = new ObservableCollection<DuelUnitViewModel>();
@@ -69,6 +70,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the command that targets and executes.</summary>
         public IRelayCommand<DuelUnitViewModel> TargetCommand { get; }
 
+        /// <summary>Gets the command that starts a move of the acting unit to an adjacent rank.</summary>
+        public IRelayCommand MoveCommand { get; }
+
+        /// <summary>Gets the command that skips the acting unit's turn.</summary>
+        public IRelayCommand PassCommand { get; }
+
         /// <summary>Gets the command that abandons the duel and returns to the main menu.</summary>
         public IRelayCommand LeaveCommand { get; }
 
@@ -95,6 +102,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             this.onLeave = onLeave;
             SelectSkillCommand = new RelayCommand<DuelSkillViewModel>(SelectSkill);
             TargetCommand = new RelayCommand<DuelUnitViewModel>(SelectTarget);
+            MoveCommand = new RelayCommand(SelectMove);
+            PassCommand = new RelayCommand(Pass);
             LeaveCommand = new RelayCommand(Leave);
             HoverCommand = new RelayCommand<DuelUnitViewModel>(Hover);
             UnhoverCommand = new RelayCommand(Unhover);
@@ -265,6 +274,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             if (skill == null || !controller.IsLocalTurn)
                 return;
 
+            isMoveMode = false;
             foreach (var existing in Skills)
                 existing.IsSelected = false;
             skill.IsSelected = true;
@@ -291,10 +301,58 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         private void SelectTarget(DuelUnitViewModel? unit)
         {
-            if (unit == null || selectedSkill == null || !controller.IsLocalTurn)
+            if (unit == null || !controller.IsLocalTurn)
+                return;
+
+            if (isMoveMode)
+            {
+                var movePayload = controller.ExecuteLocalMove(unit.Rank);
+                isMoveMode = false;
+                if (movePayload == null)
+                    return;
+                rivalLink.SendLocalAction(movePayload);
+                Refresh();
+                return;
+            }
+
+            if (selectedSkill == null)
                 return;
 
             var payload = controller.ExecuteLocalSkill(selectedSkillId!, unit.CombatId);
+            if (payload == null)
+                return;
+
+            rivalLink.SendLocalAction(payload);
+            Refresh();
+        }
+
+        private void SelectMove()
+        {
+            if (!controller.IsLocalTurn || controller.CurrentUnit == null)
+                return;
+
+            selectedSkill = null;
+            selectedSkillId = null;
+            isMoveMode = true;
+            foreach (var existing in Skills)
+                existing.IsSelected = false;
+            ClearTargets();
+
+            var unit = controller.CurrentUnit;
+            var allies = unit.Team == Team.Heroes ? Heroes : Monsters;
+            foreach (var ally in allies)
+            {
+                if (Math.Abs(ally.Rank - unit.Rank) == 1)
+                    ally.IsTarget = true;
+            }
+        }
+
+        private void Pass()
+        {
+            if (!controller.IsLocalTurn)
+                return;
+
+            var payload = controller.ExecuteLocalPass();
             if (payload == null)
                 return;
 
@@ -316,6 +374,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             var hp = character.GetPairedAttribute(AttributeType.HitPoints);
             return new DuelUnitViewModel(
                 unit.CombatInfo.CombatId,
+                unit.Rank,
                 character.Name,
                 character.Class)
             {

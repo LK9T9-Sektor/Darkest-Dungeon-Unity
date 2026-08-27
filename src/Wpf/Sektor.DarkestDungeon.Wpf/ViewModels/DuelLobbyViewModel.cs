@@ -195,7 +195,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         {
             var picks = new List<DuelHeroPick>();
             for (int i = 0; i < config.ClassIds.Count; i++)
-                picks.Add(new DuelHeroPick(config.ClassIds[i], config.Seeds[i]));
+                picks.Add(new DuelHeroPick(
+                    config.ClassIds[i],
+                    config.Seeds[i],
+                    i < config.SelectedSkillIds.Count ? config.SelectedSkillIds[i] : null));
             return picks.ToArray();
         }
 
