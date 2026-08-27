@@ -13,7 +13,7 @@ using Sektor.DarkestDungeon.Wpf.Networking;
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
     /// <summary>Multiplayer duel lobby: hero selection, host/join, party exchange and duel start.</summary>
-    public partial class DuelLobbyViewModel : ObservableObject, IDisposable
+    public partial class DuelLobbyViewModel : ObservableObject, IPumpable, IDisposable
     {
         private readonly DuelSessionManager session;
         private readonly INavigationService navigation;
