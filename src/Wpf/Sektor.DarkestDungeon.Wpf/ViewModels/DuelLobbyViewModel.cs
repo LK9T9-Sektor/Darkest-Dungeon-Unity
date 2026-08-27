@@ -1,27 +1,29 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Sektor.DarkestDungeon.Lan.Contracts.Transport;
 using Sektor.DarkestDungeon.Wpf.Combat;
+using Sektor.DarkestDungeon.Wpf.Navigation;
 using Sektor.DarkestDungeon.Wpf.Networking;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
-    /// <summary>Duel lobby: hero selection, host/join, party exchange and duel start.</summary>
+    /// <summary>Multiplayer duel lobby: hero selection, host/join, party exchange and duel start.</summary>
     public partial class DuelLobbyViewModel : ObservableObject, IDisposable
     {
         private readonly DuelSessionManager session;
-        private DuelBattleViewModel? activeBattle;
-
-        /// <summary>Occurs when the duel starts with a ready controller and battle view model.</summary>
-        public event Action<DuelController, DuelBattleViewModel>? DuelStarted;
+        private readonly INavigationService navigation;
+        private readonly IReadOnlyList<string> availableClasses;
+        private DateTime? waitingSince;
+        private bool started;
+        private bool disposed;
 
         /// <summary>Gets the four hero slots.</summary>
-        public System.Collections.ObjectModel.ObservableCollection<HeroSlotViewModel> Slots { get; } =
-            new System.Collections.ObjectModel.ObservableCollection<HeroSlotViewModel>();
+        public ObservableCollection<HeroSlotViewModel> Slots { get; } = new ObservableCollection<HeroSlotViewModel>();
 
         /// <summary>Gets or sets the connection status text.</summary>
         [ObservableProperty]
@@ -31,10 +33,17 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private string _sessionIdText = string.Empty;
 
+        /// <summary>Gets or sets the elapsed waiting time for the rival (mm:ss).</summary>
+        [ObservableProperty]
+        private string _waitingTime = string.Empty;
+
         /// <summary>Pumps the transport callbacks (called by a UI timer).</summary>
         public void Pump()
         {
+            if (disposed)
+                return;
             session.Pump();
+            UpdateWaitingTime();
         }
 
         /// <summary>Gets the command that hosts a new duel room.</summary>
@@ -46,22 +55,25 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the command that copies the session id.</summary>
         public IRelayCommand CopyIdCommand { get; }
 
-        /// <summary>Gets the command that disconnects from the room.</summary>
+        /// <summary>Gets the command that disconnects and returns to the main menu.</summary>
         public IRelayCommand LeaveCommand { get; }
 
         /// <summary>Initializes a new instance of the <see cref="DuelLobbyViewModel"/> class.</summary>
+        /// <param name="navigation">The navigation service.</param>
         /// <param name="transport">The duel transport.</param>
-        public DuelLobbyViewModel(ITransport transport)
+        /// <param name="availableClasses">The selectable hero class ids.</param>
+        public DuelLobbyViewModel(INavigationService navigation, ITransport transport, IReadOnlyList<string> availableClasses)
         {
+            this.navigation = navigation;
+            this.availableClasses = availableClasses;
             session = new DuelSessionManager(transport);
             for (int i = 0; i < 4; i++)
-                Slots.Add(new HeroSlotViewModel(i * 10 + 1));
+                Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses));
 
             session.SessionReady += OnSessionReady;
             session.RivalPartyReceived += OnRivalPartyReceived;
             session.RivalLoaded += OnRivalLoaded;
-            session.RivalInputReceived += OnRivalInputReceived;
-            session.Disconnected += () => Status = "Disconnected from the session.";
+            session.Disconnected += OnDisconnected;
 
             HostCommand = new RelayCommand(Host);
             JoinCommand = new RelayCommand(Join);
@@ -106,30 +118,23 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         private void Leave()
         {
-            session.Leave();
-            Status = "Left the session.";
+            Dispose();
+            navigation.GoHome();
         }
 
         private void OnSessionReady()
         {
-            if (session.IsHost)
-            {
-                Status = "Room created. Waiting for a rival...";
-                SessionIdText = session.SessionId;
-                SendPartyConfig();
-            }
-            else
-            {
-                Status = "Joined. Waiting for the host...";
-                SendPartyConfig();
-            }
+            Status = session.IsHost ? "Room created. Waiting for a rival..." : "Joined. Waiting for the host...";
+            SessionIdText = session.SessionId;
+            waitingSince = DateTime.UtcNow;
+            WaitingTime = "Waiting 00:00";
+            SendPartyConfig();
         }
 
         private void OnRivalPartyReceived(DuelPartyConfig rivalConfig)
         {
             Status = "Rival party received (" + rivalConfig.ClassIds.Count + " heroes).";
-            if (session.IsHost)
-                session.SendLoaded();
+            session.SendLoaded();
         }
 
         private void OnRivalLoaded()
@@ -137,9 +142,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             TryStartDuel();
         }
 
-        private void OnRivalInputReceived(string method, string payload)
+        private void OnDisconnected()
         {
-            activeBattle?.ApplyRivalInput(payload);
+            waitingSince = null;
+            WaitingTime = string.Empty;
         }
 
         private void SendPartyConfig()
@@ -149,8 +155,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         private void TryStartDuel()
         {
-            if (!session.IsReady || session.RivalParty == null)
+            if (started || !session.IsReady || session.RivalParty == null)
                 return;
+            started = true;
+            waitingSince = null;
+            WaitingTime = string.Empty;
 
             string[] orderedIds = session.LocalPlayerId == string.Empty
                 ? new[] { "local", "rival" }
@@ -164,9 +173,15 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 duel.StartDuel(ToPicks(session.RivalParty), ToPicks(BuildConfig()), sessionSeed, isHost: false);
 
             duel.StartBattle();
-            activeBattle = new DuelBattleViewModel(duel, session.SendInput);
+
+            var link = new NetworkRivalLink(session);
+            var battle = new DuelBattleViewModel(duel, link, () =>
+            {
+                Dispose();
+                navigation.GoHome();
+            });
             Status = "Duel started. Round 1.";
-            DuelStarted?.Invoke(duel, activeBattle);
+            navigation.NavigateTo(battle);
         }
 
         private DuelPartyConfig BuildConfig()
@@ -184,9 +199,20 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             return picks.ToArray();
         }
 
+        private void UpdateWaitingTime()
+        {
+            if (waitingSince == null)
+                return;
+            var elapsed = DateTime.UtcNow - waitingSince.Value;
+            WaitingTime = "Waiting " + ((int)elapsed.TotalMinutes).ToString("00") + ":" + elapsed.Seconds.ToString("00");
+        }
+
         /// <inheritdoc/>
         public void Dispose()
         {
+            if (disposed)
+                return;
+            disposed = true;
             session.Dispose();
         }
     }

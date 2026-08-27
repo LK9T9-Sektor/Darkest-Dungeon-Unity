@@ -17,6 +17,13 @@
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
   </ItemGroup>
 
+  <!-- Bundled hero class definitions consumed by the core parser at runtime (linked from unity content, not duplicated). -->
+  <ItemGroup>
+    <None Include="..\..\..\unity\Assets\Resources\Data\Heroes\Info\*.bytes"
+          Link="Content\Heroes\%(Filename).bytes"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Content\Sektor.DarkestDungeon.Core.Content.csproj" />
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Ui\Sektor.DarkestDungeon.Core.Ui.csproj" />

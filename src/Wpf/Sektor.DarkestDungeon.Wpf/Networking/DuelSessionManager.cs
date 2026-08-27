@@ -13,6 +13,9 @@ namespace Sektor.DarkestDungeon.Wpf.Networking
         /// <summary>The readiness barrier message type.</summary>
         public const string PlayerLoaded = "player_loaded";
 
+        /// <summary>The skill input RPC method name.</summary>
+        public const string HeroSkill = "hero_skill";
+
         /// <summary>The prefix for input (RPC-style) messages.</summary>
         public const string RpcPrefix = "rpc.";
 
@@ -29,6 +32,7 @@ namespace Sektor.DarkestDungeon.Wpf.Networking
     public class DuelSessionManager : IDisposable
     {
         private readonly ITransport transport;
+        private bool rivalLoaded;
 
         /// <summary>Occurs when the local player created or joined a session.</summary>
         public event Action? SessionReady;
@@ -162,10 +166,12 @@ namespace Sektor.DarkestDungeon.Wpf.Networking
             {
                 case DuelWire.PartyConfig:
                     RivalParty = DuelPartyConfig.Deserialize(message.Payload);
-                    RivalPartyReceived?.Invoke(RivalParty);
+                    UpdateReadiness();
+                    RivalPartyReceived?.Invoke(RivalParty!);
                     break;
                 case DuelWire.PlayerLoaded:
-                    IsReady = RivalParty != null;
+                    rivalLoaded = true;
+                    UpdateReadiness();
                     RivalLoaded?.Invoke();
                     break;
                 default:
@@ -178,10 +184,16 @@ namespace Sektor.DarkestDungeon.Wpf.Networking
             }
         }
 
+        private void UpdateReadiness()
+        {
+            IsReady = RivalParty != null && rivalLoaded;
+        }
+
         private void OnDisconnected()
         {
             SessionId = string.Empty;
             IsReady = false;
+            rivalLoaded = false;
             Disconnected?.Invoke();
         }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -6,11 +7,10 @@ using Sektor.DarkestDungeon.Wpf.Combat;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
-    /// <summary>A single hero slot in the duel lobby with class cycling.</summary>
+    /// <summary>A single hero slot in a lobby with class cycling.</summary>
     public partial class HeroSlotViewModel : ObservableObject
     {
-        private static readonly string[] AvailableClasses =
-            new[] { "crusader", "highwayman", "plague_doctor", "vestal" };
+        private readonly IReadOnlyList<string> availableClasses;
 
         /// <summary>Gets the deterministic seed of this slot.</summary>
         public int Seed { get; }
@@ -31,10 +31,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Initializes a new instance of the <see cref="HeroSlotViewModel"/> class.</summary>
         /// <param name="seed">The deterministic seed.</param>
-        public HeroSlotViewModel(int seed)
+        /// <param name="availableClasses">The selectable class ids.</param>
+        public HeroSlotViewModel(int seed, IReadOnlyList<string> availableClasses)
         {
+            this.availableClasses = availableClasses;
             Seed = seed;
-            _classId = AvailableClasses[0];
+            _classId = this.availableClasses[0];
             PrevClassCommand = new RelayCommand(PrevClass);
             NextClassCommand = new RelayCommand(NextClass);
         }
@@ -44,16 +46,26 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         private void PrevClass()
         {
-            int index = System.Array.IndexOf(AvailableClasses, ClassId);
-            ClassId = AvailableClasses[(index - 1 + AvailableClasses.Length) % AvailableClasses.Length];
+            int index = IndexOf(ClassId);
+            ClassId = availableClasses[(index - 1 + availableClasses.Count) % availableClasses.Count];
             IsEmpty = false;
         }
 
         private void NextClass()
         {
-            int index = System.Array.IndexOf(AvailableClasses, ClassId);
-            ClassId = AvailableClasses[(index + 1) % AvailableClasses.Length];
+            int index = IndexOf(ClassId);
+            ClassId = availableClasses[(index + 1) % availableClasses.Count];
             IsEmpty = false;
+        }
+
+        private int IndexOf(string classId)
+        {
+            for (int i = 0; i < availableClasses.Count; i++)
+            {
+                if (availableClasses[i] == classId)
+                    return i;
+            }
+            return -1;
         }
 
         partial void OnClassIdChanged(string value)

@@ -1,17 +1,39 @@
+using System;
 using System.Windows;
-using Sektor.DarkestDungeon.Wpf.ViewModels;
+using System.Windows.Controls;
+using System.Windows.Threading;
+using Sektor.DarkestDungeon.Wpf.Networking;
 
 namespace Sektor.DarkestDungeon.Wpf.Views
 {
-    /// <summary>Window rendering the live duel state with click inputs.</summary>
-    public partial class DuelBattleView : Window
+    /// <summary>Duel battle screen; pumps the rival link while it is visible.</summary>
+    public partial class DuelBattleView : UserControl
     {
+        private readonly DispatcherTimer pumpTimer;
+
         /// <summary>Initializes a new instance of the <see cref="DuelBattleView"/> class.</summary>
-        /// <param name="viewModel">The duel battle view model.</param>
-        public DuelBattleView(DuelBattleViewModel viewModel)
+        public DuelBattleView()
         {
             InitializeComponent();
-            DataContext = viewModel;
+            Loaded += OnLoaded;
+            Unloaded += OnUnloaded;
+            pumpTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+            pumpTimer.Tick += OnPumpTick;
+        }
+
+        private void OnPumpTick(object? sender, EventArgs e)
+        {
+            (DataContext as IPumpable)?.Pump();
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            pumpTimer.Start();
+        }
+
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            pumpTimer.Stop();
         }
     }
 }

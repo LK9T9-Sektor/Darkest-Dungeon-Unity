@@ -25,8 +25,10 @@
   AI (9+8+6 desires), `RandomSolver`, баффы, интерфейсы границы (`ICharacter`, `ICombatUnit`,
   `IBattleGround`, `IBattleContext`, `IBattleEvents`). Раскладка зеркалирует `Assets\Scripts\`
   после корня (правило «Preserve Folder Structure»): `Mechanics\`, `Raid\`, `Character\`, `Campaign\`.
-  Тесты — `tests\Core\Sektor.DarkestDungeon.Core.Combat.Tests` (NUnit + NSubstitute, 26). WPF-клиент
+  Тесты — `tests\Core\Sektor.DarkestDungeon.Core.Combat.Tests` (NUnit + NSubstitute, 31). WPF-клиент
   уже потребляет core-скиллы. Конкретная модель персонажа/юнитов и cutover Unity — отложены.
+  Плюс парсер контента героев: `Character\HeroClassFileParser` + `HeroCatalog` (формат
+  `Data/Heroes/Info`, базовый ранг; полный ростер 15 классов потребляется WPF).
 - `src\Core\Content\` — данные контента (Фаза 1, в работе): `Raid\` (пропы/курio: `Prop`,
   `Curio`, `CurioResult`, `IProportionValue`, `AreaType`), `Campaign\` (модели `HeirloomExchange`,
   `PartyNameEntry`,   `NarrationEntry`/`NarrationAudioEvent`), `Save\` (бинарный интерфейс
@@ -100,7 +102,7 @@ repo/
   симуляция; архитектура — **симуляция + события для view** (решение принято). *(вынесено, готово)*:
   `Sektor.DarkestDungeon.Core.Combat` (netstandard2.0, C# 7.3) — скиллы, 29 эффектов, раунды,
   `BattleSolver`, AI (desires), `RandomSolver`, баффы; структура папок повторяет `Assets\Scripts\`
-  (правило «Preserve Folder Structure»). NUnit-тесты (26) + WPF-потребление. **Отложено до
+  (правило «Preserve Folder Structure»). NUnit-тесты (31) + WPF-потребление. **Отложено до
   востребованности** (детерминированный кооп через ядро, `NETWORK.md` §6): конкретная модель
   персонажа/юнитов (`Character`, `Hero`, `Monster`, `FormationUnit`, `BattleGround`) в ядре и cutover
   Unity (реализация `ICharacter`/`ICombatUnit`/`IBattleGround`, удаление легаси-дублей в

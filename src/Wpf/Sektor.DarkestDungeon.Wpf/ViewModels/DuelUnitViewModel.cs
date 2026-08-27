@@ -34,6 +34,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private bool _isTarget;
 
+        /// <summary>Gets or sets a value indicating whether the unit belongs to the enemy side.</summary>
+        [ObservableProperty]
+        private bool _isEnemy;
+
         /// <summary>Gets the hit point ratio (0-1) for the health bar.</summary>
         public double HpRatio { get { return HpMax <= 0 ? 0 : (double)Hp / HpMax; } }
 

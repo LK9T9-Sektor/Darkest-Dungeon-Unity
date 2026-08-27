@@ -1,46 +1,44 @@
+using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
-using Sektor.DarkestDungeon.Wpf.ViewModels;
+using Sektor.DarkestDungeon.Wpf.Networking;
 
 namespace Sektor.DarkestDungeon.Wpf.Views
 {
-    /// <summary>Window hosting the duel lobby.</summary>
-    public partial class DuelLobbyView : Window
+    /// <summary>Multiplayer lobby screen; pumps the transport while it is visible.</summary>
+    public partial class DuelLobbyView : UserControl
     {
-        private readonly DuelLobbyViewModel viewModel;
         private readonly DispatcherTimer pumpTimer;
 
         /// <summary>Initializes a new instance of the <see cref="DuelLobbyView"/> class.</summary>
-        /// <param name="viewModel">The lobby view model.</param>
-        public DuelLobbyView(DuelLobbyViewModel viewModel)
+        public DuelLobbyView()
         {
             InitializeComponent();
-            this.viewModel = viewModel;
-            DataContext = viewModel;
-            viewModel.DuelStarted += OnDuelStarted;
+            DataContextChanged += OnDataContextChanged;
+            Loaded += OnLoaded;
+            Unloaded += OnUnloaded;
+            pumpTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+            pumpTimer.Tick += OnPumpTick;
+        }
 
-            pumpTimer = new DispatcherTimer { Interval = System.TimeSpan.FromMilliseconds(50) };
-            pumpTimer.Tick += (s, e) => Pump();
+        private void OnPumpTick(object? sender, EventArgs e)
+        {
+            (DataContext as IPumpable)?.Pump();
+        }
+
+        private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
             pumpTimer.Start();
         }
 
-        private void OnDuelStarted(Sektor.DarkestDungeon.Wpf.Combat.DuelController controller, DuelBattleViewModel battle)
-        {
-            var battleView = new DuelBattleView(battle) { Owner = this };
-            battleView.Show();
-        }
-
-        private void Pump()
-        {
-            viewModel.Pump();
-        }
-
-        /// <inheritdoc/>
-        protected override void OnClosed(System.EventArgs e)
+        private void OnUnloaded(object sender, RoutedEventArgs e)
         {
             pumpTimer.Stop();
-            viewModel.Dispose();
-            base.OnClosed(e);
         }
     }
 }

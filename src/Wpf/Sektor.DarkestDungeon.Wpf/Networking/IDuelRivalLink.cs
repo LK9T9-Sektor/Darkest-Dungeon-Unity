@@ -1,0 +1,26 @@
+using System;
+using Sektor.DarkestDungeon.Wpf.Combat;
+
+namespace Sektor.DarkestDungeon.Wpf.Networking
+{
+    /// <summary>Delivers the rival's duel inputs into the local simulation (network or AI).</summary>
+    public interface IDuelRivalLink : IDisposable
+    {
+        /// <summary>Occurs when the rival performed an action; carries the raw payload ("skillId|targetId").</summary>
+        event Action<string>? RivalActionReceived;
+
+        /// <summary>Delivers the local action payload to the rival side.</summary>
+        /// <param name="payload">The action payload ("skillId|targetId").</param>
+        void SendLocalAction(string payload);
+
+        /// <summary>Binds the link to the running duel.</summary>
+        /// <param name="controller">The duel controller.</param>
+        void Attach(DuelController controller);
+
+        /// <summary>Stops observing the duel.</summary>
+        void Detach();
+
+        /// <summary>Pumps pending background work of the underlying channel.</summary>
+        void Pump();
+    }
+}

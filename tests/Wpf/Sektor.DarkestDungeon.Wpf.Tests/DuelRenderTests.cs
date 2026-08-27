@@ -1,16 +1,43 @@
 namespace Sektor.DarkestDungeon.Wpf.Tests
 {
+    using System;
     using System.Linq;
 
     using NUnit.Framework;
 
     using Sektor.DarkestDungeon.Core.Combat.Mechanics;
     using Sektor.DarkestDungeon.Wpf.Combat;
+    using Sektor.DarkestDungeon.Wpf.Networking;
     using Sektor.DarkestDungeon.Wpf.ViewModels;
 
     [TestFixture]
     public class DuelRenderTests
     {
+        private sealed class NullRivalLink : IDuelRivalLink
+        {
+            public event Action<string>? RivalActionReceived;
+
+            public void SendLocalAction(string payload)
+            {
+            }
+
+            public void Attach(DuelController controller)
+            {
+            }
+
+            public void Detach()
+            {
+            }
+
+            public void Pump()
+            {
+            }
+
+            public void Dispose()
+            {
+            }
+        }
+
         private static DuelHeroPick[] Picks(string classId)
         {
             return new[]
@@ -30,7 +57,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             RandomSolver.SetRandomSeed(42);
             duel.StartBattle();
 
-            var view = new DuelBattleViewModel(duel, (m, p) => { });
+            var view = new DuelBattleViewModel(duel, new NullRivalLink(), () => { });
 
             Assert.That(view.Heroes.Count, Is.EqualTo(4));
             Assert.That(view.Monsters.Count, Is.EqualTo(4));
@@ -46,7 +73,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             RandomSolver.SetRandomSeed(42);
             duel.StartBattle();
 
-            var view = new DuelBattleViewModel(duel, (m, p) => { });
+            var view = new DuelBattleViewModel(duel, new NullRivalLink(), () => { });
             int initial = view.Monsters[0].Hp;
 
             if (duel.IsLocalTurn)

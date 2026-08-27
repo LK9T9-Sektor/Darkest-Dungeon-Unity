@@ -1,27 +1,30 @@
 using System.Windows;
+using Sektor.DarkestDungeon.Wpf.Combat;
 using Sektor.DarkestDungeon.Wpf.Networking;
 using Sektor.DarkestDungeon.Wpf.ViewModels;
-using Sektor.DarkestDungeon.Wpf.Views;
 
 namespace Sektor.DarkestDungeon.Wpf
 {
-    /// <summary>Main window hosting the battle screen mockup.</summary>
+    /// <summary>Main window hosting all screens via shell navigation.</summary>
     public partial class MainWindow : Window
     {
         /// <summary>Initializes a new instance of the <see cref="MainWindow"/> class.</summary>
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new BattleScreenViewModel();
+            DataContext = CreateShell();
         }
 
-        private void OpenDuelLobby_Click(object sender, RoutedEventArgs e)
+        private static ShellViewModel CreateShell()
         {
-            var lobby = new DuelLobbyView(new DuelLobbyViewModel(DuelTransportFactory.CreateSteamTransport()))
-            {
-                Owner = this,
-            };
-            lobby.ShowDialog();
+            var shell = new ShellViewModel();
+            var menu = new MainMenuViewModel(
+                shell,
+                () => new DuelLobbyViewModel(shell, DuelTransportFactory.CreateSteamTransport(), DuelClasses.AllClassIds),
+                () => new SinglePlayerLobbyViewModel(shell, DuelClasses.AllClassIds));
+            shell.SetHome(menu);
+            shell.NavigateTo(menu);
+            return shell;
         }
     }
 }

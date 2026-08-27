@@ -5,26 +5,32 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
+using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 using Sektor.DarkestDungeon.Wpf.Combat;
+using Sektor.DarkestDungeon.Wpf.Networking;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
     /// <summary>Live snapshot of a duel: units, skills, status and click inputs wired to the core controller.</summary>
-    public partial class DuelBattleViewModel : ObservableObject
+    public partial class DuelBattleViewModel : ObservableObject, IPumpable
     {
         private readonly DuelController controller;
-        private readonly Action<string, string> sendInput;
+        private readonly IDuelRivalLink rivalLink;
+        private readonly Action onLeave;
         private string? selectedSkillId;
         private DuelSkillViewModel? selectedSkill;
 
-        /// <summary>Gets the hero unit cards.</summary>
+        /// <summary>Gets the local party unit cards (left ranks).</summary>
         public ObservableCollection<DuelUnitViewModel> Heroes { get; } = new ObservableCollection<DuelUnitViewModel>();
 
-        /// <summary>Gets the monster unit cards.</summary>
+        /// <summary>Gets the rival party unit cards (right ranks).</summary>
         public ObservableCollection<DuelUnitViewModel> Monsters { get; } = new ObservableCollection<DuelUnitViewModel>();
 
         /// <summary>Gets the skill buttons of the acting unit.</summary>
         public ObservableCollection<DuelSkillViewModel> Skills { get; } = new ObservableCollection<DuelSkillViewModel>();
+
+        /// <summary>Gets the current round's turn order strip.</summary>
+        public ObservableCollection<DuelTurnEntryViewModel> TurnOrder { get; } = new ObservableCollection<DuelTurnEntryViewModel>();
 
         /// <summary>Gets the battle log lines.</summary>
         public ObservableCollection<string> Log { get; } = new ObservableCollection<string>();
@@ -39,21 +45,44 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the command that targets and executes.</summary>
         public IRelayCommand<DuelUnitViewModel> TargetCommand { get; }
 
+        /// <summary>Gets the command that abandons the duel and returns to the main menu.</summary>
+        public IRelayCommand LeaveCommand { get; }
+
         /// <summary>Initializes a new instance of the <see cref="DuelBattleViewModel"/> class.</summary>
         /// <param name="controller">The duel controller.</param>
-        /// <param name="sendInput">Sends an input message (method, payload).</param>
-        public DuelBattleViewModel(DuelController controller, Action<string, string> sendInput)
+        /// <param name="rivalLink">The rival input channel (network or AI).</param>
+        /// <param name="onLeave">Invoked when the player abandons the duel.</param>
+        public DuelBattleViewModel(DuelController controller, IDuelRivalLink rivalLink, Action onLeave)
         {
             this.controller = controller;
-            this.sendInput = sendInput;
+            this.rivalLink = rivalLink;
+            this.onLeave = onLeave;
             SelectSkillCommand = new RelayCommand<DuelSkillViewModel>(SelectSkill);
             TargetCommand = new RelayCommand<DuelUnitViewModel>(SelectTarget);
+            LeaveCommand = new RelayCommand(Leave);
             controller.Events.StateChanged += Refresh;
+            rivalLink.RivalActionReceived += OnRivalActionReceived;
+            rivalLink.Attach(controller);
             Refresh();
         }
 
-        /// <summary>Applies a rival input and refreshes the snapshot.</summary>
-        /// <param name="payload">The input payload.</param>
+        /// <inheritdoc/>
+        public void Pump()
+        {
+            rivalLink.Pump();
+        }
+
+        /// <summary>Leaves the duel: detaches the rival link and returns to the main menu.</summary>
+        public void Leave()
+        {
+            controller.Events.StateChanged -= Refresh;
+            rivalLink.RivalActionReceived -= OnRivalActionReceived;
+            rivalLink.Dispose();
+            onLeave();
+        }
+
+        /// <summary>Applies a rival action payload and refreshes the snapshot.</summary>
+        /// <param name="payload">The raw action payload ("skillId|targetId").</param>
         public void ApplyRivalInput(string payload)
         {
             controller.ApplyRemoteSkill(payload);
@@ -69,22 +98,46 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             RefreshLog();
         }
 
+        private void OnRivalActionReceived(string payload)
+        {
+            ApplyRivalInput(payload);
+        }
+
         private void RefreshUnits()
         {
             Heroes.Clear();
             foreach (var unit in controller.HeroParty.Units)
-                Heroes.Add(ToUnit(unit));
+                Heroes.Add(ToUnit(unit, isEnemy: false));
             Monsters.Clear();
             foreach (var unit in controller.MonsterParty.Units)
-                Monsters.Add(ToUnit(unit));
+                Monsters.Add(ToUnit(unit, isEnemy: true));
 
             var current = controller.CurrentUnit;
-            var target = Heroes.FirstOrDefault(h => h.CombatId == (current?.CombatInfo.CombatId ?? 0));
-            var monsterTarget = Monsters.FirstOrDefault(h => h.CombatId == (current?.CombatInfo.CombatId ?? 0));
-            if (target != null)
-                target.IsCurrent = true;
-            if (monsterTarget != null)
-                monsterTarget.IsCurrent = true;
+            MarkCurrent(Heroes, current);
+            MarkCurrent(Monsters, current);
+            RefreshTurnOrder(current);
+        }
+
+        private void RefreshTurnOrder(ICombatUnit? current)
+        {
+            TurnOrder.Clear();
+            if (controller.BattleGround == null || current == null)
+                return;
+
+            int currentId = current.CombatInfo.CombatId;
+            foreach (var unit in controller.BattleGround.Round.OrderedUnits)
+            {
+                var entry = new DuelTurnEntryViewModel(unit.Character.Name, unit.Team == Team.Monsters);
+                entry.IsCurrent = unit.CombatInfo.CombatId == currentId;
+                TurnOrder.Add(entry);
+            }
+        }
+
+        private static void MarkCurrent(ObservableCollection<DuelUnitViewModel> cards, ICombatUnit? current)
+        {
+            int currentId = current?.CombatInfo.CombatId ?? 0;
+            foreach (var card in cards.Where(card => card.CombatId == currentId))
+                card.IsCurrent = true;
         }
 
         private void RefreshSkills()
@@ -155,7 +208,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             if (payload == null)
                 return;
 
-            sendInput("hero_skill", payload);
+            rivalLink.SendLocalAction(payload);
             Refresh();
         }
 
@@ -167,7 +220,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 monster.IsTarget = false;
         }
 
-        private DuelUnitViewModel ToUnit(ICombatUnit unit)
+        private DuelUnitViewModel ToUnit(ICombatUnit unit, bool isEnemy)
         {
             var character = unit.Character;
             return new DuelUnitViewModel(
@@ -175,6 +228,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 character.Name,
                 character.Class)
             {
+                IsEnemy = isEnemy,
                 Hp = (int)character.HealthRatio * 100,
                 HpMax = 100,
                 Stress = (int)character.Stress.CurrentValue,
