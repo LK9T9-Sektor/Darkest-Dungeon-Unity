@@ -95,6 +95,10 @@ repo/
    десериализация остаётся в адаптере презентации (`GetJsonObject<T>`), где Newtonsoft 4.0.2.0.
    Добавлены квирки героев: модель `Character\Quirk`, DTO `JsonQuirk`/`JsonQuirkData`, `QuirkMapper`
    (положительные/отрицательные, buffs, несовместимости) + тесты на `JsonQuirks.json`.
+   Добавлены буффы: `Character\BuffContent`, DTO `JsonBuff`/`JsonBuffData`/`JsonBuffRuleData`,
+   `BuffContentMapper` + тесты на `JsonBuffs.json`; в `CharacterHelper` портированы
+   `StringToBuffType`/`StringToBuffRule`. Квирки применяются в WPF-дуэли как permanent-баффы
+   (`BuffSourceType.Quirk`) — как в Unity.
   (оба проекта) мапит их напрямую. Следующий шаг: перенести `JsonConvert` в ядро и десериализовать
   JSON напрямую в модели — но только после того, как Unity-проекты получат Newtonsoft, читаемый
   компилятором 2017.4 (сейчас сборки Newtonsoft 11/12/13 ссылаются на контракты net6.0 и дают

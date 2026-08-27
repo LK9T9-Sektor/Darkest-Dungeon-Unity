@@ -80,6 +80,17 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         /// <summary>Gets the active combat skills selected by the player (empty means all class skills).</summary>
         public List<CombatSkill> SelectedCombatSkills { get; } = new List<CombatSkill>();
 
+        /// <summary>Gets the quirk ids applied to the hero.</summary>
+        public List<string> Quirks { get; } = new List<string>();
+
+        /// <summary>Records a quirk id on the hero.</summary>
+        /// <param name="quirkId">The quirk id.</param>
+        public void AddQuirk(string quirkId)
+        {
+            if (!Quirks.Contains(quirkId))
+                Quirks.Add(quirkId);
+        }
+
         /// <summary>Sets the active combat skills from the given ids (only skills known to the class).</summary>
         /// <param name="skillIds">The selected skill ids.</param>
         public void SelectCombatSkills(IEnumerable<string> skillIds)

@@ -226,5 +226,36 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(view.Log.Count, Is.GreaterThan(logCount));
             Assert.That(view.Log[view.Log.Count - 1], Is.Not.Empty);
         }
+
+        [Test]
+        public void Quirk_Buff_ModifiesMaxHealth()
+        {
+            var withQuirk = new DuelController();
+            withQuirk.StartDuel(new[] { new DuelHeroPick("crusader", 1, null, new[] { "tough" }) }, Picks("highwayman"), 42, isHost: true);
+            var plain = new DuelController();
+            plain.StartDuel(new[] { new DuelHeroPick("crusader", 1) }, Picks("highwayman"), 42, isHost: true);
+
+            float hpWith = withQuirk.HeroParty.Units[0].Character.GetPairedAttribute(AttributeType.HitPoints).ModifiedValue;
+            float hpPlain = plain.HeroParty.Units[0].Character.GetPairedAttribute(AttributeType.HitPoints).ModifiedValue;
+
+            Assert.That(hpWith, Is.GreaterThan(hpPlain));
+        }
+
+        [Test]
+        public void PartyConfig_RoundTripsQuirks()
+        {
+            var config = new Networking.DuelPartyConfig(
+                new[] { "crusader", "highwayman" },
+                new[] { 1, 2 },
+                new[] { new[] { "smite" }, Array.Empty<string>() },
+                new[] { new[] { "tough" }, new[] { "fragile" } });
+
+            var parsed = Networking.DuelPartyConfig.Deserialize(config.Serialize());
+
+            Assert.That(parsed.ClassIds[0], Is.EqualTo("crusader"));
+            CollectionAssert.AreEquivalent(new[] { "smite" }, parsed.SelectedSkillIds[0]);
+            CollectionAssert.AreEquivalent(new[] { "tough" }, parsed.QuirkIds[0]);
+            CollectionAssert.AreEquivalent(new[] { "fragile" }, parsed.QuirkIds[1]);
+        }
     }
 }

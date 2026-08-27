@@ -60,5 +60,58 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character.Utils
                     return AttributeType.Undefined;
             }
         }
+
+        /// <summary>Converts a buff stat type token to a <see cref="BuffType"/>.</summary>
+        /// <param name="buffType">The token ("combat_stat_add"/"combat_stat_multiply").</param>
+        /// <returns>The buff type, or <see cref="BuffType.StatAdd"/> if unknown.</returns>
+        public static BuffType StringToBuffType(string buffType)
+        {
+            switch (buffType)
+            {
+                case "combat_stat_add":
+                    return BuffType.StatAdd;
+                case "combat_stat_multiply":
+                    return BuffType.StatMultiply;
+                default:
+                    return BuffType.StatAdd;
+            }
+        }
+
+        /// <summary>Converts a buff rule token to a <see cref="BuffRule"/>.</summary>
+        /// <param name="buffRule">The rule token.</param>
+        /// <returns>The buff rule, or <see cref="BuffRule.Always"/> if unknown.</returns>
+        public static BuffRule StringToBuffRule(string buffRule)
+        {
+            switch (buffRule)
+            {
+                case "always": return BuffRule.Always;
+                case "monsterSize": return BuffRule.Size;
+                case "lightbelow": return BuffRule.LightBelow;
+                case "lightabove": return BuffRule.LightAbove;
+                case "hpbelow": return BuffRule.HpBelow;
+                case "hpabove": return BuffRule.HpAbove;
+                case "afflicted": return BuffRule.Afflicted;
+                case "virtued": return BuffRule.Virtued;
+                case "meleeonly": return BuffRule.Melee;
+                case "rangedonly": return BuffRule.Ranged;
+                case "firstroundonly": return BuffRule.FirstRound;
+                case "actorStatus": return BuffRule.Status;
+                case "monsterType": return BuffRule.EnemyType;
+                case "at_deaths_door": return BuffRule.DeathsDoor;
+                case "in_rank": return BuffRule.InRank;
+                case "in_camp": return BuffRule.InCamp;
+                case "in_mode": return BuffRule.InMode;
+                case "in_dungeon": return BuffRule.InDungeon;
+                case "stress_above": return BuffRule.StressAbove;
+                case "stress_below": return BuffRule.StressBelow;
+                case "walking_backwards": return BuffRule.WalkBack;
+                case "in_activity": return BuffRule.InActivity;
+                case "in_corridor": return BuffRule.InCorridor;
+                case "riposte": return BuffRule.Riposting;
+                case "skill": return BuffRule.Skill;
+                default:
+                    return BuffRule.Always;
+            }
+        }
     }
 }

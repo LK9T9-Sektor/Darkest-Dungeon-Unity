@@ -67,6 +67,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             get { return Skills.Where(skill => skill.IsActive).Select(skill => skill.Id).ToList(); }
         }
 
+        /// <summary>Gets the ids of the chosen quirks.</summary>
+        public IReadOnlyList<string> SelectedQuirkIds
+        {
+            get { return Quirks.Select(quirk => quirk.Id).ToList(); }
+        }
+
         /// <summary>Initializes a new instance of the <see cref="HeroSlotViewModel"/> class.</summary>
         /// <param name="seed">The deterministic seed.</param>
         /// <param name="availableClasses">The selectable class ids.</param>

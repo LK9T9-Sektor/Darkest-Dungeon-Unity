@@ -22,6 +22,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(slot.Quirks.Count, Is.EqualTo(2));
             Assert.That(slot.QuirkSummary, Is.Not.Empty);
             Assert.That(slot.Details, Does.Contain("HP"));
+            Assert.That(slot.SelectedQuirkIds.Count, Is.EqualTo(2));
         }
 
         [Test]

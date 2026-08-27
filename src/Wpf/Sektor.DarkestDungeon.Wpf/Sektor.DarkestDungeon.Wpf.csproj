@@ -26,6 +26,9 @@
     <None Include="..\..\..\unity\Assets\Resources\Data\JsonQuirks.json"
           Link="Content\Quirks\JsonQuirks.json"
           CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\unity\Assets\Resources\Data\JsonBuffs.json"
+          Link="Content\Buffs\JsonBuffs.json"
+          CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

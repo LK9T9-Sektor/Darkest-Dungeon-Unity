@@ -7,6 +7,7 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Party;
+using Sektor.DarkestDungeon.Wpf.Data;
 
 namespace Sektor.DarkestDungeon.Wpf.Combat
 {
@@ -22,15 +23,20 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
         /// <summary>Gets the active combat skill ids selected by the player (empty = all class skills).</summary>
         public IReadOnlyList<string> SelectedSkillIds { get; }
 
+        /// <summary>Gets the quirk ids chosen for the hero.</summary>
+        public IReadOnlyList<string> QuirkIds { get; }
+
         /// <summary>Initializes a new instance of the <see cref="DuelHeroPick"/> class.</summary>
         /// <param name="classId">The class id.</param>
         /// <param name="seed">The seed.</param>
         /// <param name="selectedSkillIds">The selected active skill ids.</param>
-        public DuelHeroPick(string classId, int seed, IReadOnlyList<string>? selectedSkillIds = null)
+        /// <param name="quirkIds">The quirk ids.</param>
+        public DuelHeroPick(string classId, int seed, IReadOnlyList<string>? selectedSkillIds = null, IReadOnlyList<string>? quirkIds = null)
         {
             ClassId = classId;
             Seed = seed;
             SelectedSkillIds = selectedSkillIds ?? Array.Empty<string>();
+            QuirkIds = quirkIds ?? Array.Empty<string>();
         }
     }
 
@@ -345,12 +351,33 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
                 return;
             var hero = HeroGeneration.GenerateHero(heroClass, pick.Seed);
             hero.SelectCombatSkills(pick.SelectedSkillIds);
+            ApplyQuirks(hero, pick.QuirkIds);
             var unit = new FormationUnit(hero, team);
             unit.PrepareForBattle(combatId++);
             if (team == Team.Heroes)
                 HeroParty.AddUnit(unit);
             else
                 MonsterParty.AddUnit(unit);
+        }
+
+        private static void ApplyQuirks(Hero hero, IReadOnlyList<string> quirkIds)
+        {
+            foreach (var quirkId in quirkIds)
+            {
+                hero.AddQuirk(quirkId);
+                var quirk = QuirkCatalog.Get(quirkId);
+                if (quirk == null)
+                    continue;
+                foreach (var buffId in quirk.Buffs)
+                {
+                    var buff = BuffCatalog.Get(buffId);
+                    if (buff != null)
+                        hero.AddBuff(new BuffInfo(buff, BuffDurationType.Permanent, BuffSourceType.Quirk));
+                }
+            }
+
+            var hp = hero.GetPairedAttribute(AttributeType.HitPoints);
+            hp.CurrentValue = hp.ModifiedValue;
         }
 
         private void NextRound()

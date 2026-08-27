@@ -61,6 +61,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private string _resistsText = string.Empty;
 
+        /// <summary>Gets or sets the quirks text.</summary>
+        [ObservableProperty]
+        private string _quirksText = string.Empty;
+
         /// <summary>Fills the sheet from a stage unit, keeping placeholder values for the rest.</summary>
         /// <param name="unit">The inspected stage unit.</param>
         public void Apply(UnitViewModel unit)
@@ -86,6 +90,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             Dodge = unit.Dodge.ToString();
             Protection = unit.Protection + "%";
             SkillsText = unit.AllSkills;
+            QuirksText = unit.QuirksText;
             ResistsText = "Stun " + unit.ResistStun + "%   Blight " + unit.ResistBlight + "%   Bleed " + unit.ResistBleed + "%\n"
                 + "Debuff " + unit.ResistDebuff + "%   Move " + unit.ResistMove + "%   Disease " + unit.ResistDisease + "%\n"
                 + "Death Blow " + unit.ResistDeathBlow + "%   Trap " + unit.ResistTrap + "%";

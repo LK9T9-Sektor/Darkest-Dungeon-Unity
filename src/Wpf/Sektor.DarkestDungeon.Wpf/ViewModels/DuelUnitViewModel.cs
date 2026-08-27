@@ -91,6 +91,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private string _allSkills = string.Empty;
 
+        /// <summary>Gets or sets the formatted quirk list ("+tough, -fragile").</summary>
+        [ObservableProperty]
+        private string _quirksText = string.Empty;
+
         /// <summary>Gets or sets a value indicating whether this unit is the current acting unit.</summary>
         [ObservableProperty]
         private bool _isCurrent;

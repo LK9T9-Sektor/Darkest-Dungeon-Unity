@@ -53,5 +53,17 @@ namespace Sektor.DarkestDungeon.Core.Combat.Tests
 
             CollectionAssert.AreEquivalent(new[] { "a", "b", "c" }, hero.CurrentCombatSkills.Select(s => s.Id));
         }
+
+        [Test]
+        public void AddQuirk_RecordsUniqueIds()
+        {
+            var hero = new Hero(BuildClass(), 0, "Test");
+
+            hero.AddQuirk("tough");
+            hero.AddQuirk("tough");
+
+            CollectionAssert.Contains(hero.Quirks, "tough");
+            Assert.That(hero.Quirks.Count, Is.EqualTo(1));
+        }
     }
 }

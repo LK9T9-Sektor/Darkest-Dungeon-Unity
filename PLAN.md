@@ -1,63 +1,60 @@
-# PLAN.md — Полный HUD боя в живом DuelBattleView
+# PLAN.md — Квирки → баффы в дуэли (детерминированный локстап)
 
 ## Цель
 
-Встроить в живой экран дуэли (`DuelBattleView`) полный HUD из мокапа `BattleScreenView`
-(три панели), подключив его к реальному состоянию `DuelController`:
-верх — квест+Retreat / факел / очередь хода; центр — поле, раунд, тултип при наведении,
-лист статов по правому клику, статус, лог; низ — скиллы ходящего, инфо ходящего,
-тултип, инвентарь/карта (плейсхолдеры). Мокап-вью/VM переиспользуются, ядро не трогается.
+Черты героев, выбранные/переброшенные в лобби, реально влияют на статы в бою дуэли —
+как в Unity (permanent-баффы `BuffSourceType.Quirk`). Обе стороны локстапа применяют
+одинаковые квирки (передаются в `party_config`), одинаковые баффы из `JsonBuffs.json` →
+идентичные атрибуты.
 
-## Решения
+## Факты из Unity (исследовано)
 
-- Скиллы ходящего — **отдельный кликабельный ряд** над нижней панелью.
-- Инвентарь/карта/факел — **плейсхолдеры** (в дуэли их нет).
-- Реальные HP (не проценты); тултип/статы читают живые атрибуты персонажа.
+- `AddOrReplaceQuirk` (Unity `Hero`) → `AddBuff(new BuffInfo(quirk.Buffs[i], Permanent, Quirk))`.
+- `Quirk.Buffs` — имена баффов; `JsonBuffs.json` даёт `stat_type` add/multiply + `stat_sub_type` + `amount`.
+- Unity-дуэль берёт героев из имения → квирки влияют и в кампании, и в дуэли.
+- У нас: `HeroGeneration` без квирков, `Quirk.Buffs` — строки, парсера Buff нет, квирки не в `party_config`.
 
 ## Шаги
 
-1. [ ] **S1** `DuelBattleView.xaml`: раскладка в 3 панели как у `BattleScreenView`:
-   верх `QuestLogView` + `TorchView` + `TurnOrderView`; центр — поле с карточками юнитов
-   (+`EventsLayerView` раунд, Status-оверлей, лог справа-снизу); низ — ряд скиллов +
-   `RaidHudView`. Карточки получают `Interaction.Triggers` (MouseEnter/Leave/RightButtonDown).
-2. [x] **S2** `DuelUnitViewModel`: `Hp`→`HpCurrent` (реальные HP из `CurrentHealth`/`MaxHealth`),
-   добавить `IsSelected`. Обновить `HpText`, карточку и `DuelRenderTests`.
-3. [x] **S3** `DuelBattleViewModel`: добавить `TooltipTarget`, `Hover/Unhover/OpenStats/CloseStats`
-   команды, `StatsTarget` (HeroStatsViewModel), `Events` (раунд), `Quest` (Title/Goal+Retreat→Leave),
-   `RaidHud` (актёр=`CurrentUnit`), `Torch`. Обновление в `Refresh()`.
-4. [x] **S4** `HeroStatsViewModel.Apply(...)`: живые статы из атрибутов персонажа
-   (Speed/Damage/ACC/Crit/Dodge/Prot).
-5. [x] **S5** `HeroViewModel`: наблюдаемые `Name/ClassName` + `Apply(имя, класс, скиллы, hp, stress)`;
-   `RaidHudViewModel`: метод передачи ходящего. `QuestLogViewModel`: наблюдаемые `Title/Goal`
-   + опциональный `onRetreat`-экшен.
-6. [x] **S6** `TurnOrderView.xaml`: шаблон слота → `DuelTurnEntryViewModel` (имя, текущий, враг).
-   Инлайн-полоса очереди из текущего `DuelBattleView` удаляется.
-7. [x] **S7** Тесты: `DuelRenderTests` под `HpCurrent`; новые — тултип при наведении, статы
-   правым кликом, раунд, актёр в `RaidHud`. `dotnet build` WPF (0 ошибок) + тесты
-   WPF / Core.Combat / Core.Content зелёные.
-8. [x] **S8** Доки: `TESTING.md` (ручные чеки HUD), `CHANGELOG.md` (полный HUD дуэли).
-9. [x] **S9** Коммит и пуш в `origin/wpf`.
+1. [x] **S1** `Core.Content`: модель `Character\BuffContent` (Id, StatType, AttributeTypeName,
+   Amount, RuleTypeName, IsFalseRule, RuleFloat, RuleString) + DTO `Database\JsonBuff`/
+   `JsonBuffData` + `Database\BuffContentMapper`. Тесты `BuffContentMapperTests` на реальном
+   `JsonBuffs.json` (линк в тестовый csproj).
+2. [x] **S2** Wpf: линк `JsonBuffs.json` → `Content\Buffs\JsonBuffs.json`; `Data\BuffCatalog.cs` —
+   десериализация (Newtonsoft) → `BuffContentMapper` → core `Buff` (Combat) через
+   `CharacterHelper`/маппинг `stat_sub_type`→`AttributeType` и `rule_type`→`BuffRule`;
+   словарь id→Buff.
+3. [x] **S3** Core `Hero`: список `Quirks` (id) + `AddQuirk(string id)` (для отображения).
+4. [x] **S4** `DuelHeroPick`/`DuelPartyConfig`: квирки на героя; wire «class|seed|skills|quirks»
+   (обратная совместимость: без сегментов = пусто).
+5. [x] **S5** `DuelController.AddHero`: назначить квирки (из pick), применить баффы
+   `AddBuff(BuffInfo(buff, Permanent, Quirk))`; после баффов HP current = modified (бой стартует полным).
+6. [x] **S6** Лобби: `HeroSlotViewModel.SelectedQuirkIds`; `DuelLobby`/`SinglePlayer` передают
+   в picks/config; ИИ-отряд получает случайные квирки (детерминированно, локально).
+7. [x] **S7** Отображение квирков в листе статов (правый клик) — список из `unit.Character`.
+8. [x] **S8** Тесты: Buff-маппер; дуэль — герой с «tough» имеет больше MaxHealth; round-trip
+   `DuelPartyConfig` с квирками; лобби-слот отдаёт `SelectedQuirkIds`. Build + тесты WPF/Combat/Content.
+9. [x] **S9** Доки: `EXTRACTION_PLAN` (JsonBuffs), `CHANGELOG`, `TESTING`. Коммит и пуш.
 
-## Затронутые файлы
+## Затрагиваемые файлы
 
-- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\DuelBattleView.xaml` (S1, S6)
-- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\TurnOrderView.xaml` (S6)
-- `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\DuelBattleViewModel.cs` (S3)
-- `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\DuelUnitViewModel.cs` (S2)
-- `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\HeroStatsViewModel.cs` (S4)
-- `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\HeroViewModel.cs` (S5)
-- `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\RaidHudViewModel.cs` (S5)
-- `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\QuestLogViewModel.cs` (S5)
-- `tests\Wpf\Sektor.DarkestDungeon.Wpf.Tests\DuelRenderTests.cs` (S7)
-- `docs\TESTING.md`, `docs\CHANGELOG.md`, `PLAN.md` (S8)
+- `src\Core\Sektor.DarkestDungeon.Core.Content\Character\BuffContent.cs` (S1)
+- `src\Core\Sektor.DarkestDungeon.Core.Content\Database\JsonBuff.cs`, `JsonBuffData.cs`, `BuffContentMapper.cs` (S1)
+- `tests\Core\...\Content.Tests\Database\BuffContentMapperTests.cs` (+csproj link) (S1)
+- `src\Wpf\...\Sektor.DarkestDungeon.Wpf.csproj` (link JsonBuffs.json) (S2)
+- `src\Wpf\...\Data\BuffCatalog.cs` (S2)
+- `src\Core\...\Combat\Character\Hero.cs` (S3)
+- `src\Wpf\...\Combat\DuelController.cs`, `Networking\DuelPartyConfig.cs` (S4, S5)
+- `src\Wpf\...\ViewModels\HeroSlotViewModel.cs`, `DuelLobbyViewModel.cs`, `SinglePlayerLobbyViewModel.cs` (S6)
+- `src\Wpf\...\ViewModels\HeroStatsViewModel.cs` + `Views\HeroStatsView.xaml` (S7)
+- `docs\EXTRACTION_PLAN.md`, `docs\CHANGELOG.md`, `docs\TESTING.md` (S9)
 
-Ядро (`src\Core\...\Core.Combat`) и `src\External\` не изменяются. Мокап `BattleScreenView`
-остаётся как референс.
+Ядро `src\External\` не трогаем. Управление `Buff`/`BuffInfo` уже есть в ядре (`Character.AddBuff`).
 
 ## Приёмка
 
-- [ ] Три панели как в мокапе: квест+Retreat / факел / очередь сверху; поле+раунд в центре;
-      скиллы, инфо ходящего, тултип, инвентарь/карта снизу.
-- [ ] Наведение на юнита — тултип (HP/стресс), правый клик — лист статов.
-- [ ] Очередь, раунд, актёр, скиллы, HP/стресс — живые из `DuelController`.
-- [ ] `dotnet build` 0 ошибок; тесты WPF/Combat/Content зелёные.
+- [ ] Герой с «tough» (+10% MAXHP) в дуэли имеет +10% к максимуму HP.
+- [ ] Обе стороны локстапа применяют одинаковые квирки (передаются в `party_config`).
+- [ ] Reroll черт в лобби влияет на бой (выбор уходит в конфиг отряда).
+- [ ] Квирки видны в листе статов (правый клик).
+- [ ] Build 0 ошибок; тесты WPF/Combat/Content зелёные.

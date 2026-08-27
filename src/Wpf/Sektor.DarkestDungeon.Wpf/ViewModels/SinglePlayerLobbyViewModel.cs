@@ -4,7 +4,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Sektor.DarkestDungeon.Core.Content.Character;
 using Sektor.DarkestDungeon.Wpf.Combat;
+using Sektor.DarkestDungeon.Wpf.Data;
 using Sektor.DarkestDungeon.Wpf.Navigation;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
@@ -89,7 +91,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private DuelHeroPick[] RandomPicks()
         {
             return PickRandomParty()
-                .Select((classId, index) => new DuelHeroPick(classId, index * 7 + 13, RandomActiveSkills(classId)))
+                .Select((classId, index) => new DuelHeroPick(classId, index * 7 + 13, RandomActiveSkills(classId), RandomQuirks()))
                 .ToArray();
         }
 
@@ -104,9 +106,28 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             return skills.OrderBy(_ => Rng.Next()).Take(count).ToList();
         }
 
+        private IReadOnlyList<string> RandomQuirks()
+        {
+            var quirks = new List<string>();
+            AddRandomQuirk(quirks, QuirkCatalog.Positive);
+            AddRandomQuirk(quirks, QuirkCatalog.Negative);
+            return quirks;
+        }
+
+        private static void AddRandomQuirk(List<string> result, List<Quirk> pool)
+        {
+            if (pool.Count == 0)
+                return;
+            var candidates = pool.Where(quirk =>
+                !result.Any(existing => QuirkCatalog.Get(existing)?.IncompatibleQuirks.Contains(quirk.Id) == true)).ToList();
+            if (candidates.Count == 0)
+                return;
+            result.Add(candidates[Rng.Next(candidates.Count)].Id);
+        }
+
         private static DuelHeroPick[] ToPicks(IEnumerable<HeroSlotViewModel> slots)
         {
-            return slots.Select(slot => new DuelHeroPick(slot.ClassId, slot.Seed, slot.SelectedSkillIds)).ToArray();
+            return slots.Select(slot => new DuelHeroPick(slot.ClassId, slot.Seed, slot.SelectedSkillIds, slot.SelectedQuirkIds)).ToArray();
         }
     }
 }

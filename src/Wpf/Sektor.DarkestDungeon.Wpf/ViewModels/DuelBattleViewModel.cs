@@ -10,6 +10,7 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 using Sektor.DarkestDungeon.Wpf.Combat;
+using Sektor.DarkestDungeon.Wpf.Data;
 using Sektor.DarkestDungeon.Wpf.Networking;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
@@ -548,6 +549,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 AllSkills = character is Hero hero
                     ? string.Join(", ", hero.HeroClass.CombatSkills.Select(skill => skill.Id))
                     : string.Empty,
+                QuirksText = character is Hero heroWithQuirks && heroWithQuirks.Quirks.Count > 0
+                    ? string.Join(", ", heroWithQuirks.Quirks.Select(quirkId =>
+                        (QuirkCatalog.Get(quirkId)?.IsPositive == true ? "+" : "-") + quirkId))
+                    : "none",
             };
         }
     }
