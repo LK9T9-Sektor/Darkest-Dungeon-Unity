@@ -37,12 +37,91 @@
                 <TextBlock Text="{Binding Name}" Foreground="#E8D9B0" FontSize="15" FontWeight="Bold"
                            HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,170,0,0" />
 
-                <ProgressBar Minimum="0" Maximum="1" Value="{Binding HpRatio, Mode=OneWay}" Height="12"
-                             HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="14,196,14,0" />
-                <TextBlock Text="{Binding HpText}" Foreground="#B0A080" FontSize="11"
-                           HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,210,0,0" />
-                <TextBlock Text="{Binding Stress, StringFormat=Stress {0}}" Foreground="#777" FontSize="11"
-                           HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,226,0,0" />
+                <!-- HP bar: 12 blocks -->
+                <ItemsControl ItemsSource="{Binding HpSegments}" HorizontalAlignment="Stretch"
+                              VerticalAlignment="Top" Margin="14,194,14,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="12" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Rectangle Height="12" Margin="1,0">
+                                <Rectangle.Style>
+                                    <Style TargetType="Rectangle">
+                                        <Setter Property="Fill" Value="#2A2A2A" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding}" Value="1">
+                                                <Setter Property="Fill" Value="#8A3A2A" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Rectangle.Style>
+                            </Rectangle>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock Text="{Binding HpText}" Foreground="#B0A080" FontSize="10"
+                           HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,208,0,0" />
+
+                <!-- Stress bar: 10 pips -->
+                <ItemsControl ItemsSource="{Binding StressPips}" HorizontalAlignment="Stretch"
+                              VerticalAlignment="Top" Margin="14,222,14,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="10" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Rectangle Height="8" Margin="1,0">
+                                <Rectangle.Style>
+                                    <Style TargetType="Rectangle">
+                                        <Setter Property="Fill" Value="#2A2A2A" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding}" Value="1">
+                                                <Setter Property="Fill" Value="#8A7A3A" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding}" Value="2">
+                                                <Setter Property="Fill" Value="#7A3030" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Rectangle.Style>
+                            </Rectangle>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Floating damage popup -->
+                <TextBlock Text="{Binding DamagePopupText}" FontSize="22" FontWeight="Bold" Foreground="White"
+                           HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,44,0,0"
+                           TextAlignment="Center" TextWrapping="Wrap" IsHitTestVisible="False">
+                    <TextBlock.RenderTransform>
+                        <TranslateTransform />
+                    </TextBlock.RenderTransform>
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Opacity" Value="0" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding DamagePopupVisible}" Value="True">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                 From="1" To="0" Duration="0:0:0.9" />
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                                 From="0" To="-36" Duration="0:0:0.9" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
             </Grid>
         </DataTemplate>
 
@@ -92,11 +171,14 @@
 
             <StackPanel Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8,8,0,0">
                 <views:QuestLogView DataContext="{Binding Quest}" Width="360" />
-                <Button Content="X" Width="34" Height="34" FontSize="18" FontWeight="Bold"
-                        Foreground="#C0392B" Margin="0,8,0,0" Style="{StaticResource HudButton}"
-                        ToolTip="Retreat"
-                        Command="{Binding LeaveCommand}" />
             </StackPanel>
+
+            <!-- Retreat, pinned to the left border at the bottom of the top area -->
+            <Button Content="X" Width="34" Height="34" FontSize="18" FontWeight="Bold"
+                    Foreground="#C0392B" Margin="8,0,0,8" Style="{StaticResource HudButton}"
+                    HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                    ToolTip="Retreat"
+                    Command="{Binding LeaveCommand}" />
 
             <views:TorchView Grid.Column="1" DataContext="{Binding Torch}"
                              HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,8,0,0" />
@@ -114,8 +196,8 @@
             <views:EventsLayerView DataContext="{Binding Events}"
                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
-            <ItemsControl ItemsSource="{Binding Heroes}" HorizontalAlignment="Left" VerticalAlignment="Center"
-                          Margin="70,0,0,60">
+            <ItemsControl ItemsSource="{Binding Heroes}" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                          Margin="70,0,0,210">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal" />
@@ -129,8 +211,8 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <ItemsControl ItemsSource="{Binding Monsters}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                          Margin="0,0,70,60">
+            <ItemsControl ItemsSource="{Binding Monsters}" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                          Margin="0,0,70,210">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal" />
@@ -180,29 +262,34 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Button Content="{Binding DisplayName}" Width="150" Height="32" Margin="4"
-                                    FontSize="14"
-                                    IsEnabled="{Binding IsUsable}"
-                                    Command="{Binding DataContext.SelectSkillCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                    CommandParameter="{Binding}">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource HudButton}">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                <Setter Property="BorderBrush" Value="#E8D9B0" />
-                                                <Setter Property="Background" Value="#3A3022" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
+                            <StackPanel Width="68" Margin="4">
+                                <Button Width="64" Height="64" FontSize="10" Padding="2"
+                                        ToolTip="{Binding Details}"
+                                        IsEnabled="{Binding IsUsable}"
+                                        Command="{Binding DataContext.SelectSkillCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource HudButton}">
+                                            <Setter Property="Content" Value="{Binding DisplayName}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#E8D9B0" />
+                                                    <Setter Property="Background" Value="#3A3022" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <TextBlock Text="{Binding DisplayName}" FontSize="10" Foreground="#C8C0B0"
+                                           TextAlignment="Center" TextWrapping="Wrap" Margin="0,3,0,0" />
+                            </StackPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <Button Content="MOVE" Width="80" Height="32" Margin="12,4,0,4" FontSize="14"
+                <Button Content="MOVE" Width="72" Height="32" Margin="12,4,0,4" FontSize="14"
                         Style="{StaticResource HudButton}" Command="{Binding MoveCommand}" />
-                <Button Content="PASS" Width="80" Height="32" Margin="4,4,0,4" FontSize="14"
+                <Button Content="PASS" Width="72" Height="32" Margin="4,4,0,4" FontSize="14"
                         Style="{StaticResource HudButton}" Command="{Binding PassCommand}" />
             </StackPanel>
 

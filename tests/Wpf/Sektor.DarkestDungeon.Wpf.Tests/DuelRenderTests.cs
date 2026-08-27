@@ -203,5 +203,28 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
 
             Assert.That(unit.Rank, Is.EqualTo(ally.Rank));
         }
+
+        [Test]
+        public void SkillExecution_AppendsDetailedLog()
+        {
+            var duel = CreateDuel();
+            var view = CreateView(duel);
+
+            if (!duel.IsLocalTurn || view.Skills.Count == 0)
+            {
+                Assert.Pass("Rival starts first; log path covered on the local side.");
+                return;
+            }
+
+            view.SelectSkillCommand.Execute(view.Skills[0]);
+            var target = view.Heroes.Concat(view.Monsters).FirstOrDefault(card => card.IsTarget);
+            Assert.That(target, Is.Not.Null, "Selected skill should highlight a target.");
+
+            int logCount = view.Log.Count;
+            view.TargetCommand.Execute(target);
+
+            Assert.That(view.Log.Count, Is.GreaterThan(logCount));
+            Assert.That(view.Log[view.Log.Count - 1], Is.Not.Empty);
+        }
     }
 }

@@ -19,10 +19,23 @@
                        Foreground="{x:Static ui:UiBrushes.Label}" FontSize="20" FontWeight="Bold" />
             <TextBlock Text="{Binding ClassName}" Foreground="#C8C0B0" FontSize="16" Margin="0,2,0,0" />
 
-            <UniformGrid Rows="4" Margin="0,12,0,0">
-                <Grid>
+            <!-- Two-column stat sheet -->
+            <Grid Margin="0,12,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Grid.Column="0" Margin="0,2,12,2">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="HP" Foreground="#C8C0B0" FontSize="15" />
@@ -30,76 +43,71 @@
                         <Run Text="{Binding HpCurrent}" /><Run Text=" / " /><Run Text="{Binding HpMax}" />
                     </TextBlock>
                 </Grid>
-                <Grid>
+                <Grid Grid.Row="0" Grid.Column="1" Margin="0,2,0,2">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Stress" Foreground="#C8C0B0" FontSize="15" />
                     <TextBlock Grid.Column="1" Text="{Binding Stress}" Foreground="#E8D9B0" FontSize="15" TextAlignment="Right" />
                 </Grid>
-                <Grid>
+                <Grid Grid.Row="1" Grid.Column="0" Margin="0,2,12,2">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Speed" Foreground="#C8C0B0" FontSize="15" />
                     <TextBlock Grid.Column="1" Text="{Binding Speed}" Foreground="#E8D9B0" FontSize="15" TextAlignment="Right" />
                 </Grid>
-                <Grid>
+                <Grid Grid.Row="1" Grid.Column="1" Margin="0,2,0,2">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Prot" Foreground="#C8C0B0" FontSize="15" />
                     <TextBlock Grid.Column="1" Text="{Binding Protection, StringFormat={}{0}%}" Foreground="#E8D9B0" FontSize="15" TextAlignment="Right" />
                 </Grid>
-            </UniformGrid>
-
-            <TextBlock Text="RESISTANCES" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="15"
-                       FontWeight="Bold" Margin="0,14,0,0" />
-            <UniformGrid Rows="5" Margin="0,6,0,0">
-                <Grid>
+                <Grid Grid.Row="2" Grid.Column="0" Margin="0,2,12,2">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Stun" Foreground="#C8C0B0" FontSize="14" />
                     <TextBlock Grid.Column="1" Text="{Binding ResistStun, StringFormat={}{0}%}" Foreground="#E8D9B0" FontSize="14" TextAlignment="Right" />
                 </Grid>
-                <Grid>
+                <Grid Grid.Row="2" Grid.Column="1" Margin="0,2,0,2">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Blight" Foreground="#C8C0B0" FontSize="14" />
                     <TextBlock Grid.Column="1" Text="{Binding ResistBlight, StringFormat={}{0}%}" Foreground="#E8D9B0" FontSize="14" TextAlignment="Right" />
                 </Grid>
-                <Grid>
+                <Grid Grid.Row="3" Grid.Column="0" Margin="0,2,12,2">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Bleed" Foreground="#C8C0B0" FontSize="14" />
                     <TextBlock Grid.Column="1" Text="{Binding ResistBleed, StringFormat={}{0}%}" Foreground="#E8D9B0" FontSize="14" TextAlignment="Right" />
                 </Grid>
-                <Grid>
+                <Grid Grid.Row="3" Grid.Column="1" Margin="0,2,0,2">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Debuff" Foreground="#C8C0B0" FontSize="14" />
                     <TextBlock Grid.Column="1" Text="{Binding ResistDebuff, StringFormat={}{0}%}" Foreground="#E8D9B0" FontSize="14" TextAlignment="Right" />
                 </Grid>
-                <Grid>
+                <Grid Grid.Row="4" Grid.Column="0" Margin="0,2,12,2">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Move" Foreground="#C8C0B0" FontSize="14" />
                     <TextBlock Grid.Column="1" Text="{Binding ResistMove, StringFormat={}{0}%}" Foreground="#E8D9B0" FontSize="14" TextAlignment="Right" />
                 </Grid>
-            </UniformGrid>
+            </Grid>
         </StackPanel>
     </Border>
 </UserControl>

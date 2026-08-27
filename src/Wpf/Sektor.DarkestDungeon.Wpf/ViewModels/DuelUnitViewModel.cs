@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
@@ -89,11 +91,25 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private bool _isEnemy;
 
+        /// <summary>Gets or sets the floating damage popup text shown over the card.</summary>
+        [ObservableProperty]
+        private string _damagePopupText = string.Empty;
+
+        /// <summary>Gets or sets a value indicating whether the damage popup is shown and animating.</summary>
+        [ObservableProperty]
+        private bool _damagePopupVisible;
+
         /// <summary>Gets the hit point ratio (0-1) for the health bar.</summary>
         public double HpRatio { get { return HpMax <= 0 ? 0 : (double)HpCurrent / HpMax; } }
 
         /// <summary>Gets the hit points text.</summary>
         public string HpText { get { return HpCurrent + " / " + HpMax; } }
+
+        /// <summary>Gets the hp bar segments (1 = filled, 0 = empty).</summary>
+        public List<int> HpSegments { get; } = new List<int>();
+
+        /// <summary>Gets the stress pips (0 = empty, 1 = normal, 2 = stressed).</summary>
+        public List<int> StressPips { get; } = new List<int>();
 
         /// <summary>Initializes a new instance of the <see cref="DuelUnitViewModel"/> class.</summary>
         /// <param name="combatId">The combat id.</param>
@@ -106,16 +122,38 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             Rank = rank;
             Name = name;
             ClassName = className;
+            UpdateBars();
+        }
+
+        /// <summary>Rebuilds the segmented hp bar and the 10 stress pips from the current values.</summary>
+        public void UpdateBars()
+        {
+            HpSegments.Clear();
+            int hpFilled = HpMax <= 0 ? 0 : (int)Math.Round(HpRatio * 12);
+            for (int i = 0; i < 12; i++)
+                HpSegments.Add(i < hpFilled ? 1 : 0);
+
+            StressPips.Clear();
+            int stressFilled = Math.Min(10, (int)Math.Round(Stress / 10.0));
+            for (int i = 0; i < 10; i++)
+                StressPips.Add(i < stressFilled ? (i >= 5 ? 2 : 1) : 0);
         }
 
         partial void OnHpCurrentChanged(int value)
         {
             OnPropertyChanged(nameof(HpRatio));
+            UpdateBars();
         }
 
         partial void OnHpMaxChanged(int value)
         {
             OnPropertyChanged(nameof(HpRatio));
+            UpdateBars();
+        }
+
+        partial void OnStressChanged(int value)
+        {
+            UpdateBars();
         }
     }
 }

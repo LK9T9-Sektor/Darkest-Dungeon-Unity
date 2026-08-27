@@ -11,6 +11,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the display name.</summary>
         public string DisplayName { get; }
 
+        /// <summary>Gets or sets the tooltip details (targets, heal, damage).</summary>
+        [ObservableProperty]
+        private string _details = string.Empty;
+
         /// <summary>Gets or sets a value indicating whether the skill is usable.</summary>
         [ObservableProperty]
         private bool _isUsable;

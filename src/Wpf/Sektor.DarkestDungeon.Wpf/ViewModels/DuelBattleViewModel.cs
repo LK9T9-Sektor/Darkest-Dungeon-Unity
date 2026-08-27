@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
@@ -15,9 +16,24 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
     /// <summary>Live snapshot of a duel: units, skills, status and click inputs wired to the core controller.</summary>
     public partial class DuelBattleViewModel : ObservableObject, IPumpable
     {
+        private sealed class PendingPopup
+        {
+            public int CombatId { get; }
+            public string Text { get; }
+
+            public PendingPopup(int combatId, string text)
+            {
+                CombatId = combatId;
+                Text = text;
+            }
+        }
+
         private readonly DuelController controller;
         private readonly IDuelRivalLink rivalLink;
         private readonly Action onLeave;
+        private readonly DispatcherTimer popupTimer;
+        private readonly System.Collections.Generic.List<PendingPopup> pendingPopups =
+            new System.Collections.Generic.List<PendingPopup>();
         private string? selectedSkillId;
         private DuelSkillViewModel? selectedSkill;
         private bool isMoveMode;
@@ -113,6 +129,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             rivalLink.RivalActionReceived += OnRivalActionReceived;
             rivalLink.Attach(controller);
             Quest.Title = "Duel";
+            popupTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            popupTimer.Tick += (s, e) => ClearPopups();
+            popupTimer.Start();
             Refresh();
         }
 
@@ -135,7 +154,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <param name="payload">The raw action payload ("skillId|targetId").</param>
         public void ApplyRivalInput(string payload)
         {
+            string? actor = controller.CurrentUnit?.Character.Name;
             controller.ApplyRemoteSkill(payload);
+            LogAction(actor, payload);
             Refresh();
         }
 
@@ -148,6 +169,33 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             RefreshLog();
             RefreshEvents();
             RefreshActor();
+            ApplyPopups();
+        }
+
+        private void ClearPopups()
+        {
+            foreach (var card in Heroes.Concat(Monsters))
+            {
+                card.DamagePopupVisible = false;
+                card.DamagePopupText = string.Empty;
+            }
+        }
+
+        private void ApplyPopups()
+        {
+            if (pendingPopups.Count == 0)
+                return;
+
+            foreach (var popup in pendingPopups)
+            {
+                var card = Heroes.FirstOrDefault(h => h.CombatId == popup.CombatId)
+                    ?? Monsters.FirstOrDefault(m => m.CombatId == popup.CombatId);
+                if (card == null)
+                    continue;
+                card.DamagePopupText = popup.Text;
+                card.DamagePopupVisible = true;
+            }
+            pendingPopups.Clear();
         }
 
         private void OnRivalActionReceived(string payload)
@@ -203,7 +251,29 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
             var unit = controller.CurrentUnit;
             foreach (var skill in unit.Character.CurrentCombatSkills ?? Enumerable.Empty<CombatSkill>())
-                Skills.Add(new DuelSkillViewModel(skill.Id, skill.Id) { IsUsable = controller.IsSkillUsable(unit, skill) });
+                Skills.Add(new DuelSkillViewModel(skill.Id, skill.Id)
+                {
+                    IsUsable = controller.IsSkillUsable(unit, skill),
+                    Details = BuildSkillDetails(skill),
+                });
+        }
+
+        private static string BuildSkillDetails(CombatSkill skill)
+        {
+            if (skill.Heal != null)
+                return "Heals " + skill.Heal.MinAmount + "-" + skill.Heal.MaxAmount + ". Launch " + FormatRanks(skill.LaunchRanks) + ". Target " + FormatRanks(skill.TargetRanks) + ".";
+            if (skill.Category == SkillCategory.Damage)
+                return "Damage. Launch " + FormatRanks(skill.LaunchRanks) + ". Target " + FormatRanks(skill.TargetRanks) + ".";
+            return "Launch " + FormatRanks(skill.LaunchRanks) + ". Target " + FormatRanks(skill.TargetRanks) + ".";
+        }
+
+        private static string FormatRanks(FormationSet set)
+        {
+            if (set.IsSelfTarget)
+                return "self";
+            if (set.IsRandomTarget)
+                return "random";
+            return set.Ranks.Count == 0 ? "-" : string.Join(",", set.Ranks);
         }
 
         private void RefreshStatus()
@@ -306,10 +376,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
             if (isMoveMode)
             {
+                string? actor = controller.CurrentUnit?.Character.Name;
                 var movePayload = controller.ExecuteLocalMove(unit.Rank);
                 isMoveMode = false;
                 if (movePayload == null)
                     return;
+                LogAction(actor, movePayload);
                 rivalLink.SendLocalAction(movePayload);
                 Refresh();
                 return;
@@ -318,10 +390,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             if (selectedSkill == null)
                 return;
 
+            string? actorName = controller.CurrentUnit?.Character.Name;
             var payload = controller.ExecuteLocalSkill(selectedSkillId!, unit.CombatId);
             if (payload == null)
                 return;
 
+            LogAction(actorName, payload);
             rivalLink.SendLocalAction(payload);
             Refresh();
         }
@@ -352,12 +426,86 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             if (!controller.IsLocalTurn)
                 return;
 
+            string? actor = controller.CurrentUnit?.Character.Name;
             var payload = controller.ExecuteLocalPass();
             if (payload == null)
                 return;
 
+            LogAction(actor, payload);
             rivalLink.SendLocalAction(payload);
             Refresh();
+        }
+
+        private void LogAction(string? actorName, string payload)
+        {
+            var parts = payload.Split('|');
+            if (parts.Length < 1 || actorName == null)
+                return;
+
+            if (parts[0] == "pass")
+            {
+                controller.Events.Log.Add($"{actorName} passes.");
+                return;
+            }
+            if (parts[0] == "move")
+            {
+                controller.Events.Log.Add(parts.Length == 2 ? $"{actorName} moves to rank {parts[1]}." : $"{actorName} moves.");
+                return;
+            }
+            LogSkillResult(actorName, parts[0]);
+        }
+
+        private void LogSkillResult(string actorName, string skillId)
+        {
+            if (controller.Solver == null)
+                return;
+
+            var result = controller.Solver.SkillResult;
+            foreach (var entry in result.SkillEntries)
+            {
+                string target = entry.Target?.Character.Name ?? "the void";
+                switch (entry.Type)
+                {
+                    case SkillResultType.Miss:
+                        controller.Events.Log.Add($"{actorName}: {skillId} misses {target}.");
+                        AddPopup(entry.Target, "MISS");
+                        break;
+                    case SkillResultType.Dodge:
+                        controller.Events.Log.Add($"{actorName}: {skillId} is dodged by {target}.");
+                        AddPopup(entry.Target, "DODGE");
+                        break;
+                    case SkillResultType.Hit:
+                        controller.Events.Log.Add(entry.IsZeroed
+                            ? $"{actorName}: {skillId} slays {target} for {entry.Amount} damage!"
+                            : $"{actorName}: {skillId} hits {target} for {entry.Amount} damage.");
+                        AddPopup(entry.Target, entry.IsZeroed ? entry.Amount + "!" : entry.Amount.ToString());
+                        break;
+                    case SkillResultType.Crit:
+                        controller.Events.Log.Add(entry.IsZeroed
+                            ? $"{actorName}: {skillId} CRITS and slays {target} for {entry.Amount} damage!"
+                            : $"{actorName}: {skillId} CRITS {target} for {entry.Amount} damage!");
+                        AddPopup(entry.Target, "CRIT!\n" + entry.Amount);
+                        break;
+                    case SkillResultType.Heal:
+                        controller.Events.Log.Add($"{actorName}: {skillId} heals {target} for {entry.Amount}.");
+                        AddPopup(entry.Target, "+" + entry.Amount);
+                        break;
+                    case SkillResultType.CritHeal:
+                        controller.Events.Log.Add($"{actorName}: {skillId} critically heals {target} for {entry.Amount}!");
+                        AddPopup(entry.Target, "+" + entry.Amount + "!");
+                        break;
+                    default:
+                        controller.Events.Log.Add($"{actorName}: {skillId} affects {target}.");
+                        break;
+                }
+            }
+        }
+
+        private void AddPopup(ICombatUnit? target, string text)
+        {
+            if (target == null)
+                return;
+            pendingPopups.Add(new PendingPopup(target.CombatInfo.CombatId, text));
         }
 
         private void ClearTargets()

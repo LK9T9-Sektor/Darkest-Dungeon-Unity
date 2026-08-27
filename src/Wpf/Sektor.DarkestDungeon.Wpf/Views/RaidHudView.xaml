@@ -14,9 +14,9 @@
             <views:HeroInfoPanelView Grid.Column="0" DataContext="{Binding RaidHud}"
                                      HorizontalAlignment="Left" VerticalAlignment="Top" />
 
-            <!-- Center: unit tooltip, between the hero card and the log/inventory/map -->
+            <!-- Center: unit tooltip, wider and shifted toward the right panel -->
             <views:UnitTooltipView Grid.Column="1" DataContext="{Binding TooltipTarget}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Top" Width="360" />
+                                   HorizontalAlignment="Right" VerticalAlignment="Top" Width="560" />
 
             <!-- Right: log/inventory/map pinned to the top, buttons in their own row below -->
             <Grid Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Stretch">
