@@ -75,6 +75,22 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private int _resistMove;
 
+        /// <summary>Gets or sets the disease resistance percentage.</summary>
+        [ObservableProperty]
+        private int _resistDisease;
+
+        /// <summary>Gets or sets the death blow resistance percentage.</summary>
+        [ObservableProperty]
+        private int _resistDeathBlow;
+
+        /// <summary>Gets or sets the trap resistance percentage.</summary>
+        [ObservableProperty]
+        private int _resistTrap;
+
+        /// <summary>Gets or sets the comma-separated ids of all class combat skills.</summary>
+        [ObservableProperty]
+        private string _allSkills = string.Empty;
+
         /// <summary>Gets or sets a value indicating whether this unit is the current acting unit.</summary>
         [ObservableProperty]
         private bool _isCurrent;

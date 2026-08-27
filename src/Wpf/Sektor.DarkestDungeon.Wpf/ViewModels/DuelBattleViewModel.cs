@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
@@ -541,6 +542,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 ResistBleed = (int)(character.GetSingleAttribute(AttributeType.Bleed).ModifiedValue * 100),
                 ResistDebuff = (int)(character.GetSingleAttribute(AttributeType.Debuff).ModifiedValue * 100),
                 ResistMove = (int)(character.GetSingleAttribute(AttributeType.Move).ModifiedValue * 100),
+                ResistDisease = (int)(character.GetSingleAttribute(AttributeType.Disease).ModifiedValue * 100),
+                ResistDeathBlow = (int)(character.GetSingleAttribute(AttributeType.DeathBlow).ModifiedValue * 100),
+                ResistTrap = (int)(character.GetSingleAttribute(AttributeType.Trap).ModifiedValue * 100),
+                AllSkills = character is Hero hero
+                    ? string.Join(", ", hero.HeroClass.CombatSkills.Select(skill => skill.Id))
+                    : string.Empty,
             };
         }
     }

@@ -53,6 +53,14 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private string _armorLevel = "Lv. 1";
 
+        /// <summary>Gets or sets the all combat skills text.</summary>
+        [ObservableProperty]
+        private string _skillsText = string.Empty;
+
+        /// <summary>Gets or sets the resistances text.</summary>
+        [ObservableProperty]
+        private string _resistsText = string.Empty;
+
         /// <summary>Fills the sheet from a stage unit, keeping placeholder values for the rest.</summary>
         /// <param name="unit">The inspected stage unit.</param>
         public void Apply(UnitViewModel unit)
@@ -77,6 +85,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             Crit = unit.Crit + "%";
             Dodge = unit.Dodge.ToString();
             Protection = unit.Protection + "%";
+            SkillsText = unit.AllSkills;
+            ResistsText = "Stun " + unit.ResistStun + "%   Blight " + unit.ResistBlight + "%   Bleed " + unit.ResistBleed + "%\n"
+                + "Debuff " + unit.ResistDebuff + "%   Move " + unit.ResistMove + "%   Disease " + unit.ResistDisease + "%\n"
+                + "Death Blow " + unit.ResistDeathBlow + "%   Trap " + unit.ResistTrap + "%";
         }
     }
 }

@@ -19,6 +19,10 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- Header -->
@@ -136,5 +140,17 @@
             <Border Grid.Column="5" Width="36" Height="36" Background="#3A2A2A" BorderBrush="#3A2E22" BorderThickness="1"
                     VerticalAlignment="Center" />
         </Grid>
+
+        <!-- All combat skills -->
+        <TextBlock Grid.Row="3" Text="SKILLS" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="14"
+                   FontWeight="Bold" Margin="0,10,0,0" />
+        <TextBlock Grid.Row="4" Text="{Binding SkillsText}" Foreground="#C8C0B0" FontSize="13"
+                   TextWrapping="Wrap" />
+
+        <!-- All resistances -->
+        <TextBlock Grid.Row="5" Text="RESISTANCES" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="14"
+                   FontWeight="Bold" Margin="0,10,0,0" />
+        <TextBlock Grid.Row="6" Text="{Binding ResistsText}" Foreground="#C8C0B0" FontSize="13"
+                   TextWrapping="Wrap" />
     </Grid>
 </UserControl>

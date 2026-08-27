@@ -227,7 +227,7 @@
             </ItemsControl>
 
             <!-- Stats sheet, opened by right-clicking a unit -->
-            <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Width="560" Height="330" Margin="60,40,0,0"
+            <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Width="560" Height="520" Margin="60,40,0,0"
                   Visibility="{Binding IsStatsVisible, Converter={StaticResource BoolToVisibility}}">
                 <Border Style="{StaticResource OverlayPanel}">
                     <Grid Margin="{StaticResource SpacingMedium}">
@@ -238,7 +238,9 @@
                         <Button Grid.Row="0" Content="X" Command="{Binding CloseStatsCommand}"
                                 HorizontalAlignment="Right" Width="30" Height="30"
                                 Style="{StaticResource HudButton}" FontWeight="Bold" />
-                        <views:HeroStatsView Grid.Row="1" DataContext="{Binding StatsTarget}" Margin="0,8,0,0" />
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
+                            <views:HeroStatsView DataContext="{Binding StatsTarget}" />
+                        </ScrollViewer>
                     </Grid>
                 </Border>
             </Grid>
