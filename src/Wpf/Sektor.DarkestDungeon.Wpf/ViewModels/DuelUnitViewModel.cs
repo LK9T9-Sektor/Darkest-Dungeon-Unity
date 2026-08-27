@@ -50,6 +50,26 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private int _protection;
 
+        /// <summary>Gets or sets the stun resistance percentage.</summary>
+        [ObservableProperty]
+        private int _resistStun;
+
+        /// <summary>Gets or sets the blight resistance percentage.</summary>
+        [ObservableProperty]
+        private int _resistBlight;
+
+        /// <summary>Gets or sets the bleed resistance percentage.</summary>
+        [ObservableProperty]
+        private int _resistBleed;
+
+        /// <summary>Gets or sets the debuff resistance percentage.</summary>
+        [ObservableProperty]
+        private int _resistDebuff;
+
+        /// <summary>Gets or sets the move resistance percentage.</summary>
+        [ObservableProperty]
+        private int _resistMove;
+
         /// <summary>Gets or sets a value indicating whether this unit is the current acting unit.</summary>
         [ObservableProperty]
         private bool _isCurrent;

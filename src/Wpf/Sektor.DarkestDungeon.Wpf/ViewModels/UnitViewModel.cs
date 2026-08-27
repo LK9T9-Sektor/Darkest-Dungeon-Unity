@@ -24,6 +24,34 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private int _stress;
 
+        /// <summary>Gets or sets the speed value (placeholder).</summary>
+        [ObservableProperty]
+        private int _speed = 5;
+
+        /// <summary>Gets or sets the protection percentage (placeholder).</summary>
+        [ObservableProperty]
+        private int _protection;
+
+        /// <summary>Gets or sets the stun resistance percentage (placeholder).</summary>
+        [ObservableProperty]
+        private int _resistStun = 20;
+
+        /// <summary>Gets or sets the blight resistance percentage (placeholder).</summary>
+        [ObservableProperty]
+        private int _resistBlight = 10;
+
+        /// <summary>Gets or sets the bleed resistance percentage (placeholder).</summary>
+        [ObservableProperty]
+        private int _resistBleed = 10;
+
+        /// <summary>Gets or sets the debuff resistance percentage (placeholder).</summary>
+        [ObservableProperty]
+        private int _resistDebuff = 15;
+
+        /// <summary>Gets or sets the move resistance percentage (placeholder).</summary>
+        [ObservableProperty]
+        private int _resistMove = 25;
+
         /// <summary>Gets or sets a value indicating whether the unit is an enemy.</summary>
         public bool IsEnemy { get; }
 

@@ -74,6 +74,9 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(view.Status, Does.Contain("Round"));
             Assert.That(view.Heroes[0].HpCurrent, Is.GreaterThan(0));
             Assert.That(view.Heroes[0].HpMax, Is.GreaterThan(0));
+            Assert.That(view.Heroes[0].Speed, Is.InRange(0, 100));
+            Assert.That(view.Heroes[0].ResistStun, Is.InRange(0, 100));
+            Assert.That(view.Heroes[0].ResistMove, Is.InRange(0, 100));
         }
 
         [Test]

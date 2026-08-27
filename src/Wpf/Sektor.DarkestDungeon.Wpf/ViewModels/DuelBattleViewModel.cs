@@ -329,6 +329,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 Crit = (int)(character.Crit * 100),
                 Dodge = (int)character.Dodge,
                 Protection = (int)character.Protection,
+                ResistStun = (int)(character.GetSingleAttribute(AttributeType.Stun).ModifiedValue * 100),
+                ResistBlight = (int)(character.GetSingleAttribute(AttributeType.Poison).ModifiedValue * 100),
+                ResistBleed = (int)(character.GetSingleAttribute(AttributeType.Bleed).ModifiedValue * 100),
+                ResistDebuff = (int)(character.GetSingleAttribute(AttributeType.Debuff).ModifiedValue * 100),
+                ResistMove = (int)(character.GetSingleAttribute(AttributeType.Move).ModifiedValue * 100),
             };
         }
     }
