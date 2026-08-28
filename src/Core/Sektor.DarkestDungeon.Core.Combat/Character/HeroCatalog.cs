@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 
 namespace Sektor.DarkestDungeon.Core.Combat.Character
 {
@@ -37,8 +38,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
 
         /// <summary>Parses all files and builds a catalog; unparsable entries are skipped.</summary>
         /// <param name="fileContents">The text contents of hero definition files.</param>
+        /// <param name="effects">The effects catalog used to resolve skill effects (optional).</param>
         /// <returns>The loaded catalog.</returns>
-        public static HeroCatalog Load(IEnumerable<string> fileContents)
+        public static HeroCatalog Load(IEnumerable<string> fileContents, EffectCatalog effects = null)
         {
             var catalog = new HeroCatalog();
             if (fileContents == null)
@@ -46,7 +48,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
 
             foreach (string content in fileContents)
             {
-                var heroClass = HeroClassFileParser.Parse(content);
+                var heroClass = HeroClassFileParser.Parse(content, effects);
                 if (heroClass != null && !catalog.classesById.ContainsKey(heroClass.StringId))
                 {
                     catalog.classes.Add(heroClass);

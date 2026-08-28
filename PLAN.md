@@ -41,7 +41,15 @@
 
 ### Фаза 4 — Эффекты скиллов (P1.1)
 
-7. [ ] Полный парсер `Effects.txt` + `.bytes` `.effect` → `CombatSkill.Effects`.
+7. [x] `EffectCatalog` парсит общие не-бафф ключи `Effects.txt` (`.stress`, `.healstress`, `.heal`,
+    `.stun`, `.dotBleed`/`.dotPoison`+`.duration`, `.pull`, `.push`, `.cure`, `.riposte`,
+    `.shuffleparty`/`.shuffletarget`, `.tag`/`.mark`, `.immobilize`) → `SubEffect`; каталог
+    case-insensitive. `HeroClassFileParser.Parse(content, effects)` / `HeroCatalog.Load(contents, effects)`
+    резолвят `.effect "id"` (до 2) → `CombatSkill.Effects`; дуэль применяет через `BattleSolver.
+    ApplyEffects`. WPF `DuelClasses` единый источник каталога. Тесты: `EffectCatalogTests`,
+    `Parse_ResolvesSkillEffects_FromEffectsCatalog`, реальный ростер резолвит эффекты (38/38 combat).
+7b. [ ] Stat-баффы/дебаффы: `.combat_stat_buff` + `*_add`/`*_multiply` и `.buff_ids` → память в
+    `Effect` под стат-моды/buff-иды → `CombatStatBuffEffect`/`BuffEffect`.
 
 ### Фаза 5 — Прочее
 

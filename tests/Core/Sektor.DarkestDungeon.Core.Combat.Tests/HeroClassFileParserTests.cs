@@ -87,17 +87,35 @@ id_index: .index 7
                 .OrderBy(path => path)
                 .Select(File.ReadAllText)
                 .ToList();
-            var catalog = HeroCatalog.Load(contents);
+
+            string effectsPath = Path.Combine(infoDir, "..", "..", "Mechanics", "Effects.txt");
+            var effects = EffectCatalog.Load(
+                File.Exists(effectsPath) ? File.ReadAllText(Path.GetFullPath(effectsPath)) : string.Empty);
+            var catalog = HeroCatalog.Load(contents, effects);
 
             Assert.That(catalog.ClassIds.Count, Is.GreaterThanOrEqualTo(15));
             Assert.That(catalog.ClassIds, Does.Contain("crusader"));
             Assert.That(catalog.ClassIds, Does.Contain("vestal"));
+
+            int skillsWithEffects = 0;
+            int totalSkills = 0;
             foreach (string id in catalog.ClassIds)
             {
                 HeroClass heroClass;
                 Assert.That(catalog.TryGet(id, out heroClass), Is.True);
                 Assert.That(heroClass.CombatSkills.Count, Is.GreaterThan(0), id + " has no combat skills");
+                foreach (var skill in heroClass.CombatSkills)
+                {
+                    totalSkills++;
+                    if (skill.Effects.Count > 0)
+                        skillsWithEffects++;
+                }
             }
+
+            Assert.That(skillsWithEffects, Is.GreaterThan(0),
+                "real hero skills should resolve at least one effect from the effects catalog");
+            Assert.That(skillsWithEffects, Is.GreaterThan(totalSkills / 3),
+                "a meaningful share of real hero skills should carry effects (" + skillsWithEffects + "/" + totalSkills + ")");
         }
 
         [Test]
@@ -111,6 +129,28 @@ id_index: .index 7
             HeroClass found;
             Assert.That(catalog.TryGet("test_knight", out found), Is.True);
             Assert.That(catalog.TryGet("missing", out found), Is.False);
+        }
+
+        [Test]
+        public void Parse_ResolvesSkillEffects_FromEffectsCatalog()
+        {
+            var effects = EffectCatalog.Load(
+                "effect: .name \"Stun 1\" .target \"target\" .chance 100% .stun 1\n" +
+                "effect: .name \"Bleed 1\" .target \"target\" .chance 110% .dotBleed 1 .duration 3");
+
+            var heroClass = HeroClassFileParser.Parse(Sample, effects);
+
+            Assert.That(heroClass, Is.Not.Null);
+            var smite = heroClass.CombatSkills.Single(skill => skill.Id == "smite");
+            Assert.That(smite.Effects.Count, Is.EqualTo(0));
+
+            var stunned = HeroClassFileParser.Parse(
+                Sample + "combat_skill: .id \"bash\" .level 0 .type \"melee\" .atk 85% .dmg -40% .launch 21 .target 12 .effect \"Stun 1\" \"Bleed 1\"",
+                effects);
+            var bash = stunned.CombatSkills.Single(skill => skill.Id == "bash");
+            Assert.That(bash.Effects.Count, Is.EqualTo(2));
+            Assert.That(bash.Effects[0].SubEffects.Any(sub => sub.Type == EffectSubType.Stun), Is.True);
+            Assert.That(bash.Effects[1].SubEffects.Any(sub => sub.Type == EffectSubType.Bleeding), Is.True);
         }
 
         private static string FindUnityHeroesDirectory()

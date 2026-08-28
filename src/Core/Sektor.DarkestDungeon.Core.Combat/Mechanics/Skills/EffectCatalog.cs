@@ -7,14 +7,16 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
 {
     /// <summary>
     /// Catalog of effect definitions parsed from the Data/Mechanics/Effects file (the legacy
-    /// <c>effect:</c> DSL). Parsing is partial: only the stress keys are loaded for now
-    /// (<c>.stress</c> → <see cref="StressEffect"/>, <c>.healstress</c> → <see cref="StressHealEffect"/>);
-    /// the rest of the effect types are ignored until the full parser lands (see PLAN.md Phase 4).
+    /// <c>effect:</c> DSL). The common non-buff effect keys are loaded (<c>.stress</c>,
+    /// <c>.healstress</c>, <c>.heal</c>, <c>.stun</c>, <c>.dotBleed</c>, <c>.dotPoison</c>,
+    /// <c>.pull</c>, <c>.push</c>, <c>.cure</c>, <c>.riposte</c>, <c>.shuffleparty</c>,
+    /// <c>.shuffletarget</c>, <c>.tag</c>, <c>.immobilize</c> and <c>.duration</c>); the stat-buff
+    /// keys (<c>.combat_stat_buff</c>, <c>.buff_ids</c>) are pending Effect storage (PLAN.md Phase 4b).
     /// </summary>
     public sealed class EffectCatalog
     {
         private readonly Dictionary<string, Effect> effectsById =
-            new Dictionary<string, Effect>(StringComparer.Ordinal);
+            new Dictionary<string, Effect>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>Gets the number of parsed effects.</summary>
         public int Count { get { return effectsById.Count; } }
@@ -78,6 +80,51 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
             int healStress;
             if (int.TryParse(TrimPercent(GetValue(tokens, "healstress")), out healStress))
                 effect.SubEffects.Add(new StressHealEffect(healStress));
+
+            int heal;
+            if (int.TryParse(TrimPercent(GetValue(tokens, "heal")), out heal))
+                effect.SubEffects.Add(new HealEffect(heal));
+
+            if (tokens.ContainsKey("stun"))
+                effect.SubEffects.Add(new StunEffect());
+
+            int dotBleed;
+            if (int.TryParse(TrimPercent(GetValue(tokens, "dotbleed")), out dotBleed))
+                effect.SubEffects.Add(new BleedEffect(dotBleed));
+
+            int dotPoison;
+            if (int.TryParse(TrimPercent(GetValue(tokens, "dotpoison")), out dotPoison))
+                effect.SubEffects.Add(new PoisonEffect(dotPoison));
+
+            int pull;
+            if (int.TryParse(TrimPercent(GetValue(tokens, "pull")), out pull))
+                effect.SubEffects.Add(new PullEffect(pull));
+
+            int push;
+            if (int.TryParse(TrimPercent(GetValue(tokens, "push")), out push))
+                effect.SubEffects.Add(new PushEffect(push));
+
+            if (tokens.ContainsKey("cure"))
+                effect.SubEffects.Add(new CureEffect());
+
+            if (tokens.ContainsKey("riposte"))
+                effect.SubEffects.Add(new RiposteEffect());
+
+            if (tokens.ContainsKey("shuffleparty"))
+                effect.SubEffects.Add(new ShuffleTargetEffect(true));
+
+            if (tokens.ContainsKey("shuffletarget"))
+                effect.SubEffects.Add(new ShuffleTargetEffect(false));
+
+            if (tokens.ContainsKey("tag") || tokens.ContainsKey("mark"))
+                effect.SubEffects.Add(new TagEffect());
+
+            if (tokens.ContainsKey("immobilize"))
+                effect.SubEffects.Add(new ImmobilizeEffect());
+
+            int duration;
+            if (int.TryParse(TrimPercent(GetValue(tokens, "duration")), out duration))
+                effect.IntegerParams[EffectIntParams.Duration] = duration;
 
             return effect.SubEffects.Count == 0 ? null : effect;
         }

@@ -10,7 +10,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
     /// <summary>
     /// Parses legacy hero class definition files (Data/Heroes/Info format) into core hero classes.
     /// Loads the base upgrade rank only: level-0 weapon/armour stats and level-0 combat skills.
-    /// Skill effects (stun, buffs, dots) are not loaded yet; such skills act as plain attacks/heals.
+    /// Skill effects (<c>.effect</c> ids) are resolved from the supplied effects catalog.
     /// </summary>
     public static class HeroClassFileParser
     {
@@ -20,8 +20,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
 
         /// <summary>Parses a hero class definition file content.</summary>
         /// <param name="content">The full text content of the definition file.</param>
+        /// <param name="effects">The effects catalog used to resolve skill <c>.effect</c> ids (optional).</param>
         /// <returns>The parsed hero class, or null when name/weapon/armour sections are missing.</returns>
-        public static HeroClass Parse(string content)
+        public static HeroClass Parse(string content, EffectCatalog effects = null)
         {
             if (string.IsNullOrEmpty(content))
                 return null;
@@ -79,7 +80,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
                         break;
                     case "combat_skill":
                         float weaponAccuracy = hasWeapon ? GetOrZero(weaponStats, AttributeType.AttackRating) : 0f;
-                        ApplyCombatSkill(result.CombatSkills, tokens, weaponAccuracy);
+                        ApplyCombatSkill(result.CombatSkills, tokens, weaponAccuracy, effects);
                         break;
                     case "skill_selection":
                         result.CanSelectCombatSkills = "true" == GetValue(tokens, "can_select_combat_skills");
@@ -259,7 +260,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
             return source.TryGetValue(type, out value) ? value : 0f;
         }
 
-        private static void ApplyCombatSkill(List<CombatSkill> skills, Dictionary<string, string> tokens, float weaponAccuracy)
+        private static void ApplyCombatSkill(List<CombatSkill> skills, Dictionary<string, string> tokens, float weaponAccuracy, EffectCatalog effects)
         {
             int level;
             if (!int.TryParse(GetValue(tokens, "level"), NumberStyles.Integer, CultureInfo.InvariantCulture, out level) || level != 0)
@@ -301,6 +302,25 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
             else
             {
                 skill.Category = SkillCategory.Damage;
+            }
+
+            if (effects != null)
+            {
+                string firstEffect = GetValue(tokens, "effect");
+                if (firstEffect != null)
+                {
+                    var effect = effects.Get(firstEffect);
+                    if (effect != null)
+                        skill.Effects.Add(effect);
+                }
+
+                string secondEffect = GetValue(tokens, "effect#2");
+                if (secondEffect != null)
+                {
+                    var effect = effects.Get(secondEffect);
+                    if (effect != null)
+                        skill.Effects.Add(effect);
+                }
             }
 
             skills.RemoveAll(existing => existing.Id == id);

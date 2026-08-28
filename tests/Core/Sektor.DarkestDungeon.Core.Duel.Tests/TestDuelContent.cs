@@ -25,10 +25,10 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
         /// <summary>Initializes a new instance of the <see cref="TestDuelContent"/> class from the bundled content.</summary>
         public TestDuelContent()
         {
-            classes = LoadHeroClasses();
+            effects = LoadEffects();
+            classes = LoadHeroClasses(effects);
             quirks = LoadQuirks();
             buffs = LoadBuffs();
-            effects = LoadEffects();
             var traits = TraitMapper.Parse(LoadTraitsData()?.traits);
             afflictions = traits.Where(trait => trait.IsAffliction).ToList();
             virtues = traits.Where(trait => trait.IsVirtue).ToList();
@@ -79,7 +79,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
             return File.Exists(path) ? JsonConvert.DeserializeObject<JsonTraitData>(File.ReadAllText(path)) : null;
         }
 
-        private static Dictionary<string, HeroClass> LoadHeroClasses()
+        private static Dictionary<string, HeroClass> LoadHeroClasses(EffectCatalog effects)
         {
             var result = new Dictionary<string, HeroClass>();
             string directory = Path.Combine(AppContext.BaseDirectory, "Content", "Heroes");
@@ -87,7 +87,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
                 return result;
 
             var contents = Directory.GetFiles(directory, "*.bytes").OrderBy(path => path).Select(File.ReadAllText);
-            var catalog = HeroCatalog.Load(contents);
+            var catalog = HeroCatalog.Load(contents, effects);
             foreach (var classId in catalog.ClassIds)
             {
                 HeroClass heroClass;
