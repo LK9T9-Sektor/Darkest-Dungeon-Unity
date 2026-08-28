@@ -1,19 +1,17 @@
 using System;
-using System.Linq;
 using System.Windows.Threading;
-using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Duel;
 using Sektor.DarkestDungeon.Wpf.Networking;
 
 namespace Sektor.DarkestDungeon.Wpf.Combat
 {
-    /// <summary>Automatically plays the rival side with random legal skills for local duels against AI.</summary>
+    /// <summary>Automatically plays the rival side for local duels against AI via the core <see cref="DuelAi"/>.</summary>
     public sealed class AiRivalLink : IDuelRivalLink
     {
         private const int TickMilliseconds = 450;
 
-        private readonly Random random = new Random();
         private readonly DispatcherTimer timer;
+        private readonly DuelAi ai = new DuelAi();
         private DuelController? controller;
 
         /// <inheritdoc/>
@@ -62,26 +60,7 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
             if (duel == null || !duel.IsStarted || duel.IsFinished || duel.IsLocalTurn || duel.CurrentUnit == null)
                 return;
 
-            string? payload = BuildRandomAction(duel);
-            if (payload == null)
-                return;
-
-            RivalActionReceived?.Invoke(payload);
-        }
-
-        private string? BuildRandomAction(DuelController duel)
-        {
-            var unit = duel.CurrentUnit!;
-            var options = (unit.Character.CurrentCombatSkills ?? Enumerable.Empty<CombatSkill>())
-                .Select(skill => new { Skill = skill, Targets = duel.GetAvailableTargets(unit, skill) })
-                .Where(x => x.Targets.Count > 0)
-                .ToList();
-            if (options.Count == 0)
-                return null;
-
-            var choice = options[random.Next(options.Count)];
-            var target = choice.Targets[random.Next(choice.Targets.Count)];
-            return choice.Skill.Id + "|" + target.CombatInfo.CombatId;
+            RivalActionReceived?.Invoke(ai.ChooseAction(duel));
         }
     }
 }

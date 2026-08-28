@@ -30,9 +30,12 @@ core-модуль `Sektor.DarkestDungeon.Core.Duel`; WPF становится т
 
 ### Фаза B — ИИ на MonsterBrain
 
-6. [ ] Core `DuelAi` в Core.Duel: выбор скилла+цели соперника через AI-инфраструктуру ядра
-   (`MonsterBrain`/`SkillSelectionDesire`/`TargetSelectionDesire`), детерминированный.
-7. [ ] WPF `AiRivalLink` → тонкая обёртка (таймер + `DuelAi` + `RivalActionReceived`); тесты `DuelAi`.
+6. [x] Core `DuelAi` в Core.Duel: выбор скилла+цели соперника через AI-инфраструктуру ядра
+   (`MonsterBrain`/`DuelSkillSelection`/`DuelTargetSelection`/`MonsterBrainDecision`). Выбор — на
+   клиент-локальном `System.Random`, чтобы не трогать `RandomSolver` и сохранить локстап;
+   цель — по минимальному HP (умнее случайного).
+7. [x] WPF `AiRivalLink` → тонкая обёртка (таймер + `DuelAi` + `RivalActionReceived`);
+   тесты: `DuelAiTests` (локстап обеих сторон с ИИ) — 2/2 зелёные; WPF 16/16.
 
 ### Фаза C — документация
 
