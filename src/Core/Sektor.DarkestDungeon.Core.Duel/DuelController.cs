@@ -375,10 +375,35 @@ namespace Sektor.DarkestDungeon.Core.Duel
 
         private void CheckDeaths()
         {
+            var newlyDead = new List<ICombatUnit>();
             foreach (var unit in HeroParty.Units.Concat(MonsterParty.Units))
             {
-                if (unit.Character.HealthRatio <= 0)
+                if (unit.Character.HealthRatio <= 0 && !((FormationUnitInfo)unit.CombatInfo).IsDead)
+                {
                     ((FormationUnitInfo)unit.CombatInfo).IsDead = true;
+                    newlyDead.Add(unit);
+                }
+            }
+
+            foreach (var dead in newlyDead)
+            {
+                var party = dead.Team == Team.Heroes ? HeroParty.Units : MonsterParty.Units;
+                StressParty(party);
+            }
+        }
+
+        private void StressParty(List<ICombatUnit> party)
+        {
+            var effect = content.GetEffect("Stress 2");
+            if (effect == null || Context == null)
+                return;
+
+            foreach (var unit in party)
+            {
+                if (((FormationUnitInfo)unit.CombatInfo).IsDead)
+                    continue;
+                foreach (var subEffect in effect.SubEffects)
+                    subEffect.ApplyInstant(null, unit, effect, Context);
             }
         }
 

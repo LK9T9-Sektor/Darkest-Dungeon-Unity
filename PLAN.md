@@ -27,8 +27,9 @@
 
 ### Фаза 2 — Стрессовые правила потока
 
-5. [ ] Смерть героя → 15 отряду; death's door → 6; пасс — как в кампании (без стресса).
-    В `Round`/`BattleSolver` или mini-`BattleFlowRules`.
+5. [x] Смерть героя → «Stress 2» (15) выжившим союзникам (`DuelController.CheckDeaths`/`StressParty`,
+    тест `HeroDeath_StressesTheSurvivingParty`). Пасс — как в кампании (без стресса).
+    **Death's door → BarkStress (6)** — отложено: в дуэли 0 HP = смерть, механики death's door нет.
 
 ### Фаза 3 — Resolve-ролл (аффекция/виртуда)
 
