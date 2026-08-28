@@ -12,6 +12,8 @@
 | Файл | Строк | Роль |
 |---|---|---|
 | `Managers\RaidSceneManager.cs` | ~6000 | весь рейд + бой + кемп + события |
+| `Networking\RaidSceneMultiplayerManager.cs` | 2285 | мультиплеерный PvP-бой (дуэль) впрессован в рейд-сцену: партия соперника = сторона монстров, lockstep-сид, тестовый рейд |
+| `Networking\MultiplayerSync.cs` | 426 | `party_config`, партии, readiness, RPC-входы |
 | `Database\DarkestDatabase.cs` | 2600 | вся загрузка контента |
 | `Setup\SaveSystem\SaveLoadManager.cs` | ~1860 | бинарные сейвы + DTO |
 | `Character\Character.cs` | 1223 | герой |
@@ -26,11 +28,15 @@
 - Имена сцен (`GameIntro.cs:34`, `ScreenLoader.cs:22/27`), пути данных, ID квестов/регионов.
 - Многочисленные хардкод-пути к `Resources\Data` и `Prefabs\…`.
 
-## 5. Мультиплеер: нестабильный сид и хардкод
+## 5. Мультиплеер: нестабильный сид, хардкод и неразнесённая оркестрация
 
-- Сид сессии = `player.ID + player.ToString().GetHashCode()` (`RaidSceneMultiplayerManager.cs:32`) — нестабилен между запусками (GetHashCode не гарантирован).
+- Сид сессии = `player.ID + player.ToString().GetHashCode()` (`RaidSceneMultiplayerManager.cs:32`) — нестабилен между запусками (GetHashCode не гарантирован). Ядро `DuelSeed` использует стабильный хэш.
 - Хардкод тестовых данных: `new SaveCampaignData(4, "MultiplayerTestSave")` (`:24`).
 - `RaidManager.cs:20-27` — «быстрый старт»-хак.
+- **Оркестрация PvP-дуэли не разнесена**: живёт в `RaidSceneMultiplayerManager`/`MultiplayerSync`
+  в презентационном слое. Чистая версия — `src\Core\Duel` (`DuelController`, wire-протокол `DuelPayload`,
+  `DuelSeed`), которую Unity пока не потребляет. Сведение Unity к `Core.Duel` (тонкие адаптеры) —
+  фаза 6 `EXTRACTION_PLAN`, см. `DUEL_ARCHITECTURE.md`.
 
 ## 6. Мёртвый код и пустышки
 
@@ -54,6 +60,9 @@
   Unity 6000.5.8f1 фасады не нужны (нативный type-forwarding) — `tools\unity-provision-plugins.ps1` их
   пропускает. Доставка идёт автоматически: `-UnityEditorPath` → `UNITY_EDITOR_PATH` → `editors.json` Unity Hub
   → типовые каталоги установки; собранные DLL и `steam_appid.txt` остаются gitignored.
+- **Дуэль (WPF) вынесена в ядро**: `src\Core\Sektor.DarkestDungeon.Core.Duel` (`DuelController`, `DuelPhase`,
+  `DuelSeed`, `DuelPayload`, `IDuelContent`, `DuelAi`) — WPF-клиент стал тонким (Фазы A/B). Unity-мультиплеерный
+  PvP (та же дуэль) по-прежнему в презентации — не разнесён (см. §5 и `DUEL_ARCHITECTURE.md`).
 
 ## 8. Культуро-зависимый парсинг чисел
 

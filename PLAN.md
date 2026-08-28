@@ -39,10 +39,10 @@ core-модуль `Sektor.DarkestDungeon.Core.Duel`; WPF становится т
 
 ### Фаза C — документация
 
-8. [ ] Новый `docs\DUEL_ARCHITECTURE.md`: что такое дуэль, происхождение (Unity-мультиплеер PvP),
+8. [x] Новый `docs\DUEL_ARCHITECTURE.md`: что такое дуэль, происхождение (Unity-мультиплеер PvP),
    инвентарь по слоям, критика (логика в презентации, god-classes, дубли оркестрации/протокола,
    случайный ИИ, нестабильный сид), роадмап (B, cutover Unity, фаза 6).
-9. [ ] Правки: `INDEX.md`, `ARCHITECTURE.md`, `KNOWN_ISSUES.md`, `FEATURE_DESKTOP_CLIENT.md`,
+9. [x] Правки: `INDEX.md`, `ARCHITECTURE.md`, `KNOWN_ISSUES.md`, `FEATURE_DESKTOP_CLIENT.md`,
    `AGENTS.md`, `EXTRACTION_PLAN.md`, `CHANGELOG.md` (только B — видимое поведение ИИ).
 
 ### Затронутые файлы

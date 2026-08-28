@@ -18,8 +18,14 @@
   центр (юниты на «полу», номер раунда, всплывающий урон), низ (квадратные скиллы + MOVE + PASS,
   инфо ходящего, тултип в 2 колонки, LOG/INVENTORY/MAP). Карточки юнитов: HP блоками, стресс
   10 квадратами. Наведение — тултип, правый клик — лист статов со всеми скиллами и резистами.
-- **Мини-слой дуэли** в `src\Wpf\...\Combat\DuelController.cs` (детерминированный локстап поверх
-  `src\Core\Combat`): по сети идут только вводы (скилл+цель, pass/move) и `party_config`; сид сессии
+- **Дуэль** — оркестрация в чистом ядре `src\Core\Sektor.DarkestDungeon.Core.Duel\`
+  (`DuelController` — детерминированный локстап поверх `src\Core\Combat`; `DuelPhase`, `DuelSeed`,
+  wire-протокол `DuelPayload`, `IDuelContent`, ИИ `DuelAi`). WPF-клиент — тонкий потребитель:
+  `DuelContent` (реализация `IDuelContent`), адаптеры линков (`AiRivalLink`, `NetworkRivalLink`),
+  сессия/транспорт и ViewModels. Происхождение и критика — `DUEL_ARCHITECTURE.md`.
+  Это ре-имплементация мультиплеерного PvP-боя Unity (партия соперника = сторона монстров,
+  `RaidSceneMultiplayerManager`/`MultiplayerSync`), которая в Unity не разнесена по слоям.
+  По сети идут только вводы (скилл+цель, pass/move) и `party_config`; сид сессии
   и генерация героев из сидов должны совпадать с Unity, чтобы стороны сходились.
 - **Сеть:** `SteamTransport` (host/join по session id, уже работает); `PhotonTransport` — после Фазы 5.
 - **Экраны (одно окно):** главное меню (VS AI / MULTIPLAYER) → лобби (выбор классов, активных
@@ -33,7 +39,8 @@
 ## Механики боя (дуэль 1v1)
 
 Дуэль 1v1: 2 отряда по 4 героя (классы — из контента `Heroes/Info`). Логика — `src\Core\Combat`
-(`BattleSolver`, `Round`, `FormationParty`), оркестрация и снапшоты — `DuelController`/`DuelBattleViewModel`.
+(`BattleSolver`, `Round`, `FormationParty`), оркестрация — `src\Core\Duel` (`DuelController`),
+снапшоты/UI — `DuelBattleViewModel` (WPF).
 
 ### Детерминизм (локстап)
 

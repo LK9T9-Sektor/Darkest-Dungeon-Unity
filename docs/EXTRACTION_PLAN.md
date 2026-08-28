@@ -29,6 +29,11 @@
   уже потребляет core-скиллы. Конкретная модель персонажа/юнитов и cutover Unity — отложены.
   Плюс парсер контента героев: `Character\HeroClassFileParser` + `HeroCatalog` (формат
   `Data/Heroes/Info`, базовый ранг; полный ростер 15 классов потребляется WPF).
+- `src\Core\Duel\` — **оркестрация дуэли (PvP 1v1, локстап), вынесено (Фаза A/B)**: `DuelController`,
+  `DuelPhase`, `DuelSeed`, `DuelPayload`, `IDuelContent`, адаптеры `DuelBattleContext`/`DuelBattleEvents`,
+  ИИ `DuelAi`. Ре-имплементация мультиплеерного PvP-боя Unity (`RaidSceneMultiplayerManager`/
+  `MultiplayerSync`), который в Unity не разнесён. WPF-клиент — тонкий потребитель; cutover Unity —
+  Фаза 6. См. `DUEL_ARCHITECTURE.md`. Тесты — `tests\Core\Sektor.DarkestDungeon.Core.Duel.Tests`.
 - `src\Core\Content\` — данные контента (Фаза 1, в работе): `Raid\` (пропы/курio: `Prop`,
   `Curio`, `CurioResult`, `IProportionValue`, `AreaType`), `Campaign\` (модели `HeirloomExchange`,
   `PartyNameEntry`,   `NarrationEntry`/`NarrationAudioEvent`), `Save\` (бинарный интерфейс
@@ -54,7 +59,7 @@ repo/
 ├── AGENTS.md            # карта-манифест, правила
 ├── docs/                # документация (см. INDEX.md)
 ├── src/
-│   ├── Core/            # домен: Common, Content, Save, Combat, Campaign, Modes
+│   ├── Core/            # домен: Common, Content, Save, Combat, Duel, Campaign, Modes
 │   ├── Networking/      # транспорт: Contracts, Steam, Photon (из Lan\)
 │   └── External/        # вендоренный референс (read-only)
 ├── content/             # общие ресурсы-данные (трекаются): контент, локализация (см. FEATURE_SHARED_ASSETS)
@@ -119,7 +124,10 @@ repo/
   `Sektor.Networking`, `PhotonTransport`, generic `SessionManager`/`RaidBridge`, единый session-id флоу,
   удаление PUN из обоих проектов.
 - **Фаза 6. Презентация** — только тонкие MonoBehaviour-адаптеры + UI; расхождения между проектами —
-  только внутри Unity-кода (API Unity 2017.4 vs 6000).
+  только внутри Unity-кода (API Unity 2017.4 vs 6000). В рамках фазы: cutover мультиплеерного
+  PvP-боя Unity на `src\Core\Duel` (тонкие адаптеры вместо оркестрации в
+  `RaidSceneMultiplayerManager`/`MultiplayerSync`, единый wire-протокол `DuelPayload`, стабильный сид
+  `DuelSeed`), см. `DUEL_ARCHITECTURE.md`.
 
 ## 4. `.gitignore`
 
