@@ -170,7 +170,22 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
             if (int.TryParse(TrimPercent(GetValue(tokens, "duration")), out duration))
                 effect.IntegerParams[EffectIntParams.Duration] = duration;
 
-            return effect.SubEffects.Count == 0 ? null : effect;
+            int torchDecrease;
+            if (int.TryParse(TrimPercent(GetValue(tokens, "torch_decrease")), out torchDecrease))
+                effect.IntegerParams[EffectIntParams.Torch] = -torchDecrease;
+
+            int torchIncrease;
+            if (int.TryParse(TrimPercent(GetValue(tokens, "torch_increase")), out torchIncrease))
+            {
+                int existing = effect.IntegerParams[EffectIntParams.Torch].HasValue
+                    ? effect.IntegerParams[EffectIntParams.Torch].Value
+                    : 0;
+                effect.IntegerParams[EffectIntParams.Torch] = existing + torchIncrease;
+            }
+
+            return effect.SubEffects.Count == 0 && !effect.IntegerParams[EffectIntParams.Torch].HasValue
+                ? null
+                : effect;
         }
 
         private static EffectTargetType MapTarget(string target)

@@ -153,6 +153,22 @@ id_index: .index 7
             Assert.That(bash.Effects[1].SubEffects.Any(sub => sub.Type == EffectSubType.Bleeding), Is.True);
         }
 
+        [Test]
+        public void Parse_ReadsSkillLimitsAndContinueTurn()
+        {
+            var effects = EffectCatalog.Load(string.Empty);
+            var heroClass = HeroClassFileParser.Parse(Sample, effects);
+
+            var limited = HeroClassFileParser.Parse(
+                Sample + "combat_skill: .id \"bellow\" .level 0 .type \"melee\" .atk 85% .dmg -40% .launch 321 .target .is_crit_valid False .is_continue_turn true .per_turn_limit 1 .per_battle_limit 2",
+                effects);
+
+            var bellow = limited.CombatSkills.Single(skill => skill.Id == "bellow");
+            Assert.That(bellow.LimitPerTurn, Is.EqualTo(1));
+            Assert.That(bellow.LimitPerBattle, Is.EqualTo(2));
+            Assert.That(bellow.IsContinueTurn, Is.True);
+        }
+
         private static string FindUnityHeroesDirectory()
         {
             var current = new DirectoryInfo(AppContext.BaseDirectory);

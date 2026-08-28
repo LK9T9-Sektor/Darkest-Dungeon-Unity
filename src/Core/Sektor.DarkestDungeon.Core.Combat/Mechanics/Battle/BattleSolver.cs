@@ -48,7 +48,22 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
             }
 
             return skill.LaunchRanks.IsLaunchableFrom(performer.Rank, performer.Size) &&
-                skill.HasAvailableTargets(performer, friends, enemies);
+                skill.HasAvailableTargets(performer, friends, enemies) &&
+                !ExceedsLimit(performer.CombatInfo.SkillsUsedThisTurn, skill.LimitPerTurn, skill.Id) &&
+                !ExceedsLimit(performer.CombatInfo.SkillsUsedInBattle, skill.LimitPerBattle, skill.Id);
+        }
+
+        private static bool ExceedsLimit(IReadOnlyList<string> usedSkills, int? limit, string skillId)
+        {
+            if (!limit.HasValue)
+                return false;
+
+            int count = 0;
+            foreach (string usedId in usedSkills)
+                if (usedId == skillId)
+                    count++;
+
+            return count >= limit.Value;
         }
 
         /// <summary>Checks whether a camping skill can be used by the given unit.</summary>
@@ -361,6 +376,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
         {
             SkillResult.Skill = skill;
             SkillResult.ArtInfo = artInfo;
+
+            performerUnit.CombatInfo.SkillsUsedThisTurn.Add(skill.Id);
+            performerUnit.CombatInfo.SkillsUsedInBattle.Add(skill.Id);
 
             var target = targetUnit.Character;
             var performer = performerUnit.Character;

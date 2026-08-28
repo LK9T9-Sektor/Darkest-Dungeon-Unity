@@ -6,6 +6,8 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
 
     using Sektor.DarkestDungeon.Core.Combat.Character;
     using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+    using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
+    using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 
     [TestFixture]
     public class SkillEffectsTests
@@ -91,6 +93,60 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
             float bleedAfter = ((SingleAttribute)target.Character.GetSingleAttribute(AttributeType.Bleed)).ModifiedValue;
             Assert.That(bleedAfter, Is.EqualTo(bleedBefore - 0.2f).Within(0.001f),
                 "flashing_daggers should reduce the target's bleed resistance by 20% (bleed_debuff_1).");
+        }
+
+        [Test]
+        public void TorchEvents_MutateTheDuelTorch()
+        {
+            var content = new TestDuelContent();
+            var duel = new DuelController(content);
+            duel.StartDuel(Picks("crusader"), Picks("highwayman"), 42, isHost: true);
+            RandomSolver.SetRandomSeed(42);
+            duel.StartBattle();
+
+            Assert.That(duel.Context.TorchAmount, Is.EqualTo(75));
+            duel.Events.IncreaseTorch(10);
+            Assert.That(duel.Context.TorchAmount, Is.EqualTo(85), "Increasing the torch should raise it by the amount.");
+            duel.Events.DecreaseTorch(200);
+            Assert.That(duel.Context.TorchAmount, Is.EqualTo(0), "The torch should clamp at 0.");
+            duel.Events.IncreaseTorch(500);
+            Assert.That(duel.Context.TorchAmount, Is.EqualTo(100), "The torch should clamp at 100.");
+        }
+
+        [Test]
+        public void SkillLimit_BlocksFurtherUsesAfterLimit()
+        {
+            var content = new TestDuelContent();
+            var duel = new DuelController(content);
+            duel.StartDuel(Picks("crusader"), Picks("highwayman"), 42, isHost: true);
+            RandomSolver.SetRandomSeed(42);
+            duel.StartBattle();
+
+            var hero = duel.HeroParty.Units[0];
+            var limited = new CombatSkill
+            {
+                Id = "one_shot",
+                Level = 0,
+                Type = "melee",
+                Accuracy = 1f,
+                DamageMod = 0f,
+                CritMod = 0f,
+                IsCritValid = false,
+                LimitPerBattle = 1,
+                LaunchRanks = new FormationSet("1"),
+                TargetRanks = new FormationSet("1"),
+            };
+            ((Hero)hero.Character).HeroClass.CombatSkills.Add(limited);
+
+            var target = duel.GetAvailableTargets(hero, limited).FirstOrDefault();
+            Assert.That(target, Is.Not.Null, "one_shot should have a valid target from rank 1.");
+
+            Assert.That(duel.IsSkillUsable(hero, limited), Is.True, "The first use should be allowed.");
+
+            duel.ExecuteSkill(hero, target, limited);
+
+            Assert.That(hero.CombatInfo.SkillsUsedInBattle, Does.Contain("one_shot"));
+            Assert.That(duel.IsSkillUsable(hero, limited), Is.False, "The per-battle limit should block the second use.");
         }
 
         private static DuelHeroPick[] Picks(string classId)

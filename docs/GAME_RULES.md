@@ -80,8 +80,10 @@
   (стан/бафф/гард теперь реально срабатывают в дуэли).
 - **`.buff_ids`** работают: `BuffEffect.BuffIds` резолвит контент-баффы из `JsonBuffs.json`
   через `IBattleContext.GetBuff` (дуэль → `IDuelContent.GetBuff`).
+- **Торч**: `.torch_decrease`/`.torch_increase` → `Effect.Torch` (Global), дуэль мьютит
+  `TorchAmount` (клэмп 0–100) через `DuelBattleEvents.TorchDelta`.
 
-Статус: **частично** (общие эффекты, stat-баффы и buff_ids работают).
+Статус: **частично** (общие эффекты, stat-баффы, buff_ids и торч работают).
 
 ### Оригинал Darkest Dungeon
 

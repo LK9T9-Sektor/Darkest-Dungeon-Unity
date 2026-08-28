@@ -13,6 +13,9 @@ namespace Sektor.DarkestDungeon.Core.Duel
         /// <summary>Occurs when the duel state changes (torch, popups).</summary>
         public event Action StateChanged;
 
+        /// <summary>Gets or sets the callback invoked with a torch delta (wired by the duel controller).</summary>
+        public Action<int> TorchDelta { get; set; }
+
         /// <inheritdoc/>
         public void ShowPopup(ICombatUnit target, PopupType type, string value = null)
         {
@@ -137,12 +140,16 @@ namespace Sektor.DarkestDungeon.Core.Duel
         public void DecreaseTorch(int amount)
         {
             Log.Add("[torch] -" + amount);
+            if (TorchDelta != null)
+                TorchDelta(-amount);
         }
 
         /// <inheritdoc/>
         public void IncreaseTorch(int amount)
         {
             Log.Add("[torch] +" + amount);
+            if (TorchDelta != null)
+                TorchDelta(amount);
         }
     }
 }

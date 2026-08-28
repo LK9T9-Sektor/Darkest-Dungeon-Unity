@@ -64,7 +64,16 @@
 
 ### Фаза 5 — Прочее
 
-8. [ ] Торч/свет, сюрприз, кулдауны/лимиты, bark-реакции.
+8. [x] **Торч**: `EffectCatalog` парсит `.torch_decrease`/`.torch_increase` → `IntegerParams[Torch]`
+    + Global target (торч-only эффекты сохраняются); `DuelBattleEvents.TorchDelta` → `DuelController`
+    мьютит `Context.TorchAmount` (клэмп 0–100). Тест `TorchEvents_MutateTheDuelTorch`.
+    **Лимиты скиллов**: `HeroClassFileParser` читает `.per_turn_limit`/`.per_battle_limit`/
+    `.is_continue_turn`; `BattleSolver.IsSkillUsable` учитывает `SkillsUsedThisTurn`/
+    `SkillsUsedInBattle`, `ExecuteSkill` пишет использование. Тест `SkillLimit_BlocksFurtherUsesAfterLimit`
+    (13/13 duel, 41/41 combat).
+    **Отложено**: сюрприз (нет логики в ядре, `SurpriseStatus`=Nothing — нужна отдельная механика
+    первого раунда), кулдауны (только у монстров, в скиллах героев нет `.cooldown`), bark-реакции
+    (кампанийная наррация), continue-turn (нужен для Абоминации вместе с mode-системой).
 
 ---
 

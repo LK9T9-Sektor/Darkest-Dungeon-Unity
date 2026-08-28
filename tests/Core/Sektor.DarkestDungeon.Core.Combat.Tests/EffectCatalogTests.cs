@@ -86,6 +86,26 @@ namespace Sektor.DarkestDungeon.Core.Combat.Tests
             CollectionAssert.AreEquivalent(new[] { "buff_bleed_resist_1", "buff_bleed_resist_2" }, buffEffect.BuffIds);
         }
 
+        [Test]
+        public void Load_ParsesTorchKeys()
+        {
+            var catalog = EffectCatalog.Load(
+                "effect: .name \"Darkness 1\" .target \"global\" .chance 100% .torch_decrease 5\n" +
+                "effect: .name \"Light 1\" .target \"global\" .chance 100% .torch_increase 6\n" +
+                "effect: .name \"Net Change\" .target \"global\" .torch_decrease 2 .torch_increase 7");
+
+            var darkness = catalog.Get("Darkness 1");
+            Assert.That(darkness, Is.Not.Null);
+            Assert.That(darkness.TargetType, Is.EqualTo(EffectTargetType.Global));
+            Assert.That(darkness.IntegerParams[EffectIntParams.Torch], Is.EqualTo(-5));
+
+            var light = catalog.Get("Light 1");
+            Assert.That(light.IntegerParams[EffectIntParams.Torch], Is.EqualTo(6));
+
+            var net = catalog.Get("Net Change");
+            Assert.That(net.IntegerParams[EffectIntParams.Torch], Is.EqualTo(5));
+        }
+
         private static void AssertSubEffect<T>(Effect effect)
             where T : SubEffect
         {

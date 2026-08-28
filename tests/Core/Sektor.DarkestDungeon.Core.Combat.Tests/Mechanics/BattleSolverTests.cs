@@ -61,6 +61,8 @@ namespace Sektor.DarkestDungeon.Core.Combat.Tests.Mechanics
             performer.Character.Returns(performerChar);
             var performerInfo = Substitute.For<IFormationUnitInfo>();
             performerInfo.IsImmobilized.Returns(false);
+            performerInfo.SkillsUsedThisTurn.Returns(new List<string>());
+            performerInfo.SkillsUsedInBattle.Returns(new List<string>());
             performer.CombatInfo.Returns(performerInfo);
 
             var target = Substitute.For<ICombatUnit>();
@@ -69,6 +71,8 @@ namespace Sektor.DarkestDungeon.Core.Combat.Tests.Mechanics
             target.Size.Returns(1);
             target.Character.Returns(targetChar);
             var targetInfo = Substitute.For<IFormationUnitInfo>();
+            targetInfo.SkillsUsedThisTurn.Returns(new List<string>());
+            targetInfo.SkillsUsedInBattle.Returns(new List<string>());
             target.CombatInfo.Returns(targetInfo);
 
             var heroParty = Substitute.For<IFormationParty>();

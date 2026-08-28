@@ -280,9 +280,18 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
                 DamageMod = damageMod,
                 CritMod = critMod,
                 IsCritValid = IsTrue(GetValue(tokens, "is_crit_valid")),
+                IsContinueTurn = IsTrue(GetValue(tokens, "is_continue_turn")),
                 LaunchRanks = new FormationSet(GetValue(tokens, "launch") ?? string.Empty),
                 TargetRanks = new FormationSet(GetValue(tokens, "target") ?? string.Empty),
             };
+
+            int perTurnLimit;
+            if (int.TryParse(GetValue(tokens, "per_turn_limit"), NumberStyles.Integer, CultureInfo.InvariantCulture, out perTurnLimit))
+                skill.LimitPerTurn = perTurnLimit;
+
+            int perBattleLimit;
+            if (int.TryParse(GetValue(tokens, "per_battle_limit"), NumberStyles.Integer, CultureInfo.InvariantCulture, out perBattleLimit))
+                skill.LimitPerBattle = perBattleLimit;
 
             if (TryParseNumber(tokens, "heal", out healLow))
             {

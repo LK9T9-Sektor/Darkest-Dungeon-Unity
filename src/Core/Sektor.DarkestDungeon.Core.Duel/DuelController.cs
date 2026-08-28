@@ -103,6 +103,8 @@ namespace Sektor.DarkestDungeon.Core.Duel
             Context = new DuelBattleContext(BattleGround, Events, content);
             Solver = new BattleSolver(Context);
 
+            Events.TorchDelta = delta => Context.TorchAmount = Math.Max(0, Math.Min(100, Context.TorchAmount + delta));
+
             RandomSolver.SetRandomSeed(sessionSeed);
             BattleGround.BattleStatus = BattleStatus.Fighting;
             Phase = DuelPhase.NotStarted;
