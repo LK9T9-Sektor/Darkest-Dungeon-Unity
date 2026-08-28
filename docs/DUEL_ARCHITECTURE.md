@@ -49,7 +49,8 @@
   (адаптер `IBattleEvents` + debug-лог).
 - `DuelPayload` — wire-протокол (`skillId|targetId`, `move|rank`, `pass|0`).
 - `IDuelContent` — порт контента (герой/квирк/бафф); ядро не грузит файлы.
-- `DuelAi` + `DuelSkillSelection`/`DuelTargetSelection` — ИИ соперника на core-brain (Фаза B).
+- `DuelAi` + `DuelSkillSelection`/`DuelSkillSelectionHeal`/`DuelTargetSelection{Random,Marked,Health}` —
+  ИИ соперника на core-brain, зеркалит DD (см. `AI_BEHAVIOR.md`).
 - netstandard2.0, C# 7.3, без движковых ссылок; доставляется пост-билдом в
   `Assets\Plugins\Internal` обоих деревьев (для будущего cutover Unity).
 
@@ -89,7 +90,9 @@ Unity пока не потребляет (cutover — в роадмапе).
 ## 5. Роадмап
 
 - [x] **A** — оркестрация в `Core.Duel`; WPF тоньше; тесты в `tests\Core\...Core.Duel.Tests`.
-- [x] **B** — ИИ соперника через `MonsterBrain`/desires (`DuelAi`, цель по минимальному HP).
+- [x] **B** — ИИ соперника через `MonsterBrain`/desires: `DuelAi` зеркалит DD-«default» брейн
+  (хил раненого союзника <50%, random/marked атаки, кулдауны) — «поверх», без правок оригинала.
+  Детали и данные DD — в `AI_BEHAVIOR.md`.
 - [ ] **C** — этот документ + обновление карты (`INDEX`/`ARCHITECTURE`/`KNOWN_ISSUES`/...).
 - [ ] **Unity cutover**: перевести `RaidSceneMultiplayerManager`/`MultiplayerSync` на
   `Core.Duel` (тонкие адаптеры, фаза 6 EXTRACTION_PLAN); убрать дубль протокола и сид-хак.

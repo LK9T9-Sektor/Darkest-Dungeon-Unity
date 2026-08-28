@@ -29,9 +29,9 @@ DD-зеркальные желания и брейн в `src\Core\Sektor.Darkest
 
 ### Фаза 2 — Документация
 
-6. [ ] Новый `docs\AI_BEHAVIOR.md`: модель AI DD (брейн, desires, кулдауны/лимиты, `JsonAI.json`,
+6. [x] Новый `docs\AI_BEHAVIOR.md`: модель AI DD (брейн, desires, кулдауны/лимиты, `JsonAI.json`,
    цикл выбора, зеркало в дуэли, разрывы/будущее: парсинг эффектов P1.1).
-7. [ ] Правки: `INDEX.md`, `DUEL_ARCHITECTURE.md`, `PLAN.md`, `TESTING.md`, `CHANGELOG.md`.
+7. [x] Правки: `INDEX.md`, `DUEL_ARCHITECTURE.md`, `PLAN.md`, `TESTING.md`, `CHANGELOG.md`.
 
 ### Затронутые файлы
 
