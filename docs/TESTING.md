@@ -188,3 +188,8 @@ pwsh tools\unity-compile-check.ps1 -ProjectPath unity            # редакт�
 pwsh tools\unity-compile-check.ps1 -ProjectPath unity-2017 -UnityEditorPath "E:\ProgramFiles\Unity2017.4.40f1"
 pwsh tools\unity-check-script-references.ps1 -ProjectPath unity  # проверка скрипт-ссылок (GUID)
 ```
+
+Проверку скрипт-ссылок также запускает pre-commit хук автоматически: оба проекта
+сканируются **параллельно** (на ripgrep, если установлен), а если коммит не трогает файлы
+под `unity/` или `unity-2017/` — скан пропускается (коммиты только в `src/`/`tests/`/`docs/`
+проходят мгновенно). Ручной запуск выше нужен после миграций Unity / крупных реструктуризаций.

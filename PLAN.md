@@ -1,5 +1,50 @@
 # PLAN.md — Активный план задач
 
+## Задача: ускорить pre-commit проверку скрипт-GUID (ripgrep + параллельно + fast-path)
+
+### Цель
+
+Pre-commit хук тратит ~104 с на каждый коммит (скан `unity-check-script-references.ps1`
+на `unity` и `unity-2017` последовательно). Сделать: скан на ripgrep (~2-5 с/проект),
+параллельный запуск обоих проектов в хуке, и быстрый путь — пропуск скана, когда не
+менялись файлы под `unity/`/`unity-2017/` (WPF-коммиты ~0.5 с). Защита от stale-GUID
+сохраняется.
+
+### Шаги
+
+1. [x] `tools/unity-check-script-references.ps1` — переписан на ripgrep:
+   индекс guid `rg -o --no-filename --replace '$1' '^guid: ([0-9a-f]+)' -g '*.meta'`;
+   ссылки `rg -o --no-heading --replace '$1' 'm_Script: ... guid: ([0-9a-f]+)' -g '*.unity' -g '*.prefab'`
+   (разбор path:guid по длине — последние 32 hex); `.cs.meta` через `rg --files -g '*.cs'` +
+   `Test-Path`. Фолбэк на прежнюю PS-реализацию, если `rg` отсутствует. Контракт
+   (`builtinGuids`, формат ошибок, exit code) — без изменений. Замеры: unity ~1.5 с,
+   unity-2017 ~2.7 с (было ~52 с/проект).
+2. [x] `.githooks/pre-commit` — быстрый путь: если `git diff --name-only HEAD` +
+   `git ls-files --others --exclude-standard` не содержат путей `unity/`/`unity-2017/` →
+   «No Unity changes, skipping», `exit 0` (~0.35 с). Иначе оба проекта параллельно
+   (`&` + `wait`, exit 1 при любой ошибке); Unity-коммит ~1.9 с wall.
+3. [x] Документация: `AGENTS.md` (хук гоняет проверку параллельно/ripgrep и пропускает
+   при отсутствии изменений в Unity), `TESTING.md` (заметка в «Автопроверки»), `PLAN.md`.
+4. [x] Проверка: скан обоих проектов чистый и быстрее; фолбэк без `rg`; fast-path
+   (только `src/` → мгновенно, `unity/` → сканирует параллельно); синтетика ловит
+   stale-GUID в rg-пути.
+
+### Затронутые файлы
+
+- `tools/unity-check-script-references.ps1`
+- `.githooks/pre-commit`
+- `AGENTS.md`, `TESTING.md`, `PLAN.md`
+
+### Критерии приёмки
+
+- WPF-коммит: хук завершается < 1 с, скан не запускается.
+- Unity-коммит: оба проекта сканируются параллельно на ripgrep, ~5-10 с.
+- Скан по-прежнему ловит stale-GUID (ошибки как раньше, exit 1).
+
+---
+
+## Остаток работ (после WPF-дуэли, сентябрь 2026)
+
 ## Задача: WPF-дуэль — фиксы UI (тултип, левая панель, Move/Pass, Абоминация, лобби)
 
 ### Цель

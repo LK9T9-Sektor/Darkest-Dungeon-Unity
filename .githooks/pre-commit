@@ -2,10 +2,29 @@
 # Pre-commit hook: reject commits whose scenes/prefabs reference script GUIDs that do not
 # resolve to a committed .meta (the stale-GUID failure mode). Install via tools\install-hooks.ps1
 # (git config core.hooksPath .githooks).
+#
+# Fast path: when the commit (index + working tree + untracked files) does not touch any file
+# under unity/ or unity-2017/, the Unity asset state is unchanged from the last validated commit,
+# so the scan is skipped. WPF/C#/docs-only commits complete in a fraction of a second.
+# Otherwise both projects are checked in parallel (each scan uses ripgrep when available).
 
 ROOT=$(git rev-parse --show-toplevel)
 
-pwsh -NoProfile -File "$ROOT/tools/unity-check-script-references.ps1" -ProjectPath unity || exit 1
-pwsh -NoProfile -File "$ROOT/tools/unity-check-script-references.ps1" -ProjectPath unity-2017 || exit 1
+# Any change (tracked, staged, deleted or new untracked non-ignored file) under the Unity roots?
+UNITY_CHANGED=$( { git -C "$ROOT" diff --name-only HEAD; git -C "$ROOT" ls-files --others --exclude-standard; } \
+    | grep -E '^(unity|unity-2017)/' )
 
-exit 0
+if [ -z "$UNITY_CHANGED" ]; then
+    echo "==> No Unity changes; skipping script-reference check."
+    exit 0
+fi
+
+pwsh -NoProfile -File "$ROOT/tools/unity-check-script-references.ps1" -ProjectPath unity &
+P1=$!
+pwsh -NoProfile -File "$ROOT/tools/unity-check-script-references.ps1" -ProjectPath unity-2017 &
+P2=$!
+
+FAIL=0
+wait "$P1" || FAIL=1
+wait "$P2" || FAIL=1
+exit $FAIL
