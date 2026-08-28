@@ -50,7 +50,7 @@
                         <Button Grid.Row="0" Content="X" Command="{Binding CloseStatsCommand}"
                                 HorizontalAlignment="Right" Width="30" Height="30"
                                 Style="{StaticResource HudButton}" FontWeight="Bold" />
-                        <views:HeroStatsView Grid.Row="1" DataContext="{Binding StatsTarget}" Margin="0,8,0,0" />
+                        <views:HeroStatsView Grid.Row="1" DataContext="{Binding StatsTarget}" ShowFullDetails="True" Margin="0,8,0,0" />
                     </Grid>
                 </Border>
             </Grid>

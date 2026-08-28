@@ -99,9 +99,6 @@
                 <TextBlock Text="{Binding DamagePopupText}" FontSize="22" FontWeight="Bold" Foreground="White"
                            HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,44,0,0"
                            TextAlignment="Center" TextWrapping="Wrap" IsHitTestVisible="False">
-                    <TextBlock.RenderTransform>
-                        <TranslateTransform />
-                    </TextBlock.RenderTransform>
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Opacity" Value="0" />
@@ -112,8 +109,8 @@
                                             <Storyboard>
                                                 <DoubleAnimation Storyboard.TargetProperty="Opacity"
                                                                  From="1" To="0" Duration="0:0:0.9" />
-                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
-                                                                 From="0" To="-36" Duration="0:0:0.9" />
+                                                <ThicknessAnimation Storyboard.TargetProperty="Margin"
+                                                                    From="0,44,0,0" To="0,8,0,0" Duration="0:0:0.9" />
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.EnterActions>
@@ -239,7 +236,7 @@
                                 HorizontalAlignment="Right" Width="30" Height="30"
                                 Style="{StaticResource HudButton}" FontWeight="Bold" />
                         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
-                            <views:HeroStatsView DataContext="{Binding StatsTarget}" />
+                            <views:HeroStatsView DataContext="{Binding StatsTarget}" ShowFullDetails="True" />
                         </ScrollViewer>
                     </Grid>
                 </Border>
@@ -289,10 +286,24 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <Button Content="MOVE" Width="72" Height="32" Margin="12,4,0,4" FontSize="14"
-                        Style="{StaticResource HudButton}" Command="{Binding MoveCommand}" />
-                <Button Content="PASS" Width="72" Height="32" Margin="4,4,0,4" FontSize="14"
-                        Style="{StaticResource HudButton}" Command="{Binding PassCommand}" />
+                <StackPanel Width="68" Margin="8,4,0,4">
+                    <Button Width="64" Height="64" FontSize="28" Style="{StaticResource HudButton}"
+                            ToolTip="Move to an adjacent rank"
+                            Command="{Binding MoveCommand}">
+                        <TextBlock Text="&#x21C4;" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Button>
+                    <TextBlock Text="MOVE" FontSize="10" Foreground="#C8C0B0"
+                               TextAlignment="Center" TextWrapping="Wrap" Margin="0,3,0,0" />
+                </StackPanel>
+                <StackPanel Width="68" Margin="4">
+                    <Button Width="64" Height="64" FontSize="28" Style="{StaticResource HudButton}"
+                            ToolTip="Skip the turn"
+                            Command="{Binding PassCommand}">
+                        <TextBlock Text="&#x2715;" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Button>
+                    <TextBlock Text="PASS" FontSize="10" Foreground="#C8C0B0"
+                               TextAlignment="Center" TextWrapping="Wrap" Margin="0,3,0,0" />
+                </StackPanel>
             </StackPanel>
 
             <views:RaidHudView Grid.Row="1" DataContext="{Binding}" />

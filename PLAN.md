@@ -1,4 +1,65 @@
-# PLAN.md — Остаток работ (после WPF-дуэли, сентябрь 2026)
+# PLAN.md — Активный план задач
+
+## Задача: WPF-дуэль — фиксы UI (тултип, левая панель, Move/Pass, Абоминация, лобби)
+
+### Цель
+
+Привести боевой HUD дуэли и оба лобби (vs AI и мультиплеер) к единому широкоформатному
+виду без перекрытий: починить обрезанный тултип, вернуть левой панели DD-корректный
+состав, сделать Move/Pass квадратными с глифами, устранить крэш Абоминации при
+превращении, перестроить лобби рядами сверху вниз с крестиком-возвратом сверху.
+
+### Шаги
+
+1. [x] **Крэш Абоминации** — в `DuelBattleView.xaml` убрана анимация
+   `(UIElement.RenderTransform).(TranslateTransform.Y)` (замороженный Freezable в
+   шаблоне карточки); анимируются только элементные DP — `Opacity` + `Margin`.
+2. [x] **Левая панель (DD-корректно)** — `HeroBannerView`: убраны слоты скиллов;
+   `HeroStatsView`: добавлен DP `ShowFullDetails` (default false), скрывающий секции
+   SKILLS/RESISTANCES/QUIRKS; листы статов правого клика (`DuelBattleView`,
+   `BattleScreenView`) — `ShowFullDetails="True"`.
+3. [x] **Тултип** — `RaidHudView`: левая колонка 690→`Auto`, центр `*`;
+   `UnitTooltipView`: убран жёсткий `Width="560"`, размер по контенту.
+4. [x] **Move/Pass** — квадратные 64×64 как скиллы, глиф `⇄` у Move и `✕` у Pass,
+   подпись под кнопкой.
+5. [x] **Лобби** — новый общий `ScreenHeaderView` (заголовок + крестик-возврат);
+   `DuelLobbyView` и `SinglePlayerLobbyView` → 1920×1080 рядами: верх = 4 героя игрока,
+   середина = ИИ/второй игрок (неактивно для живого PvP), низ = кнопки.
+6. [x] **Доки** — `TESTING.md` (WPF чек-лист + «Что проверить»), `CHANGELOG.md`;
+   шаги здесь отмечены `[x]`. Добавлен `ScreenSmokeTests` (загрузка всех экранов).
+
+### Затронутые файлы
+
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\DuelBattleView.xaml`
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\HeroBannerView.xaml`
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\HeroStatsView.xaml`
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\HeroStatsView.xaml.cs` (DP)
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\RaidHudView.xaml`
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\UnitTooltipView.xaml`
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\BattleScreenView.xaml` (ShowFullDetails=True)
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\DuelLobbyView.xaml`
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\SinglePlayerLobbyView.xaml`
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\ScreenHeaderView.xaml` + `.xaml.cs` (новый)
+- `tests\Wpf\Sektor.DarkestDungeon.Wpf.Tests\ScreenSmokeTests.cs` (новый)
+- `docs\TESTING.md`, `docs\CHANGELOG.md`, `PLAN.md`
+
+### Критерии приёмки
+
+- Превращение Абоминации не роняет WPF-клиент (`XamlParseException` исчез); обычные
+  попапы урона/хила работают.
+- Левая панель боя: портрет+имя, статы без резистов, шмот и 2 слота тринкетов; скиллов
+  и секций SKILLS/RESISTANCES/QUIRKS нет. Лист статов правым кликом — со всем полным
+  набором.
+- Тултип при наведении полностью виден, не перекрывается левой панелью, не выходит
+  за экран.
+- MOVE/PASS квадратные (64×64), у MOVE стрелки, у PASS крестик, подписи снизу.
+- Оба лобби на 1920×1080, элементы в рядах сверху вниз, ничего не прячется под другим,
+  крестик-возврат сверху, единый стиль.
+- `dotnet build` и `dotnet test tests/Wpf/...` зелёные; ручной прогон по `TESTING.md`.
+
+---
+
+## Остаток работ (после WPF-дуэли, сентябрь 2026)
 
 ## Что уже сделано (зафиксировано)
 
