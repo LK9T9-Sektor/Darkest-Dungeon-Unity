@@ -71,9 +71,17 @@
     `.is_continue_turn`; `BattleSolver.IsSkillUsable` учитывает `SkillsUsedThisTurn`/
     `SkillsUsedInBattle`, `ExecuteSkill` пишет использование. Тест `SkillLimit_BlocksFurtherUsesAfterLimit`
     (13/13 duel, 41/41 combat).
-    **Отложено**: сюрприз (нет логики в ядре, `SurpriseStatus`=Nothing — нужна отдельная механика
-    первого раунда), кулдауны (только у монстров, в скиллах героев нет `.cooldown`), bark-реакции
+    **Отложено**: кулдауны (только у монстров, в скиллах героев нет `.cooldown`), bark-реакции
     (кампанийная наррация).
+
+### Фаза 7 — Сюрприз первого раунда
+
+10. [x] `DuelController.CheckSurprise` при старте боя: шанс сюрприза монстров/героев
+    `0.1 + torch-бонус диапазона` (Radiant 0.25 → Out 0.4) + `MonsterSurpirseChance`/
+    `PartySurpriseChance` героев, клэмп 0.65; `BattleGround.SetSurpriseStatus`;
+    `Round.NextRound` (раунд 0) ставит -100 к инициативе застигнутой стороны (действует последней);
+    `IsSurprised` на юнитах, сюрприз-шаффл героев; снятие флага на своём ходу. Тест
+    `SurpriseTests` (seeds 1/11: монстры/герои последними + флаг; 17/17 duel, 43/43 combat).
 
 ### Фаза 6 — Mode-система (Абоминация)
 

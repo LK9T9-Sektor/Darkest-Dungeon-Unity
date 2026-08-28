@@ -30,6 +30,13 @@ namespace Sektor.DarkestDungeon.Core.Combat.Raid.Battle
         /// <inheritdoc/>
         public SurpriseStatus SurpriseStatus { get; private set; }
 
+        /// <summary>Sets the surprise status rolled at battle start.</summary>
+        /// <param name="status">The surprise status.</param>
+        public void SetSurpriseStatus(SurpriseStatus status)
+        {
+            SurpriseStatus = status;
+        }
+
         /// <inheritdoc/>
         public int HeroNumber { get { return HeroParty.Units.Count; } }
 

@@ -110,14 +110,91 @@ namespace Sektor.DarkestDungeon.Core.Duel
             Phase = DuelPhase.NotStarted;
         }
 
-        /// <summary>Starts the battle: computes the first round order and begins the first turn.</summary>
+        /// <summary>Starts the battle: rolls surprise, computes the first round order and begins the first turn.</summary>
         public void StartBattle()
         {
             if (BattleGround == null)
                 return;
 
+            CheckSurprise();
             BattleGround.Round.StartBattle(BattleGround);
             BeginTurn();
+        }
+
+        private void CheckSurprise()
+        {
+            float monstersSurprised = 0.1f + TorchSurpriseBonus(Context.TorchAmount, true);
+            foreach (var hero in HeroParty.Units)
+            {
+                var attribute = hero.Character.GetSingleAttribute(AttributeType.MonsterSurpirseChance);
+                if (attribute != null)
+                    monstersSurprised += attribute.ModifiedValue;
+            }
+            monstersSurprised = ClampSurpriseChance(monstersSurprised);
+
+            if (RandomSolver.CheckSuccess(monstersSurprised))
+            {
+                BattleGround.SetSurpriseStatus(SurpriseStatus.MonstersSurprised);
+                foreach (var unit in MonsterParty.Units)
+                    unit.CombatInfo.IsSurprised = true;
+                return;
+            }
+
+            float heroesSurprised = 0.1f + TorchSurpriseBonus(Context.TorchAmount, false);
+            foreach (var hero in HeroParty.Units)
+            {
+                var attribute = hero.Character.GetSingleAttribute(AttributeType.PartySurpriseChance);
+                if (attribute != null)
+                    heroesSurprised += attribute.ModifiedValue;
+            }
+            heroesSurprised = ClampSurpriseChance(heroesSurprised);
+
+            if (RandomSolver.CheckSuccess(heroesSurprised))
+            {
+                BattleGround.SetSurpriseStatus(SurpriseStatus.HeroesSurprised);
+                foreach (var unit in HeroParty.Units)
+                    unit.CombatInfo.IsSurprised = true;
+                ShuffleParty(HeroParty);
+            }
+        }
+
+        private static float ClampSurpriseChance(float chance)
+        {
+            if (chance < 0f)
+                return 0f;
+            if (chance > 0.65f)
+                return 0.65f;
+            return chance;
+        }
+
+        private static float TorchSurpriseBonus(int torch, bool monsters)
+        {
+            if (torch > 75)
+                return monsters ? 0.25f : 0f;
+            if (torch > 50)
+                return monsters ? 0.15f : 0f;
+            if (torch > 25)
+                return monsters ? 0.10f : 0.15f;
+            if (torch > 0)
+                return monsters ? 0.05f : 0.25f;
+            return monsters ? 0f : 0.4f;
+        }
+
+        private static void ShuffleParty(FormationParty party)
+        {
+            for (int i = 0; i < party.Units.Count; i++)
+            {
+                int swapIndex = RandomSolver.Next(party.Units.Count);
+                if (swapIndex == i)
+                    continue;
+
+                var temp = party.Units[i];
+                party.Units[i] = party.Units[swapIndex];
+                party.Units[swapIndex] = temp;
+            }
+
+            for (int i = 0; i < party.Units.Count; i++)
+                ((FormationUnit)party.Units[i]).Rank = i + 1;
         }
 
         /// <summary>Begins the current turn.</summary>
@@ -138,6 +215,8 @@ namespace Sektor.DarkestDungeon.Core.Duel
                 NextRound();
                 return;
             }
+
+            current.CombatInfo.IsSurprised = false;
 
             if (current.Team == Team.Heroes)
             {

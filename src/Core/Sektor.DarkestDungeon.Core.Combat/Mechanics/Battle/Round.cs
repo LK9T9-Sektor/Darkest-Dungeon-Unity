@@ -151,6 +151,18 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
 
             OrderedUnits = new List<ICombatUnit>(OrderedUnits.OrderByDescending(unit => unit.CombatInfo.InitiativeRoll));
 
+            if (RoundNumber == 0)
+            {
+                if (battleGround.SurpriseStatus == SurpriseStatus.HeroesSurprised)
+                    foreach (var unit in battleGround.HeroParty.Units)
+                        unit.CombatInfo.InitiativeRoll -= 100;
+                else if (battleGround.SurpriseStatus == SurpriseStatus.MonstersSurprised)
+                    foreach (var unit in battleGround.MonsterParty.Units)
+                        unit.CombatInfo.InitiativeRoll -= 100;
+
+                OrderedUnits = new List<ICombatUnit>(OrderedUnits.OrderByDescending(unit => unit.CombatInfo.InitiativeRoll));
+            }
+
             return ++RoundNumber;
         }
 

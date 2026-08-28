@@ -21,6 +21,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
             duel.StartBattle();
 
             var attacker = duel.HeroParty.Units[0];
+            ((SingleAttribute)attacker.Character.GetSingleAttribute(AttributeType.AttackRating)).RawValue = 1.0f;
             ((SingleAttribute)attacker.Character.GetSingleAttribute(AttributeType.CritChance)).RawValue = 1.0f;
 
             var skill = attacker.Character.CurrentCombatSkills.FirstOrDefault(
