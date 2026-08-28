@@ -4,25 +4,25 @@
     <ItemsControl ItemsSource="{Binding Slots, RelativeSource={RelativeSource AncestorType=UserControl}}">
         <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
-                <StackPanel Orientation="Horizontal" />
+                <UniformGrid Columns="4" />
             </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
             <DataTemplate>
-                <StackPanel Width="250" Margin="8,0">
+                <StackPanel Margin="12,4">
                     <!-- Class cycle -->
                     <StackPanel Orientation="Horizontal">
-                        <Button Content="&#x25C0;" Width="28" Height="28" FontSize="14"
+                        <Button Content="&#x25C0;" Width="34" Height="34" FontSize="16"
                                 Style="{StaticResource HudButton}" Command="{Binding PrevClassCommand}" />
-                        <TextBlock Text="{Binding ClassName}" Width="150" VerticalAlignment="Center" Margin="6,0"
-                                   TextElement.Foreground="White" TextAlignment="Center" FontSize="14"
+                        <TextBlock Text="{Binding ClassName}" VerticalAlignment="Center" Margin="8,0"
+                                   TextElement.Foreground="White" TextAlignment="Center" FontSize="16"
                                    ToolTip="{Binding Details}" TextTrimming="CharacterEllipsis" />
-                        <Button Content="&#x25B6;" Width="28" Height="28" FontSize="14"
+                        <Button Content="&#x25B6;" Width="34" Height="34" FontSize="16"
                                 Style="{StaticResource HudButton}" Command="{Binding NextClassCommand}" />
                     </StackPanel>
 
                     <!-- Active skill toggles -->
-                    <ItemsControl ItemsSource="{Binding Skills}" Margin="0,6,0,0">
+                    <ItemsControl ItemsSource="{Binding Skills}" Margin="0,10,0,0">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel />
@@ -30,7 +30,7 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Button Content="{Binding Name}" Width="58" Height="26" FontSize="9" Margin="1"
+                                <Button Content="{Binding Name}" Width="62" Height="30" FontSize="11" Margin="2"
                                         Command="{Binding DataContext.ToggleSkillCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                         CommandParameter="{Binding}">
                                     <Button.Style>
@@ -51,10 +51,10 @@
                     </ItemsControl>
 
                     <!-- Quirks + reroll -->
-                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <TextBlock Text="{Binding QuirkSummary}" FontSize="10" Foreground="#C8C0B0"
-                                   TextWrapping="Wrap" Width="196" ToolTip="{Binding QuirkSummary}" />
-                        <Button Content="&#x21BB;" Width="26" Height="26" Margin="4,0,0,0" FontSize="14"
+                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                        <TextBlock Text="{Binding QuirkSummary}" FontSize="12" Foreground="#C8C0B0"
+                                   TextWrapping="Wrap" ToolTip="{Binding QuirkSummary}" />
+                        <Button Content="&#x21BB;" Width="30" Height="30" Margin="6,0,0,0" FontSize="14"
                                 Style="{StaticResource HudButton}" ToolTip="Reroll quirks"
                                 Command="{Binding RerollQuirksCommand}" />
                     </StackPanel>

@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Sektor.DarkestDungeon.Core.Content.Character;
 using Sektor.DarkestDungeon.Core.Duel;
 using Sektor.DarkestDungeon.Wpf.Combat;
 using Sektor.DarkestDungeon.Wpf.Data;
@@ -12,7 +11,7 @@ using Sektor.DarkestDungeon.Wpf.Navigation;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
-    /// <summary>Single player lobby: pick a party, fight a random hero party driven by AI.</summary>
+    /// <summary>Single player lobby: build both parties (player and AI) and fight a duel against the AI.</summary>
     public partial class SinglePlayerLobbyViewModel : ObservableObject
     {
         private static readonly Random Rng = new Random();
@@ -20,14 +19,13 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private readonly INavigationService navigation;
         private readonly IReadOnlyList<string> availableClasses;
 
-        /// <summary>Gets the four hero slots.</summary>
+        /// <summary>Gets the four hero slots of the player's party.</summary>
         public ObservableCollection<HeroSlotViewModel> Slots { get; } = new ObservableCollection<HeroSlotViewModel>();
 
-        /// <summary>Gets or sets the summary of the randomly generated rival party.</summary>
-        [ObservableProperty]
-        private string _rivalSummary = string.Empty;
+        /// <summary>Gets the four hero slots of the AI party (editable like the player's).</summary>
+        public ObservableCollection<HeroSlotViewModel> AiSlots { get; } = new ObservableCollection<HeroSlotViewModel>();
 
-        /// <summary>Gets the command that rerolls the AI party.</summary>
+        /// <summary>Gets the command that rerolls the AI party with random distinct classes.</summary>
         public IRelayCommand RandomizeRivalCommand { get; }
 
         /// <summary>Gets the command that starts the local duel.</summary>
@@ -45,23 +43,26 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             this.availableClasses = availableClasses;
             for (int i = 0; i < 4; i++)
                 Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses));
+            for (int i = 0; i < 4; i++)
+                AiSlots.Add(new HeroSlotViewModel(i * 10 + 101, availableClasses));
 
             RandomizeRivalCommand = new RelayCommand(RandomizeRival);
             StartCommand = new RelayCommand(Start);
             BackCommand = new RelayCommand(Back);
+            AssignDistinct(Slots);
             RandomizeRival();
         }
 
         private void RandomizeRival()
         {
-            RivalSummary = "AI party: " + string.Join(", ", PickRandomParty());
+            AssignDistinct(AiSlots);
         }
 
         private void Start()
         {
             int sessionSeed = Environment.TickCount;
             var duel = new DuelController(new DuelContent());
-            duel.StartDuel(ToPicks(Slots), RandomPicks(), sessionSeed, isHost: true);
+            duel.StartDuel(ToPicks(Slots), ToPicks(AiSlots), sessionSeed, isHost: true);
             if (!duel.IsStarted)
                 return;
             duel.StartBattle();
@@ -80,50 +81,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             navigation.GoHome();
         }
 
-        private List<string> PickRandomParty()
+        private void AssignDistinct(IEnumerable<HeroSlotViewModel> slots)
         {
-            var pool = availableClasses.ToList();
-            var picks = new List<string>();
-            for (int i = 0; i < 4; i++)
-                picks.Add(pool[Rng.Next(pool.Count)]);
-            return picks;
-        }
-
-        private DuelHeroPick[] RandomPicks()
-        {
-            return PickRandomParty()
-                .Select((classId, index) => new DuelHeroPick(classId, index * 7 + 13, RandomActiveSkills(classId), RandomQuirks()))
-                .ToArray();
-        }
-
-        private IReadOnlyList<string> RandomActiveSkills(string classId)
-        {
-            var heroClass = DuelClasses.Get(classId);
-            if (heroClass == null || heroClass.CombatSkills.Count == 0)
-                return Array.Empty<string>();
-
-            var skills = heroClass.CombatSkills.Select(skill => skill.Id).ToList();
-            int count = Math.Min(heroClass.NumberOfSelectedCombatSkills > 0 ? heroClass.NumberOfSelectedCombatSkills : 4, skills.Count);
-            return skills.OrderBy(_ => Rng.Next()).Take(count).ToList();
-        }
-
-        private IReadOnlyList<string> RandomQuirks()
-        {
-            var quirks = new List<string>();
-            AddRandomQuirk(quirks, QuirkCatalog.Positive);
-            AddRandomQuirk(quirks, QuirkCatalog.Negative);
-            return quirks;
-        }
-
-        private static void AddRandomQuirk(List<string> result, List<Quirk> pool)
-        {
-            if (pool.Count == 0)
-                return;
-            var candidates = pool.Where(quirk =>
-                !result.Any(existing => QuirkCatalog.Get(existing)?.IncompatibleQuirks.Contains(quirk.Id) == true)).ToList();
-            if (candidates.Count == 0)
-                return;
-            result.Add(candidates[Rng.Next(candidates.Count)].Id);
+            var shuffled = availableClasses.OrderBy(_ => Rng.Next()).ToList();
+            int index = 0;
+            foreach (var slot in slots)
+                slot.AssignClass(shuffled[index++ % shuffled.Count]);
         }
 
         private static DuelHeroPick[] ToPicks(IEnumerable<HeroSlotViewModel> slots)

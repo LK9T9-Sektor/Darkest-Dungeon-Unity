@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Threading;
@@ -263,17 +264,35 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         private static string BuildSkillDetails(CombatSkill skill)
         {
+            var lines = new List<string>();
             if (skill.Heal != null)
-                return "Heals " + skill.Heal.MinAmount + "-" + skill.Heal.MaxAmount + ". Launch " + FormatRanks(skill.LaunchRanks) + ". Target " + FormatRanks(skill.TargetRanks) + ".";
-            if (skill.Category == SkillCategory.Damage)
-                return "Damage. Launch " + FormatRanks(skill.LaunchRanks) + ". Target " + FormatRanks(skill.TargetRanks) + ".";
-            return "Launch " + FormatRanks(skill.LaunchRanks) + ". Target " + FormatRanks(skill.TargetRanks) + ".";
+                lines.Add("Heals " + skill.Heal.MinAmount + "-" + skill.Heal.MaxAmount);
+            else if (skill.Category == SkillCategory.Damage)
+            {
+                string damage = skill.DamageMin > 0 && skill.DamageMax > 0
+                    ? (int)skill.DamageMin + "-" + (int)skill.DamageMax
+                    : (skill.DamageMod > 0 ? "+" : "") + (int)(skill.DamageMod * 100) + "%";
+                lines.Add("Damage " + damage);
+            }
+
+            if (skill.Accuracy > 0)
+                lines.Add("ACC " + (int)(skill.Accuracy * 100) + "%");
+            if (skill.CritMod != 0)
+                lines.Add("Crit " + (int)(skill.CritMod * 100) + "%");
+            if (skill.LimitPerTurn != null)
+                lines.Add("Limit " + skill.LimitPerTurn + " per turn");
+
+            lines.Add("Launch ranks: " + FormatRanks(skill.LaunchRanks));
+            lines.Add("Target ranks: " + FormatRanks(skill.TargetRanks));
+            return string.Join("\n", lines);
         }
 
         private static string FormatRanks(FormationSet set)
         {
             if (set.IsSelfTarget)
                 return "self";
+            if (set.IsSelfFormation)
+                return "party" + (set.Ranks.Count > 0 ? " (" + string.Join(",", set.Ranks) + ")" : string.Empty);
             if (set.IsRandomTarget)
                 return "random";
             return set.Ranks.Count == 0 ? "-" : string.Join(",", set.Ranks);
@@ -309,7 +328,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             var character = unit.Character;
             RaidHud.ApplyActor(
                 character.Name,
-                character.Class,
+                Ui.DisplayNames.Class(character.Class),
                 character.CurrentCombatSkills ?? Enumerable.Empty<CombatSkill>(),
                 (int)character.GetPairedAttribute(AttributeType.HitPoints).CurrentValue,
                 (int)character.GetPairedAttribute(AttributeType.HitPoints).ModifiedValue,
@@ -527,7 +546,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 unit.CombatInfo.CombatId,
                 unit.Rank,
                 character.Name,
-                character.Class)
+                Ui.DisplayNames.Class(character.Class))
             {
                 IsEnemy = isEnemy,
                 HpCurrent = (int)hp.CurrentValue,

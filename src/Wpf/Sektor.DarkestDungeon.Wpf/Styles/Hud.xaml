@@ -31,4 +31,15 @@
         <Setter Property="Foreground" Value="{x:Static ui:UiBrushes.Label}" />
     </Style>
 
+    <!-- Darkest Dungeon styled tooltip popup -->
+    <Style TargetType="ToolTip">
+        <Setter Property="Background" Value="#E6000000" />
+        <Setter Property="Foreground" Value="#E8D9B0" />
+        <Setter Property="BorderBrush" Value="#3A2E22" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="10,8" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="MaxWidth" Value="420" />
+    </Style>
+
 </ResourceDictionary>

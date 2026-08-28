@@ -1,4 +1,5 @@
 using System;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Sektor.DarkestDungeon.Wpf.Navigation;
@@ -18,6 +19,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the command opening the multiplayer lobby.</summary>
         public IRelayCommand MultiplayerCommand { get; }
 
+        /// <summary>Gets the command that closes the application.</summary>
+        public IRelayCommand CloseCommand { get; }
+
         /// <summary>Initializes a new instance of the <see cref="MainMenuViewModel"/> class.</summary>
         /// <param name="navigation">The navigation service.</param>
         /// <param name="createMultiplayerLobby">Creates the multiplayer lobby screen.</param>
@@ -29,6 +33,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             this.createSinglePlayerLobby = createSinglePlayerLobby;
             VsAiCommand = new RelayCommand(OpenVsAi);
             MultiplayerCommand = new RelayCommand(OpenMultiplayer);
+            CloseCommand = new RelayCommand(Close);
         }
 
         private void OpenVsAi()
@@ -39,6 +44,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private void OpenMultiplayer()
         {
             navigation.NavigateTo(createMultiplayerLobby());
+        }
+
+        private void Close()
+        {
+            Application.Current?.Shutdown();
         }
     }
 }

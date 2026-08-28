@@ -17,6 +17,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
     /// <summary>Multiplayer duel lobby: hero selection, host/join, party exchange and duel start.</summary>
     public partial class DuelLobbyViewModel : ObservableObject, IPumpable, IDisposable
     {
+        private static readonly Random Rng = new Random();
+
         private readonly DuelSessionManager session;
         private readonly INavigationService navigation;
         private readonly IReadOnlyList<string> availableClasses;
@@ -71,6 +73,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             session = new DuelSessionManager(transport);
             for (int i = 0; i < 4; i++)
                 Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses));
+            AssignDistinct(Slots);
 
             session.SessionReady += OnSessionReady;
             session.RivalPartyReceived += OnRivalPartyReceived;
@@ -205,6 +208,14 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                     i < config.SelectedSkillIds.Count ? config.SelectedSkillIds[i] : null,
                     i < config.QuirkIds.Count ? config.QuirkIds[i] : null));
             return picks.ToArray();
+        }
+
+        private void AssignDistinct(IEnumerable<HeroSlotViewModel> slots)
+        {
+            var shuffled = availableClasses.OrderBy(_ => Rng.Next()).ToList();
+            int index = 0;
+            foreach (var slot in slots)
+                slot.AssignClass(shuffled[index++ % shuffled.Count]);
         }
 
         private void UpdateWaitingTime()

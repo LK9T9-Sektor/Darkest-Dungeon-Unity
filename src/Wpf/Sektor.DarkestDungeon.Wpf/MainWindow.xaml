@@ -4,7 +4,7 @@
         xmlns:vm="clr-namespace:Sektor.DarkestDungeon.Wpf.ViewModels"
         xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views"
         Title="Darkest Dungeon"
-        Width="1280" Height="720"
+        Width="1280" Height="800" MinWidth="1100" MinHeight="700"
         Background="Black"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
@@ -21,7 +21,5 @@
             <views:DuelBattleView />
         </DataTemplate>
     </Window.Resources>
-    <Viewbox Stretch="Uniform">
-        <ContentControl Content="{Binding CurrentScreen}" />
-    </Viewbox>
+    <ContentControl Content="{Binding CurrentScreen}" />
 </Window>

@@ -9,6 +9,7 @@
 - **Presentation Layer** — The Unity editor environment and asset folders (`unity\` active, `unity-2017\` legacy) contain views, engines, and platform-specific assets. No pure domain logic is allowed here.
 - **Source Directory** — Pure C# multi-project source directory targeting strictly `.NET Standard 2.0` with C# language version limited to `7.3` (set by `src\Directory.Build.props`).
 - **Client Implementations** — `src\Wpf\` holds presentation clients (currently `Sektor.DarkestDungeon.Wpf`, net8.0-windows, C# latest). They may reference the core assemblies (never vice versa); they override `LangVersion`/`Nullable` from `src\Directory.Build.props` locally.
+- **Adaptive (responsive) WPF layout** — presentation views fill the available space and never depend on a fixed canvas or a `Viewbox` scale: root elements stretch to the window, rows/columns use `*` (star) sizing for the majority of elements, and children align/stretch proportionally. Avoid fixed `Width`/`Height` on roots and absolute margins tuned to a single resolution; the window is resizable.
 - **Test Directory** — Isolated unit and integration tests using standard runners (NUnit/xUnit). Structurally mirrors the architecture of the source directory.
 - **External Reference Only** — `src/External` contains vendored upstream source code provided purely as reference/context material. It is **read-only**: never modify, "fix", refactor, or restructure anything inside it. Do not treat it as owned code.
 

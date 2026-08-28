@@ -1,5 +1,66 @@
 # PLAN.md — Активный план задач
 
+## Задача: адаптивный WPF + исправления боя и выбора отряда
+
+### Цель
+
+Клиент WPF не должен зависеть от фиксированного холста (1920×1080 + Viewbox): окно ресайзится,
+экраны забирают всё доступное пространство, раскладка на `*`-строках/колонках. Заодно: починить
+дефолт классов («все abomination»), богатый тултип скиллов, широкие тултип/лог/левая панель,
+центр боя меньше / низ выше, Retreat «X» в квест-панели, переиспользуемая панель выбора отряда
+(`#1 Player`/`#2 AI`), крестик в меню закрывает приложение. Коммиты по фазам.
+
+### Фаза 1 — Адаптивная оболочка
+
+1. [x] `MainWindow`: убран `Viewbox`/фикс. размер → ресайз (min 1100×700), `ContentControl`
+   растягивается; все экраны — без фикс. `Width/Height`, на `*`-раскладке.
+2. [x] `MainMenuView`: растягивается, заголовок «ВЫБЕРИТЕ РЕЖИМ», крестик закрывает приложение;
+   `MainMenuViewModel.CloseCommand`.
+
+### Фаза 2 — Боевой экран
+
+3. [x] `DuelBattleView`: строки верх `Auto` / центр `*` / низ `2*` (центр меньше, низ выше);
+   карточки в масштабируемой сцене (`Viewbox` поля), Retreat «X» в квест-панели, стат-лист —
+   оверлей поверх всего экрана.
+4. [x] `RaidHudView`: колонки левая 360 / центр `*` / правая `*`; `UnitTooltipView` растягивается;
+   `LogView` крупнее (15pt); левая панель шире.
+
+### Фаза 3 — Тултип скиллов
+
+5. [x] `BuildSkillDetails` богаче (урон/меткость/крит/хил/ранги, лимит за ход); глобальный
+   стилизованный `ToolTip` (тёмная рамка) в `Hud.xaml`.
+
+### Фаза 4 — Выбор отряда
+
+6. [x] Новый `PartySelectionView` (заголовок + слоты, DPs `PlayerLabel`/`Slots`); `HeroSlotsPanel`
+   на `UniformGrid` 4 колонки (замощается по ширине); `SinglePlayerLobbyView` — две панели
+   (#1 Player, #2 AI) + «Reroll AI»; `SinglePlayerLobbyViewModel.AiSlots` (редактируемые);
+   `DuelLobbyView` — панель #1 Player + статус + session-контролы; случайные разные дефолты
+   классов слотов (`AssignClass`); `DisplayNames.Class` (читаемые имена классов).
+
+### Фаза 5 — Кнопка закрыть
+
+7. [x] `ScreenHeaderView` везде: меню — закрыть приложение, лобби — назад, заголовки
+   «ВЫБЕРИТЕ РЕЖИМ» / «СФОРМИРУЙТЕ ОТРЯД».
+
+### Фаза 6 — Проверка и доки
+
+8. [ ] build + тесты + запуск (навигация меню→лобби→бой работает); ручной визуальный проход
+   за пользователем; `TESTING.md`, `CHANGELOG.md`, `PLAN.md`; коммиты по фазам.
+
+### Затронутые файлы
+
+`MainWindow.xaml`, `MainMenuView(.xaml)`, `MainMenuViewModel.cs`, `DuelBattleView.xaml`,
+`RaidHudView.xaml`, `UnitTooltipView.xaml`, `LogView.xaml`, `HeroInfoPanelView.xaml`,
+`ScreenHeaderView(.xaml)`, `HeroSlotsPanel.xaml`, `HeroSlotViewModel.cs`,
+`SinglePlayerLobbyView(.xaml)`, `SinglePlayerLobbyViewModel.cs`, `DuelLobbyView(.xaml)`,
+`DuelBattleViewModel.cs`, новый `PartySelectionView.xaml(.cs)`, `AGENTS.md` (правило
+адаптивной раскладки), доки.
+
+---
+
+## Остаток работ (после WPF-дуэли, сентябрь 2026)
+
 ## Задача: ИИ дуэли ведёт себя как в Darkest Dungeon (поверх ядра, без правок оригинала)
 
 ### Цель

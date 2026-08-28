@@ -89,7 +89,16 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         }
 
         /// <summary>Gets the display name of the selected class.</summary>
-        public string ClassName { get { return ClassId; } }
+        public string ClassName { get { return Ui.DisplayNames.Class(ClassId); } }
+
+        /// <summary>Assigns a specific class and reloads its skills and quirks.</summary>
+        /// <param name="classId">The class id to assign.</param>
+        public void AssignClass(string classId)
+        {
+            ClassId = classId;
+            IsEmpty = false;
+            LoadClass();
+        }
 
         private void PrevClass()
         {
