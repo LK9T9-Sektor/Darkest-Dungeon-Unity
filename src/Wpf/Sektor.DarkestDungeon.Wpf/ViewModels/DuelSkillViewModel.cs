@@ -1,3 +1,4 @@
+using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
@@ -10,6 +11,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Gets the display name.</summary>
         public string DisplayName { get; }
+
+        /// <summary>Gets or sets the icon image (null until one is provided).</summary>
+        [ObservableProperty]
+        private ImageSource? _icon;
 
         /// <summary>Gets or sets the tooltip details (targets, heal, damage).</summary>
         [ObservableProperty]

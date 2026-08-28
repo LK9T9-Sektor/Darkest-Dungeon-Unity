@@ -40,6 +40,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Raid.Party
         public int CurrentInitiative { get; set; }
 
         /// <inheritdoc/>
+        public double InitiativeRoll { get; set; }
+
+        /// <inheritdoc/>
         public int CombatId { get; set; }
 
         /// <inheritdoc/>

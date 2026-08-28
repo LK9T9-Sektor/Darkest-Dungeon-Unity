@@ -10,38 +10,22 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!-- Left: framed hero info, flush with the left field border -->
+            <!-- Left: hero info, filling the HUD height (content pinned to the bottom) -->
             <views:HeroInfoPanelView Grid.Column="0" DataContext="{Binding RaidHud}"
-                                     HorizontalAlignment="Stretch" VerticalAlignment="Top" />
+                                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
             <!-- Center: unit tooltip, stretching to fill the column -->
             <views:UnitTooltipView Grid.Column="1" DataContext="{Binding TooltipTarget}"
-                                   HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="12,0,12,0" />
+                                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="12,0,12,0" />
 
-            <!-- Right: log/inventory/map pinned to the top, buttons in their own row below -->
+            <!-- Right: log/inventory/map, filling the HUD height -->
             <Grid Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <Grid Grid.Row="0">
-                    <views:LogView DataContext="{Binding}"
-                                   Visibility="{Binding DataContext.RaidHud.IsLogShown, RelativeSource={RelativeSource AncestorType={x:Type views:RaidHudView}}, Converter={StaticResource BoolToVisibility}}" />
-                    <views:InventoryView DataContext="{Binding RaidHud.Inventory}"
-                                         Visibility="{Binding DataContext.RaidHud.IsInventoryShown, RelativeSource={RelativeSource AncestorType={x:Type views:RaidHudView}}, Converter={StaticResource BoolToVisibility}}" />
-                    <views:MapView DataContext="{Binding RaidHud.Map}"
-                                   Visibility="{Binding DataContext.RaidHud.IsMapShown, RelativeSource={RelativeSource AncestorType={x:Type views:RaidHudView}}, Converter={StaticResource BoolToVisibility}}" />
-                </Grid>
-
-                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
-                    <Button Content="LOG" Command="{Binding RaidHud.ShowLogCommand}" Margin="0,0,8,0"
-                            Style="{StaticResource HudButton}" Padding="14,4" FontSize="16" />
-                    <Button Content="INVENTORY" Command="{Binding RaidHud.ShowInventoryCommand}" Margin="0,0,8,0"
-                            Style="{StaticResource HudButton}" Padding="14,4" FontSize="16" />
-                    <Button Content="MAP" Command="{Binding RaidHud.ShowMapCommand}"
-                            Style="{StaticResource HudButton}" Padding="14,4" FontSize="16" />
-                </StackPanel>
+                <views:LogView DataContext="{Binding}"
+                               Visibility="{Binding DataContext.RaidHud.IsLogShown, RelativeSource={RelativeSource AncestorType={x:Type views:RaidHudView}}, Converter={StaticResource BoolToVisibility}}" />
+                <views:InventoryView DataContext="{Binding RaidHud.Inventory}"
+                                     Visibility="{Binding DataContext.RaidHud.IsInventoryShown, RelativeSource={RelativeSource AncestorType={x:Type views:RaidHudView}}, Converter={StaticResource BoolToVisibility}}" />
+                <views:MapView DataContext="{Binding RaidHud.Map}"
+                               Visibility="{Binding DataContext.RaidHud.IsMapShown, RelativeSource={RelativeSource AncestorType={x:Type views:RaidHudView}}, Converter={StaticResource BoolToVisibility}}" />
             </Grid>
         </Grid>
     </Border>

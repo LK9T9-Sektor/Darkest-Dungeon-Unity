@@ -11,6 +11,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the display name.</summary>
         public string Name { get; }
 
+        /// <summary>Gets or sets the tooltip details (damage, ranks).</summary>
+        [ObservableProperty]
+        private string _details = string.Empty;
+
         /// <summary>Gets or sets a value indicating whether the skill is active in battle.</summary>
         [ObservableProperty]
         private bool _isActive;

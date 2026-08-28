@@ -43,6 +43,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
         /// <summary>Gets or sets the current initiative.</summary>
         int CurrentInitiative { get; set; }
 
+        /// <summary>Gets or sets the round's rolled initiative (speed + roll) used to order turns.</summary>
+        double InitiativeRoll { get; set; }
+
         /// <summary>Gets or sets the unique combat identifier.</summary>
         int CombatId { get; set; }
 

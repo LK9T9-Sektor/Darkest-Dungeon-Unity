@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
@@ -106,6 +107,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets or sets a value indicating whether this unit is hovered.</summary>
         [ObservableProperty]
         private bool _isSelected;
+
+        /// <summary>Gets or sets the portrait image (null until one is provided).</summary>
+        [ObservableProperty]
+        private ImageSource? _portrait;
 
         /// <summary>Gets or sets a value indicating whether the unit belongs to the enemy side.</summary>
         [ObservableProperty]

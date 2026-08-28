@@ -18,20 +18,36 @@
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
-                    <TextBlock Text="{Binding ClassName}" Foreground="#E8D9B0" FontSize="16"
-                               HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="4,0,4,8"
-                               TextWrapping="Wrap" TextAlignment="Center" />
+                    <Grid>
+                        <!-- Portrait slot (empty until an image is provided) -->
+                        <Image Source="{Binding Portrait}" Stretch="UniformToFill" />
+                        <TextBlock Text="{Binding ClassName}" Foreground="#E8D9B0" FontSize="16"
+                                   HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="4,0,4,8"
+                                   TextWrapping="Wrap" TextAlignment="Center" />
+                    </Grid>
                 </Border>
 
-                <!-- Current turn frame -->
-                <Border Width="158" Height="158" BorderThickness="3" CornerRadius="10" Margin="0,6,0,0"
-                        VerticalAlignment="Top" Visibility="{Binding IsCurrent, Converter={StaticResource BoolToVisibility}}"
-                        BorderBrush="White" />
-
-                <!-- Valid target frame -->
+                <!-- Team frame: red (team 1) / blue (team 2); white when acting; gold when a target -->
                 <Border Width="166" Height="166" BorderThickness="3" CornerRadius="12" Margin="0,2,0,0"
-                        VerticalAlignment="Top" Visibility="{Binding IsTarget, Converter={StaticResource BoolToVisibility}}"
-                        BorderBrush="#D9B46A" />
+                        VerticalAlignment="Top">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="#8A2E2E" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEnemy}" Value="True">
+                                    <Setter Property="BorderBrush" Value="#2E4A8A" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsTarget}" Value="True">
+                                    <Setter Property="BorderBrush" Value="#D9B46A" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                    <Setter Property="BorderBrush" Value="White" />
+                                    <Setter Property="BorderThickness" Value="4" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
 
                 <TextBlock Text="{Binding Name}" Foreground="#E8D9B0" FontSize="15" FontWeight="Bold"
                            HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,170,0,0" />
@@ -153,8 +169,8 @@
     <Grid Background="#100C08">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="150" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="2*" />
+            <RowDefinition Height="1.6*" />
+            <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
 
         <!-- TOP AREA: quest + retreat (left), torch (center), turn order (right) -->
@@ -165,21 +181,25 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!-- Quest panel with the retreat cross pinned to it -->
+            <!-- Quest panel with the retreat cross pinned to its left -->
             <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top"
                         Margin="8,8,0,0">
-                <views:QuestLogView DataContext="{Binding Quest}" Width="360" />
-                <Button Content="X" Width="34" Height="34" FontSize="18" FontWeight="Bold"
-                        Foreground="#C0392B" Style="{StaticResource HudButton}" Margin="10,0,0,0"
+                <Button Content="X" Width="38" Height="38" FontSize="18" FontWeight="Bold"
+                        Foreground="#C0392B" Style="{StaticResource HudButton}"
                         VerticalAlignment="Top" ToolTip="Retreat"
                         Command="{Binding LeaveCommand}" />
+                <views:QuestLogView DataContext="{Binding Quest}" Width="360" Margin="10,0,0,0" />
             </StackPanel>
 
-            <views:TorchView Grid.Column="1" DataContext="{Binding Torch}"
-                             HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,8,0,0" />
+            <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,4">
+                <views:TorchView DataContext="{Binding Torch}"
+                                 HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding Events.Round, StringFormat='ROUND {0}'}" Foreground="#8A7A5A"
+                           FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,6,0,0" />
+            </StackPanel>
 
             <views:TurnOrderView Grid.Column="2" DataContext="{Binding}"
-                                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,8,0" />
+                                 HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="8,8,8,0" />
         </Grid>
 
         <!-- CENTER AREA: battle field, round overlay, events -->
@@ -188,11 +208,11 @@
                     Background="{StaticResource FieldBackground}" BorderBrush="{StaticResource FieldBorder}"
                     BorderThickness="2" CornerRadius="12" />
 
-            <!-- Battle stage: unit cards scale to fill the field -->
-            <Viewbox Stretch="Uniform" Margin="32,16,32,12">
-                <Grid Width="1700" Height="290">
+            <!-- Battle stage: unit cards scale to fill the field, teams separated by a gap -->
+            <Viewbox Stretch="Uniform" Margin="40,16,40,12">
+                <Grid Width="1800" Height="290">
                     <ItemsControl ItemsSource="{Binding Heroes}" HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                                  Margin="60,0,0,24">
+                                  Margin="40,0,0,20">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Orientation="Horizontal" />
@@ -207,7 +227,7 @@
                     </ItemsControl>
 
                     <ItemsControl ItemsSource="{Binding Monsters}" HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                                  Margin="0,0,60,24">
+                                  Margin="0,0,40,20">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Orientation="Horizontal" />
@@ -234,9 +254,14 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,6">
-                <TextBlock Text="Skills" FontSize="16" Foreground="#8A7A5A"
-                           VerticalAlignment="Center" Margin="0,0,10,0" />
+            <Grid Grid.Row="0" Margin="0,0,0,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                <!-- Acting hero's skills (all but Move/Pass), with icon slot -->
                 <ItemsControl ItemsSource="{Binding Skills}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -245,15 +270,14 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Width="68" Margin="4">
-                                <Button Width="64" Height="64" FontSize="10" Padding="2"
+                            <StackPanel Width="60" Margin="4">
+                                <Button Width="56" Height="56" Padding="2"
                                         ToolTip="{Binding Details}"
                                         IsEnabled="{Binding IsUsable}"
                                         Command="{Binding DataContext.SelectSkillCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                         CommandParameter="{Binding}">
                                     <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource HudButton}">
-                                            <Setter Property="Content" Value="{Binding DisplayName}" />
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                                     <Setter Property="BorderBrush" Value="#E8D9B0" />
@@ -262,33 +286,48 @@
                                             </Style.Triggers>
                                         </Style>
                                     </Button.Style>
+                                    <Grid>
+                                        <Image Source="{Binding Icon}" Stretch="UniformToFill" />
+                                        <TextBlock Text="{Binding DisplayName}" FontSize="9" Foreground="#E8D9B0"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                                                   TextWrapping="Wrap" TextAlignment="Center" Margin="2" />
+                                    </Grid>
                                 </Button>
-                                <TextBlock Text="{Binding DisplayName}" FontSize="10" Foreground="#C8C0B0"
-                                           TextAlignment="Center" TextWrapping="Wrap" Margin="0,3,0,0" />
                             </StackPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <StackPanel Width="68" Margin="8,4,0,4">
-                    <Button Width="64" Height="64" FontSize="28" Style="{StaticResource HudButton}"
+                <StackPanel Width="60" Margin="4,4,0,4" HorizontalAlignment="Left">
+                    <Button Width="56" Height="56" FontSize="24" Style="{StaticResource HudButton}"
                             ToolTip="Move to an adjacent rank"
                             Command="{Binding MoveCommand}">
                         <TextBlock Text="&#x21C4;" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Button>
-                    <TextBlock Text="MOVE" FontSize="10" Foreground="#C8C0B0"
-                               TextAlignment="Center" TextWrapping="Wrap" Margin="0,3,0,0" />
+                    <TextBlock Text="MOVE" FontSize="9" Foreground="#C8C0B0"
+                               TextAlignment="Center" TextWrapping="Wrap" Margin="0,2,0,0" />
                 </StackPanel>
-                <StackPanel Width="68" Margin="4">
-                    <Button Width="64" Height="64" FontSize="28" Style="{StaticResource HudButton}"
+                <StackPanel Width="60" Margin="4" HorizontalAlignment="Left">
+                    <Button Width="56" Height="56" FontSize="24" Style="{StaticResource HudButton}"
                             ToolTip="Skip the turn"
                             Command="{Binding PassCommand}">
                         <TextBlock Text="&#x2715;" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Button>
-                    <TextBlock Text="PASS" FontSize="10" Foreground="#C8C0B0"
-                               TextAlignment="Center" TextWrapping="Wrap" Margin="0,3,0,0" />
+                    <TextBlock Text="PASS" FontSize="9" Foreground="#C8C0B0"
+                               TextAlignment="Center" TextWrapping="Wrap" Margin="0,2,0,0" />
                 </StackPanel>
-            </StackPanel>
+                </StackPanel>
+
+                <!-- Right panel toggles, flush in the same row -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                    <Button Content="LOG" Command="{Binding RaidHud.ShowLogCommand}" Margin="0,0,6,0"
+                            Style="{StaticResource HudButton}" Padding="14,4" FontSize="15" />
+                    <Button Content="INVENTORY" Command="{Binding RaidHud.ShowInventoryCommand}" Margin="0,0,6,0"
+                            Style="{StaticResource HudButton}" Padding="14,4" FontSize="15" />
+                    <Button Content="MAP" Command="{Binding RaidHud.ShowMapCommand}"
+                            Style="{StaticResource HudButton}" Padding="14,4" FontSize="15" />
+                </StackPanel>
+            </Grid>
 
             <views:RaidHudView Grid.Row="1" DataContext="{Binding}" />
         </Grid>

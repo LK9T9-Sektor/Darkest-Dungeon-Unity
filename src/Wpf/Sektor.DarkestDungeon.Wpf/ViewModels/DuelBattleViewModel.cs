@@ -231,7 +231,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             int currentId = current.CombatInfo.CombatId;
             foreach (var unit in controller.BattleGround.Round.OrderedUnits)
             {
-                var entry = new DuelTurnEntryViewModel(unit.Character.Name, unit.Team == Team.Monsters);
+                var entry = new DuelTurnEntryViewModel(
+                    unit.Character.Name,
+                    unit.Team == Team.Monsters,
+                    (int)unit.Character.Speed,
+                    unit.CombatInfo.InitiativeRoll);
                 entry.IsCurrent = unit.CombatInfo.CombatId == currentId;
                 TurnOrder.Add(entry);
             }
@@ -258,44 +262,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 Skills.Add(new DuelSkillViewModel(skill.Id, skill.Id)
                 {
                     IsUsable = controller.IsSkillUsable(unit, skill),
-                    Details = BuildSkillDetails(skill),
+                    Details = Ui.SkillDetails.Build(skill),
                 });
-        }
-
-        private static string BuildSkillDetails(CombatSkill skill)
-        {
-            var lines = new List<string>();
-            if (skill.Heal != null)
-                lines.Add("Heals " + skill.Heal.MinAmount + "-" + skill.Heal.MaxAmount);
-            else if (skill.Category == SkillCategory.Damage)
-            {
-                string damage = skill.DamageMin > 0 && skill.DamageMax > 0
-                    ? (int)skill.DamageMin + "-" + (int)skill.DamageMax
-                    : (skill.DamageMod > 0 ? "+" : "") + (int)(skill.DamageMod * 100) + "%";
-                lines.Add("Damage " + damage);
-            }
-
-            if (skill.Accuracy > 0)
-                lines.Add("ACC " + (int)(skill.Accuracy * 100) + "%");
-            if (skill.CritMod != 0)
-                lines.Add("Crit " + (int)(skill.CritMod * 100) + "%");
-            if (skill.LimitPerTurn != null)
-                lines.Add("Limit " + skill.LimitPerTurn + " per turn");
-
-            lines.Add("Launch ranks: " + FormatRanks(skill.LaunchRanks));
-            lines.Add("Target ranks: " + FormatRanks(skill.TargetRanks));
-            return string.Join("\n", lines);
-        }
-
-        private static string FormatRanks(FormationSet set)
-        {
-            if (set.IsSelfTarget)
-                return "self";
-            if (set.IsSelfFormation)
-                return "party" + (set.Ranks.Count > 0 ? " (" + string.Join(",", set.Ranks) + ")" : string.Empty);
-            if (set.IsRandomTarget)
-                return "random";
-            return set.Ranks.Count == 0 ? "-" : string.Join(",", set.Ranks);
         }
 
         private void RefreshStatus()

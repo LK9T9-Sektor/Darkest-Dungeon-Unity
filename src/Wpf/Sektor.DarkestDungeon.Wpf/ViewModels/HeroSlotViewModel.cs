@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Sektor.DarkestDungeon.Core.Content.Character;
@@ -39,6 +40,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private string _details = string.Empty;
 
+        /// <summary>Gets or sets the portrait image (null until one is provided).</summary>
+        [ObservableProperty]
+        private ImageSource? _portrait;
+
         /// <summary>Gets or sets the quirk summary text ("+tough, -fragile").</summary>
         [ObservableProperty]
         private string _quirkSummary = string.Empty;
@@ -48,6 +53,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Gets the rolled quirks.</summary>
         public ObservableCollection<Quirk> Quirks { get; } = new ObservableCollection<Quirk>();
+
+        /// <summary>Gets the stat sheet preview of the selected class.</summary>
+        public HeroStatsViewModel Stats { get; } = new HeroStatsViewModel();
 
         /// <summary>Gets the command that cycles to the previous class.</summary>
         public IRelayCommand PrevClassCommand { get; }
@@ -160,10 +168,35 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             Skills.Clear();
             var allSkills = heroClass?.CombatSkills ?? new List<CombatSkill>();
             for (int i = 0; i < allSkills.Count; i++)
-                Skills.Add(new LobbySkillViewModel(allSkills[i].Id, i < MaxActiveSkills));
+            {
+                Skills.Add(new LobbySkillViewModel(allSkills[i].Id, i < MaxActiveSkills)
+                {
+                    Details = Ui.SkillDetails.Build(allSkills[i]),
+                });
+            }
 
             Details = BuildDetails(heroClass);
+            ApplyStats(heroClass);
             RerollQuirks();
+        }
+
+        private void ApplyStats(HeroClass? heroClass)
+        {
+            Stats.HeroName = "Hero";
+            Stats.HeroClass = heroClass == null ? string.Empty : Ui.DisplayNames.Class(heroClass.StringId);
+            if (heroClass == null)
+                return;
+
+            Stats.HitPoints = Raw(heroClass, AttributeType.HitPoints).ToString();
+            Stats.Stress = "0 / 100";
+            Stats.Speed = Raw(heroClass, AttributeType.SpeedRating).ToString();
+            Stats.Damage = Raw(heroClass, AttributeType.DamageLow) + " - " + Raw(heroClass, AttributeType.DamageHigh);
+            Stats.Accuracy = "+" + Pct(heroClass, AttributeType.AttackRating);
+            Stats.Crit = Pct(heroClass, AttributeType.CritChance) + "%";
+            Stats.Dodge = Pct(heroClass, AttributeType.DefenseRating).ToString();
+            Stats.Protection = Pct(heroClass, AttributeType.ProtectionRating) + "%";
+            Stats.WeaponLevel = "Lv. 1";
+            Stats.ArmorLevel = "Lv. 1";
         }
 
         private string BuildDetails(HeroClass? heroClass)

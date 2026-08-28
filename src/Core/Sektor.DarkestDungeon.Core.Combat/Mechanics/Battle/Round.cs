@@ -138,17 +138,18 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
             foreach (var unit in battleGround.HeroParty.Units)
             {
                 unit.CombatInfo.UpdateNextRound();
+                unit.CombatInfo.InitiativeRoll = unit.Character.Speed + RandomSolver.Next(0, 10) + RandomSolver.NextDouble();
                 OrderedUnits.Add(unit);
             }
 
             foreach (var unit in battleGround.MonsterParty.Units)
             {
                 unit.CombatInfo.UpdateNextRound();
+                unit.CombatInfo.InitiativeRoll = unit.Character.Speed + RandomSolver.Next(0, 10) + RandomSolver.NextDouble();
                 OrderedUnits.Add(unit);
             }
 
-            OrderedUnits = new List<ICombatUnit>(OrderedUnits.OrderByDescending(unit =>
-                unit.Character.Speed + RandomSolver.Next(0, 3) + RandomSolver.NextDouble()));
+            OrderedUnits = new List<ICombatUnit>(OrderedUnits.OrderByDescending(unit => unit.CombatInfo.InitiativeRoll));
 
             return ++RoundNumber;
         }

@@ -7,6 +7,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
     using Sektor.DarkestDungeon.Core.Combat.Mechanics;
     using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
     using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
+    using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 
     [TestFixture]
     public class DuelAiTests
@@ -93,6 +94,30 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
             Assert.That(decision.SelectedSkill.Heal, Is.Not.Null, "The chosen skill must be a heal.");
             Assert.That(decision.TargetInfo.Targets.Count, Is.GreaterThan(0));
             Assert.That(decision.TargetInfo.Targets[0].CombatInfo.CombatId, Is.EqualTo(healer.CombatInfo.CombatId));
+        }
+
+        [Test]
+        public void Initiative_FirstActor_VariesBetweenTeams()
+        {
+            var content = new TestDuelContent();
+            bool heroFirst = false;
+            bool monsterFirst = false;
+            for (int seed = 1; seed <= 30 && (!heroFirst || !monsterFirst); seed++)
+            {
+                var duel = new DuelController(content);
+                duel.StartDuel(Picks("crusader"), Picks("crusader"), seed, isHost: true);
+                RandomSolver.SetRandomSeed(seed);
+                duel.StartBattle();
+
+                var first = duel.CurrentUnit;
+                if (first.Team == Team.Heroes)
+                    heroFirst = true;
+                else
+                    monsterFirst = true;
+            }
+
+            Assert.That(heroFirst && monsterFirst, Is.True,
+                "Initiative (speed + roll) should let both teams act first across seeds.");
         }
 
         private static void PlayHostTurn(DuelController host, DuelController client, int seed)
