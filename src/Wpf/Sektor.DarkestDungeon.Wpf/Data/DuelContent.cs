@@ -14,7 +14,7 @@ namespace Sektor.DarkestDungeon.Wpf.Data
     /// <summary>WPF content source for the core duel module, backed by the local content catalogs.</summary>
     public sealed class DuelContent : IDuelContent
     {
-        private static readonly EffectCatalog Effects = EffectCatalog.Load(LoadEffectsText());
+        private static readonly EffectCatalog Effects = DuelClasses.Effects;
         private static readonly List<Trait> Afflictions;
         private static readonly List<Trait> Virtues;
 
@@ -60,12 +60,6 @@ namespace Sektor.DarkestDungeon.Wpf.Data
         public IReadOnlyList<Trait> GetVirtues()
         {
             return Virtues;
-        }
-
-        private static string LoadEffectsText()
-        {
-            string path = Path.Combine(AppContext.BaseDirectory, "Content", "Effects", "Effects.txt");
-            return File.Exists(path) ? File.ReadAllText(path) : string.Empty;
         }
 
         private static string LoadTraitsText()
