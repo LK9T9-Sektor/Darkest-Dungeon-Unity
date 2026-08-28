@@ -5,8 +5,10 @@ using System.Linq;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Sektor.DarkestDungeon.Core.Duel;
 using Sektor.DarkestDungeon.Lan.Contracts.Transport;
 using Sektor.DarkestDungeon.Wpf.Combat;
+using Sektor.DarkestDungeon.Wpf.Data;
 using Sektor.DarkestDungeon.Wpf.Navigation;
 using Sektor.DarkestDungeon.Wpf.Networking;
 
@@ -166,7 +168,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 : new[] { session.LocalPlayerId, session.RivalPlayerId };
             int sessionSeed = DuelSeed.ComputeSessionSeed(orderedIds);
 
-            var duel = new DuelController();
+            var duel = new DuelController(new DuelContent());
             if (session.IsHost)
                 duel.StartDuel(ToPicks(BuildConfig()), ToPicks(session.RivalParty), sessionSeed, isHost: true);
             else

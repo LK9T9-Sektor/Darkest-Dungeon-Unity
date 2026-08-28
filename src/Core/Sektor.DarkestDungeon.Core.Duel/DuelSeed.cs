@@ -1,6 +1,6 @@
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 
-namespace Sektor.DarkestDungeon.Wpf.Networking
+namespace Sektor.DarkestDungeon.Core.Duel
 {
     /// <summary>Deterministic session seed derived from ordered player ids (NETWORK.md §6).</summary>
     public static class DuelSeed

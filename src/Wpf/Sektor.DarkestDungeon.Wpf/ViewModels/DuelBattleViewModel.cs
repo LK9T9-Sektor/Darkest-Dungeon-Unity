@@ -9,6 +9,7 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
+using Sektor.DarkestDungeon.Core.Duel;
 using Sektor.DarkestDungeon.Wpf.Combat;
 using Sektor.DarkestDungeon.Wpf.Data;
 using Sektor.DarkestDungeon.Wpf.Networking;
@@ -444,12 +445,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             if (parts.Length < 1 || actorName == null)
                 return;
 
-            if (parts[0] == "pass")
+            if (parts[0] == DuelPayload.Pass)
             {
                 controller.Events.Log.Add($"{actorName} passes.");
                 return;
             }
-            if (parts[0] == "move")
+            if (parts[0] == DuelPayload.Move)
             {
                 controller.Events.Log.Add(parts.Length == 2 ? $"{actorName} moves to rank {parts[1]}." : $"{actorName} moves.");
                 return;

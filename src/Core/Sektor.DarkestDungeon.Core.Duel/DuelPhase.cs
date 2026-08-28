@@ -1,4 +1,4 @@
-namespace Sektor.DarkestDungeon.Wpf.Combat
+namespace Sektor.DarkestDungeon.Core.Duel
 {
     /// <summary>Turn flow phase of a duel. Both sides build identical formations; the host owns Heroes, the client owns Monsters.</summary>
     public enum DuelPhase

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Windows.Threading;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
+using Sektor.DarkestDungeon.Core.Duel;
 using Sektor.DarkestDungeon.Wpf.Networking;
 
 namespace Sektor.DarkestDungeon.Wpf.Combat

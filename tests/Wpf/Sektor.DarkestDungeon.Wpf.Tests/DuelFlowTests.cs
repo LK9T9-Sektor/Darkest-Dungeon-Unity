@@ -3,7 +3,8 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
     using NUnit.Framework;
 
     using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-    using Sektor.DarkestDungeon.Wpf.Combat;
+    using Sektor.DarkestDungeon.Core.Duel;
+    using Sektor.DarkestDungeon.Wpf.Data;
     using Sektor.DarkestDungeon.Wpf.Networking;
 
     [TestFixture]
@@ -48,9 +49,9 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             int clientSeed = DuelSeed.ComputeSessionSeed(new[] { clientSession.LocalPlayerId, hostSession.LocalPlayerId });
             Assert.That(hostSeed, Is.EqualTo(clientSeed));
 
-            var hostDuel = new DuelController();
+            var hostDuel = new DuelController(new DuelContent());
             hostDuel.StartDuel(Picks(1, 2, 3, 4), Picks(5, 6, 7, 8), hostSeed, isHost: true);
-            var clientDuel = new DuelController();
+            var clientDuel = new DuelController(new DuelContent());
             clientDuel.StartDuel(Picks(1, 2, 3, 4), Picks(5, 6, 7, 8), clientSeed, isHost: false);
 
             Assert.That(hostDuel.HeroParty.Units.Count, Is.EqualTo(4));

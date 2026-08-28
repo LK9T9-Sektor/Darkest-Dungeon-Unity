@@ -1,11 +1,10 @@
-namespace Sektor.DarkestDungeon.Wpf.Tests
+namespace Sektor.DarkestDungeon.Core.Duel.Tests
 {
     using System.Linq;
 
     using NUnit.Framework;
 
     using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-    using Sektor.DarkestDungeon.Wpf.Combat;
 
     [TestFixture]
     public class DuelTurnFlowTests
@@ -31,9 +30,9 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                     return;
                 var target = host.GetAvailableTargets(unit, skill)[0];
                 RandomSolver.SetRandomSeed(seed);
-                string? payload = host.ExecuteLocalSkill(skill.Id, target.CombatInfo.CombatId);
+                string payload = host.ExecuteLocalSkill(skill.Id, target.CombatInfo.CombatId);
                 RandomSolver.SetRandomSeed(seed);
-                client.ApplyRemoteSkill(payload!);
+                client.ApplyRemoteSkill(payload);
             }
             else if (client.IsLocalTurn)
             {
@@ -43,16 +42,16 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                     return;
                 var target = client.GetAvailableTargets(unit, skill)[0];
                 RandomSolver.SetRandomSeed(seed);
-                string? payload = client.ExecuteLocalSkill(skill.Id, target.CombatInfo.CombatId);
+                string payload = client.ExecuteLocalSkill(skill.Id, target.CombatInfo.CombatId);
                 RandomSolver.SetRandomSeed(seed);
-                host.ApplyRemoteSkill(payload!);
+                host.ApplyRemoteSkill(payload);
             }
         }
 
-        private static Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.CombatSkill? FirstUsableSkill(
+        private static Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.CombatSkill FirstUsableSkill(
             DuelController duel, Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle.ICombatUnit unit)
         {
-            return unit.Character.CurrentCombatSkills!
+            return unit.Character.CurrentCombatSkills
                 .FirstOrDefault(s => duel.IsSkillUsable(unit, s) && duel.GetAvailableTargets(unit, s).Count > 0);
         }
 
@@ -60,10 +59,11 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         public void TurnFlow_BothSides_RemainInLockstep()
         {
             int sessionSeed = 123456;
+            var content = new TestDuelContent();
 
-            var host = new DuelController();
+            var host = new DuelController(content);
             host.StartDuel(Picks("crusader"), Picks("highwayman"), sessionSeed, isHost: true);
-            var client = new DuelController();
+            var client = new DuelController(content);
             client.StartDuel(Picks("crusader"), Picks("highwayman"), sessionSeed, isHost: false);
 
             RandomSolver.SetRandomSeed(sessionSeed);
@@ -72,7 +72,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             client.StartBattle();
 
             Assert.That(host.Phase, Is.EqualTo(client.Phase));
-            Assert.That(host.CurrentUnit!.CombatInfo.CombatId, Is.EqualTo(client.CurrentUnit!.CombatInfo.CombatId));
+            Assert.That(host.CurrentUnit.CombatInfo.CombatId, Is.EqualTo(client.CurrentUnit.CombatInfo.CombatId));
 
             int seed = sessionSeed;
             for (int turn = 0; turn < 12 && !host.IsFinished; turn++)

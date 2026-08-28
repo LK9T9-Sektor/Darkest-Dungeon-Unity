@@ -7,39 +7,9 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Party;
-using Sektor.DarkestDungeon.Wpf.Data;
 
-namespace Sektor.DarkestDungeon.Wpf.Combat
+namespace Sektor.DarkestDungeon.Core.Duel
 {
-    /// <summary>A hero pick: class id + deterministic seed.</summary>
-    public class DuelHeroPick
-    {
-        /// <summary>Gets the class id.</summary>
-        public string ClassId { get; }
-
-        /// <summary>Gets the deterministic seed.</summary>
-        public int Seed { get; }
-
-        /// <summary>Gets the active combat skill ids selected by the player (empty = all class skills).</summary>
-        public IReadOnlyList<string> SelectedSkillIds { get; }
-
-        /// <summary>Gets the quirk ids chosen for the hero.</summary>
-        public IReadOnlyList<string> QuirkIds { get; }
-
-        /// <summary>Initializes a new instance of the <see cref="DuelHeroPick"/> class.</summary>
-        /// <param name="classId">The class id.</param>
-        /// <param name="seed">The seed.</param>
-        /// <param name="selectedSkillIds">The selected active skill ids.</param>
-        /// <param name="quirkIds">The quirk ids.</param>
-        public DuelHeroPick(string classId, int seed, IReadOnlyList<string>? selectedSkillIds = null, IReadOnlyList<string>? quirkIds = null)
-        {
-            ClassId = classId;
-            Seed = seed;
-            SelectedSkillIds = selectedSkillIds ?? Array.Empty<string>();
-            QuirkIds = quirkIds ?? Array.Empty<string>();
-        }
-    }
-
     /// <summary>
     /// Orchestrates a duel over a deterministic lockstep simulation. Both sides build identical
     /// formations (Heroes = host party, Monsters = client party); the host inputs for Heroes,
@@ -47,6 +17,8 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
     /// </summary>
     public class DuelController
     {
+        private readonly IDuelContent content;
+
         /// <summary>Gets the hero party (host's party).</summary>
         public FormationParty HeroParty { get; private set; } = new FormationParty();
 
@@ -54,13 +26,13 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
         public FormationParty MonsterParty { get; private set; } = new FormationParty();
 
         /// <summary>Gets the battlefield.</summary>
-        public BattleGround? BattleGround { get; private set; }
+        public BattleGround BattleGround { get; private set; }
 
         /// <summary>Gets the battle context.</summary>
-        public DuelBattleContext? Context { get; private set; }
+        public DuelBattleContext Context { get; private set; }
 
         /// <summary>Gets the battle solver.</summary>
-        public BattleSolver? Solver { get; private set; }
+        public BattleSolver Solver { get; private set; }
 
         /// <summary>Gets the event sink.</summary>
         public DuelBattleEvents Events { get; } = new DuelBattleEvents();
@@ -88,7 +60,7 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
         public bool IsFinished { get { return BattleGround != null && BattleGround.IsBattleEnded(); } }
 
         /// <summary>Gets the acting unit of the current turn.</summary>
-        public ICombatUnit? CurrentUnit
+        public ICombatUnit CurrentUnit
         {
             get
             {
@@ -100,6 +72,13 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
                     return null;
                 return BattleGround.Round.OrderedUnits[0];
             }
+        }
+
+        /// <summary>Initializes a new instance of the <see cref="DuelController"/> class.</summary>
+        /// <param name="content">The content source for building parties from picks.</param>
+        public DuelController(IDuelContent content)
+        {
+            this.content = content;
         }
 
         /// <summary>Starts the duel with identical formations on both sides.</summary>
@@ -173,7 +152,7 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
         /// <param name="skillId">The skill id.</param>
         /// <param name="targetId">The target combat id.</param>
         /// <returns>The wire payload, or null if invalid or not the local turn.</returns>
-        public string? ExecuteLocalSkill(string skillId, int targetId)
+        public string ExecuteLocalSkill(string skillId, int targetId)
         {
             if (!IsLocalTurn || BattleGround == null || Solver == null)
                 return null;
@@ -187,7 +166,7 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
             ExecuteSkill(unit, target, skill);
             CompleteTurn();
 
-            return skillId + "|" + targetId;
+            return DuelPayload.Skill(skillId, targetId);
         }
 
         /// <summary>Applies a remote action payload ("skillId|targetId", "pass|0" or "move|rank").</summary>
@@ -201,12 +180,12 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
             if (parts.Length < 1)
                 return;
 
-            if (parts[0] == "pass")
+            if (parts[0] == DuelPayload.Pass)
             {
                 CompleteTurn();
                 return;
             }
-            if (parts[0] == "move")
+            if (parts[0] == DuelPayload.Move)
             {
                 int rank;
                 if (parts.Length == 2 && int.TryParse(parts[1], out rank) && TryMove(CurrentUnit, rank))
@@ -229,19 +208,19 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
 
         /// <summary>Executes a pass: skips the acting unit's turn.</summary>
         /// <returns>The wire payload, or null if not the local turn.</returns>
-        public string? ExecuteLocalPass()
+        public string ExecuteLocalPass()
         {
             if (!IsLocalTurn || BattleGround == null)
                 return null;
 
             CompleteTurn();
-            return "pass|0";
+            return DuelPayload.PassAction();
         }
 
         /// <summary>Executes a move of the acting unit to an adjacent rank.</summary>
         /// <param name="newRank">The destination rank.</param>
         /// <returns>The wire payload, or null if invalid or not the local turn.</returns>
-        public string? ExecuteLocalMove(int newRank)
+        public string ExecuteLocalMove(int newRank)
         {
             if (!IsLocalTurn || BattleGround == null)
                 return null;
@@ -251,14 +230,14 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
                 return null;
 
             CompleteTurn();
-            return "move|" + newRank;
+            return DuelPayload.MoveAction(newRank);
         }
 
         /// <summary>Swaps a unit with the ally standing in an adjacent rank.</summary>
         /// <param name="unit">The moving unit.</param>
         /// <param name="newRank">The destination rank (must be adjacent).</param>
         /// <returns>True if the move was performed.</returns>
-        private bool TryMove(ICombatUnit? unit, int newRank)
+        private bool TryMove(ICombatUnit unit, int newRank)
         {
             if (unit == null)
                 return false;
@@ -324,7 +303,7 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
         /// <summary>Looks up a unit by its combat id in both parties.</summary>
         /// <param name="combatId">The combat id.</param>
         /// <returns>The unit or null.</returns>
-        public ICombatUnit? GetUnitByCombatId(int combatId)
+        public ICombatUnit GetUnitByCombatId(int combatId)
         {
             return HeroParty.Units.FirstOrDefault(u => u.CombatInfo.CombatId == combatId)
                 ?? MonsterParty.Units.FirstOrDefault(u => u.CombatInfo.CombatId == combatId);
@@ -346,7 +325,7 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
 
         private void AddHero(DuelHeroPick pick, Team team, ref int combatId)
         {
-            var heroClass = DuelClasses.Get(pick.ClassId);
+            var heroClass = content.GetHeroClass(pick.ClassId);
             if (heroClass == null)
                 return;
             var hero = HeroGeneration.GenerateHero(heroClass, pick.Seed);
@@ -360,17 +339,17 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
                 MonsterParty.AddUnit(unit);
         }
 
-        private static void ApplyQuirks(Hero hero, IReadOnlyList<string> quirkIds)
+        private void ApplyQuirks(Hero hero, IReadOnlyList<string> quirkIds)
         {
             foreach (var quirkId in quirkIds)
             {
                 hero.AddQuirk(quirkId);
-                var quirk = QuirkCatalog.Get(quirkId);
+                var quirk = content.GetQuirk(quirkId);
                 if (quirk == null)
                     continue;
                 foreach (var buffId in quirk.Buffs)
                 {
-                    var buff = BuffCatalog.Get(buffId);
+                    var buff = content.GetBuff(buffId);
                     if (buff != null)
                         hero.AddBuff(new BuffInfo(buff, BuffDurationType.Permanent, BuffSourceType.Quirk));
                 }
@@ -403,7 +382,7 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
             }
         }
 
-        private static CombatSkill? FindSkill(ICombatUnit? unit, string skillId)
+        private static CombatSkill FindSkill(ICombatUnit unit, string skillId)
         {
             if (unit == null || unit.Character.CurrentCombatSkills == null)
                 return null;

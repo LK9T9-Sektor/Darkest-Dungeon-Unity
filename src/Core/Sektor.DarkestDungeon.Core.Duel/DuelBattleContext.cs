@@ -7,7 +7,7 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Party;
 
-namespace Sektor.DarkestDungeon.Wpf.Combat
+namespace Sektor.DarkestDungeon.Core.Duel
 {
     /// <summary>Duel battle context wiring a core <see cref="BattleGround"/> to a core <see cref="BattleSolver"/>.</summary>
     public class DuelBattleContext : IBattleContext

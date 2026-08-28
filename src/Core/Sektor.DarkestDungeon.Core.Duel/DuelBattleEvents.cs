@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 
-namespace Sektor.DarkestDungeon.Wpf.Combat
+namespace Sektor.DarkestDungeon.Core.Duel
 {
     /// <summary>Duel-side event sink: records feedback for the UI and no-ops unsupported effects.</summary>
     public class DuelBattleEvents : IBattleEvents
@@ -11,18 +11,18 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
         public List<string> Log { get; } = new List<string>();
 
         /// <summary>Occurs when the duel state changes (torch, popups).</summary>
-        public event Action? StateChanged;
+        public event Action StateChanged;
 
         /// <inheritdoc/>
-        public void ShowPopup(ICombatUnit target, PopupType type, string? value = null)
+        public void ShowPopup(ICombatUnit target, PopupType type, string value = null)
         {
-            Log.Add($"[popup] {type}{(value == null ? "" : " " + value)} on {target.Character.Name}");
+            Log.Add("[popup] " + type + (value == null ? "" : " " + value) + " on " + target.Character.Name);
         }
 
         /// <inheritdoc/>
         public void SetHalo(ICombatUnit unit, string haloId)
         {
-            Log.Add($"[halo] {haloId} on {unit.Character.Name}");
+            Log.Add("[halo] " + haloId + " on " + unit.Character.Name);
         }
 
         /// <inheritdoc/>
@@ -53,19 +53,19 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
         /// <inheritdoc/>
         public void AddResolveCheck(ICombatUnit unit)
         {
-            Log.Add($"[resolve] check for {unit.Character.Name}");
+            Log.Add("[resolve] check for " + unit.Character.Name);
         }
 
         /// <inheritdoc/>
         public void AddHeartAttackCheck(ICombatUnit unit)
         {
-            Log.Add($"[heart-attack] check for {unit.Character.Name}");
+            Log.Add("[heart-attack] check for " + unit.Character.Name);
         }
 
         /// <inheritdoc/>
         public void PlaySound(string eventPath)
         {
-            Log.Add($"[sound] {eventPath}");
+            Log.Add("[sound] " + eventPath);
         }
 
         /// <inheritdoc/>
@@ -81,25 +81,25 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
         /// <inheritdoc/>
         public void Pull(ICombatUnit unit, int amount, bool changeUnitOrder = true)
         {
-            Log.Add($"[pull] {unit.Character.Name} by {amount}");
+            Log.Add("[pull] " + unit.Character.Name + " by " + amount);
         }
 
         /// <inheritdoc/>
         public void Push(ICombatUnit unit, int amount, bool changeUnitOrder = true)
         {
-            Log.Add($"[push] {unit.Character.Name} by {amount}");
+            Log.Add("[push] " + unit.Character.Name + " by " + amount);
         }
 
         /// <inheritdoc/>
         public void ControlUnit(ICombatUnit target, ICombatUnit performer, int duration)
         {
-            Log.Add($"[control] {target.Character.Name} for {duration}");
+            Log.Add("[control] " + target.Character.Name + " for " + duration);
         }
 
         /// <inheritdoc/>
         public void SummonUnit(string monsterTypeId, int rank, bool rollInitiative, bool canSpawnLoot)
         {
-            Log.Add($"[summon] {monsterTypeId} at rank {rank}");
+            Log.Add("[summon] " + monsterTypeId + " at rank " + rank);
         }
 
         /// <inheritdoc/>
@@ -120,7 +120,7 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
         /// <inheritdoc/>
         public void CaptureUnit(ICombatUnit target, ICombatUnit captor, bool removeFromParty)
         {
-            Log.Add($"[capture] {target.Character.Name} by {captor.Character.Name}");
+            Log.Add("[capture] " + target.Character.Name + " by " + captor.Character.Name);
         }
 
         /// <inheritdoc/>
@@ -136,13 +136,13 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
         /// <inheritdoc/>
         public void DecreaseTorch(int amount)
         {
-            Log.Add($"[torch] -{amount}");
+            Log.Add("[torch] -" + amount);
         }
 
         /// <inheritdoc/>
         public void IncreaseTorch(int amount)
         {
-            Log.Add($"[torch] +{amount}");
+            Log.Add("[torch] +" + amount);
         }
     }
 }

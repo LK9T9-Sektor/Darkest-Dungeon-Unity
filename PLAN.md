@@ -1,5 +1,64 @@
 # PLAN.md — Активный план задач
 
+## Задача: тонкий WPF — вынос дуэли в ядро (A), ИИ на MonsterBrain (B), документация (C)
+
+### Цель
+
+Дуэльная оркестрация (локстап PvP: host=герои, rival=«сторона монстров») сейчас живёт в
+WPF-клиенте (`Combat\DuelController.cs` 413 строк и др.). Это ре-имплементация Unity-мультиплеера,
+который в `unity\Assets\Scripts\Networking\RaidSceneMultiplayerManager.cs` (2285 строк) +
+`MultiplayerSync.cs` (426 строк) не «разнесён» по слоям. Фаза A: вынести оркестрацию в чистый
+core-модуль `Sektor.DarkestDungeon.Core.Duel`; WPF становится тонким. Фаза B: ИИ соперника на
+`MonsterBrain`-инфраструктуре ядра. Фаза C: документация (новый `docs\DUEL_ARCHITECTURE.md` +
+правки INDEX/ARCHITECTURE/KNOWN_ISSUES/FEATURE_DESKTOP_CLIENT/AGENTS/EXTRACTION_PLAN/CHANGELOG),
+чтобы агенты быстро ориентировались. Коммиты: A, B, C — отдельными.
+
+### Фаза A — вынос в `src\Core\Sektor.DarkestDungeon.Core.Duel`
+
+1. [x] Новый модуль (netstandard2.0, C# 7.3, Nullable disable; ссылки Core.Combat + Core.Content;
+   post-build доставка в `Assets\Plugins\Internal` обоих деревьев — как `Core.Combat.csproj`).
+2. [x] Переезд: `DuelController` + `DuelHeroPick`, `DuelPhase`, `DuelSeed`, `DuelBattleContext`,
+   `DuelBattleEvents`; новые `IDuelContent` (`GetHeroClass/GetQuirk/GetBuff`) и `DuelPayload`
+   (wire-парсинг `skill|target` / `move|rank` / `pass|0`). Снять nullable-аннотации под C# 7.3.
+3. [x] WPF: `DuelContent` (реализация `IDuelContent` поверх `DuelClasses`/`QuirkCatalog`/`BuffCatalog`);
+   обновить `using`/точки создания в VMs и линках (`AiRivalLink`, `NetworkRivalLink`, `IDuelRivalLink`);
+   удалить переехавшие файлы.
+4. [x] Тесты: `tests\Core\Sektor.DarkestDungeon.Core.Duel.Tests` (net10.0, NUnit+NSubstitute) —
+   `DuelTurnFlowTests` (локстап, `TestDuelContent` из связанного контента); WPF VM-тесты остаются.
+5. [x] Проверка: build + dotnet test (duel 1, combat 35, content 15, wpf 16) + запуск приложения;
+   Core.Duel.dll доставлен в оба `Assets\Plugins\Internal`.
+
+### Фаза B — ИИ на MonsterBrain
+
+6. [ ] Core `DuelAi` в Core.Duel: выбор скилла+цели соперника через AI-инфраструктуру ядра
+   (`MonsterBrain`/`SkillSelectionDesire`/`TargetSelectionDesire`), детерминированный.
+7. [ ] WPF `AiRivalLink` → тонкая обёртка (таймер + `DuelAi` + `RivalActionReceived`); тесты `DuelAi`.
+
+### Фаза C — документация
+
+8. [ ] Новый `docs\DUEL_ARCHITECTURE.md`: что такое дуэль, происхождение (Unity-мультиплеер PvP),
+   инвентарь по слоям, критика (логика в презентации, god-classes, дубли оркестрации/протокола,
+   случайный ИИ, нестабильный сид), роадмап (B, cutover Unity, фаза 6).
+9. [ ] Правки: `INDEX.md`, `ARCHITECTURE.md`, `KNOWN_ISSUES.md`, `FEATURE_DESKTOP_CLIENT.md`,
+   `AGENTS.md`, `EXTRACTION_PLAN.md`, `CHANGELOG.md` (только B — видимое поведение ИИ).
+
+### Затронутые файлы
+
+- Новые: `src\Core\Sektor.DarkestDungeon.Core.Duel\*`, `tests\Core\Sektor.DarkestDungeon.Core.Duel.Tests\*`,
+  `docs\DUEL_ARCHITECTURE.md`.
+- Изменённые: `src\Wpf\...\ViewModels\*`, `...\Combat\AiRivalLink.cs`, `...\Networking\*`,
+  `src\Wpf\...\Data\DuelContent.cs`, документы.
+
+### Критерии приёмки
+
+- WPF теряет ~700+ строк доменной логики; Core.Duel чистый (netstandard2.0, C# 7.3, без engine-ссылок).
+- После A поведение дуэли идентично (тесты зелёные). B: ИИ через MonsterBrain, `AiRivalLink` тонкий.
+- Документация обновлена; агенты ориентируются по AGENTS.md + INDEX.md + DUEL_ARCHITECTURE.md.
+
+---
+
+## Остаток работ (после WPF-дуэли, сентябрь 2026)
+
 ## Задача: ускорить pre-commit проверку скрипт-GUID (ripgrep + параллельно + fast-path)
 
 ### Цель

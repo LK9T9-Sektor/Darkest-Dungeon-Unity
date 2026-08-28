@@ -5,6 +5,7 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Sektor.DarkestDungeon.Core.Content.Character;
+using Sektor.DarkestDungeon.Core.Duel;
 using Sektor.DarkestDungeon.Wpf.Combat;
 using Sektor.DarkestDungeon.Wpf.Data;
 using Sektor.DarkestDungeon.Wpf.Navigation;
@@ -59,7 +60,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private void Start()
         {
             int sessionSeed = Environment.TickCount;
-            var duel = new DuelController();
+            var duel = new DuelController(new DuelContent());
             duel.StartDuel(ToPicks(Slots), RandomPicks(), sessionSeed, isHost: true);
             if (!duel.IsStarted)
                 return;

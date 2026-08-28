@@ -7,7 +7,8 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
 
     using Sektor.DarkestDungeon.Core.Combat.Mechanics;
     using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
-    using Sektor.DarkestDungeon.Wpf.Combat;
+    using Sektor.DarkestDungeon.Core.Duel;
+    using Sektor.DarkestDungeon.Wpf.Data;
     using Sektor.DarkestDungeon.Wpf.Networking;
     using Sektor.DarkestDungeon.Wpf.ViewModels;
 
@@ -52,7 +53,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
 
         private static DuelController CreateDuel()
         {
-            var duel = new DuelController();
+            var duel = new DuelController(new DuelContent());
             duel.StartDuel(Picks("crusader"), Picks("highwayman"), 42, isHost: true);
             RandomSolver.SetRandomSeed(42);
             duel.StartBattle();
@@ -230,9 +231,9 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         [Test]
         public void Quirk_Buff_ModifiesMaxHealth()
         {
-            var withQuirk = new DuelController();
+            var withQuirk = new DuelController(new DuelContent());
             withQuirk.StartDuel(new[] { new DuelHeroPick("crusader", 1, null, new[] { "tough" }) }, Picks("highwayman"), 42, isHost: true);
-            var plain = new DuelController();
+            var plain = new DuelController(new DuelContent());
             plain.StartDuel(new[] { new DuelHeroPick("crusader", 1) }, Picks("highwayman"), 42, isHost: true);
 
             float hpWith = withQuirk.HeroParty.Units[0].Character.GetPairedAttribute(AttributeType.HitPoints).ModifiedValue;

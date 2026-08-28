@@ -1,4 +1,5 @@
 using System;
+using Sektor.DarkestDungeon.Core.Duel;
 using Sektor.DarkestDungeon.Wpf.Combat;
 
 namespace Sektor.DarkestDungeon.Wpf.Networking
