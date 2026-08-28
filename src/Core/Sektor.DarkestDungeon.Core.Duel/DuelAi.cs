@@ -1,27 +1,24 @@
-using System;
 using System.Collections.Generic;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 
 namespace Sektor.DarkestDungeon.Core.Duel
 {
     /// <summary>
-    /// Plays the rival side of a duel through the core brain/desire infrastructure: picks a legal
-    /// skill (via <see cref="DuelSkillSelection"/>) and a low-health target (via
-    /// <see cref="DuelTargetSelection"/>). Selection uses a client-local RNG so the deterministic
-    /// simulation stays in lockstep; only the chosen payload is broadcast.
+    /// Plays the rival side of a duel like a Darkest Dungeon monster: a default brain with weighted
+    /// skill desires (heal when an ally is wounded, otherwise a random legal skill) and weighted
+    /// target desires (random / marked enemies, lowest-health ally for heals). Selection runs
+    /// through the deterministic <c>RandomSolver</c> and applies skill cooldowns.
     /// </summary>
     public class DuelAi
     {
-        private readonly Random random = new Random();
         private readonly MonsterBrain brain;
 
-        /// <summary>Initializes a new instance of the <see cref="DuelAi"/> class.</summary>
+        /// <summary>Initializes a new instance of the <see cref="DuelAi"/> class with the default Darkest Dungeon brain.</summary>
         public DuelAi()
         {
-            brain = new MonsterBrain();
-            brain.SkillDesireSet.Add(new DuelSkillSelection(random));
-            brain.TargetDesireSet.Add(new DuelTargetSelection());
+            brain = BuildDefaultBrain();
         }
 
         /// <summary>Chooses the rival's next action payload ("skillId|targetId" or "pass|0").</summary>
@@ -34,41 +31,35 @@ namespace Sektor.DarkestDungeon.Core.Duel
                 return DuelPayload.PassAction();
 
             var decision = new MonsterBrainDecision(BrainDecisionType.Pass);
-            if (!TrySelectSkill(performer, decision, duel.Context))
-                return DuelPayload.PassAction();
-            if (decision.TargetInfo.Targets.Count == 0)
-                return DuelPayload.PassAction();
-            if (!TrySelectTarget(performer, decision) || decision.TargetInfo.Targets.Count == 0)
+            var skillDesires = new List<SkillSelectionDesire>(brain.SkillDesireSet);
+            while (skillDesires.Count > 0)
+            {
+                SkillSelectionDesire desire = RandomSolver.ChooseByRandom(skillDesires);
+                if (desire != null && desire.SelectSkill(performer, decision, duel.Context))
+                {
+                    var cooldown = brain.SkillCooldowns.Find(cd => cd.SkillId == decision.SelectedSkill.Id);
+                    if (cooldown != null)
+                        performer.CombatInfo.SkillCooldowns.Add(cooldown.Copy());
+                    break;
+                }
+                skillDesires.Remove(desire);
+            }
+
+            if (decision.Decision != BrainDecisionType.Perform || decision.SelectedSkill == null || decision.TargetInfo.Targets.Count == 0)
                 return DuelPayload.PassAction();
 
             return DuelPayload.Skill(decision.SelectedSkill.Id, decision.TargetInfo.Targets[0].CombatInfo.CombatId);
         }
 
-        private bool TrySelectSkill(ICombatUnit performer, MonsterBrainDecision decision, IBattleContext battleContext)
+        private static MonsterBrain BuildDefaultBrain()
         {
-            var desires = new List<SkillSelectionDesire>(brain.SkillDesireSet);
-            while (desires.Count > 0)
-            {
-                SkillSelectionDesire desire = desires[random.Next(desires.Count)];
-                DuelSkillSelection duelSelection = desire as DuelSkillSelection;
-                if (duelSelection != null && duelSelection.SelectSkill(performer, decision, battleContext))
-                    return true;
-                desires.Remove(desire);
-            }
-            return false;
-        }
-
-        private bool TrySelectTarget(ICombatUnit performer, MonsterBrainDecision decision)
-        {
-            var desires = new List<TargetSelectionDesire>(brain.TargetDesireSet);
-            while (desires.Count > 0)
-            {
-                TargetSelectionDesire desire = desires[random.Next(desires.Count)];
-                if (desire.SelectTarget(performer, decision))
-                    return true;
-                desires.Remove(desire);
-            }
-            return false;
+            var brain = new MonsterBrain();
+            brain.SkillDesireSet.Add(new DuelSkillSelectionHeal(brain, 0.5f, 100));
+            brain.SkillDesireSet.Add(new DuelSkillSelection(brain, 1));
+            brain.TargetDesireSet.Add(new DuelTargetSelectionRandom(2));
+            brain.TargetDesireSet.Add(new DuelTargetSelectionMarked(1));
+            brain.TargetDesireSet.Add(new DuelTargetSelectionHealth(greater: false, enemy: false, friendly: true, chance: 100));
+            return brain;
         }
     }
 }

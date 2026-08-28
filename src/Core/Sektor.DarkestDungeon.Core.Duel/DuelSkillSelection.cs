@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
@@ -7,43 +6,34 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 namespace Sektor.DarkestDungeon.Core.Duel
 {
     /// <summary>
-    /// Skill selection desire for duels: picks a random usable skill from the unit's selected
-    /// combat skills. Selection uses a client-local RNG so the deterministic simulation
-    /// (<see cref="Sektor.DarkestDungeon.Core.Combat.Mechanics.RandomSolver"/>) stays in lockstep.
+    /// Random skill selection desire for duels, mirroring Darkest Dungeon's "random_skill".
+    /// Runs through the base <see cref="SkillSelectionDesire.SelectSkill"/> flow (deterministic
+    /// <c>RandomSolver</c>, weighted target desires from the injected brain), but picks from the
+    /// unit's <em>selected</em> combat skills.
     /// </summary>
     public class DuelSkillSelection : SkillSelectionDesire
     {
-        private readonly Random random;
+        private readonly MonsterBrain brain;
 
         /// <summary>Initializes a new instance of the <see cref="DuelSkillSelection"/> class.</summary>
-        /// <param name="random">The client-local random used for selection.</param>
-        public DuelSkillSelection(Random random)
+        /// <param name="brain">The brain providing the target desire set.</param>
+        /// <param name="chance">The proportional selection chance.</param>
+        public DuelSkillSelection(MonsterBrain brain, int chance)
         {
-            this.random = random;
-        }
-
-        /// <summary>Selects a random usable skill and fills the decision's target pool.</summary>
-        /// <param name="performer">The acting unit.</param>
-        /// <param name="decision">The decision to populate.</param>
-        /// <param name="battleContext">The battle context.</param>
-        /// <returns>True when a usable skill with at least one target was selected.</returns>
-        public new bool SelectSkill(ICombatUnit performer, MonsterBrainDecision decision, IBattleContext battleContext)
-        {
-            var legal = GetMonsterCombatSkills(performer).FindAll(skill => battleContext.IsSkillUsable(performer, skill));
-            if (legal.Count == 0)
-                return false;
-
-            decision.Decision = BrainDecisionType.Perform;
-            decision.SelectedSkill = legal[random.Next(legal.Count)];
-            decision.TargetInfo.Targets = battleContext.GetSkillAvailableTargets(performer, decision.SelectedSkill);
-            decision.TargetInfo.Type = decision.SelectedSkill.TargetRanks.SkillTargetType;
-            return decision.TargetInfo.Targets.Count > 0;
+            this.brain = brain;
+            Chance = chance;
         }
 
         /// <inheritdoc/>
         protected override List<CombatSkill> GetMonsterCombatSkills(ICombatUnit performer)
         {
             return performer.Character.CurrentCombatSkills ?? new List<CombatSkill>();
+        }
+
+        /// <inheritdoc/>
+        protected override MonsterBrain GetMonsterBrain(ICombatUnit performer)
+        {
+            return brain;
         }
     }
 }

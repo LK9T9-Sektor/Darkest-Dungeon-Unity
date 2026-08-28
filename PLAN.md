@@ -1,5 +1,55 @@
 # PLAN.md — Активный план задач
 
+## Задача: ИИ дуэли ведёт себя как в Darkest Dungeon (поверх ядра, без правок оригинала)
+
+### Цель
+
+Соперник в vs-AI должен действовать как монстр в DD: взвешенные skill/target-desires
+(по `base_chance`), хилер лечит раненого союзника ниже порога HP, цели — random/marked/health,
+кулдауны после использования скилла, выбор через детерминированный `RandomSolver`.
+**Оригинал не трогаем** (Core.Combat и legacy Unity остаются как есть) — реализация «поверх»:
+DD-зеркальные желания и брейн в `src\Core\Sektor.DarkestDungeon.Core.Duel`, расширяя базовые
+(не-sealed) классы `SkillSelectionDesire`/`TargetSelectionDesire`. Коммиты по фазам.
+
+### Фаза 1 — Core.Duel: DD-зеркальный ИИ
+
+1. [x] `DuelSkillSelection` (rework): случайный скилл через **базовый** `SelectSkill`
+   (RandomSolver, DD-цикл), `GetMonsterCombatSkills` → `CurrentCombatSkills`,
+   `GetMonsterBrain` → внедрённый брейн.
+2. [x] `DuelSkillSelectionHeal` (новый): `skill.Heal != null`, цель с HP < порога,
+   только Health-цель-desire (корректная DD-логика хила).
+3. [x] `DuelTargetSelectionRandom` / `DuelTargetSelectionMarked` / `DuelTargetSelectionHealth`
+   (новые): random (враж.), marked-фильтр, health — сортировка по `HealthRatio` с
+   `is_greater_comparison` и enemy/friendly-флагами (обязательный ключ
+   `specific_combat_skill_id=""` — DD-JSON всегда его задаёт).
+4. [x] `DuelAi`: строит DD-«default» брейн (heal 100/<0.5 + random 1; цели random 2/enemy +
+   marked 1/enemy + health 100/friendly), гоняет DD-цикл (`ChooseByRandom` → `SelectSkill` →
+   кулдаун), возвращает payload. Старый `DuelTargetSelection` (min-HP) удалён.
+5. [x] `DuelAiTests`: lockstep (зелёный) + «хилер лечит раненого союзника» (детерминированный).
+
+### Фаза 2 — Документация
+
+6. [ ] Новый `docs\AI_BEHAVIOR.md`: модель AI DD (брейн, desires, кулдауны/лимиты, `JsonAI.json`,
+   цикл выбора, зеркало в дуэли, разрывы/будущее: парсинг эффектов P1.1).
+7. [ ] Правки: `INDEX.md`, `DUEL_ARCHITECTURE.md`, `PLAN.md`, `TESTING.md`, `CHANGELOG.md`.
+
+### Затронутые файлы
+
+- `src\Core\Sektor.DarkestDungeon.Core.Duel\DuelAi.cs`, `DuelSkillSelection.cs`,
+  `DuelSkillSelectionHeal.cs`, `DuelTargetSelectionRandom.cs`, `DuelTargetSelectionMarked.cs`,
+  `DuelTargetSelectionHealth.cs`; удалить `DuelTargetSelection.cs`.
+- `tests\Core\Sektor.DarkestDungeon.Core.Duel.Tests\DuelAiTests.cs`; документы.
+
+### Критерии приёмки
+
+- vs-AI: хилеры лечат раненого союзника (<50%), прочие — random/marked атаки; кулдауны применяются;
+  поведение детерминировано (RandomSolver, сид). Core.Combat/Unity — без изменений.
+- Тесты зелёные; доки обновлены.
+
+---
+
+## Остаток работ (после WPF-дуэли, сентябрь 2026)
+
 ## Задача: тонкий WPF — вынос дуэли в ядро (A), ИИ на MonsterBrain (B), документация (C)
 
 ### Цель

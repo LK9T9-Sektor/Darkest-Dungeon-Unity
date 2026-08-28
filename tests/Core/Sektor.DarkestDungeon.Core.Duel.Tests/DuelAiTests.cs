@@ -5,6 +5,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
     using NUnit.Framework;
 
     using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+    using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
     using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 
     [TestFixture]
@@ -61,6 +62,37 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
                     Assert.That(host.MonsterParty.Units[i].Character.HealthRatio,
                         Is.EqualTo(client.MonsterParty.Units[i].Character.HealthRatio).Within(0.0001f));
             }
+        }
+
+        [Test]
+        public void HealDesire_HealsTheWoundedAlly()
+        {
+            int sessionSeed = 999;
+            var content = new TestDuelContent();
+
+            var client = new DuelController(content);
+            client.StartDuel(Picks("crusader"), Picks("vestal"), sessionSeed, isHost: false);
+            RandomSolver.SetRandomSeed(sessionSeed);
+            client.StartBattle();
+
+            var healer = client.MonsterParty.Units.First(unit => unit.Rank >= 3);
+            var hp = healer.Character.GetPairedAttribute(AttributeType.HitPoints);
+            hp.CurrentValue = (int)(hp.ModifiedValue * 0.3f);
+
+            var brain = new MonsterBrain();
+            brain.TargetDesireSet.Add(new DuelTargetSelectionHealth(greater: false, enemy: false, friendly: true, chance: 100));
+            var healDesire = new DuelSkillSelectionHeal(brain, 0.5f, 100);
+            var decision = new MonsterBrainDecision(BrainDecisionType.Pass);
+
+            RandomSolver.SetRandomSeed(1);
+            bool selected = healDesire.SelectSkill(healer, decision, client.Context);
+
+            Assert.That(selected, Is.True, "A wounded healer at a heal-launchable rank should heal itself.");
+            Assert.That(decision.Decision, Is.EqualTo(BrainDecisionType.Perform));
+            Assert.That(decision.SelectedSkill, Is.Not.Null);
+            Assert.That(decision.SelectedSkill.Heal, Is.Not.Null, "The chosen skill must be a heal.");
+            Assert.That(decision.TargetInfo.Targets.Count, Is.GreaterThan(0));
+            Assert.That(decision.TargetInfo.Targets[0].CombatInfo.CombatId, Is.EqualTo(healer.CombatInfo.CombatId));
         }
 
         private static void PlayHostTurn(DuelController host, DuelController client, int seed)
