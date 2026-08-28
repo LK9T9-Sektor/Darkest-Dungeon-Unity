@@ -183,6 +183,22 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
                 effect.IntegerParams[EffectIntParams.Torch] = existing + torchIncrease;
             }
 
+            string setMode = GetValue(tokens, "set_mode");
+            if (setMode != null)
+                effect.SubEffects.Add(new SetModeEffect(setMode));
+
+            bool onMiss;
+            if (bool.TryParse(GetValue(tokens, "on_miss"), out onMiss))
+                effect.BooleanParams[EffectBoolParams.OnMiss] = onMiss;
+
+            bool queue;
+            if (bool.TryParse(GetValue(tokens, "queue"), out queue))
+                effect.BooleanParams[EffectBoolParams.Queue] = queue;
+
+            bool applyOnce;
+            if (bool.TryParse(GetValue(tokens, "apply_once"), out applyOnce))
+                effect.BooleanParams[EffectBoolParams.ApplyOnce] = applyOnce;
+
             return effect.SubEffects.Count == 0 && !effect.IntegerParams[EffectIntParams.Torch].HasValue
                 ? null
                 : effect;

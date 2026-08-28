@@ -73,7 +73,19 @@
     (13/13 duel, 41/41 combat).
     **Отложено**: сюрприз (нет логики в ядре, `SurpriseStatus`=Nothing — нужна отдельная механика
     первого раунда), кулдауны (только у монстров, в скиллах героев нет `.cooldown`), bark-реакции
-    (кампанийная наррация), continue-turn (нужен для Абоминации вместе с mode-системой).
+    (кампанийная наррация).
+
+### Фаза 6 — Mode-система (Абоминация)
+
+9. [x] Парсер: `mode:` секции → `HeroClass.Modes` (+`is_raid_default`); `.valid_modes` → `CombatSkill.
+    ValidModes`; `.X_effects` → `ModeEffects[X]` (ключ DSL `<mode>_effects`, режим без `_`);
+    Category=Support для accuracy-0/self-target скиллов (legacy-правило: без accuracy-ролла).
+    `EffectCatalog`: `.set_mode` → `SetModeEffect`; `.on_miss`/`.queue`/`.apply_once`.
+    `Hero` стартует в raid-default mode; `BattleSolver.IsSkillUsable` фильтрует по `CurrentMode`;
+    `DuelController.FinishSkillAction` — continue-turn (тот же юнит действует снова);
+    `FormationParty.AddUnit` линкует `unit.Party` (фикс `PerformersOther`-эффектов, напр.
+    `beast_stress_party`). Тесты: `Parse_ReadsModesValidModesAndModeEffects`, `Load_ParsesSetMode`,
+    `ModeTests` (human→transform→beast, rage/manacles по модам, continue-turn; 15/15 duel, 43/43 combat).
 
 ---
 

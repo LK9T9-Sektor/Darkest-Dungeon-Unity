@@ -116,6 +116,18 @@ id_index: .index 7
                 "real hero skills should resolve at least one effect from the effects catalog");
             Assert.That(skillsWithEffects, Is.GreaterThan(totalSkills / 2),
                 "most real hero skills should carry effects (" + skillsWithEffects + "/" + totalSkills + ")");
+
+            HeroClass abomination;
+            if (catalog.TryGet("abomination", out abomination))
+            {
+                Assert.That(abomination.Modes.Count, Is.EqualTo(2), "The abomination declares human and beast modes.");
+                var transform = abomination.CombatSkills.First(skill => skill.Id == "transform");
+                Assert.That(transform.ModeEffects.Count, Is.EqualTo(2));
+                Assert.That(transform.ModeEffects["human"].Count, Is.EqualTo(4));
+                Assert.That(transform.ModeEffects["beast"].Count, Is.EqualTo(4));
+                Assert.That(transform.ModeEffects["beast"].Count, Is.EqualTo(4));
+                Assert.That(transform.Category, Is.EqualTo(SkillCategory.Support));
+            }
         }
 
         [Test]
@@ -167,6 +179,52 @@ id_index: .index 7
             Assert.That(bellow.LimitPerTurn, Is.EqualTo(1));
             Assert.That(bellow.LimitPerBattle, Is.EqualTo(2));
             Assert.That(bellow.IsContinueTurn, Is.True);
+        }
+
+        [Test]
+        public void Parse_ReadsModesValidModesAndModeEffects()
+        {
+            var effects = EffectCatalog.Load(
+                "effect: .name \"Switch Beast\" .target \"performer\" .set_mode beast\n" +
+                "effect: .name \"Beast Buff\" .target \"performer\" .combat_stat_buff 1 .attack_rating_add 10%\n" +
+                "effect: .name \"Stress Party\" .target \"performer_group_other\" .stress 8");
+
+            const string Content = @"
+name: abom_test
+art:
+combat_skill: .id ""transform"" .icon ""one""
+.end
+info:
+resistances: .stun 40%
+weapon: .name ""w"" .atk 0% .dmg 6 11 .crit 2.5% .spd 7
+armour: .name ""a"" .def 5% .prot 0 .hp 33 .spd 0
+mode: .id human .is_raid_default true
+mode: .id beast
+combat_skill: .id ""transform"" .level 0 .type ""ranged"" .atk 0% .dmg 0% .crit 0% .launch 321 .target  .is_crit_valid True .valid_modes human beast .human_effects ""Switch Beast"" ""Beast Buff"" .beast_effects ""Stress Party"" .is_continue_turn true .per_battle_limit 2
+combat_skill: .id ""rage"" .level 0 .type ""melee"" .atk 85% .dmg 0% .crit 5% .launch 21 .target 123 .is_crit_valid True .valid_modes beast
+.end";
+
+            var heroClass = HeroClassFileParser.Parse(Content, effects);
+
+            Assert.That(heroClass, Is.Not.Null);
+            Assert.That(heroClass.Modes.Count, Is.EqualTo(2));
+            Assert.That(heroClass.Modes[0].Id, Is.EqualTo("human"));
+            Assert.That(heroClass.Modes[0].IsRaidDefault, Is.True);
+            Assert.That(heroClass.Modes[1].Id, Is.EqualTo("beast"));
+            Assert.That(heroClass.Modes[1].IsRaidDefault, Is.False);
+
+            var transform = heroClass.CombatSkills.Single(skill => skill.Id == "transform");
+            Assert.That(transform.Category, Is.EqualTo(SkillCategory.Support),
+                "Accuracy-0 self-target skills should be support (no accuracy roll).");
+            CollectionAssert.AreEquivalent(new[] { "human", "beast" }, transform.ValidModes);
+            Assert.That(transform.IsContinueTurn, Is.True);
+            Assert.That(transform.LimitPerBattle, Is.EqualTo(2));
+            Assert.That(transform.ModeEffects["human"].Count, Is.EqualTo(2));
+            Assert.That(transform.ModeEffects["beast"].Count, Is.EqualTo(1));
+
+            var rage = heroClass.CombatSkills.Single(skill => skill.Id == "rage");
+            CollectionAssert.AreEquivalent(new[] { "beast" }, rage.ValidModes);
+            Assert.That(rage.Category, Is.EqualTo(SkillCategory.Damage));
         }
 
         private static string FindUnityHeroesDirectory()

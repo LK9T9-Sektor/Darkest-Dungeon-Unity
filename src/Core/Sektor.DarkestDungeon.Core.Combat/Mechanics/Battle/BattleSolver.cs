@@ -49,8 +49,18 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
 
             return skill.LaunchRanks.IsLaunchableFrom(performer.Rank, performer.Size) &&
                 skill.HasAvailableTargets(performer, friends, enemies) &&
+                IsValidInCurrentMode(performer, skill) &&
                 !ExceedsLimit(performer.CombatInfo.SkillsUsedThisTurn, skill.LimitPerTurn, skill.Id) &&
                 !ExceedsLimit(performer.CombatInfo.SkillsUsedInBattle, skill.LimitPerBattle, skill.Id);
+        }
+
+        private static bool IsValidInCurrentMode(ICombatUnit performer, CombatSkill skill)
+        {
+            if (skill.ValidModes.Count == 0)
+                return true;
+
+            var currentMode = performer.Character.CurrentMode;
+            return currentMode != null && skill.ValidModes.Contains(currentMode.Id);
         }
 
         private static bool ExceedsLimit(IReadOnlyList<string> usedSkills, int? limit, string skillId)

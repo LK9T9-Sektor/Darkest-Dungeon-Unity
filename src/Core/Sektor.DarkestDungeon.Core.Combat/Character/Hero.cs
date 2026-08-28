@@ -139,6 +139,13 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
             }
 
             AddPairedAttribute(AttributeType.Stress, new PairedAttribute(0, 100, true));
+
+            foreach (var mode in HeroClass.Modes)
+                if (mode.IsRaidDefault)
+                {
+                    CurrentMode = mode;
+                    break;
+                }
         }
 
         /// <inheritdoc/>

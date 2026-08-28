@@ -85,6 +85,17 @@
 
 Статус: **частично** (общие эффекты, stat-баффы, buff_ids и торч работают).
 
+## Modes (Абоминация: human/beast)
+
+### Как реализовано в этом репозитории
+
+- `mode:` секции → `HeroClass.Modes`; герой стартует в raid-default моде (human);
+  `transform` — Support-скилл без accuracy-ролла, `.valid_modes` ограничивают скиллы по моде,
+  `.human_effects`/`.beast_effects` → `ModeEffects` (`switch_mode_*` меняет `CurrentMode`),
+  `.is_continue_turn` даёт повторный ход. Учёт мод в `IsSkillUsable`, продолжение хода в дуэли.
+
+Статус: **реализовано** (дуэль).
+
 ### Оригинал Darkest Dungeon
 
 *(заполняется позже)*

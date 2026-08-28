@@ -98,6 +98,17 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
                         if (int.TryParse(GetValue(tokens, "index"), NumberStyles.Integer, CultureInfo.InvariantCulture, out index))
                             result.IndexId = index;
                         break;
+                    case "mode":
+                        string modeId = GetValue(tokens, "id");
+                        if (modeId != null)
+                        {
+                            result.Modes.Add(new CharacterMode
+                            {
+                                Id = modeId,
+                                IsRaidDefault = IsTrue(GetValue(tokens, "is_raid_default")),
+                            });
+                        }
+                        break;
                 }
             }
 
@@ -305,6 +316,12 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
                 skill.Category = SkillCategory.Damage;
             }
 
+            // Legacy rule: skills with no accuracy or self-targeting never roll to hit.
+            float rawAccuracy = weaponAccuracy + skillAccuracy;
+            if (skill.Category != SkillCategory.Heal &&
+                (rawAccuracy == 0 || skill.TargetRanks.IsSelfTarget || skill.TargetRanks.IsSelfFormation))
+                skill.Category = SkillCategory.Support;
+
             if (effects != null)
             {
                 int effectIndex = 1;
@@ -319,6 +336,43 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
                         skill.Effects.Add(effect);
                     effectIndex++;
                 }
+
+                foreach (var modeKey in tokens.Keys)
+                {
+                    if (!modeKey.EndsWith("effects", StringComparison.Ordinal))
+                        continue;
+
+                    string modeId = modeKey.Substring(0, modeKey.Length - "effects".Length).TrimEnd('_');
+                    if (modeId.Length == 0)
+                        continue;
+
+                    if (!skill.ModeEffects.ContainsKey(modeId))
+                        skill.ModeEffects[modeId] = new List<Effect>();
+
+                    int modeEffectIndex = 1;
+                    while (true)
+                    {
+                        string modeEffectId = modeEffectIndex == 1
+                            ? GetValue(tokens, modeKey)
+                            : GetValue(tokens, modeKey + "#" + modeEffectIndex);
+                        if (modeEffectId == null)
+                            break;
+                        var modeEffect = effects.Get(modeEffectId);
+                        if (modeEffect != null)
+                            skill.ModeEffects[modeId].Add(modeEffect);
+                        modeEffectIndex++;
+                    }
+                }
+            }
+
+            int validModeIndex = 1;
+            while (true)
+            {
+                string validMode = validModeIndex == 1 ? GetValue(tokens, "valid_modes") : GetValue(tokens, "valid_modes#" + validModeIndex);
+                if (validMode == null)
+                    break;
+                skill.ValidModes.Add(validMode);
+                validModeIndex++;
             }
 
             skills.RemoveAll(existing => existing.Id == id);

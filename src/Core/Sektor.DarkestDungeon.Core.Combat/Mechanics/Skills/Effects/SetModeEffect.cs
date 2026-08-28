@@ -12,7 +12,8 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
         /// <inheritdoc/>
         public override EffectSubType Type { get { return EffectSubType.Mode; } }
 
-        private string Mode { get; set; }
+        /// <summary>Gets the target mode identifier.</summary>
+        public string Mode { get; private set; }
 
         /// <summary>Initializes a new instance of the <see cref="SetModeEffect"/> class.</summary>
         /// <param name="mode">The mode identifier.</param>

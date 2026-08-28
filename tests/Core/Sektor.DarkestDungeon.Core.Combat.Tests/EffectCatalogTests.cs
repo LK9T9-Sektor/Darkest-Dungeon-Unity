@@ -106,6 +106,18 @@ namespace Sektor.DarkestDungeon.Core.Combat.Tests
             Assert.That(net.IntegerParams[EffectIntParams.Torch], Is.EqualTo(5));
         }
 
+        [Test]
+        public void Load_ParsesSetMode()
+        {
+            var catalog = EffectCatalog.Load(
+                "effect: .name \"Switch Beast\" .target \"performer\" .set_mode beast");
+
+            var effect = catalog.Get("Switch Beast");
+            Assert.That(effect, Is.Not.Null);
+            var setMode = effect.SubEffects.OfType<SetModeEffect>().Single();
+            Assert.That(setMode.Mode, Is.EqualTo("beast"));
+        }
+
         private static void AssertSubEffect<T>(Effect effect)
             where T : SubEffect
         {

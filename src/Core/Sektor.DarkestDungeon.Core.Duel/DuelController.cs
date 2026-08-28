@@ -167,9 +167,17 @@ namespace Sektor.DarkestDungeon.Core.Duel
                 return null;
 
             ExecuteSkill(unit, target, skill);
-            CompleteTurn();
+            FinishSkillAction(unit, skill);
 
             return DuelPayload.Skill(skillId, targetId);
+        }
+
+        private void FinishSkillAction(ICombatUnit unit, CombatSkill skill)
+        {
+            if (skill.IsContinueTurn && !unit.CombatInfo.IsDead)
+                BeginTurn();
+            else
+                CompleteTurn();
         }
 
         /// <summary>Applies a remote action payload ("skillId|targetId", "pass|0" or "move|rank").</summary>
@@ -206,7 +214,7 @@ namespace Sektor.DarkestDungeon.Core.Duel
                 return;
 
             ExecuteSkill(unit, target, skill);
-            CompleteTurn();
+            FinishSkillAction(unit, skill);
         }
 
         /// <summary>Executes a pass: skips the acting unit's turn.</summary>

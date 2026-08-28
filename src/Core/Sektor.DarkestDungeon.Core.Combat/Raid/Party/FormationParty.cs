@@ -24,6 +24,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Raid.Party
         public void AddUnit(FormationUnit unit)
         {
             unit.Rank = Units.Count + 1;
+            unit.Party = this;
             Units.Add(unit);
         }
 
