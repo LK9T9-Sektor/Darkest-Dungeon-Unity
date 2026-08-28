@@ -145,6 +145,23 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         public override void RevertTrait()
         {
             Trait = null;
+            for (int i = BuffInfo.Count - 1; i >= 0; i--)
+            {
+                if (BuffInfo[i].SourceType == BuffSourceType.Trait)
+                    RemoveBuff(BuffInfo[i]);
+            }
+        }
+
+        /// <summary>Applies an overstress trait (affliction or virtue) and its permanent buffs.</summary>
+        /// <param name="trait">The trait to apply.</param>
+        /// <param name="buffs">The trait's buffs (resolved from content).</param>
+        public void ApplyTrait(Trait trait, IReadOnlyList<Buff> buffs)
+        {
+            if (Trait != null)
+                RevertTrait();
+            Trait = trait;
+            foreach (var buff in buffs)
+                AddBuff(new BuffInfo(buff, BuffDurationType.Permanent, BuffSourceType.Trait));
         }
     }
 }

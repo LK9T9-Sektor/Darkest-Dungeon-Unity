@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 
 namespace Sektor.DarkestDungeon.Core.Combat.Character
@@ -10,6 +11,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
 
         /// <summary>Gets or sets the overstress type.</summary>
         public OverstressType Type { get; set; }
+
+        /// <summary>Gets the buff ids applied while the trait is active.</summary>
+        public List<string> BuffIds { get; } = new List<string>();
 
         /// <summary>Gets a value indicating whether the trait is an affliction.</summary>
         public bool IsAffliction { get { return Type == OverstressType.Affliction; } }

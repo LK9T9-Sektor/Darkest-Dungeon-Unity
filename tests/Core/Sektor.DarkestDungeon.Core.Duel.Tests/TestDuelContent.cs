@@ -19,6 +19,8 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
         private readonly Dictionary<string, Quirk> quirks;
         private readonly Dictionary<string, Buff> buffs;
         private readonly EffectCatalog effects;
+        private readonly List<Trait> afflictions;
+        private readonly List<Trait> virtues;
 
         /// <summary>Initializes a new instance of the <see cref="TestDuelContent"/> class from the bundled content.</summary>
         public TestDuelContent()
@@ -27,6 +29,9 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
             quirks = LoadQuirks();
             buffs = LoadBuffs();
             effects = LoadEffects();
+            var traits = TraitMapper.Parse(LoadTraitsData()?.traits);
+            afflictions = traits.Where(trait => trait.IsAffliction).ToList();
+            virtues = traits.Where(trait => trait.IsVirtue).ToList();
         }
 
         /// <inheritdoc/>
@@ -54,6 +59,24 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
         public Effect GetEffect(string effectId)
         {
             return effects.Get(effectId);
+        }
+
+        /// <inheritdoc/>
+        public IReadOnlyList<Trait> GetAfflictions()
+        {
+            return afflictions;
+        }
+
+        /// <inheritdoc/>
+        public IReadOnlyList<Trait> GetVirtues()
+        {
+            return virtues;
+        }
+
+        private static JsonTraitData LoadTraitsData()
+        {
+            string path = Path.Combine(AppContext.BaseDirectory, "Content", "Traits", "JsonTraits.json");
+            return File.Exists(path) ? JsonConvert.DeserializeObject<JsonTraitData>(File.ReadAllText(path)) : null;
         }
 
         private static Dictionary<string, HeroClass> LoadHeroClasses()

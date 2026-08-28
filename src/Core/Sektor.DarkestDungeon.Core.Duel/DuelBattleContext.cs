@@ -125,6 +125,70 @@ namespace Sektor.DarkestDungeon.Core.Duel
             // The duel has no queued-effect processor yet, so apply instantly.
             foreach (var subEffect in effect.SubEffects)
                 subEffect.ApplyInstant(null, target, effect, this);
+
+            ResolveOverstress(target);
+        }
+
+        /// <summary>
+        /// Rolls the resolve check for an overstressed hero: a virtue or an affliction is applied
+        /// (matching the campaign rule), afflictions stress the allies.
+        /// </summary>
+        /// <param name="hero">The overstressed hero.</param>
+        public void ResolveOverstress(ICombatUnit hero)
+        {
+            if (hero == null || hero.Character.IsMonster || !hero.Character.IsOverstressed)
+                return;
+            if (hero.Character.IsAfflicted || hero.Character.IsVirtued)
+                return;
+
+            var resolveCheck = hero.Character.GetSingleAttribute(AttributeType.ResolveCheckPercent);
+            float virtueChance = 0.25f + (resolveCheck != null ? resolveCheck.ModifiedValue : 0f);
+            if (virtueChance < 0.01f)
+                virtueChance = 0.01f;
+            if (virtueChance > 0.6f)
+                virtueChance = 0.6f;
+            bool isVirtue = RandomSolver.CheckSuccess(virtueChance);
+
+            var traits = isVirtue ? content.GetVirtues() : content.GetAfflictions();
+            if (traits == null || traits.Count == 0)
+                return;
+            var trait = traits[RandomSolver.Next(traits.Count)];
+
+            var buffs = new List<Buff>();
+            foreach (var buffId in trait.BuffIds)
+            {
+                var buff = content.GetBuff(buffId);
+                if (buff != null)
+                    buffs.Add(buff);
+            }
+
+            var heroCharacter = hero.Character as Hero;
+            if (heroCharacter != null)
+                heroCharacter.ApplyTrait(trait, buffs);
+
+            if (isVirtue)
+            {
+                var stress = hero.Character.Stress;
+                float target = RandomSolver.Next(20, 40);
+                float current = stress.CurrentValue;
+                if (target > current)
+                    stress.IncreaseValue(target - current);
+                else if (target < current)
+                    stress.DecreaseValue(current - target);
+                return;
+            }
+
+            var allyStress = content.GetEffect("AfflictedAllyStress");
+            if (allyStress == null)
+                return;
+            var party = hero.Team == Team.Heroes ? BattleGround.HeroParty.Units : BattleGround.MonsterParty.Units;
+            foreach (var ally in party)
+            {
+                if (ally == hero || ((FormationUnitInfo)ally.CombatInfo).IsDead)
+                    continue;
+                foreach (var subEffect in allyStress.SubEffects)
+                    subEffect.ApplyInstant(null, ally, allyStress, this);
+            }
         }
     }
 }

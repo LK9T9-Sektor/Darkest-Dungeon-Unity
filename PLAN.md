@@ -33,7 +33,11 @@
 
 ### Фаза 3 — Resolve-ролл (аффекция/виртуда)
 
-6. [ ] `AddResolveCheck` → ролл черты при 100 стресса; вынос `trait_buffs`.
+6. [x] `Trait` + `BuffIds`; `Hero.ApplyTrait`/`RevertTrait` (удаляет trait-баффы); `JsonTrait`/
+    `JsonTraitData`/`TraitMapper`; `IDuelContent.GetAfflictions/GetVirtues`; `DuelBattleContext.
+    ResolveOverstress` (шанс виртуды 0.25+ResolveCheckPercent, клэмп 0.01–0.6, аффекция → стресс
+    союзникам `AfflictedAllyStress` 33%×5, виртуда → стресс 20–40); WPF `DuelContent` грузит
+    `JsonTraits.json`; тест `Overstress_TriggersResolveRoll` (8/8 зелёные).
 
 ### Фаза 4 — Эффекты скиллов (P1.1)
 

@@ -84,11 +84,13 @@
 
 ### Как реализовано в этом репозитории
 
-- Ядро: `Resolve`, `Trait`, `OverstressType`, события `AddResolveCheck`/`AddHeartAttackCheck`.
-- Ролл черты при 100 стресса — только в legacy (`RaidSceneManager.ResolveCheckQueue`), в ядро не вынесен.
-- Вынос — `PLAN.md` Фаза 3.
+- Ядро: `Resolve`, `Trait`, `OverstressType`, события `AddResolveCheck`/`AddHeartAttackCheck`;
+  `Hero` несёт `Trait`/`ApplyTrait` (`BuffSourceType.Trait`).
+- **Resolve-ролл в дуэли работает** (Фаза 3): при стресс >= 100 — шанс виртуды
+  `0.25 + ResolveCheckPercent` (клэмп 0.01–0.6), случайная черта из `JsonTraits.json`, аффекция
+  стрессует союзников (`AfflictedAllyStress` 33%×5), виртуда сбрасывает стресс в 20–40.
 
-Статус: **частично**.
+Статус: **реализовано** (дуэль; сердечный приступ — позже).
 
 ### Оригинал Darkest Dungeon
 

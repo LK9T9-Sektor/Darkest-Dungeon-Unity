@@ -404,6 +404,7 @@ namespace Sektor.DarkestDungeon.Core.Duel
                     continue;
                 foreach (var subEffect in effect.SubEffects)
                     subEffect.ApplyInstant(null, unit, effect, Context);
+                Context.ResolveOverstress(unit);
             }
         }
 
