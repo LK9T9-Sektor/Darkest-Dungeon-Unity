@@ -451,13 +451,16 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 return;
 
             var result = controller.Solver.SkillResult;
+            var skill = result.Skill;
+            int missChance = skill != null && skill.Accuracy > 0 ? 100 - (int)(skill.Accuracy * 100) : 0;
+            int critChance = skill != null ? (int)(skill.CritMod * 100) : 0;
             foreach (var entry in result.SkillEntries)
             {
                 string target = entry.Target?.Character.Name ?? "the void";
                 switch (entry.Type)
                 {
                     case SkillResultType.Miss:
-                        controller.Events.Log.Add($"{actorName}: {skillId} misses {target}.");
+                        controller.Events.Log.Add($"{actorName}: {skillId} misses {target} ({missChance}% chance).");
                         AddPopup(entry.Target, "MISS");
                         break;
                     case SkillResultType.Dodge:
@@ -472,8 +475,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                         break;
                     case SkillResultType.Crit:
                         controller.Events.Log.Add(entry.IsZeroed
-                            ? $"{actorName}: {skillId} CRITS and slays {target} for {entry.Amount} damage!"
-                            : $"{actorName}: {skillId} CRITS {target} for {entry.Amount} damage!");
+                            ? $"{actorName}: {skillId} CRITS and slays {target} for {entry.Amount} damage! ({critChance}% chance)"
+                            : $"{actorName}: {skillId} CRITS {target} for {entry.Amount} damage! ({critChance}% chance)");
                         AddPopup(entry.Target, "CRIT!\n" + entry.Amount);
                         break;
                     case SkillResultType.Heal:

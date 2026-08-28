@@ -38,12 +38,21 @@
                                 <!-- Image slot (empty until a portrait is provided) -->
                                 <Image Source="{Binding Portrait}" Width="30" Height="30"
                                        HorizontalAlignment="Center" Stretch="UniformToFill" />
-                                <TextBlock Text="{Binding Name}" FontSize="11" Foreground="#CBB98F"
-                                           HorizontalAlignment="Center" TextTrimming="CharacterEllipsis"
-                                           MaxWidth="60" Margin="0,2,0,0" />
+                                <TextBlock Text="{Binding Name}" FontSize="11" HorizontalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis" MaxWidth="60" Margin="0,2,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#C96A5A" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsEnemy}" Value="True">
+                                                <Setter Property="Foreground" Value="#6A8AC9" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,2,0,0">
-                                    <TextBlock Text="{Binding Speed, StringFormat=SPD {0}}" FontSize="10"
-                                               Foreground="#8A7A5A" />
+                                    <TextBlock Text="{Binding Speed}" FontSize="10" Foreground="#8A7A5A" />
                                     <TextBlock Text="{Binding InitiativeRoll, StringFormat=  &#x2192;  {0:0.0}}"
                                                FontSize="10" Foreground="#C8B088" />
                                 </StackPanel>

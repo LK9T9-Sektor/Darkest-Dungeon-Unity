@@ -12,6 +12,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the display name.</summary>
         public string DisplayName { get; }
 
+        /// <summary>Gets the uppercase display name shown below the skill button.</summary>
+        public string DisplayNameUpper { get { return DisplayName.ToUpperInvariant(); } }
+
         /// <summary>Gets or sets the icon image (null until one is provided).</summary>
         [ObservableProperty]
         private ImageSource? _icon;

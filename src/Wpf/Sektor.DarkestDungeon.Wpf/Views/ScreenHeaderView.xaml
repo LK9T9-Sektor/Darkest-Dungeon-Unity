@@ -7,11 +7,16 @@
                 Foreground="#C0392B" Style="{StaticResource HudButton}" ToolTip="Close"
                 Command="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
 
-        <!-- Title panel, flush next to the cross -->
+        <!-- Title/quest panel, flush next to the cross -->
         <Border Style="{StaticResource OverlayPanel}" Padding="16,8" Margin="10,0,0,0">
-            <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                       Foreground="#E8D9B0" FontSize="20" FontWeight="Bold"
-                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+            <StackPanel>
+                <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                           Foreground="#E8D9B0" FontSize="20" FontWeight="Bold"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding Subtitle, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                           Foreground="#C8C0B0" FontSize="13" TextWrapping="Wrap" Margin="0,2,0,0"
+                           MaxWidth="360" TextTrimming="CharacterEllipsis" />
+            </StackPanel>
         </Border>
     </StackPanel>
 </UserControl>

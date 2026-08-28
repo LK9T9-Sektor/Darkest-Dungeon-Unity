@@ -350,7 +350,7 @@ namespace Sektor.DarkestDungeon.Core.Duel
                 foreach (var buffId in quirk.Buffs)
                 {
                     var buff = content.GetBuff(buffId);
-                    if (buff != null)
+                    if (buff != null && hero.GetAttribute(buff.AttributeType) != null)
                         hero.AddBuff(new BuffInfo(buff, BuffDurationType.Permanent, BuffSourceType.Quirk));
                 }
             }

@@ -49,8 +49,19 @@
                     </Border.Style>
                 </Border>
 
-                <TextBlock Text="{Binding Name}" Foreground="#E8D9B0" FontSize="15" FontWeight="Bold"
-                           HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,170,0,0" />
+                <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="Bold"
+                           HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,170,0,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="#C96A5A" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEnemy}" Value="True">
+                                    <Setter Property="Foreground" Value="#6A8AC9" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
 
                 <!-- HP bar: 12 blocks -->
                 <ItemsControl ItemsSource="{Binding HpSegments}" HorizontalAlignment="Stretch"
@@ -181,17 +192,14 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!-- Quest panel with the retreat cross pinned to its left -->
-            <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top"
-                        Margin="8,8,0,0">
-                <Button Content="X" Width="38" Height="38" FontSize="18" FontWeight="Bold"
-                        Foreground="#C0392B" Style="{StaticResource HudButton}"
-                        VerticalAlignment="Top" ToolTip="Retreat"
-                        Command="{Binding LeaveCommand}" />
-                <views:QuestLogView DataContext="{Binding Quest}" Width="360" Margin="10,0,0,0" />
-            </StackPanel>
+            <!-- Quest + retreat cross, same header chrome as the menu and lobbies -->
+            <views:ScreenHeaderView Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                    Margin="40,24,0,0"
+                                    Title="Duel"
+                                    Subtitle="{Binding Quest.Goal}"
+                                    CloseCommand="{Binding LeaveCommand}" />
 
-            <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,4">
+            <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,8,0,0">
                 <views:TorchView DataContext="{Binding Torch}"
                                  HorizontalAlignment="Center" />
                 <TextBlock Text="{Binding Events.Round, StringFormat='ROUND {0}'}" Foreground="#8A7A5A"
@@ -247,90 +255,97 @@
                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         </Grid>
 
-        <!-- BOTTOM AREA: acting hero skills, then raid HUD (actor info / tooltip / log, inventory, map) -->
-        <Grid Grid.Row="2" Margin="24,8,24,12">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+        <!-- BOTTOM AREA: one framed panel with the acting hero's skills on top and the info panels below -->
+        <Border Grid.Row="2" Style="{StaticResource OverlayPanel}" Margin="24,8,24,12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0" Margin="0,0,0,6">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+                <!-- Top strip: acting hero's skills + right panel toggles, separated by a border -->
+                <Border Grid.Row="0" BorderBrush="#3A2E22" BorderThickness="0,0,0,1" Padding="8,6">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
-                <!-- Acting hero's skills (all but Move/Pass), with icon slot -->
-                <ItemsControl ItemsSource="{Binding Skills}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Width="60" Margin="4">
-                                <Button Width="56" Height="56" Padding="2"
-                                        ToolTip="{Binding Details}"
-                                        IsEnabled="{Binding IsUsable}"
-                                        Command="{Binding DataContext.SelectSkillCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding}">
-                                    <Button.Style>
-                                        <Style TargetType="Button" BasedOn="{StaticResource HudButton}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                    <Setter Property="BorderBrush" Value="#E8D9B0" />
-                                                    <Setter Property="Background" Value="#3A3022" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                    <Grid>
-                                        <Image Source="{Binding Icon}" Stretch="UniformToFill" />
-                                        <TextBlock Text="{Binding DisplayName}" FontSize="9" Foreground="#E8D9B0"
-                                                   HorizontalAlignment="Center" VerticalAlignment="Bottom"
-                                                   TextWrapping="Wrap" TextAlignment="Center" Margin="2" />
-                                    </Grid>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                            <!-- Acting hero's skills (all but Move/Pass), with icon slot -->
+                            <ItemsControl ItemsSource="{Binding Skills}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Width="58" Margin="4">
+                                            <Button Width="50" Height="50" Padding="2"
+                                                    ToolTip="{Binding Details}"
+                                                    IsEnabled="{Binding IsUsable}"
+                                                    Command="{Binding DataContext.SelectSkillCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button" BasedOn="{StaticResource HudButton}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                <Setter Property="BorderBrush" Value="#E8D9B0" />
+                                                                <Setter Property="Background" Value="#3A3022" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                                <Grid>
+                                                    <Image Source="{Binding Icon}" Stretch="UniformToFill" />
+                                                    <TextBlock Text="{Binding DisplayName}" FontSize="8" Foreground="#E8D9B0"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                               TextWrapping="Wrap" TextAlignment="Center" Margin="2" />
+                                                </Grid>
+                                            </Button>
+                                            <TextBlock Text="{Binding DisplayNameUpper}" FontSize="8" Foreground="#C8C0B0"
+                                                       TextAlignment="Center" TextWrapping="Wrap" Margin="0,2,0,0" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <StackPanel Width="58" Margin="4,4,0,4" HorizontalAlignment="Left">
+                                <Button Width="50" Height="50" FontSize="22" Style="{StaticResource HudButton}"
+                                        ToolTip="Move to an adjacent rank"
+                                        Command="{Binding MoveCommand}">
+                                    <TextBlock Text="&#x21C4;" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Button>
+                                <TextBlock Text="MOVE" FontSize="8" Foreground="#C8C0B0"
+                                           TextAlignment="Center" TextWrapping="Wrap" Margin="0,2,0,0" />
                             </StackPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                            <StackPanel Width="58" Margin="4" HorizontalAlignment="Left">
+                                <Button Width="50" Height="50" FontSize="22" Style="{StaticResource HudButton}"
+                                        ToolTip="Skip the turn"
+                                        Command="{Binding PassCommand}">
+                                    <TextBlock Text="&#x2715;" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Button>
+                                <TextBlock Text="PASS" FontSize="8" Foreground="#C8C0B0"
+                                           TextAlignment="Center" TextWrapping="Wrap" Margin="0,2,0,0" />
+                            </StackPanel>
+                        </StackPanel>
 
-                <StackPanel Width="60" Margin="4,4,0,4" HorizontalAlignment="Left">
-                    <Button Width="56" Height="56" FontSize="24" Style="{StaticResource HudButton}"
-                            ToolTip="Move to an adjacent rank"
-                            Command="{Binding MoveCommand}">
-                        <TextBlock Text="&#x21C4;" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </Button>
-                    <TextBlock Text="MOVE" FontSize="9" Foreground="#C8C0B0"
-                               TextAlignment="Center" TextWrapping="Wrap" Margin="0,2,0,0" />
-                </StackPanel>
-                <StackPanel Width="60" Margin="4" HorizontalAlignment="Left">
-                    <Button Width="56" Height="56" FontSize="24" Style="{StaticResource HudButton}"
-                            ToolTip="Skip the turn"
-                            Command="{Binding PassCommand}">
-                        <TextBlock Text="&#x2715;" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </Button>
-                    <TextBlock Text="PASS" FontSize="9" Foreground="#C8C0B0"
-                               TextAlignment="Center" TextWrapping="Wrap" Margin="0,2,0,0" />
-                </StackPanel>
-                </StackPanel>
+                        <!-- Right panel toggles, flush in the same row -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                            <Button Content="LOG" Command="{Binding RaidHud.ShowLogCommand}" Margin="0,0,6,0"
+                                    Style="{StaticResource HudButton}" Padding="14,4" FontSize="15" />
+                            <Button Content="INVENTORY" Command="{Binding RaidHud.ShowInventoryCommand}" Margin="0,0,6,0"
+                                    Style="{StaticResource HudButton}" Padding="14,4" FontSize="15" />
+                            <Button Content="MAP" Command="{Binding RaidHud.ShowMapCommand}"
+                                    Style="{StaticResource HudButton}" Padding="14,4" FontSize="15" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
 
-                <!-- Right panel toggles, flush in the same row -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
-                    <Button Content="LOG" Command="{Binding RaidHud.ShowLogCommand}" Margin="0,0,6,0"
-                            Style="{StaticResource HudButton}" Padding="14,4" FontSize="15" />
-                    <Button Content="INVENTORY" Command="{Binding RaidHud.ShowInventoryCommand}" Margin="0,0,6,0"
-                            Style="{StaticResource HudButton}" Padding="14,4" FontSize="15" />
-                    <Button Content="MAP" Command="{Binding RaidHud.ShowMapCommand}"
-                            Style="{StaticResource HudButton}" Padding="14,4" FontSize="15" />
-                </StackPanel>
+                <views:RaidHudView Grid.Row="1" DataContext="{Binding}" />
             </Grid>
-
-            <views:RaidHudView Grid.Row="1" DataContext="{Binding}" />
-        </Grid>
+        </Border>
 
         <!-- Stats sheet overlay (right-click a unit): on top of the whole screen -->
         <Grid Grid.RowSpan="3" HorizontalAlignment="Left" VerticalAlignment="Top" Width="560" Height="520" Margin="40,40,0,0"

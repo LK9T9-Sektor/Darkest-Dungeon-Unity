@@ -23,6 +23,14 @@ namespace Sektor.DarkestDungeon.Wpf.Views
                 typeof(ScreenHeaderView),
                 new PropertyMetadata(null));
 
+        /// <summary>Identifies the <see cref="Subtitle"/> dependency property.</summary>
+        public static readonly DependencyProperty SubtitleProperty =
+            DependencyProperty.Register(
+                nameof(Subtitle),
+                typeof(string),
+                typeof(ScreenHeaderView),
+                new PropertyMetadata(string.Empty));
+
         /// <summary>Gets or sets the screen title.</summary>
         public string Title
         {
@@ -35,6 +43,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             get { return (ICommand?)GetValue(CloseCommandProperty); }
             set { SetValue(CloseCommandProperty, value); }
+        }
+
+        /// <summary>Gets or sets the subtitle shown under the title (e.g. the duel status).</summary>
+        public string Subtitle
+        {
+            get { return (string)GetValue(SubtitleProperty); }
+            set { SetValue(SubtitleProperty, value); }
         }
 
         /// <summary>Initializes a new instance of the <see cref="ScreenHeaderView"/> class.</summary>
