@@ -129,6 +129,12 @@ namespace Sektor.DarkestDungeon.Core.Duel
             ResolveOverstress(target);
         }
 
+        /// <inheritdoc/>
+        public Buff GetBuff(string buffId)
+        {
+            return content.GetBuff(buffId);
+        }
+
         /// <summary>
         /// Rolls the resolve check for an overstressed hero: a virtue or an affliction is applied
         /// (matching the campaign rule), afflictions stress the allies.

@@ -83,5 +83,10 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
         /// <param name="target">The target unit.</param>
         /// <param name="independent">Whether the effect applies independently.</param>
         void ApplyEffectById(string effectId, ICombatUnit target, bool independent);
+
+        /// <summary>Gets a buff definition by its id (for effects that reference content buffs).</summary>
+        /// <param name="buffId">The buff id.</param>
+        /// <returns>The buff, or null when unknown.</returns>
+        Buff GetBuff(string buffId);
     }
 }

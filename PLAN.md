@@ -56,8 +56,11 @@
     никогда не применялись в дуэли. Тесты: `Load_ParsesStatBuffsAndRiposteStatMods`,
     `StatBuffSkill_AppliesStatBuffsToThePerformer` (take_aim: +6% acc, x1.12 dmg),
     `StunSkill_AppliesTheStunStatusToTheTarget` (10/10 duel, 39/39 combat).
-7c. [ ] `.buff_ids` → `BuffEffect` с резолвом контент-баффов (нужен доступ к BuffCatalog
-    из SubEffect, редко в скиллах героев — в основном монстры/курёзы).
+7c. [x] `.buff_ids` → `BuffEffect.BuffIds`; `IBattleContext.GetBuff(string)` (дуэль резолвит через
+    `IDuelContent.GetBuff`) → `BuffEffect.ApplyInstant/ApplyQueued` резолвят контент-баффы из
+    `JsonBuffs.json` на лету; `EffectCatalog.ParseTokens` собирает все значения ключа (`key#N`).
+    Тест `BuffIdEffect_AppliesContentBuffToTheTarget` (flashing_daggers → bleed_debuff_1: -20% к
+    сопротивлению кровотечению; 11/11 duel).
 
 ### Фаза 5 — Прочее
 

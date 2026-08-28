@@ -75,12 +75,15 @@ namespace Sektor.DarkestDungeon.Core.Combat.Tests
         }
 
         [Test]
-        public void Load_IgnoresBuffIdKeys_UntilContentLookupLands()
+        public void Load_ParsesBuffIdKeys()
         {
             var catalog = EffectCatalog.Load(
-                "effect: .name \"Bleed Resist Buff\" .target \"performer\" .chance 100% .buff_ids \"buff_bleed_resist_1\" .duration 3");
+                "effect: .name \"Bleed Resist Buff\" .target \"performer\" .chance 100% .buff_ids \"buff_bleed_resist_1\" \"buff_bleed_resist_2\" .duration 3");
 
-            Assert.That(catalog.Count, Is.EqualTo(0));
+            var effect = catalog.Get("Bleed Resist Buff");
+            Assert.That(effect, Is.Not.Null);
+            var buffEffect = effect.SubEffects.OfType<BuffEffect>().Single();
+            CollectionAssert.AreEquivalent(new[] { "buff_bleed_resist_1", "buff_bleed_resist_2" }, buffEffect.BuffIds);
         }
 
         private static void AssertSubEffect<T>(Effect effect)

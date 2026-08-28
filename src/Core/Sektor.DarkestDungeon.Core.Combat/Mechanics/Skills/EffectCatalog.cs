@@ -149,6 +149,23 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
                     effect.SubEffects.Add(statBuff);
             }
 
+            string firstBuffId = GetValue(tokens, "buff_ids");
+            if (firstBuffId != null)
+            {
+                var buffEffect = new BuffEffect();
+                buffEffect.BuffIds.Add(firstBuffId);
+                int buffIndex = 2;
+                while (true)
+                {
+                    string buffId = GetValue(tokens, "buff_ids#" + buffIndex);
+                    if (buffId == null)
+                        break;
+                    buffEffect.BuffIds.Add(buffId);
+                    buffIndex++;
+                }
+                effect.SubEffects.Add(buffEffect);
+            }
+
             int duration;
             if (int.TryParse(TrimPercent(GetValue(tokens, "duration")), out duration))
                 effect.IntegerParams[EffectIntParams.Duration] = duration;
@@ -183,14 +200,14 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
                 if (tokens.ContainsKey(key))
                     continue;
 
-                string first = string.Empty;
-                if (i + 1 < pieces.Length && !pieces[i + 1].StartsWith(".", StringComparison.Ordinal))
+                int valueIndex = 1;
+                while (i + 1 < pieces.Length && !pieces[i + 1].StartsWith(".", StringComparison.Ordinal))
                 {
-                    first = pieces[i + 1].Trim('"');
+                    string suffix = valueIndex == 1 ? key : key + "#" + valueIndex;
+                    tokens[suffix] = pieces[i + 1].Trim('"');
+                    valueIndex++;
                     i++;
                 }
-
-                tokens[key] = first;
             }
             return tokens;
         }

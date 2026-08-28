@@ -15,23 +15,31 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
         /// <summary>Gets the buffs to apply.</summary>
         public List<Buff> Buffs { get; }
 
+        /// <summary>Gets the content buff ids to resolve and apply (via the battle context).</summary>
+        public List<string> BuffIds { get; }
+
         /// <summary>Initializes a new instance of the <see cref="BuffEffect"/> class.</summary>
         public BuffEffect()
         {
             Buffs = new List<Buff>();
+            BuffIds = new List<string>();
         }
 
         /// <inheritdoc/>
         public override bool ApplyInstant(ICombatUnit performer, ICombatUnit target, Effect effect, IBattleContext battleContext)
         {
-            if (target == null || Buffs.Count == 0)
+            if (target == null)
+                return false;
+
+            var buffs = ResolveBuffs(battleContext);
+            if (buffs.Count == 0)
                 return false;
 
             if (effect.BooleanParams[EffectBoolParams.CurioResult].HasValue)
             {
                 if (effect.BooleanParams[EffectBoolParams.CurioResult].Value)
                 {
-                    ApplyBuff(target, effect);
+                    ApplyBuff(target, effect, buffs);
                     return true;
                 }
                 else
@@ -47,7 +55,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
 
                     if (RandomSolver.CheckSuccess(debuffChance))
                     {
-                        ApplyBuff(target, effect);
+                        ApplyBuff(target, effect, buffs);
                         return true;
                     }
                     return false;
@@ -55,9 +63,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
             }
             else
             {
-                if (Buffs[0].IsPositive())
+                if (buffs[0].IsPositive())
                 {
-                    ApplyBuff(target, effect);
+                    ApplyBuff(target, effect, buffs);
                     return true;
                 }
                 else
@@ -73,7 +81,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
 
                     if (RandomSolver.CheckSuccess(debuffChance))
                     {
-                        ApplyBuff(target, effect);
+                        ApplyBuff(target, effect, buffs);
                         return true;
                     }
                     return false;
@@ -84,14 +92,18 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
         /// <inheritdoc/>
         public override bool ApplyQueued(ICombatUnit performer, ICombatUnit target, Effect effect, IBattleContext battleContext)
         {
-            if (target == null || Buffs.Count == 0)
+            if (target == null)
+                return false;
+
+            var buffs = ResolveBuffs(battleContext);
+            if (buffs.Count == 0)
                 return false;
 
             if (effect.BooleanParams[EffectBoolParams.CurioResult].HasValue)
             {
                 if (effect.BooleanParams[EffectBoolParams.CurioResult].Value)
                 {
-                    ApplyBuff(target, effect);
+                    ApplyBuff(target, effect, buffs);
                     battleContext.Events.ShowPopup(target, PopupType.Buff);
                     battleContext.Events.UpdateOverlay(target);
                     return true;
@@ -109,7 +121,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
 
                     if (RandomSolver.CheckSuccess(debuffChance))
                     {
-                        ApplyBuff(target, effect);
+                        ApplyBuff(target, effect, buffs);
                         battleContext.Events.ShowPopup(target, PopupType.Debuff);
                         battleContext.Events.UpdateOverlay(target);
                         return true;
@@ -120,9 +132,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
             }
             else
             {
-                if (Buffs[0].IsPositive())
+                if (buffs[0].IsPositive())
                 {
-                    ApplyBuff(target, effect);
+                    ApplyBuff(target, effect, buffs);
                     battleContext.Events.ShowPopup(target, PopupType.Buff);
                     battleContext.Events.UpdateOverlay(target);
                     return true;
@@ -140,7 +152,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
 
                     if (RandomSolver.CheckSuccess(debuffChance))
                     {
-                        ApplyBuff(target, effect);
+                        ApplyBuff(target, effect, buffs);
                         battleContext.Events.ShowPopup(target, PopupType.Debuff);
                         battleContext.Events.UpdateOverlay(target);
                         return true;
@@ -151,24 +163,39 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
             }
         }
 
-        private void ApplyBuff(ICombatUnit target, Effect effect)
+        private List<Buff> ResolveBuffs(IBattleContext battleContext)
+        {
+            var resolved = new List<Buff>(Buffs);
+            if (battleContext == null)
+                return resolved;
+
+            foreach (var buffId in BuffIds)
+            {
+                var buff = battleContext.GetBuff(buffId);
+                if (buff != null && !resolved.Contains(buff))
+                    resolved.Add(buff);
+            }
+            return resolved;
+        }
+
+        private void ApplyBuff(ICombatUnit target, Effect effect, List<Buff> buffs)
         {
             if (effect.IntegerParams[EffectIntParams.Curio].HasValue)
-                foreach (var buff in Buffs)
+                foreach (var buff in buffs)
                     target.Character.AddBuff(new BuffInfo(buff, BuffDurationType.Camp, BuffSourceType.Adventure));
             else if (effect.IntegerParams[EffectIntParams.Duration].HasValue)
             {
                 if (effect.IntegerParams[EffectIntParams.Duration].Value == -1)
-                    foreach (var buff in Buffs)
+                    foreach (var buff in buffs)
                         target.Character.AddBuff(new BuffInfo(buff, BuffDurationType.Camp, BuffSourceType.Adventure));
                 else
-                    foreach (var buff in Buffs)
+                    foreach (var buff in buffs)
                         target.Character.AddBuff(new BuffInfo(buff, BuffDurationType.Round,
                             BuffSourceType.Adventure, effect.IntegerParams[EffectIntParams.Duration].Value));
             }
             else
             {
-                foreach (var buff in Buffs)
+                foreach (var buff in buffs)
                     target.Character.AddBuff(new BuffInfo(buff, BuffDurationType.Round,
                         BuffSourceType.Adventure, 3));
             }

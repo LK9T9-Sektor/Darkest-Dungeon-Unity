@@ -66,6 +66,33 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
                 "stunning_blow should stun the target (Stun 1).");
         }
 
+        [Test]
+        public void BuffIdEffect_AppliesContentBuffToTheTarget()
+        {
+            var content = new TestDuelContent();
+            var duel = new DuelController(content);
+            duel.StartDuel(Picks("grave_robber"), Picks("crusader"), 42, isHost: true);
+            RandomSolver.SetRandomSeed(42);
+            duel.StartBattle();
+
+            var hero = duel.HeroParty.Units[2];
+            var daggers = hero.Character.CurrentCombatSkills.FirstOrDefault(skill => skill.Id == "flashing_daggers");
+            Assert.That(daggers, Is.Not.Null, "The grave robber should know flashing_daggers.");
+
+            var target = duel.GetAvailableTargets(hero, daggers).FirstOrDefault();
+            Assert.That(target, Is.Not.Null, "flashing_daggers should have a valid target from rank 3.");
+
+            ((SingleAttribute)hero.Character.GetSingleAttribute(AttributeType.AttackRating)).RawValue = 1.0f;
+            ((SingleAttribute)target.Character.GetSingleAttribute(AttributeType.Debuff)).RawValue = 0f;
+            float bleedBefore = ((SingleAttribute)target.Character.GetSingleAttribute(AttributeType.Bleed)).ModifiedValue;
+
+            duel.ExecuteSkill(hero, target, daggers);
+
+            float bleedAfter = ((SingleAttribute)target.Character.GetSingleAttribute(AttributeType.Bleed)).ModifiedValue;
+            Assert.That(bleedAfter, Is.EqualTo(bleedBefore - 0.2f).Within(0.001f),
+                "flashing_daggers should reduce the target's bleed resistance by 20% (bleed_debuff_1).");
+        }
+
         private static DuelHeroPick[] Picks(string classId)
         {
             return new[]
