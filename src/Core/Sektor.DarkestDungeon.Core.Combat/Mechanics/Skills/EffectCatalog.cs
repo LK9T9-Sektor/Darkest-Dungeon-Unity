@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects;
 
@@ -107,8 +109,17 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
             if (tokens.ContainsKey("cure"))
                 effect.SubEffects.Add(new CureEffect());
 
-            if (tokens.ContainsKey("riposte"))
-                effect.SubEffects.Add(new RiposteEffect());
+            var statAdds = new Dictionary<AttributeType, float>();
+            var statMults = new Dictionary<AttributeType, float>();
+            TryAddFraction(tokens, "attack_rating_add", statAdds, AttributeType.AttackRating);
+            TryAddFraction(tokens, "crit_chance_add", statAdds, AttributeType.CritChance);
+            TryAddFraction(tokens, "critical_rating", statAdds, AttributeType.CritChance);
+            TryAddFraction(tokens, "defense_rating_add", statAdds, AttributeType.DefenseRating);
+            TryAddFraction(tokens, "protection_rating_add", statAdds, AttributeType.ProtectionRating);
+            TryAddFlat(tokens, "speed_rating", statAdds, AttributeType.SpeedRating);
+            TryAddFlat(tokens, "speed_rating_add", statAdds, AttributeType.SpeedRating);
+            TryAddFraction(tokens, "damage_low_multiply", statMults, AttributeType.DamageLow);
+            TryAddFraction(tokens, "damage_high_multiply", statMults, AttributeType.DamageHigh);
 
             if (tokens.ContainsKey("shuffleparty"))
                 effect.SubEffects.Add(new ShuffleTargetEffect(true));
@@ -121,6 +132,22 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
 
             if (tokens.ContainsKey("immobilize"))
                 effect.SubEffects.Add(new ImmobilizeEffect());
+
+            if (tokens.ContainsKey("riposte"))
+            {
+                var riposte = new RiposteEffect();
+                CopyInto(statAdds, riposte.StatAddBuffs);
+                CopyInto(statMults, riposte.StatMultBuffs);
+                effect.SubEffects.Add(riposte);
+            }
+            else if (tokens.ContainsKey("combat_stat_buff"))
+            {
+                var statBuff = new CombatStatBuffEffect();
+                CopyInto(statAdds, statBuff.StatAddBuffs);
+                CopyInto(statMults, statBuff.StatMultBuffs);
+                if (statBuff.StatAddBuffs.Count > 0 || statBuff.StatMultBuffs.Count > 0)
+                    effect.SubEffects.Add(statBuff);
+            }
 
             int duration;
             if (int.TryParse(TrimPercent(GetValue(tokens, "duration")), out duration))
@@ -206,6 +233,26 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
         private static string TrimPercent(string value)
         {
             return value == null ? null : value.TrimEnd('%');
+        }
+
+        private static void TryAddFraction(Dictionary<string, string> tokens, string key, Dictionary<AttributeType, float> target, AttributeType attribute)
+        {
+            float value;
+            if (float.TryParse(TrimPercent(GetValue(tokens, key)), NumberStyles.Float, CultureInfo.InvariantCulture, out value))
+                target[attribute] = value / 100f;
+        }
+
+        private static void TryAddFlat(Dictionary<string, string> tokens, string key, Dictionary<AttributeType, float> target, AttributeType attribute)
+        {
+            float value;
+            if (float.TryParse(GetValue(tokens, key), NumberStyles.Float, CultureInfo.InvariantCulture, out value))
+                target[attribute] = value;
+        }
+
+        private static void CopyInto(Dictionary<AttributeType, float> source, Dictionary<AttributeType, float> target)
+        {
+            foreach (var pair in source)
+                target[pair.Key] = pair.Value;
         }
     }
 }

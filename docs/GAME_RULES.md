@@ -14,7 +14,7 @@
 | Пасс → стресс | **нет** (case Pass — только попап) | *(позже)* |
 | Death's door → стресс | есть (BarkStress 6) | *(позже)* |
 | Resolve (аффекция/виртуда) | частично (событие, ролла в ядре нет) | *(позже)* |
-| Эффекты скиллов (стан/яд/кровь/бафф) | частично (общие не-бафф ключи, Фаза 4) | *(позже)* |
+| Эффекты скиллов (стан/яд/кровь/бафф) | частично (общие + stat-баффы, Фаза 4; buff_ids — 4c) | *(позже)* |
 | Инициатива | скорость + бросок 0–10 | *(позже)* |
 
 Столбец «Оригинал DD» заполняется по мере добавления. Статус каждой секции: **реализовано** / **частично** / **нет**.
@@ -71,15 +71,17 @@
 
 ### Как реализовано в этом репозитории
 
-- `EffectCatalog` (Фаза 4) парсит `Effects.txt` для общих не-бафф ключей: `.stress`, `.healstress`,
+- `EffectCatalog` (Фаза 4) парсит `Effects.txt` для общих ключей: `.stress`, `.healstress`,
   `.heal`, `.stun`, `.dotBleed`/`.dotPoison` (с `.duration`), `.pull`, `.push`, `.cure`, `.riposte`,
-  `.shuffleparty`/`.shuffletarget`, `.tag`/`.mark`, `.immobilize` → `SubEffect`-классы ядра.
-- `HeroClassFileParser`/`HeroCatalog` принимают каталог и резолвят `.effect "id"` из `.bytes`
-  → `CombatSkill.Effects` (до 2 эффектов на скилл); дуэль применяет их через `BattleSolver.ApplyEffects`.
-- **Stat-баффы/дебаффы** (`.combat_stat_buff`, `.buff_ids`) пока не парсятся — нужна память в
-  `Effect` под стат-моды и buff-иды (Фаза 4b).
+  `.shuffleparty`/`.shuffletarget`, `.tag`/`.mark`, `.immobilize`, `.combat_stat_buff` + стат-ключи
+  (`*_add`/`*_multiply`/`critical_rating`/`speed_rating[_add]`) → `SubEffect`-классы ядра.
+- `HeroClassFileParser`/`HeroCatalog` принимают каталог и резолвят все `.effect "id"` из `.bytes`
+  → `CombatSkill.Effects`; `DuelController.ExecuteSkill` применяет их + дренирует EventQueue
+  (стан/бафф/гард теперь реально срабатывают в дуэли).
+- **`.buff_ids`** (контент-баффы из `JsonBuffs.json`) пока не применяются — нужен доступ к
+  BuffCatalog из SubEffect (Фаза 4c; в скиллах героев почти не встречается).
 
-Статус: **частично** (общие эффекты работают; stat-баффы — позже).
+Статус: **частично** (общие эффекты + stat-баффы работают; buff_ids — позже).
 
 ### Оригинал Darkest Dungeon
 

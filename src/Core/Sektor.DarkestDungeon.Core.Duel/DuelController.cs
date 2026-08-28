@@ -6,6 +6,7 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
+using Sektor.DarkestDungeon.Core.Combat.Raid.Events;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Party;
 
 namespace Sektor.DarkestDungeon.Core.Duel
@@ -320,7 +321,22 @@ namespace Sektor.DarkestDungeon.Core.Duel
 
             Solver.SkillResult.Reset();
             Solver.ExecuteSkill(unit, target, skill, null);
+            ProcessEventQueues();
             CheckDeaths();
+        }
+
+        private void ProcessEventQueues()
+        {
+            foreach (var unit in HeroParty.Units.Concat(MonsterParty.Units))
+            {
+                if (unit.EventQueue.Count == 0)
+                    continue;
+
+                var events = new List<IEffectEvent>(unit.EventQueue);
+                unit.EventQueue.Clear();
+                foreach (var effectEvent in events)
+                    effectEvent.Execute();
+            }
         }
 
         private void AddHero(DuelHeroPick pick, Team team, ref int combatId)

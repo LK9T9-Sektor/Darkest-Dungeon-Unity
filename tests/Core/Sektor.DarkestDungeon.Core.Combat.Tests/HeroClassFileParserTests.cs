@@ -114,8 +114,8 @@ id_index: .index 7
 
             Assert.That(skillsWithEffects, Is.GreaterThan(0),
                 "real hero skills should resolve at least one effect from the effects catalog");
-            Assert.That(skillsWithEffects, Is.GreaterThan(totalSkills / 3),
-                "a meaningful share of real hero skills should carry effects (" + skillsWithEffects + "/" + totalSkills + ")");
+            Assert.That(skillsWithEffects, Is.GreaterThan(totalSkills / 2),
+                "most real hero skills should carry effects (" + skillsWithEffects + "/" + totalSkills + ")");
         }
 
         [Test]

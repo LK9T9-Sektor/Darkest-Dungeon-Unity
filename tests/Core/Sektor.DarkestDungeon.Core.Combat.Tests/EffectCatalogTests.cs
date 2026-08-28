@@ -4,6 +4,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Tests
 
     using NUnit.Framework;
 
+    using Sektor.DarkestDungeon.Core.Combat.Character;
     using Sektor.DarkestDungeon.Core.Combat.Mechanics;
     using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
     using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects;
@@ -47,10 +48,37 @@ namespace Sektor.DarkestDungeon.Core.Combat.Tests
         }
 
         [Test]
-        public void Load_IgnoresUnsupportedBuffKeys_UntilStatBuffStorageLands()
+        public void Load_ParsesStatBuffsAndRiposteStatMods()
         {
             var catalog = EffectCatalog.Load(
-                "effect: .name \"Highwayman Buff 1\" .target \"performer\" .chance 100% .combat_stat_buff 1 .attack_rating_add 6% .crit_chance_add 5% .damage_low_multiply 12% .damage_high_multiply 12%");
+                "effect: .name \"Highwayman Buff 1\" .target \"performer\" .chance 100% .combat_stat_buff 1 .attack_rating_add 6% .crit_chance_add 5% .damage_low_multiply 12% .damage_high_multiply 12% .duration 3\n" +
+                "effect: .name \"Vestal Curse 1\" .target \"target\" .chance 100% .combat_stat_buff 1 .attack_rating_add -7% .damage_low_multiply -20% .damage_high_multiply -20%\n" +
+                "effect: .name \"Hwy Riposte 1\" .target \"performer\" .riposte 1 .duration 2 .damage_low_multiply -40% .damage_high_multiply -40%");
+
+            var buff = catalog.Get("Highwayman Buff 1");
+            Assert.That(buff, Is.Not.Null);
+            var statBuff = buff.SubEffects.OfType<CombatStatBuffEffect>().Single();
+            Assert.That(statBuff.StatAddBuffs[AttributeType.AttackRating], Is.EqualTo(0.06f).Within(0.0001f));
+            Assert.That(statBuff.StatAddBuffs[AttributeType.CritChance], Is.EqualTo(0.05f).Within(0.0001f));
+            Assert.That(statBuff.StatMultBuffs[AttributeType.DamageLow], Is.EqualTo(0.12f).Within(0.0001f));
+            Assert.That(statBuff.StatMultBuffs[AttributeType.DamageHigh], Is.EqualTo(0.12f).Within(0.0001f));
+            Assert.That(buff.IntegerParams[EffectIntParams.Duration], Is.EqualTo(3));
+
+            var curse = catalog.Get("Vestal Curse 1");
+            var curseBuff = curse.SubEffects.OfType<CombatStatBuffEffect>().Single();
+            Assert.That(curseBuff.StatAddBuffs[AttributeType.AttackRating], Is.EqualTo(-0.07f).Within(0.0001f));
+            Assert.That(curseBuff.StatMultBuffs[AttributeType.DamageLow], Is.EqualTo(-0.2f).Within(0.0001f));
+
+            var riposte = catalog.Get("Hwy Riposte 1");
+            var riposteEffect = riposte.SubEffects.OfType<RiposteEffect>().Single();
+            Assert.That(riposteEffect.StatMultBuffs[AttributeType.DamageLow], Is.EqualTo(-0.4f).Within(0.0001f));
+        }
+
+        [Test]
+        public void Load_IgnoresBuffIdKeys_UntilContentLookupLands()
+        {
+            var catalog = EffectCatalog.Load(
+                "effect: .name \"Bleed Resist Buff\" .target \"performer\" .chance 100% .buff_ids \"buff_bleed_resist_1\" .duration 3");
 
             Assert.That(catalog.Count, Is.EqualTo(0));
         }

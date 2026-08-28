@@ -123,22 +123,14 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
                 if (tokens.ContainsKey(key))
                     continue;
 
-                string first = string.Empty;
-                string second = null;
-                if (i + 1 < pieces.Length && !pieces[i + 1].StartsWith(".", StringComparison.Ordinal))
+                int valueIndex = 1;
+                while (i + 1 < pieces.Length && !pieces[i + 1].StartsWith(".", StringComparison.Ordinal))
                 {
-                    first = pieces[i + 1].Trim('"').ToLowerInvariant();
+                    string suffix = valueIndex == 1 ? key : key + "#" + valueIndex;
+                    tokens[suffix] = pieces[i + 1].Trim('"').ToLowerInvariant();
+                    valueIndex++;
                     i++;
-                    if (i + 1 < pieces.Length && !pieces[i + 1].StartsWith(".", StringComparison.Ordinal))
-                    {
-                        second = pieces[i + 1].Trim('"').ToLowerInvariant();
-                        i++;
-                    }
                 }
-
-                tokens[key] = first;
-                if (second != null)
-                    tokens[key + "#2"] = second;
             }
             return tokens;
         }
@@ -306,20 +298,17 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
 
             if (effects != null)
             {
-                string firstEffect = GetValue(tokens, "effect");
-                if (firstEffect != null)
+                int effectIndex = 1;
+                while (true)
                 {
-                    var effect = effects.Get(firstEffect);
-                    if (effect != null)
-                        skill.Effects.Add(effect);
-                }
+                    string effectId = effectIndex == 1 ? GetValue(tokens, "effect") : GetValue(tokens, "effect#" + effectIndex);
+                    if (effectId == null)
+                        break;
 
-                string secondEffect = GetValue(tokens, "effect#2");
-                if (secondEffect != null)
-                {
-                    var effect = effects.Get(secondEffect);
+                    var effect = effects.Get(effectId);
                     if (effect != null)
                         skill.Effects.Add(effect);
+                    effectIndex++;
                 }
             }
 

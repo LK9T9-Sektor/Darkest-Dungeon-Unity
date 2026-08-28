@@ -48,8 +48,16 @@
     резолвят `.effect "id"` (до 2) → `CombatSkill.Effects`; дуэль применяет через `BattleSolver.
     ApplyEffects`. WPF `DuelClasses` единый источник каталога. Тесты: `EffectCatalogTests`,
     `Parse_ResolvesSkillEffects_FromEffectsCatalog`, реальный ростер резолвит эффекты (38/38 combat).
-7b. [ ] Stat-баффы/дебаффы: `.combat_stat_buff` + `*_add`/`*_multiply` и `.buff_ids` → память в
-    `Effect` под стат-моды/buff-иды → `CombatStatBuffEffect`/`BuffEffect`.
+7b. [x] Stat-баффы/дебаффы: `.combat_stat_buff` + `*_add`/`*_multiply`/`critical_rating`/
+    `speed_rating[_add]` → `CombatStatBuffEffect`/`RiposteEffect` (StatAddBuffs/StatMultBuffs);
+    `HeroClassFileParser.ParseTokens` собирает все значения ключа (`key#N`) → резолвятся все
+    `.effect` (до N) скилла; **EventQueue drain** в `DuelController.ExecuteSkill`
+    (`ProcessEventQueues` → `EffectEvent.Execute`) — иначе квеянные эффекты (стан/бафф/гард)
+    никогда не применялись в дуэли. Тесты: `Load_ParsesStatBuffsAndRiposteStatMods`,
+    `StatBuffSkill_AppliesStatBuffsToThePerformer` (take_aim: +6% acc, x1.12 dmg),
+    `StunSkill_AppliesTheStunStatusToTheTarget` (10/10 duel, 39/39 combat).
+7c. [ ] `.buff_ids` → `BuffEffect` с резолвом контент-баффов (нужен доступ к BuffCatalog
+    из SubEffect, редко в скиллах героев — в основном монстры/курёзы).
 
 ### Фаза 5 — Прочее
 
