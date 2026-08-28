@@ -2,6 +2,15 @@
 
 ## Не выпущено (после 1.0.6)
 
+### Стресс в дуэли + каталог эффектов в ядро
+
+- В ядро вынесен **каталог эффектов** (`EffectCatalog`, парсер `Data/Mechanics/Effects.txt` — пока
+  stress-ключи: `.stress`/`.healstress`); `IBattleContext.ApplyEffectById` резолвит из него.
+- **Крит по герою теперь даёт +15 стресса**, а крит-хил снимает 4 — как в кампании (`Effects["Stress 2"]`,
+  `Effects["crit_heal_stress_heal"]`); применяется через core-классы `StressEffect`/`StressHealEffect`
+  (overstress/resolve-события в ядре).
+- Заведён `docs\GAME_RULES.md` — правила и механики «как реализовано здесь» vs «оригинал DD (позже)».
+
 ### WPF-клиент: фикс квирков и полировка низа/шапки боя
 
 - Починен крэш от town-квирков (`weapons_haggler`/`armor_haggler`): их баффы не являются боевыми

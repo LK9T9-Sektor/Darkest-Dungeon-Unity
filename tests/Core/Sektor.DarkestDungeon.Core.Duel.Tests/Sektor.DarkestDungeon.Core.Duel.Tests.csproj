@@ -29,6 +29,9 @@
     <None Include="..\..\..\unity\Assets\Resources\Data\JsonBuffs.json"
           Link="Content\Buffs\JsonBuffs.json"
           CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\unity\Assets\Resources\Data\Mechanics\Effects.txt"
+          Link="Content\Effects\Effects.txt"
+          CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

@@ -13,6 +13,7 @@ namespace Sektor.DarkestDungeon.Core.Duel
     public class DuelBattleContext : IBattleContext
     {
         private readonly BattleSolver solver;
+        private readonly IDuelContent content;
 
         /// <inheritdoc/>
         public IBattleGround BattleGround { get; }
@@ -26,10 +27,12 @@ namespace Sektor.DarkestDungeon.Core.Duel
         /// <summary>Initializes a new instance of the <see cref="DuelBattleContext"/> class.</summary>
         /// <param name="battleGround">The battlefield.</param>
         /// <param name="events">The event sink.</param>
-        public DuelBattleContext(IBattleGround battleGround, IBattleEvents events)
+        /// <param name="content">The content source (effects catalog).</param>
+        public DuelBattleContext(IBattleGround battleGround, IBattleEvents events, IDuelContent content)
         {
             BattleGround = battleGround;
             Events = events;
+            this.content = content;
             solver = new BattleSolver(this);
         }
 
@@ -115,6 +118,13 @@ namespace Sektor.DarkestDungeon.Core.Duel
         /// <inheritdoc/>
         public void ApplyEffectById(string effectId, ICombatUnit target, bool independent)
         {
+            var effect = content.GetEffect(effectId);
+            if (effect == null || target == null)
+                return;
+
+            // The duel has no queued-effect processor yet, so apply instantly.
+            foreach (var subEffect in effect.SubEffects)
+                subEffect.ApplyInstant(null, target, effect, this);
         }
     }
 }

@@ -99,7 +99,7 @@ namespace Sektor.DarkestDungeon.Core.Duel
                 AddHero(pick, Team.Monsters, ref combatId);
 
             BattleGround = new BattleGround(HeroParty, MonsterParty);
-            Context = new DuelBattleContext(BattleGround, Events);
+            Context = new DuelBattleContext(BattleGround, Events, content);
             Solver = new BattleSolver(Context);
 
             RandomSolver.SetRandomSeed(sessionSeed);

@@ -6,17 +6,19 @@ using Newtonsoft.Json;
 using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Character.Utils;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Content.Character;
 using Sektor.DarkestDungeon.Core.Content.Database;
 
 namespace Sektor.DarkestDungeon.Core.Duel.Tests
 {
-    /// <summary>Content source for duel tests, loaded from the bundled content files (heroes, quirks, buffs).</summary>
+    /// <summary>Content source for duel tests, loaded from the bundled content files (heroes, quirks, buffs, effects).</summary>
     public sealed class TestDuelContent : IDuelContent
     {
         private readonly Dictionary<string, HeroClass> classes;
         private readonly Dictionary<string, Quirk> quirks;
         private readonly Dictionary<string, Buff> buffs;
+        private readonly EffectCatalog effects;
 
         /// <summary>Initializes a new instance of the <see cref="TestDuelContent"/> class from the bundled content.</summary>
         public TestDuelContent()
@@ -24,6 +26,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
             classes = LoadHeroClasses();
             quirks = LoadQuirks();
             buffs = LoadBuffs();
+            effects = LoadEffects();
         }
 
         /// <inheritdoc/>
@@ -45,6 +48,12 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
         {
             Buff buff;
             return buffs.TryGetValue(buffId, out buff) ? buff : null;
+        }
+
+        /// <inheritdoc/>
+        public Effect GetEffect(string effectId)
+        {
+            return effects.Get(effectId);
         }
 
         private static Dictionary<string, HeroClass> LoadHeroClasses()
@@ -112,6 +121,12 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
                 result[content.Id] = buff;
             }
             return result;
+        }
+
+        private static EffectCatalog LoadEffects()
+        {
+            string path = Path.Combine(AppContext.BaseDirectory, "Content", "Effects", "Effects.txt");
+            return EffectCatalog.Load(File.Exists(path) ? File.ReadAllText(path) : string.Empty);
         }
     }
 }
