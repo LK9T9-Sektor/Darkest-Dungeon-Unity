@@ -1,5 +1,69 @@
 # PLAN.md — Активный план задач
 
+## Задача: монстры в ядро + дорожная карта «всё в ядро»
+
+### Цель
+
+Ядро уже содержит движок боя (`BattleSolver`, `Round`, 29 `SubEffect`, AI-desires), `EffectCatalog`
+(парсер `Effects.txt`), конкретную модель (`Character`, `Hero`, `FormationUnit`, `BattleGround`),
+`IBattleModifier` и `MonsterBrain`. **Нет** `Monster`-класса и парсера `Data\Monsters\*.txt` (460 файлов),
+`JsonAI.json` brains (дуэль использует дефолтный `BuildDefaultBrain`), multi-turn в `Round`.
+Выносим монстров в ядро (модель → парсер → каталог → дуэль), затем по дорожной карте — остальной
+Unity-контент (см. ниже). **Скоуп первой поставки: ядро + тесты, WPF-выбор монстра — потом.**
+
+### Фаза M0 — Статус-манифест выноса
+
+0. [x] `docs\EXTRACTION_STATUS.md` — таблица «Unity → twin в ядре → статус» (вынесено / частично /
+    не вынесено); `tools\check-extraction.ps1` сверяет пути манифеста с файловой системой и печатает
+    отчёт (31 строка, все пути существуют). Поддерживается в том же коммите, что и вынос (агентам —
+    один grep-таргет вместо сканирования Unity-дерева). `[Obsolete]` на legacy-коде НЕ ставим
+    (код живой до cutover; при cutover — `[Obsolete(error: true)]` на удаляемых типах).
+
+### Фаза M1 — Модель и парсер монстров (в `Core.Combat`, зеркало `Assets\Scripts\`)
+
+1. [ ] `Character\MonsterClass.cs` — контент-модель: StringId, TypeId, Size, Attributes,
+    EnemyTypes (MonsterType), CombatSkills (+резолв `.effect` через `EffectCatalog`), PreferableSkill,
+    MonsterBrainId, BattleModifier (флаги сюрприза), InitiativeTurns (`number_of_turns_per_round`).
+    Loot/DeathClass/Companions/etc. — позже (M-фазы дальше или вообще не нужны дуэли).
+2. [ ] `Character\MonsterClassFileParser.cs` — парсер DSL `Data\Monsters\*.txt`: `name`/`type`,
+    `display: .size`, `enemy_type: .id`, `stats:` (.hp/.def/.prot/.spd/.stun|poison|bleed|debuff|move_resist),
+    `skill:` (все `.effect`, `.move`, `.launch`/`.target`, `.is_crit_valid`, кулдауны — ключи уже
+    читаются), `personality: .prefskill`, `initiative: .number_of_turns_per_round`,
+    `monster_brain: .id`, `battle_modifier:` (флаги сюрприза), `death_class:` (лёгкий вариант).
+3. [ ] `Character\MonsterCatalog.cs` — `Load(contents, effects)`.
+4. [ ] `Character\Monster.cs` — конкретный персонаж (`ICharacter`): IsMonster=true, MonsterTypes,
+    Size, CombatSkills/CurrentCombatSkills, BattleModifiers, PreferableSkill; атрибуты/резисты из
+    MonsterClass; без стресса (как в DD). `Character\BattleModifier.cs` — реализация `IBattleModifier`.
+
+### Фаза M2 — Контент-провайдер (ядро + тесты)
+
+5. [ ] `IDuelContent.GetMonsterClass(string)`; тест `TestDuelContent` грузит реальные
+    `Data\Monsters\*.txt` (через unity-путь, как герои) + `MonsterCatalog.Load`.
+    WPF `DuelContent` — только если быстро (сейчас решено: WPF-выбор монстра позже).
+6. [ ] *(отложено)* `JsonAI.json` → `MonsterBrainCatalog` + `GetMonsterBrain(id)`; пока дефолтный brain.
+
+### Фаза M3 — Дуль-интеграция
+
+7. [ ] `DuelController`: `DuelMonsterPick` (classId+seed) для клиентской («Monsters») стороны →
+    `new Monster(class)`; AI — существующий `DuelAi`/`BuildDefaultBrain`.
+8. [ ] Сюрприз-ролл гейтится на `BattleModifiers.CanSurprise/CanBeSurprised/AlwaysSurprise/
+    AlwaysBeSurprised` (сейчас хардкод без гейта).
+9. [ ] `Round`: поддержка `number_of_turns_per_round > 1` (монстр ходит N раз за раунд).
+
+### Фаза M4 — Тесты и проверка
+
+10. [ ] `MonsterClassFileParserTests` (реальные монстры: статы, enemy_type, резолв эффектов,
+    battle_modifier); дуэль «герои vs монстры» (атаки/хилы, AI-выбор скилла, сюрприз-гейт, multi-turn).
+    Все сьюты зелёные + navigation (WPF не ломается).
+
+### Дорожная карта «всё в ядро» (после монстров)
+
+11. [ ] **Campaign** (`EXTRACTION_PLAN` Фаза 4): `Data\Campaign\` — город/квесты/провизия → `Core.Campaign`.
+12. [ ] **Save** (Фаза 2): `Data\Save` → `Core.Save` (DTO + IBinarySaveData + `ISaveStorage`).
+13. [ ] **Encounters/Bosses/Curios/Loot** → `Core.Content`; **JsonAI brains** → `Core.Combat`.
+14. [ ] **Networking** (Фаза 5): Steam + Photon (`Sektor.Networking`, `PhotonTransport`, SessionManager).
+15. [ ] **Presentation cutover** (Фаза 6): view-слой остаётся Unity/WPF, бизнес-логика — в ядро.
+
 ## Задача: стресс по правилам кампании + каталог эффектов (по частям, простое → сложное)
 
 ### Цель
