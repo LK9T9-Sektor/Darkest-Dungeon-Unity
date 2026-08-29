@@ -1,4 +1,4 @@
-namespace Sektor.DarkestDungeon.Core.Content.Raid
+namespace Sektor.DarkestDungeon.Core.Raid
 {
     /// <summary>Identifies the kind of encounter a dungeon area holds.</summary>
     public enum AreaType

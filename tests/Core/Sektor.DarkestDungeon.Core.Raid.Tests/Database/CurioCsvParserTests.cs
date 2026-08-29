@@ -2,9 +2,9 @@ using System.IO;
 
 using NUnit.Framework;
 
-using Sektor.DarkestDungeon.Core.Content.Database;
+using Sektor.DarkestDungeon.Core.Raid.Database;
 
-namespace Sektor.DarkestDungeon.Core.Content.Tests.Database
+namespace Sektor.DarkestDungeon.Core.Raid.Tests.Database
 {
     [TestFixture]
     public class CurioCsvParserTests

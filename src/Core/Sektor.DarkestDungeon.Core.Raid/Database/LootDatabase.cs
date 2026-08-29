@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 using Sektor.DarkestDungeon.Core.Common;
 
-namespace Sektor.DarkestDungeon.Core.Content.Database
+namespace Sektor.DarkestDungeon.Core.Raid.Database
 {
     /// <summary>The kind of loot a loot entry grants.</summary>
     public enum LootType

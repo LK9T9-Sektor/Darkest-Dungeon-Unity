@@ -14,15 +14,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Core\Sektor.DarkestDungeon.Core.Content\Sektor.DarkestDungeon.Core.Content.csproj" />
+    <ProjectReference Include="..\..\..\src\Core\Sektor.DarkestDungeon.Core.Raid\Sektor.DarkestDungeon.Core.Raid.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\..\..\unity\Assets\Resources\Data\JsonQuirks.json"
-             Link="Data\JsonQuirks.json"
+    <Content Include="..\..\..\unity\Assets\Resources\Data\Curios\Curios.csv"
+             Link="Data\Curios\Curios.csv"
              CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\..\..\unity\Assets\Resources\Data\JsonBuffs.json"
-             Link="Data\JsonBuffs.json"
+    <Content Include="..\..\..\unity\Assets\Resources\Data\JsonLoot.json"
+             Link="Data\JsonLoot.json"
              CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

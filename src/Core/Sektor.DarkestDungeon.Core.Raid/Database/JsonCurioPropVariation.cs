@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Sektor.DarkestDungeon.Core.Data.Dto
+namespace Sektor.DarkestDungeon.Core.Raid.Database
 {
     /// <summary>A curio prop variation for a given dungeon level.</summary>
     public class JsonCurioPropVariation

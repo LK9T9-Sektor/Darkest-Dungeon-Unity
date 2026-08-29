@@ -4,8 +4,8 @@ using Sektor.DarkestDungeon.Core.Campaign;
 using Sektor.DarkestDungeon.Core.Campaign.Database;
 using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
-using Sektor.DarkestDungeon.Core.Content.Database;
-using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Raid;
+using Sektor.DarkestDungeon.Core.Raid.Database;
 using Sektor.DarkestDungeon.Core.Data.Catalogs;
 using Sektor.DarkestDungeon.Core.Data.Dto;
 

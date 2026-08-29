@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Sektor.DarkestDungeon.Core.Data.Dto
+namespace Sektor.DarkestDungeon.Core.Raid.Database
 {
     /// <summary>A curio prop (trap or scenic obstacle) definition.</summary>
     public class JsonCurioProp

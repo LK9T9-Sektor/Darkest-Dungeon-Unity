@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 
-using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Raid;
 
-namespace Sektor.DarkestDungeon.Core.Content.Database
+namespace Sektor.DarkestDungeon.Core.Raid.Database
 {
     /// <summary>Parses the curio content file (CSV) into curio definitions.</summary>
     public static class CurioCsvParser

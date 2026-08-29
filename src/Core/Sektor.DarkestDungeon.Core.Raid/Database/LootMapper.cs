@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Sektor.DarkestDungeon.Core.Content.Database
+namespace Sektor.DarkestDungeon.Core.Raid.Database
 {
     /// <summary>Maps raw loot content into domain loot data.</summary>
     public static class LootMapper

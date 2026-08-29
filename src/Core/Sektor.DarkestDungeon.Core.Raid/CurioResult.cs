@@ -1,6 +1,6 @@
 using Sektor.DarkestDungeon.Core.Common;
 
-namespace Sektor.DarkestDungeon.Core.Content.Raid
+namespace Sektor.DarkestDungeon.Core.Raid
 {
     /// <summary>A single weighted curio result item.</summary>
     public class CurioResult : IProportionValue

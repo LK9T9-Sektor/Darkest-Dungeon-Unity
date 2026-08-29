@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sektor.DarkestDungeon.Core.Common\Sektor.DarkestDungeon.Core.Common.csproj" />
+    <ProjectReference Include="..\Sektor.DarkestDungeon.Core.Save\Sektor.DarkestDungeon.Core.Save.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <CoreUnityPluginDir Include="$(CoreUnityPluginFolders)" />
+    </ItemGroup>
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="%(CoreUnityPluginDir.Identity)" />
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).pdb" DestinationFolder="%(CoreUnityPluginDir.Identity)" />
+  </Target>
+
+</Project>

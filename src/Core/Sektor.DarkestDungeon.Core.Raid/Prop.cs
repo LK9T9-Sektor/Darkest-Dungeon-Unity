@@ -2,7 +2,7 @@ using System.IO;
 
 using Sektor.DarkestDungeon.Core.Save;
 
-namespace Sektor.DarkestDungeon.Core.Content.Raid
+namespace Sektor.DarkestDungeon.Core.Raid
 {
     /// <summary>
     /// Base class for placeable raid props (curios, obstacles, traps, doors). Holds the string

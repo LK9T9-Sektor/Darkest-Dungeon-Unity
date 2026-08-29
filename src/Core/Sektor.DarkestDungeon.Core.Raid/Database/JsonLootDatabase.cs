@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Sektor.DarkestDungeon.Core.Content.Database
+namespace Sektor.DarkestDungeon.Core.Raid.Database
 {
     /// <summary>Raw loot data as loaded from the content file.</summary>
     public class JsonLootDatabase

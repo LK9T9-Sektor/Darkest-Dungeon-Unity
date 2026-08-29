@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Sektor.DarkestDungeon.Core.Content.Raid
+namespace Sektor.DarkestDungeon.Core.Raid
 {
     /// <summary>A curio prop with its interactions and item interactions.</summary>
     public class Curio : Prop

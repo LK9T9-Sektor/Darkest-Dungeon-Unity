@@ -1,4 +1,4 @@
-namespace Sektor.DarkestDungeon.Core.Content.Raid
+namespace Sektor.DarkestDungeon.Core.Raid
 {
     /// <summary>An interaction triggered by using an item on a curio.</summary>
     public class ItemInteraction : CurioInteraction

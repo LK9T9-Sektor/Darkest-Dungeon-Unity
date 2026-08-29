@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Sektor.DarkestDungeon.Core.Common;
 
-namespace Sektor.DarkestDungeon.Core.Content.Raid
+namespace Sektor.DarkestDungeon.Core.Raid
 {
     /// <summary>A weighted interaction result of a curio.</summary>
     public class CurioInteraction : IProportionValue

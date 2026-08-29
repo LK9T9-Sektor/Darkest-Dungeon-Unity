@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Sektor.DarkestDungeon.Core.Content.Database
+namespace Sektor.DarkestDungeon.Core.Raid.Database
 {
     /// <summary>Splits raw CSV text into a rectangular grid of cells.</summary>
     public static class CsvReader
