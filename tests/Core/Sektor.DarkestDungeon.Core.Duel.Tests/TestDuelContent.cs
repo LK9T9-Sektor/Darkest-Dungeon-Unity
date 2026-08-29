@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Character.Utils;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Content.Character;
 using Sektor.DarkestDungeon.Core.Content.Database;
@@ -71,6 +72,18 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
         public IReadOnlyList<Trait> GetVirtues()
         {
             return virtues;
+        }
+
+        /// <inheritdoc/>
+        public MonsterClass GetMonsterClass(string monsterId)
+        {
+            return null;
+        }
+
+        /// <inheritdoc/>
+        public MonsterBrain GetMonsterBrain(string brainId)
+        {
+            return null;
         }
 
         private static JsonTraitData LoadTraitsData()

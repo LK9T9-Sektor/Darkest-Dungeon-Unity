@@ -2,13 +2,15 @@ using System.Collections.Generic;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
+using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 
 namespace Sektor.DarkestDungeon.Core.Duel.Fight
 {
     /// <summary>
     /// Automated campaign fight runner: builds a <see cref="DuelController"/> from the given content,
     /// starts it and drives every unit autonomously (heroes through a default brain, monsters through
-    /// their campaign brains) until the battle ends.
+    /// their campaign brains) until the battle ends. Hero units of the player side can be driven
+    /// manually instead through <see cref="FightPlayerAction"/>.
     /// </summary>
     public sealed class FightSession
     {
@@ -35,6 +37,24 @@ namespace Sektor.DarkestDungeon.Core.Duel.Fight
         /// <summary>Gets a value indicating whether the fight has finished.</summary>
         public bool IsFinished { get { return Duel != null && Duel.IsFinished; } }
 
+        /// <summary>
+        /// Gets a value indicating whether the fight is waiting for a manual action: the hero-side turn
+        /// is pending and the current actor is a player-controlled hero (not a monster).
+        /// </summary>
+        public bool IsWaitingForPlayerAction
+        {
+            get
+            {
+                if (!IsStarted || IsFinished || Duel.IsLocalTurn)
+                    return false;
+
+                if (Duel.Phase != DuelPhase.WaitingForHostAction)
+                    return false;
+
+                return IsPlayerControlledActor(Duel.CurrentUnit);
+            }
+        }
+
         /// <summary>Starts the fight between the given sides and rolls the first round.</summary>
         /// <param name="playerSide">The player side unit specifications.</param>
         /// <param name="aiSide">The AI side unit specifications.</param>
@@ -50,11 +70,32 @@ namespace Sektor.DarkestDungeon.Core.Duel.Fight
         /// <returns>True while the fight is still running, false once it has finished.</returns>
         public bool Tick()
         {
+            return Tick(null);
+        }
+
+        /// <summary>
+        /// Advances the fight by one acting unit's turn. When <paramref name="manual"/> is supplied and the
+        /// fight is waiting for a player action, the given hero action executes through the remote turn path;
+        /// an invalid action is ignored and the fight keeps waiting for another attempt.
+        /// </summary>
+        /// <param name="manual">The manual player action, or null to act automatically.</param>
+        /// <returns>True while the fight is still running, false once it has finished.</returns>
+        public bool Tick(FightPlayerAction manual)
+        {
             if (!IsStarted || IsFinished)
                 return false;
 
             if (Duel.Phase != DuelPhase.WaitingForHostAction && Duel.Phase != DuelPhase.WaitingForClientAction)
                 return false;
+
+            if (manual != null)
+            {
+                if (!IsWaitingForPlayerAction)
+                    return false;
+
+                Duel.ApplyRemoteSkill(DuelPayload.Skill(manual.SkillId, manual.TargetCombatId));
+                return !IsFinished;
+            }
 
             string payload = DecideAction();
             if (string.IsNullOrEmpty(payload))
@@ -76,9 +117,18 @@ namespace Sektor.DarkestDungeon.Core.Duel.Fight
         /// <summary>Runs the fight until it finishes.</summary>
         public void RunToCompletion()
         {
-            while (Tick())
+            while (Tick(null))
             {
             }
+        }
+
+        private static bool IsPlayerControlledActor(ICombatUnit unit)
+        {
+            return unit != null &&
+                !unit.Character.IsMonster &&
+                unit.Team == Team.Heroes &&
+                unit.CombatInfo != null &&
+                !unit.CombatInfo.IsDead;
         }
 
         private string DecideAction()

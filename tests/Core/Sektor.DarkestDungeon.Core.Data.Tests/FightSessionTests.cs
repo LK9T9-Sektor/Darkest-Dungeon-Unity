@@ -98,6 +98,61 @@ namespace Sektor.DarkestDungeon.Core.Data.Tests
             return new FightOutcome(winner, steps, session.IsFinished);
         }
 
+        /// <summary>
+        /// A manual player action executes the chosen hero skill against the chosen target instead of
+        /// an AI choice; the fight parks on player-controlled heroes and proceeds automatically elsewhere.
+        /// </summary>
+        [Test]
+        public void ManualPlayerAction_ExecutesTheChosenSkillOnTheChosenTarget()
+        {
+            var content = BuildContent();
+            var player = new List<FightUnitSpec>
+            {
+                new HeroFightUnitSpec("crusader", 11, new List<string> { "smite", "zealous_accusation", "stunning_blow", "battle_heal" }, null),
+                new HeroFightUnitSpec("vestal", 12, new List<string> { "judgement", "mace_bash", "divine_grace", "dazzling_light" }, null),
+                new HeroFightUnitSpec("highwayman", 13, new List<string> { "wicked_slice", "pistol_shot", "point_blank_shot", "opened_vein" }, null),
+                new HeroFightUnitSpec("plague_doctor", 14, new List<string> { "noxious_blast", "plague_grenade", "incision", "battlefield_medicine" }, null)
+            };
+            var ai = new List<FightUnitSpec>
+            {
+                new MonsterFightUnitSpec("swine_slasher_A"),
+                new MonsterFightUnitSpec("swine_slasher_B"),
+                new MonsterFightUnitSpec("swine_drummer_A"),
+                new MonsterFightUnitSpec("swine_piglet_A")
+            };
+
+            var session = new FightSession(content, 21);
+            session.Start(player, ai);
+
+            Assert.That(session.IsStarted, Is.True);
+
+            int guard = 0;
+            while (!session.IsFinished && !session.IsWaitingForPlayerAction && guard++ < 5000)
+            {
+                if (!session.Tick())
+                    break;
+            }
+
+            Assert.That(session.IsWaitingForPlayerAction, Is.True, "The fight must park on a player hero.");
+
+            var actor = session.Duel.CurrentUnit;
+            var target = session.Duel.MonsterParty.Units.First(unit => unit.IsTargetable);
+            float healthBefore = target.Character.HealthRatio;
+
+            bool running = session.Tick(new FightPlayerAction("smite", target.CombatInfo.CombatId));
+
+            Assert.That(running, Is.True, "The fight continues after a manual action.");
+            Assert.That(
+                target.Character.HealthRatio,
+                Is.LessThanOrEqualTo(healthBefore),
+                "The manual smite must reduce the target's health.");
+
+            while (!session.IsFinished && guard++ < 5000)
+                session.Tick();
+
+            Assert.That(session.IsFinished, Is.True, "The fight must finish under automatic control after the manual action.");
+        }
+
         private static TextFightContent BuildContent()
         {
             string resourcesDir = FindUnityResourcesDir();

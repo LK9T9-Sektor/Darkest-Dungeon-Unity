@@ -44,8 +44,8 @@
     (портированы из WPF), `TrinketCatalog`/`CampingSkillCatalog` (новые модели `Content\Trinket`/
     `Content\Camping`), `TraitCatalog` (traits через `ReadTraits`), `MonsterBrainCatalog`,
     `MonsterCatalog`/`HeroCatalog`/`EffectCatalog` (существующие).
-5. [ ] WPF пересадить на `GameDataReader` (убрать инлайн `JsonConvert` в `DuelContent`/`QuirkCatalog`/
-    `BuffCatalog`); поведение идентичное, тесты зелёные.
+5. [x] WPF пересадить на `GameDataReader` (убрать инлайн `JsonConvert` в `DuelContent`/`QuirkCatalog`/
+    `BuffCatalog`); поведение идентичное, тесты зелёные (13/13).
 
 ### Фаза M1 — Модель и парсер монстров (в `Core.Combat`, зеркало `Assets\Scripts\`)
 
