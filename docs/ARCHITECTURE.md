@@ -22,17 +22,20 @@
 |---|---|
 | `Common` | Общие типы: `Result`/`Result<T>`, примитивы (`IntVector2`, `IRng`), утилиты `InvariantCulture`, модель feature-flag |
 | `Content` | Классы данных контента + парсеры (JSON/DSL/CSV/XML), валидация на загрузке. Раскладка зеркалирует значимые legacy-папки: `Raid\` — пропы/курio (`Prop`, `Curio`, `CurioResult`, `IProportionValue`, `AreaType`), `Campaign\` — модели (`HeirloomExchange`, `PartyNames`, `NarrationEntry`/`NarrationAudioEvent`), `Save\` — бинарный интерфейс `IBinarySaveData`, `Database\` — DTO и мапперы-парсеры (`CurioCsvParser` — CSV, `NarrationMapper`/`LootMapper` — JSON). Ядро **не зависит от Newtonsoft**: DTO-члены названы snake_case по legacy-JSON (без `[JsonProperty]`), десериализация — в адаптере презентации любой версией Newtonsoft. Причина: сборки Newtonsoft 11/12/13 ссылаются на контракты net6.0 и не компилируются в Unity 2017.4 (`CS0009`; см. `KNOWN_ISSUES.md` §13). Рукописные мапперы — переходное состояние; целевое — прямая десериализация Newtonsoft в ядре после перехода Unity-проектов на совместимый Newtonsoft |
+| `Data` | Каталоги и ридеры данных кампании: `GameDataReader` (десериализация всех JSON-бандлов в snake_case-DTO + рукописные парсеры `JsonBrainParser`, `MonsterClassFileParser`) и каталоги `BuffCatalog`/`QuirkCatalog`/`MonsterBrainCatalog`/`TrinketCatalog`/`CampingSkillCatalog`; контент стенда `TextFightContent` (реализация `IDuelContent`). Потребители — `Core.Combat`/`Core.Duel` (монстры, мозги для `DuelAi`/`FightSession`), стенд-клиенты Unity и WPF |
 | `Ui` | Презентационные токены runtime-оверлеев (engine-free): путь шрифта, семантические размеры текста и цвета (`ArgbColor`), потребляются обоими Unity-проектами через DLL. UI-конструктор (`RuntimeUiFactory`) остаётся Unity-side и дублируется в деревьях; стили — единый источник в ядре |
 | `Save` | DTO, бинарный кодек, версии; IO — через `ISaveStorage` |
 | `Combat` | Боевая симуляция (Фаза 3, **вынесена**): скиллы, эффекты (29 SubEffect), раунды, `BattleSolver`, AI (desires), RNG, баффы. Раскладка зеркалирует legacy-структуру после `Assets\Scripts\` (правило «Preserve Folder Structure»): `Mechanics\` (Battle/Skills/Effects/AI + enums + RandomSolver), `Raid\` (Battle/Events), `Character\` (интерфейсы модели + Buff/BuffInfo + статус-интерфейсы), `Campaign\`. Границы наружу — интерфейсы: `ICharacter`, `ICombatUnit`, `IBattleGround`, `IBattleContext`, `IBattleEvents` (фидбек: попупы/хало/звук/суммон/торч). Конкретная модель персонажа/юнитов (`Character`, `Hero`, `Monster`, `FormationUnit`, `BattleGround`) остаётся Unity-side и реализует эти интерфейсы при cutover; игра пока работает на легаси-дублях |
-| `Duel` | Оркестрация дуэли (PvP 1v1, локстап; Фаза A, **вынесена** из `src\Wpf`): `DuelController` (+ `DuelHeroPick`), фазовая машина `DuelPhase`, локстап-сид `DuelSeed`, wire-протокол `DuelPayload`, адаптеры `DuelBattleContext`/`DuelBattleEvents`, порт контента `IDuelContent`, ИИ соперника `DuelAi` (через core-brain, Фаза B). Потребляется WPF-клиентом (тонким) и, после cutover, Unity-мультиплеером. Происхождение и критика — в `DUEL_ARCHITECTURE.md` |
+| `Duel` | Оркестрация дуэли (PvP 1v1, локстап; Фаза A, **вынесена** из `src\Wpf`): `DuelController` (+ `DuelHeroPick`), фазовая машина `DuelPhase`, локстап-сид `DuelSeed`, wire-протокол `DuelPayload`, адаптеры `DuelBattleContext`/`DuelBattleEvents`, порт контента `IDuelContent`, ИИ соперника `DuelAi` (через core-brain, Фаза B). Раннер боя кампании `Fight\FightSession` («герои vs монстры», brain-driven ход монстров, ручные действия/пасс игрока, детерминизм по сиду) — движок Тест-боя и будущего PvE-боя. Потребляется WPF-клиентом (тонким) и, после cutover, Unity-мультиплеером. Происхождение и критика — в `DUEL_ARCHITECTURE.md` |
 | `Campaign` | Кампания/имение, здания, квесты, week log, события города |
 | `Modes` | Режимы: конфиг режима, нодовая карта, состояние забега |
 
 Дополнительно в `Combat`: парсер легаси-контента героев `Character\HeroClassFileParser` +
 `HeroCatalog` — читают формат `Data/Heroes/Info` (базовый ранг прокачки: атрибуты оружия/брони,
-сопротивления, скилы уровня 0; эффекты скиллов пока не загружаются). WPF-клиент линкует
-`.bytes`-файлы из unity-контента и грузит полный ростер (15 классов) на старте.
+сопротивления, скилы уровня 0; эффекты скиллов резолвятся из `.bytes` в `CombatSkill.Effects`).
+WPF-клиент линкует `.bytes`-файлы из unity-контента и грузит полный ростер (15 классов) на старте.
+Монстры кампании (M1) — `Character\Monster.cs` + `MonsterClassFileParser`/`MonsterCatalog`:
+читают `Data/Monsters/*.txt` (статы, `enemy_type`, резолв эффектов из `Effects.txt`, `battle_modifier`).
 
 ### Сеть (`src\Networking\`)
 

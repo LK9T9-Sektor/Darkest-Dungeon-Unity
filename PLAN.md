@@ -93,19 +93,19 @@
     вход из `TestActions`: 2 стороны × 4 слота, стрелки `[пусто → герой → монстр…]` по имени, seed,
     режим «Игрок/ИИ» и «ИИ vs ИИ», кнопка «Бой»; `FightBattleView` (карты/скиллы/цели/лог).
 18. [x] active `unity\`: то же.
-19. [ ] Проверки: `dotnet build` core + тесты; `unity-compile-check.ps1` для обоих деревьев;
+19. [x] Проверки: `dotnet build` core + тесты; `unity-compile-check.ps1` для обоих деревьев;
     `unity-check-script-references.ps1`. `.meta` для новых Unity-файлов — коммитить вместе с `.cs`.
 
 ### Фаза M4 — Тесты и проверка
 
-20. [ ] `GameDataReaderTests` (DTO всех читаемых JSON), `JsonBrainParserTests`, `MonsterClassFileParserTests`
+20. [x] `GameDataReaderTests` (DTO всех читаемых JSON), `JsonBrainParserTests`, `MonsterClassFileParserTests`
     (реальные монстры: статы, enemy_type, резолв эффектов, battle_modifier); дуэль/бой «герои vs монстры»
     (атаки/хилы, AI-выбор скилла, сюрприз-гейт, multi-turn, пустые слоты, детерминизм по сиду).
-21. [ ] Все сьюты зелёные + navigation (WPF не ломается).
+21. [x] Все сьюты зелёные + navigation (WPF не ломается).
 
 ### Фаза D — Документация (в том же коммите)
 
-22. [ ] `docs\TESTING.md` — ручная проверка Тест-боя в обоих клиентах; `docs\CHANGELOG.md` — версия;
+22. [x] `docs\TESTING.md` — ручная проверка Тест-боя в обоих клиентах; `docs\CHANGELOG.md` — версия;
     `docs\EXTRACTION_STATUS.md` — M1/M2 (монстры, мозги) → вынесено, новый модуль `Core.Data`;
     `docs\ARCHITECTURE.md` — модуль данных и раннер.
 
