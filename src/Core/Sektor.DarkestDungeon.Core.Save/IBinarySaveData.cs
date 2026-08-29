@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace Sektor.DarkestDungeon.Core.Content.Save
+namespace Sektor.DarkestDungeon.Core.Save
 {
     /// <summary>
     /// Contract for domain objects that can serialize their state into the binary save stream.

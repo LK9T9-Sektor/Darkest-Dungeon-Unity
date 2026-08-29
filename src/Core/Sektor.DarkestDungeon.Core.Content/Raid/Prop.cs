@@ -1,6 +1,6 @@
 using System.IO;
 
-using Sektor.DarkestDungeon.Core.Content.Save;
+using Sektor.DarkestDungeon.Core.Save;
 
 namespace Sektor.DarkestDungeon.Core.Content.Raid
 {
