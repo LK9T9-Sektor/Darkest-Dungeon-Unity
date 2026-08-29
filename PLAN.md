@@ -92,7 +92,7 @@
 17. [x] unity-2017: `FightContentLoader` (`Resources` → Core.Data), `FightScreen` — оверлей поверх всего,
     вход из `TestActions`: 2 стороны × 4 слота, стрелки `[пусто → герой → монстр…]` по имени, seed,
     режим «Игрок/ИИ» и «ИИ vs ИИ», кнопка «Бой»; `FightBattleView` (карты/скиллы/цели/лог).
-18. [ ] active `unity\`: то же.
+18. [x] active `unity\`: то же.
 19. [ ] Проверки: `dotnet build` core + тесты; `unity-compile-check.ps1` для обоих деревьев;
     `unity-check-script-references.ps1`. `.meta` для новых Unity-файлов — коммитить вместе с `.cs`.
 
