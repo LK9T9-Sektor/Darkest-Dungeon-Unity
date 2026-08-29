@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Sektor.DarkestDungeon.Core.Content.Trinket;
-using Sektor.DarkestDungeon.Core.Data.Dto;
+using Sektor.DarkestDungeon.Core.Content.Trinket;
 
-namespace Sektor.DarkestDungeon.Core.Data.Catalogs
+namespace Sektor.DarkestDungeon.Core.Content.Trinket
 {
     /// <summary>Loads trinket definitions from the campaign JsonTrinkets.json content into <see cref="Trinket"/> instances.</summary>
     public sealed class TrinketCatalog

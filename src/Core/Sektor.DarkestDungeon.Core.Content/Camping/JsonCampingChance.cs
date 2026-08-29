@@ -1,4 +1,4 @@
-namespace Sektor.DarkestDungeon.Core.Data.Dto
+namespace Sektor.DarkestDungeon.Core.Content.Camping
 {
     /// <summary>Chance block of a camping effect.</summary>
     public class JsonCampingChance

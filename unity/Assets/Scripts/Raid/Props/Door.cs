@@ -1,5 +1,5 @@
 using System.IO;
-using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Raid;
 
 public class Door : Prop
 {

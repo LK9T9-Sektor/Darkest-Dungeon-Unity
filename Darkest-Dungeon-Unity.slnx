@@ -48,10 +48,17 @@
   </Folder>
   <Folder Name="/src/" />
   <Folder Name="/src/Core/">
-    <Project Path="src/Core/Sektor.DarkestDungeon.Core.Data/Sektor.DarkestDungeon.Core.Data.csproj" />
+    <Project Path="src/Core/Sektor.DarkestDungeon.Core.Common/Sektor.DarkestDungeon.Core.Common.csproj" />
     <Project Path="src/Core/Sektor.DarkestDungeon.Core.Content/Sektor.DarkestDungeon.Core.Content.csproj" />
-    <Project Path="src/Core/Sektor.DarkestDungeon.Core.Ui/Sektor.DarkestDungeon.Core.Ui.csproj" />
     <Project Path="src/Core/Sektor.DarkestDungeon.Core.Combat/Sektor.DarkestDungeon.Core.Combat.csproj" />
+    <Project Path="src/Core/Sektor.DarkestDungeon.Core.Campaign/Sektor.DarkestDungeon.Core.Campaign.csproj" />
+    <Project Path="src/Core/Sektor.DarkestDungeon.Core.Raid/Sektor.DarkestDungeon.Core.Raid.csproj" />
+    <Project Path="src/Core/Sektor.DarkestDungeon.Core.Save/Sektor.DarkestDungeon.Core.Save.csproj" />
+    <Project Path="src/Core/Sektor.DarkestDungeon.Core.Duel/Sektor.DarkestDungeon.Core.Duel.csproj" />
+    <Project Path="src/Core/Sektor.DarkestDungeon.Core.Ui/Sektor.DarkestDungeon.Core.Ui.csproj" />
+  </Folder>
+  <Folder Name="/src/Clients/">
+    <Project Path="src/Clients/Sektor.DarkestDungeon.Clients.Content/Sektor.DarkestDungeon.Clients.Content.csproj" />
   </Folder>
   <Folder Name="/src/Lan/">
     <Project Path="src/Lan/Sektor.DarkestDungeon.Lan.Cmd/Sektor.DarkestDungeon.Lan.Cmd.csproj" />
@@ -63,10 +70,15 @@
   </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/Core/">
-    <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Data.Tests/Sektor.DarkestDungeon.Core.Data.Tests.csproj" />
     <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Content.Tests/Sektor.DarkestDungeon.Core.Content.Tests.csproj" />
-    <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Ui.Tests/Sektor.DarkestDungeon.Core.Ui.Tests.csproj" />
     <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Combat.Tests/Sektor.DarkestDungeon.Core.Combat.Tests.csproj" />
+    <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Campaign.Tests/Sektor.DarkestDungeon.Core.Campaign.Tests.csproj" />
+    <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Raid.Tests/Sektor.DarkestDungeon.Core.Raid.Tests.csproj" />
+    <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Duel.Tests/Sektor.DarkestDungeon.Core.Duel.Tests.csproj" />
+    <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Ui.Tests/Sektor.DarkestDungeon.Core.Ui.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Clients/">
+    <Project Path="tests/Clients/Sektor.DarkestDungeon.Clients.Content.Tests/Sektor.DarkestDungeon.Clients.Content.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/Wpf/">
     <Project Path="tests/Wpf/Sektor.DarkestDungeon.Wpf.Tests/Sektor.DarkestDungeon.Wpf.Tests.csproj" />

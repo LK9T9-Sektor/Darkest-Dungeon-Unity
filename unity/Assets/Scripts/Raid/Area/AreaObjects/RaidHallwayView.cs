@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Raid;
 
 public class RaidHallwayView : MonoBehaviour
 {

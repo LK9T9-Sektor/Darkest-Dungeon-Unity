@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Sektor.DarkestDungeon.Core.Data.Dto
+namespace Sektor.DarkestDungeon.Core.Content.Camping
 {
     /// <summary>A camping skill definition.</summary>
     public class JsonCampingSkill

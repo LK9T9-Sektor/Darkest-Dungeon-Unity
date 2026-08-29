@@ -2,12 +2,14 @@ using System;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
+using Sektor.DarkestDungeon.Clients.Content;
 using Sektor.DarkestDungeon.Core.Campaign.Database;
-using Sektor.DarkestDungeon.Core.Data.Catalogs;
-using Sektor.DarkestDungeon.Core.Data.Dto;
-using Sektor.DarkestDungeon.Core.Data.Readers;
+using Sektor.DarkestDungeon.Core.Combat.Character;
+using Sektor.DarkestDungeon.Core.Content.Camping;
+using Sektor.DarkestDungeon.Core.Content.Character;
+using Sektor.DarkestDungeon.Core.Content.Trinket;
 
-namespace Sektor.DarkestDungeon.Core.Data.Tests
+namespace Sektor.DarkestDungeon.Clients.Content.Tests
 {
     /// <summary>Tests for the full GameDataReader against the real campaign data files.</summary>
     public class GameDataReaderTests

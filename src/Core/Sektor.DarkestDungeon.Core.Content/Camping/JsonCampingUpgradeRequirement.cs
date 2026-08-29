@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Sektor.DarkestDungeon.Core.Campaign.Database;
+using Sektor.DarkestDungeon.Core.Content.Database;
 
-namespace Sektor.DarkestDungeon.Core.Data.Dto
+namespace Sektor.DarkestDungeon.Core.Content.Camping
 {
     /// <summary>A camping skill upgrade requirement by level code.</summary>
     public class JsonCampingUpgradeRequirement

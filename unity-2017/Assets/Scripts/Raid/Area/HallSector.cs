@@ -1,5 +1,5 @@
 using UnityEngine.Assertions;
-using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Raid;
 
 public class HallSector : Area
 {

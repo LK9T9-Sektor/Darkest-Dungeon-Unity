@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Sektor.DarkestDungeon.Core.Data.Dto
+namespace Sektor.DarkestDungeon.Core.Content.Camping
 {
     /// <summary>Root document of Data\JsonCamping.json.</summary>
     public class JsonCamping

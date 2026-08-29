@@ -1,4 +1,4 @@
-namespace Sektor.DarkestDungeon.Core.Campaign.Database
+namespace Sektor.DarkestDungeon.Core.Content.Database
 {
     /// <summary>A currency cost with a resource type and amount.</summary>
     public class JsonCurrencyCost

@@ -5,12 +5,14 @@ using Sektor.DarkestDungeon.Core.Campaign.Database;
 using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
+using Sektor.DarkestDungeon.Core.Content.Camping;
+using Sektor.DarkestDungeon.Core.Content.Character;
+using Sektor.DarkestDungeon.Core.Content.Database;
+using Sektor.DarkestDungeon.Core.Content.Trinket;
 using Sektor.DarkestDungeon.Core.Raid;
 using Sektor.DarkestDungeon.Core.Raid.Database;
-using Sektor.DarkestDungeon.Core.Data.Catalogs;
-using Sektor.DarkestDungeon.Core.Data.Dto;
 
-namespace Sektor.DarkestDungeon.Core.Data.Readers
+namespace Sektor.DarkestDungeon.Clients.Content
 {
     /// <summary>
     /// Single reader facade over the whole campaign data set: raw JSON bundles, mapped content
@@ -166,7 +168,8 @@ namespace Sektor.DarkestDungeon.Core.Data.Readers
         /// <returns>The buff catalog.</returns>
         public static BuffCatalog ReadBuffs(string jsonText)
         {
-            return BuffCatalog.Load(jsonText);
+            JsonBuffData data = JsonConvert.DeserializeObject<JsonBuffData>(jsonText);
+            return BuffCatalog.Load(data);
         }
 
         /// <summary>Builds the quirk catalog from the Data\JsonQuirks.json bundle.</summary>
@@ -174,7 +177,8 @@ namespace Sektor.DarkestDungeon.Core.Data.Readers
         /// <returns>The quirk catalog.</returns>
         public static QuirkCatalog ReadQuirks(string jsonText)
         {
-            return QuirkCatalog.Load(jsonText);
+            JsonQuirkData data = JsonConvert.DeserializeObject<JsonQuirkData>(jsonText);
+            return QuirkCatalog.Load(data);
         }
 
         /// <summary>Builds the trinket catalog from the Data\JsonTrinkets.json bundle.</summary>

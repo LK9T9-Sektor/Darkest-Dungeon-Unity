@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using Sektor.DarkestDungeon.Core.Content.Character;
 using Sektor.DarkestDungeon.Core.Content.Database;
 
-namespace Sektor.DarkestDungeon.Core.Data.Catalogs
+namespace Sektor.DarkestDungeon.Core.Content.Character
 {
     /// <summary>Loads the hero quirk catalog from the campaign JsonQuirks.json content.</summary>
     public sealed class QuirkCatalog
@@ -28,13 +27,12 @@ namespace Sektor.DarkestDungeon.Core.Data.Catalogs
         /// <summary>Gets all quirks ordered by their wire order.</summary>
         public IReadOnlyCollection<Quirk> All { get { return _byId.Values; } }
 
-        /// <summary>Parses the JsonQuirks.json content into a quirk catalog.</summary>
-        /// <param name="jsonText">The JsonQuirks.json file content.</param>
+        /// <summary>Maps the deserialized JsonQuirks.json document into a quirk catalog.</summary>
+        /// <param name="data">The deserialized JsonQuirks.json document.</param>
         /// <returns>The quirk catalog.</returns>
-        public static QuirkCatalog Load(string jsonText)
+        public static QuirkCatalog Load(JsonQuirkData data)
         {
             var catalog = new QuirkCatalog { };
-            JsonQuirkData data = JsonConvert.DeserializeObject<JsonQuirkData>(jsonText);
             if (data?.quirks == null)
                 return catalog;
 

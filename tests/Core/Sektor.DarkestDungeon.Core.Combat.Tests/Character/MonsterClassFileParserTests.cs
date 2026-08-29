@@ -5,7 +5,7 @@ using NUnit.Framework;
 using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 
-namespace Sektor.DarkestDungeon.Core.Data.Tests
+namespace Sektor.DarkestDungeon.Core.Combat.Tests.Character
 {
     /// <summary>Tests for the MonsterClassFileParser on real campaign monster files.</summary>
     public class MonsterClassFileParserTests

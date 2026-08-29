@@ -10,10 +10,11 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="NUnit" Version="3.14.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Core\Sektor.DarkestDungeon.Core.Data\Sektor.DarkestDungeon.Core.Data.csproj" />
+    <ProjectReference Include="..\..\..\src\Clients\Sektor.DarkestDungeon.Clients.Content\Sektor.DarkestDungeon.Clients.Content.csproj" />
     <ProjectReference Include="..\..\..\src\Core\Sektor.DarkestDungeon.Core.Combat\Sektor.DarkestDungeon.Core.Combat.csproj" />
     <ProjectReference Include="..\..\..\src\Core\Sektor.DarkestDungeon.Core.Duel\Sektor.DarkestDungeon.Core.Duel.csproj" />
   </ItemGroup>

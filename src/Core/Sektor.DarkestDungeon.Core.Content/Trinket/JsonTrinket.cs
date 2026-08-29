@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Sektor.DarkestDungeon.Core.Data.Dto
+namespace Sektor.DarkestDungeon.Core.Content.Trinket
 {
     /// <summary>A trinket definition.</summary>
     public class JsonTrinket

@@ -1,5 +1,5 @@
 using UnityEngine;
-using Sektor.DarkestDungeon.Core.Content.Campaign;
+using Sektor.DarkestDungeon.Core.Campaign;
 
 public abstract class UpgradableBuildingWindow : BuildingWindow
 {

@@ -4,7 +4,7 @@ using System.IO;
 using System;
 
 using Random = UnityEngine.Random;
-using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Raid;
 
 public static class SaveLoadManager
 {

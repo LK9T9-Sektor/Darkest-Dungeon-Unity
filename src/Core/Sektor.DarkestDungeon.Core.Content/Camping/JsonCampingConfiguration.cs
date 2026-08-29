@@ -1,4 +1,4 @@
-namespace Sektor.DarkestDungeon.Core.Data.Dto
+namespace Sektor.DarkestDungeon.Core.Content.Camping
 {
     /// <summary>Configuration block of Data\JsonCamping.json.</summary>
     public class JsonCampingConfiguration

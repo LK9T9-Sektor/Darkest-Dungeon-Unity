@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
-using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Raid;
 
 public enum InteractionEventType { Obstacle, Curio }
 public enum InteractionResultType { Waiting, Cancel, ManualInteraction, ItemInteraction }

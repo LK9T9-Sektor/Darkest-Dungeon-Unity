@@ -141,8 +141,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private void RerollQuirks()
         {
             Quirks.Clear();
-            AddRandomQuirk(QuirkCatalog.Positive);
-            AddRandomQuirk(QuirkCatalog.Negative);
+            AddRandomQuirk(Data.QuirkCatalog.Positive);
+            AddRandomQuirk(Data.QuirkCatalog.Negative);
             QuirkSummary = Quirks.Count == 0
                 ? "no quirks"
                 : string.Join(", ", Quirks.Select(q => (q.IsPositive ? "+" : "-") + q.Id));

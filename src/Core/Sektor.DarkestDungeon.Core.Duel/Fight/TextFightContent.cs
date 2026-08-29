@@ -5,9 +5,8 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Content.Character;
 using Sektor.DarkestDungeon.Core.Duel;
-using Sektor.DarkestDungeon.Core.Data.Catalogs;
 
-namespace Sektor.DarkestDungeon.Core.Data.Content
+namespace Sektor.DarkestDungeon.Core.Duel.Fight
 {
     /// <summary>
     /// Campaigned content source for the duel fight runner, backed by the catalogs produced by

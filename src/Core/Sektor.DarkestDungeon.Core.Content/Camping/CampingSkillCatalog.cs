@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Sektor.DarkestDungeon.Core.Content.Camping;
-using Sektor.DarkestDungeon.Core.Data.Dto;
+using Sektor.DarkestDungeon.Core.Content.Camping;
 
-namespace Sektor.DarkestDungeon.Core.Data.Catalogs
+namespace Sektor.DarkestDungeon.Core.Content.Camping
 {
     /// <summary>Loads camping skill definitions from the campaign JsonCamping.json content into <see cref="CampingSkill"/> instances.</summary>
     public sealed class CampingSkillCatalog

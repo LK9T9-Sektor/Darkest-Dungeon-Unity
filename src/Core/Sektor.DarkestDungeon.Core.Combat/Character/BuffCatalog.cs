@@ -1,12 +1,10 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Character.Utils;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Content.Character;
 using Sektor.DarkestDungeon.Core.Content.Database;
 
-namespace Sektor.DarkestDungeon.Core.Data.Catalogs
+namespace Sektor.DarkestDungeon.Core.Combat.Character
 {
     /// <summary>Loads the buff definitions from the campaign JsonBuffs.json content into core <see cref="Buff"/> instances.</summary>
     public sealed class BuffCatalog
@@ -23,13 +21,12 @@ namespace Sektor.DarkestDungeon.Core.Data.Catalogs
         /// <summary>Gets all buffs ordered by their wire order.</summary>
         public IReadOnlyCollection<Buff> All { get { return _buffsById.Values; } }
 
-        /// <summary>Parses the JsonBuffs.json content into a buff catalog.</summary>
-        /// <param name="jsonText">The JsonBuffs.json file content.</param>
+        /// <summary>Maps the deserialized JsonBuffs.json document into a buff catalog.</summary>
+        /// <param name="data">The deserialized JsonBuffs.json document.</param>
         /// <returns>The buff catalog.</returns>
-        public static BuffCatalog Load(string jsonText)
+        public static BuffCatalog Load(JsonBuffData data)
         {
             var catalog = new BuffCatalog();
-            JsonBuffData data = JsonConvert.DeserializeObject<JsonBuffData>(jsonText);
             if (data?.buffs == null)
                 return catalog;
 
