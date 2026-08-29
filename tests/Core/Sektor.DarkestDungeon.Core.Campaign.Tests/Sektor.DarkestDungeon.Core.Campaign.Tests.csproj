@@ -14,21 +14,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Core\Sektor.DarkestDungeon.Core.Content\Sektor.DarkestDungeon.Core.Content.csproj" />
+    <ProjectReference Include="..\..\..\src\Core\Sektor.DarkestDungeon.Core.Campaign\Sektor.DarkestDungeon.Core.Campaign.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\..\..\unity\Assets\Resources\Data\Curios\Curios.csv"
-             Link="Data\Curios\Curios.csv"
+    <Content Include="..\..\..\unity\Assets\Resources\Data\Mechanics\HeirloomExchange.json"
+             Link="Data\Mechanics\HeirloomExchange.json"
              CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\..\..\unity\Assets\Resources\Data\JsonLoot.json"
-             Link="Data\JsonLoot.json"
+    <Content Include="..\..\..\unity\Assets\Resources\Data\PartyNames.json"
+             Link="Data\PartyNames.json"
              CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\..\..\unity\Assets\Resources\Data\JsonQuirks.json"
-             Link="Data\JsonQuirks.json"
-             CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\..\..\unity\Assets\Resources\Data\JsonBuffs.json"
-             Link="Data\JsonBuffs.json"
+    <Content Include="..\..\..\unity\Assets\Resources\Data\Narration.json"
+             Link="Data\Narration.json"
              CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

@@ -5,17 +5,6 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Sektor.DarkestDungeon.Core.Content\Sektor.DarkestDungeon.Core.Content.csproj" />
-    <ProjectReference Include="..\Sektor.DarkestDungeon.Core.Combat\Sektor.DarkestDungeon.Core.Combat.csproj" />
-    <ProjectReference Include="..\Sektor.DarkestDungeon.Core.Campaign\Sektor.DarkestDungeon.Core.Campaign.csproj" />
-    <ProjectReference Include="..\Sektor.DarkestDungeon.Core.Duel\Sektor.DarkestDungeon.Core.Duel.csproj" />
-  </ItemGroup>
-
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <ItemGroup>
       <CoreUnityPluginDir Include="$(CoreUnityPluginFolders)" />

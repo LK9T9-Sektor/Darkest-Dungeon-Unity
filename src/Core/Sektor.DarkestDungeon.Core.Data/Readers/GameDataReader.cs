@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Sektor.DarkestDungeon.Core.Campaign;
+using Sektor.DarkestDungeon.Core.Campaign.Database;
 using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
-using Sektor.DarkestDungeon.Core.Content.Campaign;
 using Sektor.DarkestDungeon.Core.Content.Database;
 using Sektor.DarkestDungeon.Core.Content.Raid;
 using Sektor.DarkestDungeon.Core.Data.Catalogs;

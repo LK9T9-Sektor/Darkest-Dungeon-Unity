@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Sektor.DarkestDungeon.Core.Campaign.Database;
 
 namespace Sektor.DarkestDungeon.Core.Data.Dto
 {

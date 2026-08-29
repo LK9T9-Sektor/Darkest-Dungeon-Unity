@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
+using Sektor.DarkestDungeon.Core.Campaign.Database;
 using Sektor.DarkestDungeon.Core.Data.Catalogs;
 using Sektor.DarkestDungeon.Core.Data.Dto;
 using Sektor.DarkestDungeon.Core.Data.Readers;
