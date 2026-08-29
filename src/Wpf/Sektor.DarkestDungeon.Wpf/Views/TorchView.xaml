@@ -1,0 +1,19 @@
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.TorchView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="clr-namespace:Sektor.DarkestDungeon.Wpf.Ui">
+    <Border Style="{StaticResource OverlayPanel}">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Text="Torch" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="22"
+                       HorizontalAlignment="Center" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,0">
+                <Button Content="&#9664;" Style="{StaticResource HudButton}"
+                        Command="{Binding DecreaseCommand}" Width="52" Height="34" FontSize="18" />
+                <TextBlock Text="{Binding TorchValue, StringFormat={}{0:0}}" Foreground="#E8D9B0" FontSize="26"
+                           Width="90" TextAlignment="Center" VerticalAlignment="Center" />
+                <Button Content="&#9654;" Style="{StaticResource HudButton}"
+                        Command="{Binding IncreaseCommand}" Width="52" Height="34" FontSize="18" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

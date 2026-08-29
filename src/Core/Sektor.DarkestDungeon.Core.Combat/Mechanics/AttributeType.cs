@@ -1,0 +1,48 @@
+namespace Sektor.DarkestDungeon.Core.Combat.Mechanics
+{
+    /// <summary>Attribute types used in combat calculations.</summary>
+    public enum AttributeType
+    {
+        Undefined,
+        HitPoints,
+        Stress,
+        HpHealAmount,
+        HpHealPercent,
+        DmgReceivedPercent,
+        HpHealReceivedPercent,
+        StressDmgReceivedPercent,
+        StressDmgPercent,
+        StressHealPercent,
+        StressHealReceivedPercent,
+        ResolveCheckPercent,
+        ResolveXpPercent,
+        StunChance,
+        PoisonChance,
+        BleedChance,
+        MoveChance,
+        DebuffChance,
+        ScoutingChance,
+        PartySurpriseChance,
+        MonsterSurpirseChance,
+        RemoveQuirkChance,
+        FoodConsumption,
+        StarvingDamagePercent,
+        DefenseRating,
+        ProtectionRating,
+        SpeedRating,
+        AttackRating,
+        CritChance,
+        DamageLow,
+        DamageHigh,
+        ArmorDiscount,
+        WeaponDiscount,
+        Stun,
+        Poison,
+        Disease,
+        DeathBlow,
+        Move,
+        Bleed,
+        Debuff,
+        Trap
+    }
+}

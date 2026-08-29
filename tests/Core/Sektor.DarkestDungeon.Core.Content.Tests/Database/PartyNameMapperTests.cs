@@ -1,13 +1,13 @@
+using System.IO;
+
+using Newtonsoft.Json;
+
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Core.Content.Database;
+
 namespace Sektor.DarkestDungeon.Core.Content.Tests.Database
 {
-    using System.IO;
-
-    using Newtonsoft.Json;
-
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Core.Content.Database;
-
     [TestFixture]
     public class PartyNameMapperTests
     {

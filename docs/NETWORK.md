@@ -41,8 +41,54 @@
 - Легаси Photon-путь (`DarkestPhotonLauncher`/`PhotonGameManager`) сохранён, ветвление —
   `IsSteamSession`/`IsSteamProvider`; выпиливается в Фазе 5 (`NETWORK_LAYER_REUSE.md`).
 
-## 5. Смежные документы
+## 6. Детерминированный локстап (модель сетевого боя)
+
+Мультиплеерный бой (Steam, сцена `DungeonMultiplayer`) построен как **детерминированный локстап**:
+каждая сторона запускает полную боевую симуляцию локально, по сети передаются **только вводы**
+и состав отряда. Состояние (HP, стресс, позиции, баффы) не синхронизируется — обе стороны считают
+его одинаково и сходятся. Реализация: `RaidSceneMultiplayerManager` + `MultiplayerSync` +
+`SteamRaidBridge` + `RandomSolver`.
+
+### Детерминизм
+
+- **Единый глобальный сид RNG.** Все роллы (урон, крит, додж, резисты, стресс, инициатива, решения
+  AI) идут из одного потока `RandomSolver` (обёртка над `System.Random`); `SetRandomSeed`
+  заменяет поток целиком.
+- **Сид сессии** — детерминированный: для каждого id из упорядоченного `PlayerIds` (локальный
+  первым, затем соперники) делается `SetRandomSeed(StableHash(id))`, затем
+  `sessionSeed += Next(2^16)`; в конце `SetRandomSeed(sessionSeed)`
+  (`RaidSceneMultiplayerManager.Awake`).
+- **Генерация героев из персональных сидов.** В лобби каждый герой получает сид; он уходит
+  сопернику в `party_config` (`MultiplayerPartyData.Seeds`) или в Photon custom properties
+  (`HS1..4`). Обе стороны регенерируют одинаковых героев из тех же сидов (конструктор `Hero`).
+- **Детерминированные `CombatId`** 1..8 (герои 1–4, враги 5–8) в одинаковом порядке на обеих
+  сторонах; именно они — ключи целей на проводе.
+- **Стороны**: герои = отряд хоста, враги = отряд соперника; обе стороны строят формирования
+  одинаково.
+
+### Wire (только вводы)
+
+- `party_config` — состав отряда: `класс|имя|сид|флаги скиллов` × 4 слота.
+- `rpc.<method>` — вводы: `PlayerLoaded` (барьер готовности), `HeroSkillSelected(slot)`,
+  `HeroSkillButtonClicked(combatId)`, `HeroMoveButtonClicked(combatId)`,
+  `HeroPassButtonClicked`, `HeroMoveSelected`/`HeroMoveDeselected`, `ExecuteBarkMessage(team,text)`.
+- Отправка — «всем + локально» (семантика `PhotonTargets.All`): действие выполняет и отправитель.
+- **Право ввода**: host действует за `Team.Heroes`, клиент за `Team.Monsters`; ввод транслируется,
+  обе стороны применяют его и продолжают симуляцию.
+
+### Победа
+
+Сообщения game-over на проводе **нет**: обе стороны локально достигают одинакового финала
+(`BattleStatus.Finished` при уничтожении формирования); кто победил — вычисляется локально.
+
+### Следствие для других клиентов
+
+Новый клиент (WPF-дуэль, `FEATURE_DESKTOP_CLIENT.md`) обязан воспроизвести те же правила сида
+и разрешения боя, чтобы стороны сходились; транспорт и словарь сообщений переиспользуются
+из `src\Lan` (см. `EXTRACTION_PLAN.md` Фаза 3).
+
+## 7. Смежные документы
 
 `NETWORK_RATIONALE.md` (почему байтовый транспорт) · `NETWORK_LAYER_REUSE.md` (план: ренейм, Photon,
 session-id, удаление PUN) · `FEATURE_COOP.md` / `FEATURE_GAME_MODES.md` (сессии до 8, арена) ·
-`ARCHITECTURE.md` (слои).
+`ARCHITECTURE.md` (слои, швы выноса).

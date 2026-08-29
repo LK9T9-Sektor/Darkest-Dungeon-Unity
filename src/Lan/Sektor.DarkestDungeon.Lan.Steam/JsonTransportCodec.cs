@@ -1,9 +1,9 @@
+using System.Text;
+
+using Sektor.DarkestDungeon.Lan.Contracts.Transport;
+
 namespace Sektor.DarkestDungeon.Lan.Steam
 {
-    using System.Text;
-
-    using Sektor.DarkestDungeon.Lan.Contracts.Transport;
-
     /// <summary>
     /// Minimal JSON wire codec with no external dependencies. The wire representation carries
     /// the message type and payload as a JSON object with two string fields; the sender is

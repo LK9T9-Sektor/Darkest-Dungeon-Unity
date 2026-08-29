@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="NSubstitute" Version="5.3.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Core\Sektor.DarkestDungeon.Core.Duel\Sektor.DarkestDungeon.Core.Duel.csproj" />
+  </ItemGroup>
+
+  <!-- Bundled content consumed by the test content source (linked from unity content, not duplicated). -->
+  <ItemGroup>
+    <None Include="..\..\..\unity\Assets\Resources\Data\Heroes\Info\*.bytes"
+          Link="Content\Heroes\%(Filename).bytes"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\unity\Assets\Resources\Data\JsonQuirks.json"
+          Link="Content\Quirks\JsonQuirks.json"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\unity\Assets\Resources\Data\JsonBuffs.json"
+          Link="Content\Buffs\JsonBuffs.json"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\unity\Assets\Resources\Data\Mechanics\Effects.txt"
+          Link="Content\Effects\Effects.txt"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\unity\Assets\Resources\Data\JsonTraits.json"
+          Link="Content\Traits\JsonTraits.json"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

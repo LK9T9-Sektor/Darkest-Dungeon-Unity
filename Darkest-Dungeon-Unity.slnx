@@ -50,16 +50,24 @@
   <Folder Name="/src/Core/">
     <Project Path="src/Core/Sektor.DarkestDungeon.Core.Content/Sektor.DarkestDungeon.Core.Content.csproj" />
     <Project Path="src/Core/Sektor.DarkestDungeon.Core.Ui/Sektor.DarkestDungeon.Core.Ui.csproj" />
+    <Project Path="src/Core/Sektor.DarkestDungeon.Core.Combat/Sektor.DarkestDungeon.Core.Combat.csproj" />
   </Folder>
   <Folder Name="/src/Lan/">
     <Project Path="src/Lan/Sektor.DarkestDungeon.Lan.Cmd/Sektor.DarkestDungeon.Lan.Cmd.csproj" />
     <Project Path="src/Lan/Sektor.DarkestDungeon.Lan.Contracts/Sektor.DarkestDungeon.Lan.Contracts.csproj" />
     <Project Path="src/Lan/Sektor.DarkestDungeon.Lan.Steam/Sektor.DarkestDungeon.Lan.Steam.csproj" />
   </Folder>
+  <Folder Name="/src/Wpf/">
+    <Project Path="src/Wpf/Sektor.DarkestDungeon.Wpf/Sektor.DarkestDungeon.Wpf.csproj" />
+  </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/Core/">
     <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Content.Tests/Sektor.DarkestDungeon.Core.Content.Tests.csproj" />
     <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Ui.Tests/Sektor.DarkestDungeon.Core.Ui.Tests.csproj" />
+    <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Combat.Tests/Sektor.DarkestDungeon.Core.Combat.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Wpf/">
+    <Project Path="tests/Wpf/Sektor.DarkestDungeon.Wpf.Tests/Sektor.DarkestDungeon.Wpf.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/Lan/">
     <Project Path="tests/Lan/Sektor.DarkestDungeon.Lan.Tests/Sektor.DarkestDungeon.Lan.Tests.csproj" />

@@ -1,9 +1,9 @@
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Core.Ui;
+
 namespace Sektor.DarkestDungeon.Core.Ui.Tests
 {
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Core.Ui;
-
     [TestFixture]
     public class UiStyleTests
     {

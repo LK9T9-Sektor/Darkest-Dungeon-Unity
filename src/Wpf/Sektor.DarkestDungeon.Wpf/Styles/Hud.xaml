@@ -1,0 +1,45 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ui="clr-namespace:Sektor.DarkestDungeon.Wpf.Ui">
+
+    <!-- Spacing tokens: single source for margins and paddings -->
+    <Thickness x:Key="SpacingTight">4</Thickness>
+    <Thickness x:Key="SpacingSmall">8</Thickness>
+    <Thickness x:Key="SpacingMedium">12</Thickness>
+
+    <!-- Top offsets of the floating top bars -->
+    <Thickness x:Key="TopBarOffset">0,12,0,0</Thickness>
+
+    <!-- Common area background: top (quest/torch/turn order) and bottom (raid info) bars -->
+    <SolidColorBrush x:Key="AreaBackground" Color="#C8000000" />
+
+    <!-- Battle field background and border -->
+    <SolidColorBrush x:Key="FieldBackground" Color="#0C0C0C" />
+    <SolidColorBrush x:Key="FieldBorder" Color="#3A2E22" />
+
+    <!-- Shared overlay panel chrome -->
+    <Style x:Key="OverlayPanel" TargetType="Border">
+        <Setter Property="Background" Value="#A0000000" />
+        <Setter Property="BorderBrush" Value="#3A2E22" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="CornerRadius" Value="8" />
+    </Style>
+
+    <!-- Shared HUD button chrome -->
+    <Style x:Key="HudButton" TargetType="Button">
+        <Setter Property="Background" Value="{x:Static ui:UiBrushes.ButtonBackground}" />
+        <Setter Property="Foreground" Value="{x:Static ui:UiBrushes.Label}" />
+    </Style>
+
+    <!-- Darkest Dungeon styled tooltip popup -->
+    <Style TargetType="ToolTip">
+        <Setter Property="Background" Value="#E6000000" />
+        <Setter Property="Foreground" Value="#E8D9B0" />
+        <Setter Property="BorderBrush" Value="#3A2E22" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="10,8" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="MaxWidth" Value="420" />
+    </Style>
+
+</ResourceDictionary>

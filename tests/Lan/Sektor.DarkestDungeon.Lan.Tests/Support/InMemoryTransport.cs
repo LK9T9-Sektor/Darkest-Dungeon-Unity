@@ -1,11 +1,11 @@
+using System;
+using System.Collections.Generic;
+
+using Sektor.DarkestDungeon.Lan.Contracts.Results;
+using Sektor.DarkestDungeon.Lan.Contracts.Transport;
+
 namespace Sektor.DarkestDungeon.Lan.Tests.Support
 {
-    using System;
-    using System.Collections.Generic;
-
-    using Sektor.DarkestDungeon.Lan.Contracts.Results;
-    using Sektor.DarkestDungeon.Lan.Contracts.Transport;
-
     /// <summary>
     /// In-memory <see cref="ITransport"/> test double: two linked instances deliver messages
     /// synchronously, which lets unit tests exercise the transport contract without a network.

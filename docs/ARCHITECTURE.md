@@ -24,9 +24,15 @@
 | `Content` | Классы данных контента + парсеры (JSON/DSL/CSV/XML), валидация на загрузке. Раскладка зеркалирует значимые legacy-папки: `Raid\` — пропы/курio (`Prop`, `Curio`, `CurioResult`, `IProportionValue`, `AreaType`), `Campaign\` — модели (`HeirloomExchange`, `PartyNames`, `NarrationEntry`/`NarrationAudioEvent`), `Save\` — бинарный интерфейс `IBinarySaveData`, `Database\` — DTO и мапперы-парсеры (`CurioCsvParser` — CSV, `NarrationMapper`/`LootMapper` — JSON). Ядро **не зависит от Newtonsoft**: DTO-члены названы snake_case по legacy-JSON (без `[JsonProperty]`), десериализация — в адаптере презентации любой версией Newtonsoft. Причина: сборки Newtonsoft 11/12/13 ссылаются на контракты net6.0 и не компилируются в Unity 2017.4 (`CS0009`; см. `KNOWN_ISSUES.md` §13). Рукописные мапперы — переходное состояние; целевое — прямая десериализация Newtonsoft в ядре после перехода Unity-проектов на совместимый Newtonsoft |
 | `Ui` | Презентационные токены runtime-оверлеев (engine-free): путь шрифта, семантические размеры текста и цвета (`ArgbColor`), потребляются обоими Unity-проектами через DLL. UI-конструктор (`RuntimeUiFactory`) остаётся Unity-side и дублируется в деревьях; стили — единый источник в ядре |
 | `Save` | DTO, бинарный кодек, версии; IO — через `ISaveStorage` |
-| `Combat` | Боевая симуляция (по Фазе 3): правила, ходы, эффекты, AI; события/команды наружу |
+| `Combat` | Боевая симуляция (Фаза 3, **вынесена**): скиллы, эффекты (29 SubEffect), раунды, `BattleSolver`, AI (desires), RNG, баффы. Раскладка зеркалирует legacy-структуру после `Assets\Scripts\` (правило «Preserve Folder Structure»): `Mechanics\` (Battle/Skills/Effects/AI + enums + RandomSolver), `Raid\` (Battle/Events), `Character\` (интерфейсы модели + Buff/BuffInfo + статус-интерфейсы), `Campaign\`. Границы наружу — интерфейсы: `ICharacter`, `ICombatUnit`, `IBattleGround`, `IBattleContext`, `IBattleEvents` (фидбек: попупы/хало/звук/суммон/торч). Конкретная модель персонажа/юнитов (`Character`, `Hero`, `Monster`, `FormationUnit`, `BattleGround`) остаётся Unity-side и реализует эти интерфейсы при cutover; игра пока работает на легаси-дублях |
+| `Duel` | Оркестрация дуэли (PvP 1v1, локстап; Фаза A, **вынесена** из `src\Wpf`): `DuelController` (+ `DuelHeroPick`), фазовая машина `DuelPhase`, локстап-сид `DuelSeed`, wire-протокол `DuelPayload`, адаптеры `DuelBattleContext`/`DuelBattleEvents`, порт контента `IDuelContent`, ИИ соперника `DuelAi` (через core-brain, Фаза B). Потребляется WPF-клиентом (тонким) и, после cutover, Unity-мультиплеером. Происхождение и критика — в `DUEL_ARCHITECTURE.md` |
 | `Campaign` | Кампания/имение, здания, квесты, week log, события города |
 | `Modes` | Режимы: конфиг режима, нодовая карта, состояние забега |
+
+Дополнительно в `Combat`: парсер легаси-контента героев `Character\HeroClassFileParser` +
+`HeroCatalog` — читают формат `Data/Heroes/Info` (базовый ранг прокачки: атрибуты оружия/брони,
+сопротивления, скилы уровня 0; эффекты скиллов пока не загружаются). WPF-клиент линкует
+`.bytes`-файлы из unity-контента и грузит полный ростер (15 классов) на старте.
 
 ### Сеть (`src\Networking\`)
 
@@ -40,7 +46,7 @@
 
 | Область | Ответственность |
 |---|---|
-| `Scripts\Networking\` | Фасад `MultiplayerSync`, `SessionManager`, `RaidBridge` — игровой glue над `ITransport` |
+| `Scripts\Networking\` | Фасад `MultiplayerSync`, `SessionManager`, `RaidBridge` — игровой glue над `ITransport`. **Мультиплеерный PvP-бой (дуэль)**: `RaidSceneMultiplayerManager` (god-class 2285 строк) — партия соперника = сторона монстров, lockstep-сид, обмен `party_config`, RPC-входы. Оркестрация не разнесена и живёт в презентации; ядро `Core.Duel` Unity не потребляет (cutover — фаза 6, см. `DUEL_ARCHITECTURE.md`) |
 | `Scripts\UI\` и др. | Панели, окна, слоты, вьюхи; рендер по состоянию/событиям ядра |
 | Интеграции | FMOD (аудио), Spine (анимации), Resources.Load (контент), префабы/сцены |
 
@@ -61,7 +67,8 @@
 
 1. Ошибки — через `Result`/`Result<T>`, ядро без исключений.
 2. Строковые Id; контент валидируется на загрузке (валидатор-паттерн).
-3. Детерминированный RNG (общий сид) — фундамент сети/реплеев/коопа.
+3. Детерминированный RNG (общий сид) — фундамент сети/реплеев/коопа; сетевой бой — детерминированный
+   локстап (обмениваются только вводами, состояние считается локально), см. `NETWORK.md` §6.
 4. Логика без ссылок на движок/UI: наружу — состояние + доменные события; механизм отрисовки
    (очередь анимаций, снапшоты) отдаётся тонкому движку/UI (Unity, WPF и т.п.).
 5. Данные-ресурсы вместо switch/enum (новый эффект/стат/статус = новое определение).

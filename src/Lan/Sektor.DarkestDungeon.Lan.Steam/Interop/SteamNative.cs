@@ -1,8 +1,8 @@
+using System;
+using System.Runtime.InteropServices;
+
 namespace Sektor.DarkestDungeon.Lan.Steam.Interop
 {
-    using System;
-    using System.Runtime.InteropServices;
-
     /// <summary>
     /// Minimal P/Invoke bindings to the Steamworks flat API (steam_api64).
     /// Only the subset required by <see cref="SteamTransport"/> is bound.

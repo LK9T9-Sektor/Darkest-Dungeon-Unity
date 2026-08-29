@@ -1,12 +1,12 @@
+using System;
+using System.Threading;
+
+using Sektor.DarkestDungeon.Lan.Contracts.Results;
+using Sektor.DarkestDungeon.Lan.Contracts.Transport;
+using Sektor.DarkestDungeon.Lan.Steam;
+
 namespace Sektor.DarkestDungeon.Lan.Cmd
 {
-    using System;
-    using System.Threading;
-
-    using Sektor.DarkestDungeon.Lan.Contracts.Results;
-    using Sektor.DarkestDungeon.Lan.Contracts.Transport;
-    using Sektor.DarkestDungeon.Lan.Steam;
-
     /// <summary>
     /// Console smoke test for the Steam transport. Without arguments an interactive menu lets the
     /// user pick between hosting a session or joining one (via a pasted ROOM_ID or a Steam invite,

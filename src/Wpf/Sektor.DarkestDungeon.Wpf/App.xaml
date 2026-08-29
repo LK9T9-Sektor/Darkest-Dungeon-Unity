@@ -1,0 +1,131 @@
+<Application x:Class="Sektor.DarkestDungeon.Wpf.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:ui="clr-namespace:Sektor.DarkestDungeon.Wpf.Ui"
+             xmlns:converters="clr-namespace:Sektor.DarkestDungeon.Wpf.Converters"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles/Hud.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+            <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility" />
+            <converters:StringToVisibilityConverter x:Key="StringToVisibility" />
+
+            <!-- Unit card inside an occupied slot: body, HP/stress bars, selection frame -->
+            <DataTemplate x:Key="UnitTemplate">
+                <Grid Width="185" Height="270">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseEnter">
+                            <i:InvokeCommandAction Command="{Binding DataContext.HoverCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                                   CommandParameter="{Binding}" />
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="MouseLeave">
+                            <i:InvokeCommandAction Command="{Binding DataContext.UnhoverCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="MouseRightButtonDown">
+                            <i:InvokeCommandAction Command="{Binding DataContext.OpenStatsCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                                   CommandParameter="{Binding}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+
+                    <!-- Tray: buff/debuff/status icons floating above the unit -->
+                    <ItemsControl ItemsSource="{Binding Tray}" HorizontalAlignment="Center"
+                                  VerticalAlignment="Top" Margin="0,8,0,0">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Width="16" Height="16" Margin="1,0" CornerRadius="2"
+                                        ToolTip="{Binding Tooltip}"
+                                        Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibility}}">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#8A6A3A" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Tone}" Value="Debuff">
+                                                    <Setter Property="Background" Value="#7A3030" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Tone}" Value="Dot">
+                                                    <Setter Property="Background" Value="#3A6A4A" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Unit body placeholder: same width as the HP/stress bars -->
+                    <Border HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="178" Margin="18,30,18,0"
+                            CornerRadius="8">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="#5A4A3A" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEnemy}" Value="True">
+                                        <Setter Property="Background" Value="#6A2E24" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="{Binding ClassName}" Foreground="#E8D9B0" FontSize="15"
+                                   HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,8" />
+                    </Border>
+
+                    <!-- Selection frame -->
+                    <Border BorderBrush="{x:Static ui:UiBrushes.Label}" BorderThickness="3" CornerRadius="10"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="182" Margin="16,28,16,0"
+                            Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibility}}" />
+
+                    <!-- Name -->
+                    <TextBlock Text="{Binding Name}" Foreground="#E8D9B0" FontSize="18"
+                               HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,210,0,0" />
+
+                    <!-- Health bar: fixed width, fill varies with HP -->
+                    <ProgressBar Minimum="0" Maximum="1" Value="{Binding HpRatio, Mode=OneWay}"
+                                 Height="12" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="18,234,18,0" />
+
+                    <!-- Stress bar: same full width as the health bar, split into 10 squares -->
+                    <ItemsControl ItemsSource="{Binding StressPips}" HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Top" Margin="18,250,18,0">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="10" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Rectangle Height="9" Margin="1,0" Fill="#4A5A6A" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </DataTemplate>
+
+            <!-- Fixed battle slot: always visible frame; gray when empty, warm when occupied -->
+            <DataTemplate x:Key="BattleSlotTemplate">
+                <Border Width="185" Height="270" Margin="12,0" BorderThickness="2">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="#6A6A6A" />
+                            <Setter Property="CornerRadius" Value="8" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasUnit}" Value="True">
+                                    <Setter Property="BorderBrush" Value="#8A6A3A" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <ContentControl Content="{Binding Unit}" ContentTemplate="{StaticResource UnitTemplate}" />
+                </Border>
+            </DataTemplate>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

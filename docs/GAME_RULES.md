@@ -1,0 +1,128 @@
+# GAME_RULES.md — Правила и механики: как реализовано в этом репозитории vs оригинал Darkest Dungeon
+
+Единый источник правды по игровым механикам. Каждая механика описывается **как реализована в этом
+коде** (legacy `unity\Assets\Scripts` + вынесенное ядро `src\Core` + дуэль), потому что реализация
+может отличаться от оригинала DD. Подблоки «Оригинал DD» заполняются позже — тогда видны расхождения.
+Карта документов — `INDEX.md`, долг/вынос — `PLAN.md`/`EXTRACTION_PLAN.md`.
+
+## Сводная таблица расхождений
+
+| Механика | Как в этом репо | Оригинал DD |
+|---|---|---|
+| Крит по герою → стресс | есть (15 цели, `Effects["Stress 2"]`) | *(позже)* |
+| Смерть героя → стресс отряда | есть (15 каждому) | *(позже)* |
+| Пасс → стресс | **нет** (case Pass — только попап) | *(позже)* |
+| Death's door → стресс | есть (BarkStress 6) | *(позже)* |
+| Resolve (аффекция/виртуда) | частично (событие, ролла в ядре нет) | *(позже)* |
+| Эффекты скиллов (стан/яд/кровь/бафф) | частично (общие + stat-баффы + buff_ids, Фаза 4) | *(позже)* |
+| Инициатива | скорость + бросок 0–10 | *(позже)* |
+
+Столбец «Оригинал DD» заполняется по мере добавления. Статус каждой секции: **реализовано** / **частично** / **нет**.
+
+## Стресс
+
+### Как реализовано в этом репозитории
+
+- **Крит по герою** → стресс цели: `Effects["Stress 2"]` = **15** (`BattleSolver` L409; данные `Data/Mechanics/Effects.txt`).
+- **Смерть героя** → стресс **всему отряду**: `Effects["Stress 2"]` = **15 каждому** (`RaidSceneManager` L1818).
+- **Ретраит** → отряд: `Effects["Stress 2"]` = 15 каждому (L626/782).
+- **Голод (starvation)** → отряд: `Effects["Stress 2"]` = 15 каждому (L5941).
+- **Death's door** → `Effects["BarkStress"]` = **6** (L4840).
+- **Снятие стресса**: `Heal Stress 1` = 4, `crit_heal_stress_heal` = 4 (крит-хил), `HealSelfStress 1` = 10.
+- **Пасс → стресса НЕТ**: `case HeroTurnAction.Pass` — только попап + пауза (L3306).
+- Ядро: `StressEffect`/`StressHealEffect`/`IStress`/`OverstressType` (движок). Дуэль: применяется через
+  `BattleSolver.ApplyEffectById` + каталог эффектов `EffectCatalog` (`Effects.txt`, пока stress-ключи) —
+  **крит-стресс работает** (Фаза 1), **смерть героя → стресс 15 выжившим** (Фаза 2).
+
+Статус: **частично** (крит-стресс и смерть-→-отряд в дуэли работают; death's door — когда появится
+механика death's door в дуэли, сейчас 0 HP = смерть; resolve-ролл — Фазой 3).
+
+### Оригинал Darkest Dungeon
+
+*(заполняется позже)*
+
+## Бой (атака/защита/крит/меткость)
+
+### Как реализовано в этом репозитории
+
+- `BattleSolver` (ядро): урон/хил/крит (`SkillResultEntry`, `HeroActionInfo`); крит ×1.5.
+- Меткость/крит из статов + модификаторов скилла.
+- Дуэль использует ядро напрямую.
+
+Статус: **реализовано** (ядро). Подробности — `ARCHITECTURE.md`/`DUEL_ARCHITECTURE.md`.
+
+### Оригинал Darkest Dungeon
+
+*(заполняется позже)*
+
+## Инициатива / порядок хода
+
+### Как реализовано в этом репозитории
+
+- `Round.NextRound`: `Speed + бросок 0–10` (ядро). Ролл сохраняется в `CombatInfo.InitiativeRoll`.
+
+Статус: **реализовано** (ядро). Подробности — `AI_BEHAVIOR.md`.
+
+### Оригинал Darkest Dungeon
+
+*(заполняется позже)*
+
+## Эффекты скиллов (стан/яд/кровь/бафф/стресс отряда)
+
+### Как реализовано в этом репозитории
+
+- `EffectCatalog` (Фаза 4) парсит `Effects.txt` для общих ключей: `.stress`, `.healstress`,
+  `.heal`, `.stun`, `.dotBleed`/`.dotPoison` (с `.duration`), `.pull`, `.push`, `.cure`, `.riposte`,
+  `.shuffleparty`/`.shuffletarget`, `.tag`/`.mark`, `.immobilize`, `.combat_stat_buff` + стат-ключи
+  (`*_add`/`*_multiply`/`critical_rating`/`speed_rating[_add]`) → `SubEffect`-классы ядра.
+- `HeroClassFileParser`/`HeroCatalog` принимают каталог и резолвят все `.effect "id"` из `.bytes`
+  → `CombatSkill.Effects`; `DuelController.ExecuteSkill` применяет их + дренирует EventQueue
+  (стан/бафф/гард теперь реально срабатывают в дуэли).
+- **`.buff_ids`** работают: `BuffEffect.BuffIds` резолвит контент-баффы из `JsonBuffs.json`
+  через `IBattleContext.GetBuff` (дуэль → `IDuelContent.GetBuff`).
+- **Торч**: `.torch_decrease`/`.torch_increase` → `Effect.Torch` (Global), дуэль мьютит
+  `TorchAmount` (клэмп 0–100) через `DuelBattleEvents.TorchDelta`.
+
+Статус: **частично** (общие эффекты, stat-баффы, buff_ids и торч работают).
+
+## Modes (Абоминация: human/beast)
+
+### Как реализовано в этом репозитории
+
+- `mode:` секции → `HeroClass.Modes`; герой стартует в raid-default моде (human);
+  `transform` — Support-скилл без accuracy-ролла, `.valid_modes` ограничивают скиллы по моде,
+  `.human_effects`/`.beast_effects` → `ModeEffects` (`switch_mode_*` меняет `CurrentMode`),
+  `.is_continue_turn` даёт повторный ход. Учёт мод в `IsSkillUsable`, продолжение хода в дуэли.
+
+Статус: **реализовано** (дуэль).
+
+## Сюрприз первого раунда
+
+### Как реализовано в этом репозитории
+
+- При старте боя `DuelController.CheckSurprise`: шанс сюрприза стороны
+  `0.1 + торч-бонус диапазона` + суммарные `MonsterSurpirseChance`/`PartySurpriseChance` героев
+  (клэмп 0–0.65); застигнутая сторона получает -100 к инициативе в 1-м раунде (действует последней),
+  помечается `IsSurprised`, герои дополнительно перемешиваются.
+
+Статус: **реализовано** (дуэль).
+
+### Оригинал Darkest Dungeon
+
+*(заполняется позже)*
+
+## Resolve (аффекция/виртуда/сердечный приступ)
+
+### Как реализовано в этом репозитории
+
+- Ядро: `Resolve`, `Trait`, `OverstressType`, события `AddResolveCheck`/`AddHeartAttackCheck`;
+  `Hero` несёт `Trait`/`ApplyTrait` (`BuffSourceType.Trait`).
+- **Resolve-ролл в дуэли работает** (Фаза 3): при стресс >= 100 — шанс виртуды
+  `0.25 + ResolveCheckPercent` (клэмп 0.01–0.6), случайная черта из `JsonTraits.json`, аффекция
+  стрессует союзников (`AfflictedAllyStress` 33%×5), виртуда сбрасывает стресс в 20–40.
+
+Статус: **реализовано** (дуэль; сердечный приступ — позже).
+
+### Оригинал Darkest Dungeon
+
+*(заполняется позже)*

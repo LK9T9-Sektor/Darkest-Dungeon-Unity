@@ -1,0 +1,369 @@
+<views:PumpableScreenBase x:Class="Sektor.DarkestDungeon.Wpf.Views.DuelBattleView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors">
+    <views:PumpableScreenBase.Resources>
+        <!-- Duel unit card: enemy-tinted body, target/current highlight frames -->
+        <DataTemplate x:Key="DuelUnitTemplate">
+            <Grid Width="185" Height="250">
+                <Border Width="150" Height="150" CornerRadius="8" Margin="0,10,0,0" VerticalAlignment="Top">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="#5A4A3A" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEnemy}" Value="True">
+                                    <Setter Property="Background" Value="#6A2E24" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Grid>
+                        <!-- Portrait slot (empty until an image is provided) -->
+                        <Image Source="{Binding Portrait}" Stretch="UniformToFill" />
+                        <TextBlock Text="{Binding ClassName}" Foreground="#E8D9B0" FontSize="16"
+                                   HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="4,0,4,8"
+                                   TextWrapping="Wrap" TextAlignment="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- Team frame: red (team 1) / blue (team 2); white when acting; gold when a target -->
+                <Border Width="166" Height="166" BorderThickness="3" CornerRadius="12" Margin="0,2,0,0"
+                        VerticalAlignment="Top">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="#8A2E2E" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEnemy}" Value="True">
+                                    <Setter Property="BorderBrush" Value="#2E4A8A" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsTarget}" Value="True">
+                                    <Setter Property="BorderBrush" Value="#D9B46A" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                    <Setter Property="BorderBrush" Value="White" />
+                                    <Setter Property="BorderThickness" Value="4" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+
+                <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="Bold"
+                           HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,170,0,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="#C96A5A" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEnemy}" Value="True">
+                                    <Setter Property="Foreground" Value="#6A8AC9" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <!-- HP bar: 12 blocks -->
+                <ItemsControl ItemsSource="{Binding HpSegments}" HorizontalAlignment="Stretch"
+                              VerticalAlignment="Top" Margin="14,194,14,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="12" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Rectangle Height="12" Margin="1,0">
+                                <Rectangle.Style>
+                                    <Style TargetType="Rectangle">
+                                        <Setter Property="Fill" Value="#2A2A2A" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding}" Value="1">
+                                                <Setter Property="Fill" Value="#8A3A2A" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Rectangle.Style>
+                            </Rectangle>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock Text="{Binding HpText}" Foreground="#B0A080" FontSize="10"
+                           HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,208,0,0" />
+
+                <!-- Stress bar: 10 pips -->
+                <ItemsControl ItemsSource="{Binding StressPips}" HorizontalAlignment="Stretch"
+                              VerticalAlignment="Top" Margin="14,222,14,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="10" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Rectangle Height="8" Margin="1,0">
+                                <Rectangle.Style>
+                                    <Style TargetType="Rectangle">
+                                        <Setter Property="Fill" Value="#2A2A2A" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding}" Value="1">
+                                                <Setter Property="Fill" Value="#8A7A3A" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding}" Value="2">
+                                                <Setter Property="Fill" Value="#7A3030" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Rectangle.Style>
+                            </Rectangle>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Floating damage popup -->
+                <TextBlock Text="{Binding DamagePopupText}" FontSize="22" FontWeight="Bold" Foreground="White"
+                           HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,44,0,0"
+                           TextAlignment="Center" TextWrapping="Wrap" IsHitTestVisible="False">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Opacity" Value="0" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding DamagePopupVisible}" Value="True">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                 From="1" To="0" Duration="0:0:0.9" />
+                                                <ThicknessAnimation Storyboard.TargetProperty="Margin"
+                                                                    From="0,44,0,0" To="0,8,0,0" Duration="0:0:0.9" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+        </DataTemplate>
+
+        <!-- Clickable duel slot: left-click targets, hover/right-click show info -->
+        <DataTemplate x:Key="DuelSlotTemplate">
+            <ContentControl Content="{Binding}">
+                <ContentControl.Template>
+                    <ControlTemplate TargetType="ContentControl">
+                        <Button Background="Transparent" BorderThickness="0" Padding="0"
+                                Command="{Binding DataContext.TargetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseEnter">
+                                    <i:InvokeCommandAction Command="{Binding DataContext.HoverCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                           CommandParameter="{Binding}" />
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseLeave">
+                                    <i:InvokeCommandAction Command="{Binding DataContext.UnhoverCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseRightButtonDown">
+                                    <i:InvokeCommandAction Command="{Binding DataContext.OpenStatsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                           CommandParameter="{Binding}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource DuelUnitTemplate}" />
+                        </Button>
+                    </ControlTemplate>
+                </ContentControl.Template>
+            </ContentControl>
+        </DataTemplate>
+    </views:PumpableScreenBase.Resources>
+
+    <Grid Background="#100C08">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" MinHeight="150" />
+            <RowDefinition Height="1.6*" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+
+        <!-- TOP AREA: quest + retreat (left), torch (center), turn order (right) -->
+        <Grid Grid.Row="0" Background="{StaticResource AreaBackground}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Quest + retreat cross, same header chrome as the menu and lobbies -->
+            <views:ScreenHeaderView Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                    Margin="40,24,0,0"
+                                    Title="Duel"
+                                    Subtitle="{Binding Quest.Goal}"
+                                    CloseCommand="{Binding LeaveCommand}" />
+
+            <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,8,0,0">
+                <views:TorchView DataContext="{Binding Torch}"
+                                 HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding Events.Round, StringFormat='ROUND {0}'}" Foreground="#8A7A5A"
+                           FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,6,0,0" />
+            </StackPanel>
+
+            <views:TurnOrderView Grid.Column="2" DataContext="{Binding}"
+                                 HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="8,8,8,0" />
+        </Grid>
+
+        <!-- CENTER AREA: battle field, round overlay, events -->
+        <Grid Grid.Row="1">
+            <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="24,20,24,12"
+                    Background="{StaticResource FieldBackground}" BorderBrush="{StaticResource FieldBorder}"
+                    BorderThickness="2" CornerRadius="12" />
+
+            <!-- Battle stage: unit cards scale to fill the field, teams separated by a gap -->
+            <Viewbox Stretch="Uniform" Margin="40,16,40,12">
+                <Grid Width="1800" Height="290">
+                    <ItemsControl ItemsSource="{Binding Heroes}" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                                  Margin="40,0,0,20">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource DuelSlotTemplate}"
+                                                Margin="8,0" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <ItemsControl ItemsSource="{Binding Monsters}" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                  Margin="0,0,40,20">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource DuelSlotTemplate}"
+                                                Margin="8,0" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </Viewbox>
+
+            <views:EventsLayerView DataContext="{Binding Events}"
+                                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        </Grid>
+
+        <!-- BOTTOM AREA: one framed panel with the acting hero's skills on top and the info panels below -->
+        <Border Grid.Row="2" Style="{StaticResource OverlayPanel}" Margin="24,8,24,12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Top strip: acting hero's skills + right panel toggles, separated by a border -->
+                <Border Grid.Row="0" BorderBrush="#3A2E22" BorderThickness="0,0,0,1" Padding="8,6">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                            <!-- Acting hero's skills (all but Move/Pass), with icon slot -->
+                            <ItemsControl ItemsSource="{Binding Skills}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Width="58" Margin="4">
+                                            <Button Width="50" Height="50" Padding="2"
+                                                    ToolTip="{Binding Details}"
+                                                    IsEnabled="{Binding IsUsable}"
+                                                    Command="{Binding DataContext.SelectSkillCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button" BasedOn="{StaticResource HudButton}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                <Setter Property="BorderBrush" Value="#E8D9B0" />
+                                                                <Setter Property="Background" Value="#3A3022" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                                <Grid>
+                                                    <Image Source="{Binding Icon}" Stretch="UniformToFill" />
+                                                    <TextBlock Text="{Binding DisplayName}" FontSize="8" Foreground="#E8D9B0"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                               TextWrapping="Wrap" TextAlignment="Center" Margin="2" />
+                                                </Grid>
+                                            </Button>
+                                            <TextBlock Text="{Binding DisplayNameUpper}" FontSize="8" Foreground="#C8C0B0"
+                                                       TextAlignment="Center" TextWrapping="Wrap" Margin="0,2,0,0" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <StackPanel Width="58" Margin="4,4,0,4" HorizontalAlignment="Left">
+                                <Button Width="50" Height="50" FontSize="22" Style="{StaticResource HudButton}"
+                                        ToolTip="Move to an adjacent rank"
+                                        Command="{Binding MoveCommand}">
+                                    <TextBlock Text="&#x21C4;" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Button>
+                                <TextBlock Text="MOVE" FontSize="8" Foreground="#C8C0B0"
+                                           TextAlignment="Center" TextWrapping="Wrap" Margin="0,2,0,0" />
+                            </StackPanel>
+                            <StackPanel Width="58" Margin="4" HorizontalAlignment="Left">
+                                <Button Width="50" Height="50" FontSize="22" Style="{StaticResource HudButton}"
+                                        ToolTip="Skip the turn"
+                                        Command="{Binding PassCommand}">
+                                    <TextBlock Text="&#x2715;" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Button>
+                                <TextBlock Text="PASS" FontSize="8" Foreground="#C8C0B0"
+                                           TextAlignment="Center" TextWrapping="Wrap" Margin="0,2,0,0" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Right panel toggles, flush in the same row -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                            <Button Content="LOG" Command="{Binding RaidHud.ShowLogCommand}" Margin="0,0,6,0"
+                                    Style="{StaticResource HudButton}" Padding="14,4" FontSize="15" />
+                            <Button Content="INVENTORY" Command="{Binding RaidHud.ShowInventoryCommand}" Margin="0,0,6,0"
+                                    Style="{StaticResource HudButton}" Padding="14,4" FontSize="15" />
+                            <Button Content="MAP" Command="{Binding RaidHud.ShowMapCommand}"
+                                    Style="{StaticResource HudButton}" Padding="14,4" FontSize="15" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <views:RaidHudView Grid.Row="1" DataContext="{Binding}" />
+            </Grid>
+        </Border>
+
+        <!-- Stats sheet overlay (right-click a unit): on top of the whole screen -->
+        <Grid Grid.RowSpan="3" HorizontalAlignment="Left" VerticalAlignment="Top" Width="560" Height="520" Margin="40,40,0,0"
+              Visibility="{Binding IsStatsVisible, Converter={StaticResource BoolToVisibility}}">
+            <Border Style="{StaticResource OverlayPanel}">
+                <Grid Margin="{StaticResource SpacingMedium}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Button Grid.Row="0" Content="X" Command="{Binding CloseStatsCommand}"
+                            HorizontalAlignment="Right" Width="30" Height="30"
+                            Style="{StaticResource HudButton}" FontWeight="Bold" />
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
+                        <views:HeroStatsView DataContext="{Binding StatsTarget}" ShowFullDetails="True" />
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</views:PumpableScreenBase>

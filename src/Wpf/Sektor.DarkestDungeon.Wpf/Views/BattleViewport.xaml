@@ -1,0 +1,49 @@
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.BattleViewport"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#14100C" Offset="0" />
+                <GradientStop Color="#241A12" Offset="1" />
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <!-- Room backdrop placeholder: the wide working area; free space at the ends -->
+        <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="8,24,8,24"
+                Background="{StaticResource FieldBackground}" BorderBrush="{StaticResource FieldBorder}"
+                BorderThickness="2" CornerRadius="12" />
+
+        <!-- Player party: four fixed slots on the left half, clear center gap, near the bottom -->
+        <ItemsControl ItemsSource="{Binding HeroSlots}"
+                      HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                      Margin="40,0,0,40">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource BattleSlotTemplate}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Enemies: four fixed slots on the right half, clear center gap, near the bottom -->
+        <ItemsControl ItemsSource="{Binding MonsterSlots}"
+                      HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                      Margin="0,0,40,40">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource BattleSlotTemplate}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</UserControl>

@@ -1,11 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+
+using Sektor.DarkestDungeon.Lan.Contracts.Results;
+
 namespace Sektor.DarkestDungeon.Lan.Steam.Interop
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Runtime.InteropServices;
-
-    using Sektor.DarkestDungeon.Lan.Contracts.Results;
-
     /// <summary>
     /// Owns the Steamworks runtime: initialization, interface resolution and the
     /// manual callback dispatch pump. All native state lives here so that

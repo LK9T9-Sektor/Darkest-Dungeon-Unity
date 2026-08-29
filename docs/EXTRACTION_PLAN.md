@@ -16,10 +16,24 @@
 
 ## 1. Текущее состояние
 
-- `Assets\Scripts` — ~496 MonoBehaviour-файлов в каждом из двух деревьев; весь домен (бой, кампания,
-  данные) всё ещё в презентационном слое.
+- `Assets\Scripts` — ~496 MonoBehaviour-файлов в каждом из двух деревьев; домен (бой, кампания,
+  данные) по-прежнему в презентационном слое (игра работает на легаси-копиях боя; cutover на ядро
+  отложен, см. Фазу 3).
 - `src\` — сетевой слой `Lan\` (Contracts/Steam/Cmd), netstandard2.0, C# 7.3; DLL доставляются
   пост-билдом в `Assets\Plugins\Internal` обоих деревьев. `src\Core\` и `src\Networking\` — целевые.
+- `src\Core\Combat\` — **Фаза 3, вынесено (готово)**: скиллы, 29 эффектов, `Round`, `BattleSolver`,
+  AI (9+8+6 desires), `RandomSolver`, баффы, интерфейсы границы (`ICharacter`, `ICombatUnit`,
+  `IBattleGround`, `IBattleContext`, `IBattleEvents`). Раскладка зеркалирует `Assets\Scripts\`
+  после корня (правило «Preserve Folder Structure»): `Mechanics\`, `Raid\`, `Character\`, `Campaign\`.
+  Тесты — `tests\Core\Sektor.DarkestDungeon.Core.Combat.Tests` (NUnit + NSubstitute, 31). WPF-клиент
+  уже потребляет core-скиллы. Конкретная модель персонажа/юнитов и cutover Unity — отложены.
+  Плюс парсер контента героев: `Character\HeroClassFileParser` + `HeroCatalog` (формат
+  `Data/Heroes/Info`, базовый ранг; полный ростер 15 классов потребляется WPF).
+- `src\Core\Duel\` — **оркестрация дуэли (PvP 1v1, локстап), вынесено (Фаза A/B)**: `DuelController`,
+  `DuelPhase`, `DuelSeed`, `DuelPayload`, `IDuelContent`, адаптеры `DuelBattleContext`/`DuelBattleEvents`,
+  ИИ `DuelAi`. Ре-имплементация мультиплеерного PvP-боя Unity (`RaidSceneMultiplayerManager`/
+  `MultiplayerSync`), который в Unity не разнесён. WPF-клиент — тонкий потребитель; cutover Unity —
+  Фаза 6. См. `DUEL_ARCHITECTURE.md`. Тесты — `tests\Core\Sektor.DarkestDungeon.Core.Duel.Tests`.
 - `src\Core\Content\` — данные контента (Фаза 1, в работе): `Raid\` (пропы/курio: `Prop`,
   `Curio`, `CurioResult`, `IProportionValue`, `AreaType`), `Campaign\` (модели `HeirloomExchange`,
   `PartyNameEntry`,   `NarrationEntry`/`NarrationAudioEvent`), `Save\` (бинарный интерфейс
@@ -35,7 +49,8 @@
   семантические размеры текста и цвета (`ArgbColor`), доставляются DLL в оба проекта; Unity-side
   конструктор (`RuntimeUiFactory`) дублируется в деревьях и читает токены из ядра. Единый источник
   стилей для `MultiplayerLogUI`, `MultiplayerProviderMenu`, `SteamLobbyIdPanel`, `SoundSettingsUI`.
-- `tests\Lan\` — NUnit-тесты сетевого слоя; `tests\Core\` — NUnit-тесты ядра контента (на реальных данных).
+- `tests\Lan\` — NUnit-тесты сетевого слоя; `tests\Core\` — NUnit-тесты ядра контента и боя
+  (`Sektor.DarkestDungeon.Core.Combat.Tests`).
 
 ## 2. Целевая раскладка
 
@@ -44,7 +59,7 @@ repo/
 ├── AGENTS.md            # карта-манифест, правила
 ├── docs/                # документация (см. INDEX.md)
 ├── src/
-│   ├── Core/            # домен: Common, Content, Save, Combat, Campaign, Modes
+│   ├── Core/            # домен: Common, Content, Save, Combat, Duel, Campaign, Modes
 │   ├── Networking/      # транспорт: Contracts, Steam, Photon (из Lan\)
 │   └── External/        # вендоренный референс (read-only)
 ├── content/             # общие ресурсы-данные (трекаются): контент, локализация (см. FEATURE_SHARED_ASSETS)
@@ -79,24 +94,40 @@ repo/
   `tools\sync-assets.ps1` (см. `FEATURE_SHARED_ASSETS.md`).
 - **Фаза 1. Данные** → `src\Core\Content`: модели контента + парсеры (JSON/DSL/CSV/XML) из
   `DarkestDatabase`; `InvariantCulture`; `DarkestDatabase` → тонкий загрузчик; тесты на реальных данных.
-  *(в работе)* Вынесен первый срез: `HeirloomExchange` + `PartyNames` (модели `Campaign\`, DTO
-  `Json*` и мапперы `Database\`), доставка DLL в оба проекта, NUnit-тесты на реальных JSON. Ядро —
-  чистое netstandard2.0 **без Newtonsoft**: DTO-члены snake_case по legacy-JSON (без `[JsonProperty]`),
-  десериализация остаётся в адаптере презентации (`GetJsonObject<T>`), где Newtonsoft 4.0.2.0
+*(в работе)* Вынесен первый срез: `HeirloomExchange` + `PartyNames` (модели `Campaign\`, DTO
+   `Json*` и мапперы `Database\`), доставка DLL в оба проекта, NUnit-тесты на реальных JSON. Ядро —
+   чистое netstandard2.0 **без Newtonsoft**: DTO-члены snake_case по legacy-JSON (без `[JsonProperty]`),
+   десериализация остаётся в адаптере презентации (`GetJsonObject<T>`), где Newtonsoft 4.0.2.0.
+   Добавлены квирки героев: модель `Character\Quirk`, DTO `JsonQuirk`/`JsonQuirkData`, `QuirkMapper`
+   (положительные/отрицательные, buffs, несовместимости) + тесты на `JsonQuirks.json`.
+   Добавлены буффы: `Character\BuffContent`, DTO `JsonBuff`/`JsonBuffData`/`JsonBuffRuleData`,
+   `BuffContentMapper` + тесты на `JsonBuffs.json`; в `CharacterHelper` портированы
+   `StringToBuffType`/`StringToBuffRule`. Квирки применяются в WPF-дуэли как permanent-баффы
+   (`BuffSourceType.Quirk`) — как в Unity.
   (оба проекта) мапит их напрямую. Следующий шаг: перенести `JsonConvert` в ядро и десериализовать
   JSON напрямую в модели — но только после того, как Unity-проекты получат Newtonsoft, читаемый
   компилятором 2017.4 (сейчас сборки Newtonsoft 11/12/13 ссылаются на контракты net6.0 и дают
   `CS0009` в 2017.4; см. `KNOWN_ISSUES.md` §13).
 - **Фаза 2. Сейвы** → `src\Core\Save`: DTO + бинарный кодек + версии; IO в Unity через `ISaveStorage`.
-- **Фаза 3. Бой** → `src\Core\Combat`: `BattleGround`/`Round`/`BattleSolver`/Effects/AI как чистая
-  симуляция; архитектура — **симуляция + события для view** (решение принято). Кооп-PvE строится на
-  результате этой фазы (см. `FEATURE_COOP.md`).
+- **Фаза 3. Бой** → `src\Core\Combat`: `BattleSolver`/`Round`/Effects/AI как чистая
+  симуляция; архитектура — **симуляция + события для view** (решение принято). *(вынесено, готово)*:
+  `Sektor.DarkestDungeon.Core.Combat` (netstandard2.0, C# 7.3) — скиллы, 29 эффектов, раунды,
+  `BattleSolver`, AI (desires), `RandomSolver`, баффы; структура папок повторяет `Assets\Scripts\`
+  (правило «Preserve Folder Structure»). NUnit-тесты (31) + WPF-потребление. **Отложено до
+  востребованности** (детерминированный кооп через ядро, `NETWORK.md` §6): конкретная модель
+  персонажа/юнитов (`Character`, `Hero`, `Monster`, `FormationUnit`, `BattleGround`) в ядре и cutover
+  Unity (реализация `ICharacter`/`ICombatUnit`/`IBattleGround`, удаление легаси-дублей в
+  `Assets\Scripts\Mechanics\`). Сейчас игра работает на легаси-копиях; интерфейсы ядра готовы к
+  реализации при cutover.
 - **Фаза 4. Кампания** → `src\Core\Campaign`: имение, здания, квесты, week log, события города.
 - **Фаза 5. Сеть** → `src\Networking` (Steam + Photon) по `NETWORK_LAYER_REUSE.md`: ренейм
   `Sektor.Networking`, `PhotonTransport`, generic `SessionManager`/`RaidBridge`, единый session-id флоу,
   удаление PUN из обоих проектов.
 - **Фаза 6. Презентация** — только тонкие MonoBehaviour-адаптеры + UI; расхождения между проектами —
-  только внутри Unity-кода (API Unity 2017.4 vs 6000).
+  только внутри Unity-кода (API Unity 2017.4 vs 6000). В рамках фазы: cutover мультиплеерного
+  PvP-боя Unity на `src\Core\Duel` (тонкие адаптеры вместо оркестрации в
+  `RaidSceneMultiplayerManager`/`MultiplayerSync`, единый wire-протокол `DuelPayload`, стабильный сид
+  `DuelSeed`), см. `DUEL_ARCHITECTURE.md`.
 
 ## 4. `.gitignore`
 

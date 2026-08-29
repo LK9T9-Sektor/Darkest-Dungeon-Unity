@@ -3,12 +3,15 @@
 # metas (new GUIDs) while scenes kept the old GUIDs, which silently drops components at load
 # time (black screens, NullReferenceExceptions).
 #
-# 1. Indexes every guid: found under Assets\**\*.meta.
+# 1. Indexes every guid found under Assets\**\*.meta.
 # 2. Scans all .unity/.prefab files for m_Script: {fileID: 11500000, guid: X} references.
 # 3. Reports any guid that resolves neither to a project meta nor to a known built-in/package
 #    guid (old Unity 2017 UI components, the com.unity.ugui package, Photon demo scenes).
 # 4. Flags .cs files that are missing their .cs.meta (Unity would regenerate a new guid).
 # Exit code 0 when clean, 1 otherwise.
+#
+# Uses ripgrep when available (fast parallel file scan); falls back to a plain PowerShell
+# implementation otherwise. Both paths produce the same result and error report.
 #
 # Usage: pwsh tools\unity-check-script-references.ps1 [-ProjectPath <project>]
 
@@ -46,43 +49,72 @@ $builtinGuids = @(
 $builtinSet = @{}
 foreach ($guid in $builtinGuids) { $builtinSet[$guid] = $true }
 
-$projectGuids = @{}
-Get-ChildItem $assetsRoot -Recurse -Filter "*.meta" -ErrorAction SilentlyContinue |
-    Where-Object { $_.Name -notmatch "\.meta\.meta$" } |
-    ForEach-Object {
-        $m = [regex]::Match([System.IO.File]::ReadAllText($_.FullName), "(?m)^guid: ([0-9a-f]+)")
-        if ($m.Success) {
-            $projectGuids[$m.Groups[1].Value] = $_.FullName
-        }
-    }
-
 $errors = New-Object System.Collections.Generic.List[string]
-$seen = @{}
 
-Get-ChildItem $assetsRoot -Recurse -Include "*.unity", "*.prefab" -ErrorAction SilentlyContinue |
-    ForEach-Object {
-        $rel = $_.FullName.Substring($repoRoot.Length + 1)
-        $text = [System.IO.File]::ReadAllText($_.FullName)
-        foreach ($m in [regex]::Matches($text, 'm_Script: \{fileID: 11500000, guid: ([0-9a-f]+)')) {
-            $guid = $m.Groups[1].Value
+$rg = Get-Command rg -ErrorAction SilentlyContinue
+if ($null -ne $rg) {
+    # --- Fast path: ripgrep scans the tree in parallel. ---
+
+    # 1. Index of every guid declared in Assets\**\*.meta (output is the hex guid only).
+    $projectGuids = @{}
+    & $rg.Source -o --no-filename --replace '$1' '^guid: ([0-9a-f]+)' $assetsRoot -g '*.meta' 2>$null |
+        ForEach-Object { $projectGuids[$_] = $true }
+
+    # 2. Every m_Script reference in scenes/prefabs. rg prints "<path>:<guid>"; the guid is the
+    #    trailing 32 hex chars, so splitting by length is robust against colons in Windows paths.
+    & $rg.Source -o --no-heading --replace '$1' 'm_Script: \{fileID: 11500000, guid: ([0-9a-f]+)' $assetsRoot -g '*.unity' -g '*.prefab' 2>$null |
+        ForEach-Object {
+            $guid = $_.Substring($_.Length - 32)
+            $path = $_.Substring(0, $_.Length - 33)
             if (-not $projectGuids.ContainsKey($guid) -and -not $builtinSet.ContainsKey($guid)) {
-                $key = $guid + "|" + $rel
-                if (-not $seen.ContainsKey($key)) {
-                    $seen[$key] = $true
+                $rel = $path.Substring($repoRoot.Length + 1)
+                $errors.Add("Unresolved script guid $guid referenced in $rel")
+            }
+        }
+
+    # 3. .cs scripts missing their .cs.meta (Unity would regenerate a new guid).
+    & $rg.Source --files $assetsRoot -g '*.cs' 2>$null |
+        ForEach-Object {
+            if (-not (Test-Path "$_.meta")) {
+                $errors.Add("Missing .meta for script " + $_.Substring($repoRoot.Length + 1) +
+                    " (Unity would regenerate a new guid and break scene references)")
+            }
+        }
+}
+else {
+    # --- Fallback: plain PowerShell scan (used when ripgrep is not installed). ---
+
+    $projectGuids = @{}
+    Get-ChildItem $assetsRoot -Recurse -Filter "*.meta" -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -notmatch "\.meta\.meta$" } |
+        ForEach-Object {
+            $m = [regex]::Match([System.IO.File]::ReadAllText($_.FullName), "(?m)^guid: ([0-9a-f]+)")
+            if ($m.Success) {
+                $projectGuids[$m.Groups[1].Value] = $_.FullName
+            }
+        }
+
+    Get-ChildItem $assetsRoot -Recurse -Include "*.unity", "*.prefab" -ErrorAction SilentlyContinue |
+        ForEach-Object {
+            $rel = $_.FullName.Substring($repoRoot.Length + 1)
+            $text = [System.IO.File]::ReadAllText($_.FullName)
+            foreach ($m in [regex]::Matches($text, 'm_Script: \{fileID: 11500000, guid: ([0-9a-f]+)')) {
+                $guid = $m.Groups[1].Value
+                if (-not $projectGuids.ContainsKey($guid) -and -not $builtinSet.ContainsKey($guid)) {
                     $errors.Add("Unresolved script guid $guid referenced in $rel")
                 }
             }
         }
-    }
 
-Get-ChildItem $assetsRoot -Recurse -Filter "*.cs" -ErrorAction SilentlyContinue |
-    ForEach-Object {
-        $meta = $_.FullName + ".meta"
-        if (-not (Test-Path $meta)) {
-            $errors.Add("Missing .meta for script " + $_.FullName.Substring($repoRoot.Length + 1) +
-                " (Unity would regenerate a new guid and break scene references)")
+    Get-ChildItem $assetsRoot -Recurse -Filter "*.cs" -ErrorAction SilentlyContinue |
+        ForEach-Object {
+            $meta = $_.FullName + ".meta"
+            if (-not (Test-Path $meta)) {
+                $errors.Add("Missing .meta for script " + $_.FullName.Substring($repoRoot.Length + 1) +
+                    " (Unity would regenerate a new guid and break scene references)")
+            }
         }
-    }
+}
 
 if ($errors.Count -gt 0) {
     Write-Host "==> Script reference check FAILED for ${ProjectPath}:"
