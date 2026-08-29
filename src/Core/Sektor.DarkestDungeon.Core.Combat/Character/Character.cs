@@ -22,6 +22,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         public virtual int Size { get { return 1; } }
 
         /// <inheritdoc/>
+        public virtual int NumberOfTurns { get { return 1; } }
+
+        /// <inheritdoc/>
         public virtual bool AtDeathsDoor { get { return false; } }
 
         /// <inheritdoc/>

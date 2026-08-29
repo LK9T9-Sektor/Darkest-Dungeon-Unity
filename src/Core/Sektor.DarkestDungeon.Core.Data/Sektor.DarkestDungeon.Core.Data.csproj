@@ -12,6 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Sektor.DarkestDungeon.Core.Content\Sektor.DarkestDungeon.Core.Content.csproj" />
     <ProjectReference Include="..\Sektor.DarkestDungeon.Core.Combat\Sektor.DarkestDungeon.Core.Combat.csproj" />
+    <ProjectReference Include="..\Sektor.DarkestDungeon.Core.Duel\Sektor.DarkestDungeon.Core.Duel.csproj" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

@@ -35,13 +35,15 @@
 в оба `Plugins\Internal` (как у Combat). Newtonsoft добавить пакетом (netstandard2.0-совместимый).
 
 1. [x] csproj `Sektor.DarkestDungeon.Core.Data` + `Newtonsoft.Json`; папки `Dto\`, `Readers\`, `Catalogs\`.
-2. [ ] DTO + читатели на весь набор JSON: `Data\*.json` + `Mechanics\*.json` (JsonAI, Buffs, Quirks,
+2. [x] DTO + читатели на весь набор JSON: `Data\*.json` + `Mechanics\*.json` (JsonAI, Buffs, Quirks,
     Traits, Camping, Loot, Quests, Trinkets, Narration, PartyNames, Campaign, Provision, Roster,
     TownEvents, HeirloomExchange, апгрейды/здания/curios). Эталон — существующие core-DTO
     (`JsonBuffData`/`JsonQuirkData`/`JsonTraitData`/...), недостающие добавляем (в т.ч. `JsonMonsterBrains`).
-3. [ ] `GameDataReader` — фасад десериализации (Newtonsoft внутри): файл = метод `ReadX(text)`.
-4. [ ] Загрузчики каталогов из текстов, где модель в core есть: `QuirkCatalog`/`BuffCatalog`/
-    `TraitCatalog` (мапперы остаются на местах), `MonsterBrainCatalog` (этап M2), `MonsterCatalog` (M1).
+3. [x] `GameDataReader` — фасад десериализации (Newtonsoft внутри): файл = метод `ReadX(text)`.
+4. [x] Загрузчики каталогов из текстов, где модель в core есть: `QuirkCatalog`/`BuffCatalog`
+    (портированы из WPF), `TrinketCatalog`/`CampingSkillCatalog` (новые модели `Content\Trinket`/
+    `Content\Camping`), `TraitCatalog` (traits через `ReadTraits`), `MonsterBrainCatalog`,
+    `MonsterCatalog`/`HeroCatalog`/`EffectCatalog` (существующие).
 5. [ ] WPF пересадить на `GameDataReader` (убрать инлайн `JsonConvert` в `DuelContent`/`QuirkCatalog`/
     `BuffCatalog`); поведение идентичное, тесты зелёные.
 
@@ -72,15 +74,18 @@
 
 ### Фаза M3 — Дуль-интеграция + раннер Тест-боя
 
-13. [ ] `DuelController`: аддитивный overload под юнит-спецификацию (`classId`+`seed`): герой → `new Hero`,
+13. [x] `DuelController`: аддитивный overload под юнит-спецификацию (`classId`+`seed`): герой → `new Hero`,
     монстр → `new Monster(class)` + мозг кампании; AI: герой → `DuelAi`, монстр →
-    `BattleSolver.UseMonsterBrain` (мозг кампании вместо дефолтного).
-14. [ ] Сюрприз-ролл гейтится на `BattleModifiers.CanSurprise/CanBeSurprised/AlwaysSurprise/
+    `BattleSolver.UseMonsterBrain` (мозг кампании вместо дефолтного). `StartFight`
+    (+`IDuelContent.GetMonsterClass/GetMonsterBrain`)
+14. [x] Сюрприз-ролл гейтится на `BattleModifiers.CanSurprise/CanBeSurprised/AlwaysSurprise/
     AlwaysBeSurprised` (сейчас хардкод без гейта).
-15. [ ] `Round`: поддержка `number_of_turns_per_round > 1` (монстр ходит N раз за раунд).
-16. [ ] `Core.Duel\Fight\`: `FightUnitSpec` (Hero/Monster, без enum), `PlayerFightSide`/`AiFightSide`,
-    `FightSession` (`Tick`/`RequestSkill`|`Pass`|`Move`/`Winner`/`Log`/`Advanced`), `TextFightContent`
-    (строки файлов → каталоги через Core.Data, реализует `IDuelContent`). `StressParty` — только героям.
+15. [x] `Round`: поддержка `number_of_turns_per_round > 1` (монстр ходит N раз за раунд).
+16. [x] `Core.Duel\Fight\`: `FightUnitSpec`/`HeroFightUnitSpec`/`MonsterFightUnitSpec` (полиморфно),
+    `FightSession` (`Tick`/`RunToCompletion`, герои → `DuelAi`, монстры → `UseMonsterBrain`),
+    `TextFightContent` (строки файлов → каталоги через Core.Data, реализует `IDuelContent`).
+    `StressParty` — только героям. Стороны — просто списки (`PlayerFightSide`/`AiFightSide`
+    опущены как лишняя обёртка).
 
 ### Фаза FC — Unity-клиенты (сначала unity-2017, затем active `unity\`)
 

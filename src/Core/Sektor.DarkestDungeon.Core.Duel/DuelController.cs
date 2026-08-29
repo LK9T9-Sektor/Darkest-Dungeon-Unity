@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Events;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Party;
+using Sektor.DarkestDungeon.Core.Duel.Fight;
 
 namespace Sektor.DarkestDungeon.Core.Duel
 {
@@ -110,6 +112,35 @@ namespace Sektor.DarkestDungeon.Core.Duel
             Phase = DuelPhase.NotStarted;
         }
 
+        /// <summary>Starts a campaign fight: heroes against campaign monsters with campaign brains.</summary>
+        /// <param name="playerSide">The hero side unit specifications.</param>
+        /// <param name="aiSide">The monster side unit specifications.</param>
+        /// <param name="sessionSeed">The deterministic session seed.</param>
+        public void StartFight(IReadOnlyList<FightUnitSpec> playerSide, IReadOnlyList<FightUnitSpec> aiSide, int sessionSeed)
+        {
+            IsHost = false;
+            HeroParty = new FormationParty();
+            MonsterParty = new FormationParty();
+
+            int combatId = 1;
+            if (playerSide != null)
+                foreach (var spec in playerSide)
+                    AddPlayerUnit(spec, Team.Heroes, ref combatId);
+            if (aiSide != null)
+                foreach (var spec in aiSide)
+                    AddAiUnit(spec, Team.Monsters, ref combatId);
+
+            BattleGround = new BattleGround(HeroParty, MonsterParty);
+            Context = new DuelBattleContext(BattleGround, Events, content);
+            Solver = new BattleSolver(Context);
+
+            Events.TorchDelta = delta => Context.TorchAmount = Math.Max(0, Math.Min(100, Context.TorchAmount + delta));
+
+            RandomSolver.SetRandomSeed(sessionSeed);
+            BattleGround.BattleStatus = BattleStatus.Fighting;
+            Phase = DuelPhase.NotStarted;
+        }
+
         /// <summary>Starts the battle: rolls surprise, computes the first round order and begins the first turn.</summary>
         public void StartBattle()
         {
@@ -121,18 +152,65 @@ namespace Sektor.DarkestDungeon.Core.Duel
             BeginTurn();
         }
 
+        private void AddPlayerUnit(FightUnitSpec spec, Team team, ref int combatId)
+        {
+            var heroSpec = spec as HeroFightUnitSpec;
+            if (heroSpec != null)
+            {
+                var heroClass = content.GetHeroClass(heroSpec.ClassId);
+                if (heroClass == null)
+                    return;
+                var hero = HeroGeneration.GenerateHero(heroClass, heroSpec.Seed);
+                hero.SelectCombatSkills(heroSpec.SkillIds);
+                ApplyQuirks(hero, heroSpec.QuirkIds);
+                var unit = new FormationUnit(hero, team);
+                unit.PrepareForBattle(combatId++);
+                if (team == Team.Heroes)
+                    HeroParty.AddUnit(unit);
+                else
+                    MonsterParty.AddUnit(unit);
+                return;
+            }
+
+            var monsterSpec = spec as MonsterFightUnitSpec;
+            if (monsterSpec != null)
+                AddMonster(monsterSpec.MonsterId, team, ref combatId);
+        }
+
+        private void AddAiUnit(FightUnitSpec spec, Team team, ref int combatId)
+        {
+            var monsterSpec = spec as MonsterFightUnitSpec;
+            if (monsterSpec != null)
+            {
+                AddMonster(monsterSpec.MonsterId, team, ref combatId);
+                return;
+            }
+
+            var heroSpec = spec as HeroFightUnitSpec;
+            if (heroSpec != null)
+                AddPlayerUnit(heroSpec, team, ref combatId);
+        }
+
+        private void AddMonster(string monsterId, Team team, ref int combatId)
+        {
+            var monsterClass = content.GetMonsterClass(monsterId);
+            if (monsterClass == null)
+                return;
+
+            var monster = new Monster(monsterClass);
+            var brain = content.GetMonsterBrain(monsterClass.MonsterBrainId);
+            monster.AssignBrain(brain);
+
+            var unit = new FormationUnit(monster, team);
+            unit.PrepareForBattle(combatId++);
+            MonsterParty.AddUnit(unit);
+        }
+
         private void CheckSurprise()
         {
-            float monstersSurprised = 0.1f + TorchSurpriseBonus(Context.TorchAmount, true);
-            foreach (var hero in HeroParty.Units)
-            {
-                var attribute = hero.Character.GetSingleAttribute(AttributeType.MonsterSurpirseChance);
-                if (attribute != null)
-                    monstersSurprised += attribute.ModifiedValue;
-            }
-            monstersSurprised = ClampSurpriseChance(monstersSurprised);
+            bool monsterSideModded = MonsterParty.Units.Any(unit => unit.Character.BattleModifiers != null);
 
-            if (RandomSolver.CheckSuccess(monstersSurprised))
+            if (monsterSideModded && MonsterParty.Units.Any(unit => unit.Character.BattleModifiers.AlwaysBeSurprised))
             {
                 BattleGround.SetSurpriseStatus(SurpriseStatus.MonstersSurprised);
                 foreach (var unit in MonsterParty.Units)
@@ -140,21 +218,53 @@ namespace Sektor.DarkestDungeon.Core.Duel
                 return;
             }
 
-            float heroesSurprised = 0.1f + TorchSurpriseBonus(Context.TorchAmount, false);
-            foreach (var hero in HeroParty.Units)
+            if (!monsterSideModded || MonsterParty.Units.Any(unit => unit.Character.BattleModifiers.CanBeSurprised))
             {
-                var attribute = hero.Character.GetSingleAttribute(AttributeType.PartySurpriseChance);
-                if (attribute != null)
-                    heroesSurprised += attribute.ModifiedValue;
-            }
-            heroesSurprised = ClampSurpriseChance(heroesSurprised);
+                float monstersSurprised = 0.1f + TorchSurpriseBonus(Context.TorchAmount, true);
+                foreach (var hero in HeroParty.Units)
+                {
+                    var attribute = hero.Character.GetSingleAttribute(AttributeType.MonsterSurpirseChance);
+                    if (attribute != null)
+                        monstersSurprised += attribute.ModifiedValue;
+                }
+                monstersSurprised = ClampSurpriseChance(monstersSurprised);
 
-            if (RandomSolver.CheckSuccess(heroesSurprised))
+                if (RandomSolver.CheckSuccess(monstersSurprised))
+                {
+                    BattleGround.SetSurpriseStatus(SurpriseStatus.MonstersSurprised);
+                    foreach (var unit in MonsterParty.Units)
+                        unit.CombatInfo.IsSurprised = true;
+                    return;
+                }
+            }
+
+            if (monsterSideModded && MonsterParty.Units.Any(unit => unit.Character.BattleModifiers.AlwaysSurprise))
             {
                 BattleGround.SetSurpriseStatus(SurpriseStatus.HeroesSurprised);
                 foreach (var unit in HeroParty.Units)
                     unit.CombatInfo.IsSurprised = true;
                 ShuffleParty(HeroParty);
+                return;
+            }
+
+            if (!monsterSideModded || MonsterParty.Units.Any(unit => unit.Character.BattleModifiers.CanSurprise))
+            {
+                float heroesSurprised = 0.1f + TorchSurpriseBonus(Context.TorchAmount, false);
+                foreach (var hero in HeroParty.Units)
+                {
+                    var attribute = hero.Character.GetSingleAttribute(AttributeType.PartySurpriseChance);
+                    if (attribute != null)
+                        heroesSurprised += attribute.ModifiedValue;
+                }
+                heroesSurprised = ClampSurpriseChance(heroesSurprised);
+
+                if (RandomSolver.CheckSuccess(heroesSurprised))
+                {
+                    BattleGround.SetSurpriseStatus(SurpriseStatus.HeroesSurprised);
+                    foreach (var unit in HeroParty.Units)
+                        unit.CombatInfo.IsSurprised = true;
+                    ShuffleParty(HeroParty);
+                }
             }
         }
 
@@ -446,6 +556,9 @@ namespace Sektor.DarkestDungeon.Core.Duel
 
         private void ApplyQuirks(Hero hero, IReadOnlyList<string> quirkIds)
         {
+            if (quirkIds == null)
+                quirkIds = new List<string>();
+
             foreach (var quirkId in quirkIds)
             {
                 hero.AddQuirk(quirkId);
@@ -492,11 +605,15 @@ namespace Sektor.DarkestDungeon.Core.Duel
 
             foreach (var dead in newlyDead)
             {
+                if (dead.Character.IsMonster)
+                    continue;
                 var party = dead.Team == Team.Heroes ? HeroParty.Units : MonsterParty.Units;
                 StressParty(party);
             }
         }
 
+        /// <summary>Applies the party stress effect to surviving heroes.</summary>
+        /// <param name="party">The party whose living heroes receive stress.</param>
         private void StressParty(List<ICombatUnit> party)
         {
             var effect = content.GetEffect("Stress 2");
@@ -505,7 +622,7 @@ namespace Sektor.DarkestDungeon.Core.Duel
 
             foreach (var unit in party)
             {
-                if (((FormationUnitInfo)unit.CombatInfo).IsDead)
+                if (unit.Character.IsMonster || ((FormationUnitInfo)unit.CombatInfo).IsDead)
                     continue;
                 foreach (var subEffect in effect.SubEffects)
                     subEffect.ApplyInstant(null, unit, effect, Context);

@@ -18,6 +18,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         /// <summary>Gets the character's size.</summary>
         int Size { get; }
 
+        /// <summary>Gets the number of combat turns the character acts per round.</summary>
+        int NumberOfTurns { get; }
+
         /// <summary>Gets a value indicating whether the character is at death's door.</summary>
         bool AtDeathsDoor { get; }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Sektor.DarkestDungeon.Core.Combat.Character.Components;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
@@ -60,6 +61,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
 
         /// <inheritdoc/>
         public override int Size { get { return _monsterClass.Size; } }
+
+        /// <inheritdoc/>
+        public override int NumberOfTurns { get { return Math.Max(1, _monsterClass.InitiativeTurns); } }
 
         /// <inheritdoc/>
         public override bool IsMonster { get { return true; } }

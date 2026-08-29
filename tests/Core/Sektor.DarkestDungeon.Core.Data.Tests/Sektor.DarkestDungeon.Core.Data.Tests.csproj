@@ -15,6 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Core\Sektor.DarkestDungeon.Core.Data\Sektor.DarkestDungeon.Core.Data.csproj" />
     <ProjectReference Include="..\..\..\src\Core\Sektor.DarkestDungeon.Core.Combat\Sektor.DarkestDungeon.Core.Combat.csproj" />
+    <ProjectReference Include="..\..\..\src\Core\Sektor.DarkestDungeon.Core.Duel\Sektor.DarkestDungeon.Core.Duel.csproj" />
   </ItemGroup>
 
 </Project>
