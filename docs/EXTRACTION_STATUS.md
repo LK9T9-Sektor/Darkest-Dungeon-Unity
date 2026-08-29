@@ -46,9 +46,14 @@
 | `unity/Assets/Resources/Data/Mechanics/Effects.txt` (каталог: stress/heal/stun/dots/pull/push/cure/riposte/shuffle/tag/stat-buff/buff_ids/torch/set_mode) | `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/Skills/EffectCatalog.cs` | частично |
 | `unity/Assets/Scripts/Character/Monster.cs` + `MonsterData.cs` | `src/Core/Sektor.DarkestDungeon.Core.Combat/Character/Monster.cs` | вынесено |
 | `unity/Assets/Resources/Data/Monsters/` (460 `.txt`, парсер → `MonsterCatalog`) | `src/Core/Sektor.DarkestDungeon.Core.Combat/Character/MonsterClassFileParser.cs` + `Character/MonsterCatalog.cs` | вынесено |
-| `unity/Assets/Resources/Data/JsonAI.json` (brains → `MonsterBrainCatalog`) | `src/Core/Sektor.DarkestDungeon.Core.Data/Readers/JsonBrainParser.cs` + `Catalogs/MonsterBrainCatalog.cs` | вынесено |
-| `unity/Assets/Resources/Data/JsonBuffs.json` / `JsonQuirks.json` / `JsonTraits.json` (DTO + каталоги, общий ридер) | `src/Core/Sektor.DarkestDungeon.Core.Data/GameDataReader.cs` + `Catalogs/BuffCatalog.cs`/`QuirkCatalog.cs` | вынесено |
-| (стенд) бой «герои vs монстры» в TEST-меню (`unity/`, `unity-2017/`) | `src/Core/Sektor.DarkestDungeon.Core.Duel/Fight/FightSession.cs` | вынесено |
+| `unity/Assets/Resources/Data/JsonAI.json` (brains → `MonsterBrainCatalog`) | `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/AI/JsonBrainParser.cs` (чистый) + `MonsterBrainCatalog.cs` | вынесено |
+| `unity/Assets/Resources/Data/JsonBuffs.json` (DTO + каталоги, общий ридер) | `src/Clients/Sektor.DarkestDungeon.Clients.Content/GameDataReader.cs` (Newtonsoft-фасад) | вынесено |
+
+> **Реорганизация ядра (данные = домен, см. `TARGET_LAYOUT.md`):** `Core.Data` распущен; DTO/парсеры/
+> каталоги разведены по доменам (`Core.Campaign`, `Core.Raid`, `Core.Content\Camping|Trinket`,
+> `Core.Combat\AI`); `Result`/`IProportionValue` — в `Core.Common`; `IBinarySaveData` — в `Core.Save`;
+> `TextFightContent` — в `Core.Duel\Fight`; `GameDataReader` (Newtonsoft) — на клиентской границе
+> `Clients.Content`. Манифест ниже ведёт только Unity→core вынос.
 
 ## Не вынесено (Unity-side, по дорожной карте `PLAN.md`)
 

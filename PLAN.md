@@ -864,6 +864,44 @@ usings в начале файла, до `namespace`. Требование: пр�
 
 ---
 
+## Задача: библиотеки доменов (данные = домен) — исполнено
+
+### Цель
+
+Завести библиотеки под вычисленные домены (см. `TARGET_LAYOUT.md`): `Core.Common`, `Core.Save`,
+`Core.Campaign`, `Core.Raid`, клиентская граница `Clients.Content`; распустить `Core.Data`
+(данные = домен: DTO/парсеры/каталоги живут в модуле своего домена, Newtonsoft — на границе).
+
+### Шаги
+
+1. [x] `Core.Common` — `Result`/`Result<T>` из `Lan.Contracts` (+правка Lan/Wpf), `IProportionValue`/
+     `ISingleProportion` из `Content\Raid`; ребро `Combat → Content` убрано (Combat зависит только от
+     Common после переноса примитивов).
+2. [x] `Core.Save` — `IBinarySaveData` из `Content\Save`; `Content\Raid\Prop → Core.Save`.
+3. [x] `Core.Campaign` — модели `Content\Campaign\*` + мапперы + DTO из `Content\Database` и `Data\Dto`
+     (`JsonQuests/TownEvent/Building/Upgrades/Roster/Provision/Inventory/...`); тесты → `Campaign.Tests`.
+4. [x] `Core.Raid` — модели `Content\Raid\*` (Curio/Prop/AreaType) + `CurioCsvParser`/`Loot`/`CsvReader`
+     + DTO; `JsonCurrencyCost` → `Content\Database` (общий); тесты → `Raid.Tests`.
+5. [x] Brains: `JsonMonsterBrains` DTO + чистый `JsonBrainParser` + `MonsterBrainCatalog` → `Combat\AI`;
+     Newtonsoft-десериализация — в `GameDataReader`.
+6. [x] `Clients.Content` (`src\Clients\`) — `GameDataReader` (Newtonsoft-фасад); `BuffCatalog`/`QuirkCatalog`
+     стали чистыми (`Load(Json*Data)`) и переехали в `Combat\Character` / `Content\Character`;
+     `TrinketCatalog`/`CampingSkillCatalog` + DTO — в `Content\Trinket|Camping`.
+7. [x] `TextFightContent` → `Core.Duel\Fight`; `FightContentLoader` (оба Unity-дерева) обновлён;
+     **`Core.Data` распущен**; `GameDataReaderTests`/`FightSessionTests` → `Clients.Content.Tests`.
+8. [x] Проверка: `dotnet build` + все 9 тест-сьютов зелёные (Combat 49, Duel 17, Content 5, Campaign 6,
+     Raid 4, Clients.Content 10, Ui, Lan 14, Wpf 17); `unity-compile-check` для `unity\` — зелёный;
+     `unity-check-script-references.ps1` для обоих деревьев — зелёный; `check-using-placement` — зелёный.
+
+### Примечание по проверке `unity-2017\`
+
+`unity-2017\` в этом окружении компилируется редактором Unity 6000 (2017.4 не установлен) → известные
+vendor-ошибки (FMOD `EventBrowser`, Photon `Hashtable`/`GUIText`, `MoviePlayer.MovieTexture`) — **не
+относятся к этому выносу**. Ошибок по типу `Core.*` в 2017-дереве нет (мои изменения компилируются чисто);
+script-reference check — зелёный. Финальную проверку 2017.4 проводит человек в реальном редакторе.
+
+---
+
 ## Правила
 
 - Сначала ядро (`src\Core`), потом адаптеры; `src\External\` — read-only.

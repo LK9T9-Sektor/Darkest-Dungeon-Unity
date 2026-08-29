@@ -27,15 +27,15 @@
 
 | Модуль | Статус | Содержимое (итог) |
 |---|---|---|
-| `Core.Common` | создаётся | `Result`, `IProportionValue`, `IRng`, `InvariantCulture`, feature-flag, токен-парсер |
-| `Core.Content` | существует (сужается) | персонажно-боевой контент: `Character\` (Quirk/BuffContent), `Camping\`, `Trinket\` + DTO/мапперы |
-| `Core.Combat` | существует | боевой движок + модели (`Character\Hero/Monster/Statuses`, `Mechanics\Battle/Skills/Effects/AI`) |
-| `Core.Campaign` | создаётся | имение/здания/апгрейды/квесты/городские события/week log/ростер/провизия (модели + данные) |
-| `Core.Raid` | создаётся | подземелья/энкаунтеры/боссы/curio-взаимодействия/loot/пропы (модели + данные) |
-| `Core.Save` | создаётся | DTO + бинарный кодек + версии + `ISaveStorage`/`IBinarySaveData` |
+| `Core.Common` | существует | `Result`, `IProportionValue`/`ISingleProportion`, `IRng`, `InvariantCulture`, feature-flag, токен-парсер |
+| `Core.Content` | существует | персонажно-боевой контент: `Character\` (Quirk/BuffContent/QuirkCatalog), `Camping\` (CampingSkill/DTO/каталог), `Trinket\` (Trinket/DTO/каталог), `Database\` (JsonBuff/JsonQuirk/JsonCurrencyCost/мапперы) |
+| `Core.Combat` | существует | боевой движок + модели; AI (desires + `MonsterBrainCatalog`); `Character\BuffCatalog` |
+| `Core.Campaign` | существует | имение/здания/апгрейды/квесты/городские события/week log/ростер/провизия (модели + данные) |
+| `Core.Raid` | существует | подземелья/энкаунтеры/боссы/curio-взаимодействия/loot/пропы (модели + данные) |
+| `Core.Save` | существует | `IBinarySaveData` (+ будущий кодек/`ISaveStorage`) |
 | `Core.Duel` | существует | PvP-оркестрация + `Fight\`-раннер (+`TextFightContent`) |
 | `Networking` | будущее | транспорт: Contracts/Steam/Photon (переименование `src\Lan`) |
-| `Clients.Content` | создаётся | клиентская граница: `GameDataReader` (Newtonsoft-фасад), Newtonsoft-каталоги; токены UI (`Core.Ui`) — опционально |
+| `Clients.Content` | существует | клиентская граница: `GameDataReader` (Newtonsoft-фасад) |
 | `Core.Ui` | существует (кандидат на перенос) | токены UI (`UiStyle`, `ArgbColor`) |
 
 ```

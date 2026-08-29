@@ -152,8 +152,9 @@
 ## 4. `Campaign` (56) — кампания (не вынесена, Фаза 4)
 
 Доменный слой имения/города/квестов. В ядре пока только разрозненные модели
-(`HeirloomExchange`, `PartyNameEntry`, `NarrationEntry`, DTO `JsonCamping/JsonTrinket/JsonQuests/...`
-в `Core.Data`).
+(`HeirloomExchange`, `PartyNameEntry`, `NarrationEntry` — `Core.Campaign`; DTO `JsonCamping/
+JsonTrinket` — `Core.Content\Camping|Trinket`; `JsonQuests/JsonTownEvent/JsonBuilding/...` —
+`Core.Campaign\Database`).
 
 | Группа | Классы | Роль | Core |
 |---|---|---|---|
@@ -168,9 +169,9 @@
 
 | Класс | Роль | Core |
 |---|---|---|
-| `DarkestDatabase.cs` (2408) | Единый читатель всего контента: герои/монстры/скиллы/квирки/баффы/локализация/данные города → каталоги | част. (вынесены парсеры-твины: `HeroClassFileParser`, `MonsterClassFileParser`, каталоги в `Core.Data`) |
-| `DarkestJsonReader.cs` (887) | JSON-десериализация через Newtonsoft (граница презентации; 2017.4 не читает net6.0-контракты — `KNOWN_ISSUES.md` §13) | — (ядро без Newtonsoft, см. `Core.Data`) |
-| `CsvReader.cs`, `DataExtensions.cs` | CSV-чтение/расширения | част. (`CsvReader` в `Core.Content`) |
+| `DarkestDatabase.cs` (2408) | Единый читатель всего контента: герои/монстры/скиллы/квирки/баффы/локализация/данные города → каталоги | част. (вынесены парсеры-твины: `HeroClassFileParser`, `MonsterClassFileParser`; каталоги по доменам, ридер `Clients.Content`) |
+| `DarkestJsonReader.cs` (887) | JSON-десериализация через Newtonsoft (граница презентации; 2017.4 не читает net6.0-контракты — `KNOWN_ISSUES.md` §13) | — (Newtonsoft на границе: `Clients.Content\GameDataReader`) |
+| `CsvReader.cs`, `DataExtensions.cs` | CSV-чтение/расширения | част. (`CsvReader` в `Core.Raid\Database`) |
 | `HeroSpriteDatabase.cs`, `ProvisionDatabase.cs`, `QuestDatabase.cs`, `TownEventDatabase.cs` | Специализированные каталоги | — |
 
 ---
@@ -194,7 +195,7 @@
 |---|---|---|---|
 | Корень | `GameInfo.cs`, `StartupCulture.cs`, `PrivilegedStarter.cs`, `LutConverter.cs` | Версия/культура/старт | — |
 | `ContentLoading\` | `GameSetup.cs`, `ScreenLoader.cs`, `RoomSelector.cs` (530), `PreambleSkipper.cs`, `MoviePlayer.cs`, `LoadingScreenInfo.cs`, `GameIntro.cs`, `GameLogo.cs`, `MultiplayerRoomSlot.cs`, `PlayerNicknameInputField.cs` | Загрузка контента/экран загрузки/комнаты | — |
-| `SaveSystem\` | `SaveLoadManager.cs` (1870), `SaveSelector.cs`, `SaveSlot.cs`, `SaveCampaignData.cs` (542), `SaveHeroData.cs`, `SaveActivitySlot.cs`, `SaveEventData.cs`, `IBinarySaveData.cs`, `FormationUnitSaveData.cs`, `BattlegroundSaveData.cs`, `BattleFormationSaveData.cs`, `RaidPartySaveData.cs`, `RaidPartyHeroInfoSaveData.cs` | Сериализация/загрузка сейвов | част. (только `IBinarySaveData` в `Core.Content\Save`) |
+| `SaveSystem\` | `SaveLoadManager.cs` (1870), `SaveSelector.cs`, `SaveSlot.cs`, `SaveCampaignData.cs` (542), `SaveHeroData.cs`, `SaveActivitySlot.cs`, `SaveEventData.cs`, `IBinarySaveData.cs`, `FormationUnitSaveData.cs`, `BattlegroundSaveData.cs`, `BattleFormationSaveData.cs`, `RaidPartySaveData.cs`, `RaidPartyHeroInfoSaveData.cs` | Сериализация/загрузка сейвов | част. (только интерфейс `IBinarySaveData` в `Core.Save`) |
 
 ---
 
