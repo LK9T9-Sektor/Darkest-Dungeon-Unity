@@ -37,7 +37,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         public virtual bool IsAfflicted { get { return false; } }
 
         /// <inheritdoc/>
-        public bool IsMonster { get { return false; } }
+        public virtual bool IsMonster { get { return false; } }
 
         /// <inheritdoc/>
         public bool InMode { get { return CurrentMode != null; } }
@@ -49,19 +49,19 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         public virtual List<ICharacterMode> Modes { get { return null; } }
 
         /// <inheritdoc/>
-        public IBattleModifier BattleModifiers { get { return null; } }
+        public virtual IBattleModifier BattleModifiers { get { return null; } }
 
         /// <inheritdoc/>
         public virtual List<SkillArtInfo> SkillArtInfo { get { return new List<SkillArtInfo>(); } }
 
         /// <inheritdoc/>
-        public List<MonsterType> MonsterTypes { get { return null; } }
+        public virtual List<MonsterType> MonsterTypes { get { return null; } }
 
         /// <inheritdoc/>
-        public List<CombatSkill> CombatSkills { get { return null; } }
+        public virtual List<CombatSkill> CombatSkills { get { return null; } }
 
         /// <inheritdoc/>
-        public MonsterBrain Brain { get { return null; } }
+        public virtual MonsterBrain Brain { get { return null; } }
 
         /// <inheritdoc/>
         public float HealthRatio { get { return GetPairedAttribute(AttributeType.HitPoints).ValueRatio; } }
@@ -76,7 +76,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         public bool HasZeroHealth { get { return GetPairedAttribute(AttributeType.HitPoints).CurrentValue <= 0; } }
 
         /// <inheritdoc/>
-        public int PreferableSkill { get { return -1; } }
+        public virtual int PreferableSkill { get { return -1; } }
 
         /// <inheritdoc/>
         public IEmptyCaptor EmptyCaptor { get { return null; } }

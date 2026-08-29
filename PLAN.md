@@ -34,7 +34,7 @@
 По смыслу: «данные игры». netstandard2.0, рефы Core.Content + Core.Combat; post-build — копия dll+pdb
 в оба `Plugins\Internal` (как у Combat). Newtonsoft добавить пакетом (netstandard2.0-совместимый).
 
-1. [ ] csproj `Sektor.DarkestDungeon.Core.Data` + `Newtonsoft.Json`; папки `Dto\`, `Readers\`, `Catalogs\`.
+1. [x] csproj `Sektor.DarkestDungeon.Core.Data` + `Newtonsoft.Json`; папки `Dto\`, `Readers\`, `Catalogs\`.
 2. [ ] DTO + читатели на весь набор JSON: `Data\*.json` + `Mechanics\*.json` (JsonAI, Buffs, Quirks,
     Traits, Camping, Loot, Quests, Trinkets, Narration, PartyNames, Campaign, Provision, Roster,
     TownEvents, HeirloomExchange, апгрейды/здания/curios). Эталон — существующие core-DTO
@@ -47,27 +47,27 @@
 
 ### Фаза M1 — Модель и парсер монстров (в `Core.Combat`, зеркало `Assets\Scripts\`)
 
-6. [ ] `Character\MonsterClass.cs` — контент-модель: StringId, TypeId, Size, Attributes,
+6. [x] `Character\MonsterClass.cs` — контент-модель: StringId, TypeId, Size, Attributes,
     EnemyTypes (MonsterType), CombatSkills (+резолв `.effect` через `EffectCatalog`), PreferableSkill,
     MonsterBrainId, BattleModifier (флаги сюрприза), InitiativeTurns (`number_of_turns_per_round`).
     Loot/DeathClass/Companions/etc. — позже (не нужны Тест-бою).
-7. [ ] `Character\MonsterClassFileParser.cs` — парсер DSL `Data\Monsters\*.txt`: `name`/`type`,
+7. [x] `Character\MonsterClassFileParser.cs` — парсер DSL `Data\Monsters\*.txt`: `name`/`type`,
     `display: .size`, `enemy_type: .id`, `stats:` (.hp/.def/.prot/.spd/.stun|poison|bleed|debuff|move_resist),
     `skill:` (все `.effect`, `.move`, `.launch`/`.target`, `.is_crit_valid`, кулдауны), `personality:
     .prefskill`, `initiative: .number_of_turns_per_round`, `monster_brain: .id`,
     `battle_modifier:` (флаги сюрприза), `death_class:` (лёгкий вариант).
-8. [ ] `Character\MonsterCatalog.cs` — `Load(contents, effects)`.
-9. [ ] `Character\Monster.cs` — конкретный персонаж (`ICharacter`): IsMonster=true, MonsterTypes,
+8. [x] `Character\MonsterCatalog.cs` — `Load(contents, effects)`.
+9. [x] `Character\Monster.cs` — конкретный персонаж (`ICharacter`): IsMonster=true, MonsterTypes,
     Size, CombatSkills/CurrentCombatSkills, BattleModifiers, PreferableSkill; атрибуты/резисты из
     MonsterClass; без стресса (как в DD). `Character\BattleModifier.cs` — реализация `IBattleModifier`.
 
 ### Фаза M2 — Мозги кампании: `JsonAI.json` → core (`Core.Data`)
 
-10. [ ] DTO `JsonMonsterBrains`(+`Database`)/`JsonSkillCooldown`/desire-DTO в `Core.Data\Dto\`.
-11. [ ] `JsonBrainParser` в `Core.Data\Readers\`: `JsonAI.json` → `List<MonsterBrain>`; mapping
+10. [x] DTO `JsonMonsterBrains`(+`Database`)/`JsonSkillCooldown`/desire-DTO в `Core.Data\Dto\`.
+11. [x] `JsonBrainParser` в `Core.Data\Readers\`: `JsonAI.json` → `List<MonsterBrain>`; mapping
     type-строк → конструкторы desires через реестр фабрик (без switch); данные желаний —
     `Dictionary<string, object>` из `data` (как сейчас в конструкторах желаний).
-12. [ ] `MonsterBrainCatalog` в `Core.Data\Catalogs\` — `Load(text)`, `Get(id)`; тест `TestDuelContent`
+12. [x] `MonsterBrainCatalog` в `Core.Data\Catalogs\` — `Load(text)`, `Get(id)`; тест `TestDuelContent`
     подменяет дефолтный brain кампанийным. `IDuelContent.GetMonsterBrain(string)`.
 
 ### Фаза M3 — Дуль-интеграция + раннер Тест-боя
