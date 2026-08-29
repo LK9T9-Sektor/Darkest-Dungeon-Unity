@@ -10,6 +10,7 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
+using Sektor.DarkestDungeon.Core.Combat.Raid.Party;
 using Sektor.DarkestDungeon.Core.Duel;
 using Sektor.DarkestDungeon.Wpf.Combat;
 using Sektor.DarkestDungeon.Wpf.Data;
@@ -41,6 +42,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private string? selectedSkillId;
         private DuelSkillViewModel? selectedSkill;
         private bool isMoveMode;
+        private readonly FormationDisplayOrder heroOrder = FormationDisplayOrder.HeroSide();
+        private readonly FormationDisplayOrder monsterOrder = FormationDisplayOrder.MonsterSide();
 
         /// <summary>Gets the local party unit cards (left ranks).</summary>
         public ObservableCollection<DuelUnitViewModel> Heroes { get; } = new ObservableCollection<DuelUnitViewModel>();
@@ -210,10 +213,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private void RefreshUnits()
         {
             Heroes.Clear();
-            foreach (var unit in controller.HeroParty.Units)
+            foreach (var unit in heroOrder.OrderLeftToRight(controller.HeroParty))
                 Heroes.Add(ToUnit(unit, isEnemy: false));
             Monsters.Clear();
-            foreach (var unit in controller.MonsterParty.Units)
+            foreach (var unit in monsterOrder.OrderLeftToRight(controller.MonsterParty))
                 Monsters.Add(ToUnit(unit, isEnemy: true));
 
             var current = controller.CurrentUnit;

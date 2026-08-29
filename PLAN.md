@@ -574,6 +574,62 @@ HP блоками + стресс 10 квадратов, тултипы, лист
     MOVE/PASS/черты).
 13. [ ] Глядя на тесты: расширить покрытие локстапа (двусторонний одинаковый бой с квирками).
 
+## Задача: WPF-дуэль — порядок рангов отряда 1 (4→1) + вынос правила раскладки в ядро
+
+### Цель
+
+В WPF-дуэли отряд 1 (герои, левая сторона) отображался слева-направо рангами 1,2,3,4 —
+фронт (ранг 1) оказывался у левого края, вдали от врага. В DD фронт должен смотреть на
+врага: слева-направо **4,3,2,1** (ранг 1 — у центра). Вражеская сторона (1,2,3,4) корректна.
+Причина: `DuelBattleViewModel.RefreshUnits()` кладёт `Heroes` в порядке `HeroParty.Units`
+(`Units[0]` = ранг 1), XAML рендерит в left-aligned StackPanel.
+
+Правило «ранг 1 — фронт, герои слева и смотрят вправо» в Unity есть, но зашито в презентацию
+(`unity\`/`unity-2017\`: `FormationRanks` — `facingRight`, `Slots.Reverse()`, `Units[Count-i-1]`;
+`FormationRanksSlot` — `SetSiblingIndex(4-Rank)`/`Rank-1`; `BattleFormation`). Выносим сущность
+правила в чистое ядро как инстансный класс (движковые типы в netstandard2.0 не переносятся;
+имя `FormationRanks` в ядре занято маркерами таргетинга). **Объём A (согласован):** ядро + WPF;
+Unity не трогаем до cutover `Core.Duel` (фаза 6 EXTRACTION_PLAN).
+
+### Шаги
+
+1. [x] `src\Core\Sektor.DarkestDungeon.Core.Combat\Raid\Party\FormationDisplayOrder.cs` (новый,
+   netstandard2.0/C# 7.3, один публичный тип, XML-доки): поле `bool facesRight` (семантика
+   Unity `FacingRight`); `List<ICombatUnit> OrderLeftToRight(IFormationParty party)` — сортировка
+   по `Rank` + реверс при `facesRight`; фабрики `HeroSide()` (facesRight: true) / `MonsterSide()`
+   (false) — конвенция «герои слева, фронт к врагу» в одном месте.
+2. [x] `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\DuelBattleViewModel.cs` — `RefreshUnits()`:
+   герои через `FormationDisplayOrder.HeroSide()`, монстры через `MonsterSide()` (+`using
+   Sektor.DarkestDungeon.Core.Combat.Raid.Party;`). Таргетинг/ход не затрагиваются
+   (`CombatId`/`Rank`).
+3. [x] Тесты: `tests\Core\Sektor.DarkestDungeon.Core.Combat.Tests\Raid\Party\
+   FormationDisplayOrderTests.cs` (NSubstitute): `HeroSide`→[4,3,2,1], `MonsterSide`→[1,2,3,4],
+   устойчивость к разбросанному порядку списка. Регрессия в `tests\Wpf\...\DuelRenderTests.cs`:
+   ранги `view.Heroes` = реверс рангов `duel.HeroParty.Units`; `view.Monsters` = как в
+   `duel.MonsterParty.Units` (устойчиво к surprise-shuffle).
+4. [x] Доки: `docs\TESTING.md` (шаг 4 — «отряд игрока слева→направо 4→1, фронт к врагу»),
+   `docs\CHANGELOG.md` (фикс + вынос правила в ядро).
+5. [x] Проверка: `dotnet test tests\Core\Sektor.DarkestDungeon.Core.Combat.Tests`,
+   `dotnet test tests\Wpf\Sektor.DarkestDungeon.Wpf.Tests`, `dotnet build src\Wpf\...\Wpf.csproj`.
+   Unity-compile-check не нужен (нет правок под `unity/`).
+
+### Затронутые файлы
+
+- Новые: `src\Core\...\Raid\Party\FormationDisplayOrder.cs`,
+  `tests\Core\...\Raid\Party\FormationDisplayOrderTests.cs`.
+- Изменённые: `src\Wpf\...\ViewModels\DuelBattleViewModel.cs`,
+  `tests\Wpf\Sektor.DarkestDungeon.Wpf.Tests\DuelRenderTests.cs`, `docs\TESTING.md`,
+  `docs\CHANGELOG.md`, `PLAN.md`.
+
+### Критерии приёмки
+
+- Отряд 1 в дуэли слева-направо = ранги 4,3,2,1; враг — 1,2,3,4; Move/Pass, таргетинг,
+  поп-апы, Turn Order работают как раньше (по `CombatId`/`Rank`).
+- Правило живёт в ядре один раз (`FormationDisplayOrder`); Unity-код не изменён.
+- Тесты зелёные; доки обновлены.
+
+---
+
 ## Правила
 
 - Сначала ядро (`src\Core`), потом адаптеры; `src\External\` — read-only.

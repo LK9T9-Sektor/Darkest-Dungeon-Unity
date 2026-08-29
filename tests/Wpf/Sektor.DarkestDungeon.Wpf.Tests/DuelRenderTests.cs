@@ -82,6 +82,18 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         }
 
         [Test]
+        public void Snapshot_HeroesRenderBackToFrontMonstersFrontToBack()
+        {
+            var duel = CreateDuel();
+            var view = CreateView(duel);
+
+            Assert.That(view.Heroes.Select(hero => hero.Rank),
+                Is.EqualTo(duel.HeroParty.Units.Select(unit => unit.Rank).Reverse()));
+            Assert.That(view.Monsters.Select(monster => monster.Rank),
+                Is.EqualTo(duel.MonsterParty.Units.Select(unit => unit.Rank)));
+        }
+
+        [Test]
         public void ExecuteSkill_UpdatesSnapshotHp()
         {
             var duel = CreateDuel();
