@@ -10,6 +10,13 @@
 > **Важно:** legacy-код в `unity\` остаётся живой реализацией Unity-игры до cutover и НЕ помечается
 > `[Obsolete]` (семантически враньё + шум CS0618 в call-site'ах). `[Obsolete(error: true)]` — только
 > на удаляемых Unity-дублях в момент cutover.
+>
+> **Паритет механик** (что реализовано в legacy vs в ядре, с file:line и скиллами-жертвами) —
+> в `docs\BATTLE_PARITY.md`. Разрывы закрываются в ядре; legacy Unity не правится под паритет
+> (до cutover, `EXTRACTION_PLAN.md` Фаза 6).
+>
+> **По-классная карта** всех 502 файлов легаси (ответственности, god-классы, статус выноса) —
+> в `docs\UNITY_LEGACY_MAP.md`; манифест ниже — сжатая сверка.
 
 ## Вынесено в ядро
 
@@ -53,3 +60,16 @@
 | `unity/Assets/Resources/Data/Curios/` | — | не вынесено (дорожная карта: Curios) |
 | `unity/Assets/Scripts/Networking/` | — | не вынесено (дорожная карта: Networking) |
 | `unity/Assets/Scripts/UI/` | — | не вынесено (Presentation; остаётся Unity/WPF, бизнес-логика — в ядро) |
+
+## Паритет-разрывы (механики, которые в ядре неполны)
+
+Задачи по порядку приоритета из `BATTLE_PARITY.md` §5 — все закрываются **в ядре**:
+
+1. DoT-тик урона (bleed/poison не наносят урон в дуэли).
+2. Stun: пропуск хода + истечение.
+3. Riposte-контратака (`RiposteSkill` не исполняется).
+4. Guard: ключ `.guard` в `EffectCatalog` + редирект атак.
+5. Pull/Push/Shuffle: реальное перемещение рангов.
+6. Immobilize: блок ручного Move + истечение.
+7. `RemoveConditions` после скилла в `ExecuteSkill`.
+8. Death's door / heart attack (больше объём, кампанийные механики).

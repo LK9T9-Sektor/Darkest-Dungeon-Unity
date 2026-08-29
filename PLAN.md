@@ -111,11 +111,23 @@
 
 ### Дорожная карта «всё в ядро» (после Тест-боя)
 
-- [ ] **Campaign** (`EXTRACTION_PLAN` Фаза 4): `Data\Campaign\` — город/квесты/провизия → `Core.Campaign`.
-- [ ] **Save** (Фаза 2): `Data\Save` → `Core.Save` (DTO + IBinarySaveData + `ISaveStorage`).
+Полный по-классный инвентарь легаси — `docs\UNITY_LEGACY_MAP.md`; манифест — `docs\EXTRACTION_STATUS.md`.
+
+- [ ] **Механики-паритет** (закрываются в ядре, приоритет из `BATTLE_PARITY.md` §5): DoT-тик,
+      stun-пропуск хода/истечение, riposte-контратака, guard (`EffectCatalog` + редирект),
+      pull/push/shuffle-ранги, immobilize-Move, `RemoveConditions` в `ExecuteSkill`,
+      death's door / heart attack.
+- [ ] **Campaign** (`EXTRACTION_PLAN` Фаза 4): `Campaign\` (имение/здания/квесты/week log/город) +
+      `Data\Campaign\` + `Data\Buildings\` → `Core.Campaign` (модели+DTP+парсеры; вобрать
+      JsonCamping/JsonTrinket/JsonQuests/JsonTownEvent из `Core.Data`).
+- [ ] **Save** (Фаза 2): `Data\Save` → `Core.Save` (DTO + бинарный кодек + `ISaveStorage`).
 - [ ] **Encounters/Bosses/Curios/Loot** → `Core.Content` (сopт), **Encounters/Bosses** → `Core.Combat`.
+- [ ] **Generation**: `DungeonGenerator`/`QuestGenerator` → доменный модуль (`Core.Raid`/`Core.Campaign`).
 - [ ] **Networking** (Фаза 5): Steam + Photon (`Sektor.Networking`, `PhotonTransport`, SessionManager).
-- [ ] **Presentation cutover** (Фаза 6): view-слой остаётся Unity/WPF, бизнес-логика — в ядро.
+- [ ] **Presentation cutover** (Фаза 6): view-слой остаётся Unity/WPF, бизнес-логика — в ядро;
+      `RaidSceneMultiplayerManager`/`MultiplayerSync` → тонкие адаптеры поверх `Core.Duel`.
+- [ ] **Структура ядра**: декомпозиция по доменам по `TARGET_LAYOUT.md` (складывание `Core.Data`,
+      `TextFightContent` → `Core.Duel`, перенос `Result` в `Core.Common`).
 
 ## Задача: стресс по правилам кампании + каталог эффектов (по частям, простое → сложное)
 
@@ -780,6 +792,75 @@ usings в начале файла, до `namespace`. Требование: пр�
 - ИИ-агент (по AGENTS.md) и человек (по IDE) больше не создают owned-файл с using внутри namespace.
 - Защита не пересекается: vendored/legacy Unity исключены из проверки; pre-commit не замедляет
   C#/docs-коммиты ощутимо (быстрый rg-проход по staged owned `.cs`).
+
+---
+
+## Задача: паритет-документация, карта Unity-легаси, критика и целевая декомпозиция
+
+### Цель
+
+Зафиксировать, что и как реализовано/различается между мультиплеерной дуэлью Unity и WPF-дуэлью
+(ядром); полностью задокументировать Unity-легаси (какие механики и в каких классах); дать
+профессиональную архитектурную критику (Unity + текущего ядра + разделения проектов); предложить
+целевую декомпозицию `src\Core\` по доменам (данные = домен). **Легаси Unity не трогаем** — только
+документируем; разрывы закрываются в ядре.
+
+### Решения
+
+- Глубина карты: класс-уровень — доменные папки (Mechanics/Character/Raid/Campaign/Database),
+  папка-уровень — презентация (UI/Managers/Setup/Networking/Generation/ImageEffects/Sounds).
+- Данные = домен: `Core.Data` складывается в доменные модули, `GameDataReader` остаётся тонким
+  фасадом (подтверждено).
+- Критика — отдельный `docs\ARCHITECTURE_REVIEW.md`.
+- Эталон — активный `unity\`; расхождения `unity-2017\` фиксируются только где существенны.
+
+### Порция 1 — Паритет и правило «легаси не трогаем»
+
+1. [x] `docs\BATTLE_PARITY.md`: матрица Unity MP vs WPF-дуэль/ядро — «одинаково» / «разрыв» (file:line)
+     / «стаб в обоих»; группы эффектов (DoT, stun, riposte, guard, pull/push/shuffle, immobilize,
+     deaths-door, heart attack, rule-баффы, мультиплеер-специфика); скиллы-жертвы (ManAtArms
+     Defender/Retribution, HoundMaster Guard Dog, DoT/stun-скиллы).
+2. [x] `AGENTS.md` + `EXTRACTION_STATUS.md`: правило «легаси Unity живёт до cutover; разрывы
+     отслеживаются в `BATTLE_PARITY.md`, в Unity не правятся».
+3. [x] `INDEX.md`, `PLAN.md`.
+
+### Порция 2 — Карта Unity-легаси
+
+4. [x] `docs\UNITY_LEGACY_MAP.md` суб-порциями по папкам (Managers/Setup → Mechanics → Character →
+     Raid → Campaign → Database → Networking → Generation → UI/ImageEffects/Sounds). Формат: папка →
+     ответственность → ключевые классы (god-классы с размером) → механики → статус выноса. Каждая
+     суб-порция — отдельным коммитом + точечное обновление `EXTRACTION_STATUS.md`.
+
+### Порция 3 — Фронт выноса
+
+5. [x] Углубить `EXTRACTION_STATUS.md` (пер-модульные разрывы) + `PLAN.md` дорожная карта по доменам:
+     Save, Campaign, Encounters/Curios/Loot, Networking, Presentation cutover, закрытие механик-разрывов
+     из BATTLE_PARITY (в ядре).
+
+### Порция 4 — Критика
+
+6. [x] `docs\ARCHITECTURE_REVIEW.md`: Unity-легаси (god-классы, синглтоны, корутины, magic-strings,
+     RPC vs локстап, сид-хак, мёртвый код) + текущее ядро (слои Data→Duel, DTO-сплит Content vs Data,
+     Result-инвариант, мёртвый код, stale-доки, Newtonsoft vs 2017.4, `Core.Ui`). Каждый пункт —
+     файл:строка + рекомендация.
+
+### Порция 5 — Целевая декомпозиция
+
+7. [x] `docs\TARGET_LAYOUT.md`: раскладка `src\Core\<модуль>` по доменам (Common/Content/Combat/
+     Campaign/Raid/Save/Duel/Networking/Ui), правила зависимостей (DAG, без восходящих), что куда
+     переезжает (складывание Core.Data, TextFightContent → Duel), обоснование, миграционный путь.
+
+### Порция 6 — Проверка
+
+8. [x] `INDEX.md`, финальный проход `tools\check-using-placement.ps1`, build/test (если затронут код),
+     сверка `PLAN.md`.
+
+### Критерии приёмки
+
+- Каждая строка паритета и критики сверена с кодом (file:line).
+- Карта покрывает все 502 файла; манифест выноса согласован с картой.
+- Из карты+паритета+декомпозиции виден полный приоритизированный фронт работ.
+- Unity-легаси не изменён; доки в том же коммите, что и затронутый код.
 
 ---
 

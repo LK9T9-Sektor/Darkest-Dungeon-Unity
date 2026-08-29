@@ -22,6 +22,7 @@
 - **No Raw Sources in Presentation** — Never place raw `.cs` files belonging to the core domain or tests directly inside the presentation layer assets folder.
 - **Automated Delivery Target** — Every core project must feature a post-build target that automatically compiles and copies its compiled binaries (`.dll` and `.pdb`) to a single flat internal plugins directory within the presentation layer.
 - **Minimal Legacy Diff** — Existing legacy code stays as-is. When a task touches a legacy file, make the smallest change required; no opportunistic cleanup, re-styling, or refactoring of old code. Extract logic into core modules only when the current task actually requires it. Keep commit diffs focused.
+- **Parity Tracking** — Mechanic parity between legacy Unity and the core is tracked in `docs\BATTLE_PARITY.md` (e.g. the multiplayer duel `RaidSceneMultiplayerManager` path vs the WPF duel on `Core.Combat`/`Core.Duel`). Parity gaps are closed **in the core only**; legacy Unity stays live until cutover (phase 6 of `EXTRACTION_PLAN.md`) and is never modified to chase parity.
 
 ---
 
