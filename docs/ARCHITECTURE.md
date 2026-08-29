@@ -27,7 +27,7 @@
 | `Save` | DTO, бинарный кодек, версии; `IBinarySaveData`; IO — через `ISaveStorage` |
 | `Combat` | Боевая симуляция (Фаза 3, **вынесена**): скиллы, эффекты (29 SubEffect), раунды, `BattleSolver`, AI (desires + мозги кампании `MonsterBrainCatalog`), RNG, баффы. Раскладка зеркалирует legacy-структуру после `Assets\Scripts\`: `Mechanics\` (Battle/Skills/Effects/AI + enums + RandomSolver), `Raid\` (Battle/Events), `Character\` (модель + Buff/BuffInfo + статусы). Границы наружу — интерфейсы: `ICharacter`, `ICombatUnit`, `IBattleGround`, `IBattleContext`, `IBattleEvents` |
 | `Duel` | Оркестрация дуэли (PvP 1v1, локстап): `DuelController`, `DuelPhase`, `DuelSeed`, `DuelPayload`, адаптеры `DuelBattleContext`/`DuelBattleEvents`, `IDuelContent`, ИИ `DuelAi`. Раннер боя кампании `Fight\FightSession` (+ `Fight\TextFightContent`) — движок Тест-боя и будущего PvE-боя |
-| `Clients.Content` | Клиентская граница (НЕ домен): `GameDataReader` — Newtonsoft-фасад «файл → каталоги доменов», Newtonsoft-каталоги. Потребляется WPF и Unity-стендами (Тест-бой) |
+| `Clients.Content` | Клиентская граница (НЕ домен): `GameDataReader` — Newtonsoft-фасад «файл → каталоги доменов». Потребляется WPF и Unity-стендами (Тест-бой). Каталоги стали чистыми и живут в доменах (`Combat\Character\BuffCatalog`, `Content\Character\QuirkCatalog`) |
 | `Ui` | Презентационные токены runtime-оверлеев (engine-free): `UiStyle`, `ArgbColor`; кандидат на перенос в клиентскую границу |
 
 Дополнительно в `Combat`: парсер легаси-контента героев `Character\HeroClassFileParser` +

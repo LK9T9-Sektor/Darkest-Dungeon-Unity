@@ -111,23 +111,31 @@
 
 ### Дорожная карта «всё в ядро» (после Тест-боя)
 
-Полный по-классный инвентарь легаси — `docs\UNITY_LEGACY_MAP.md`; манифест — `docs\EXTRACTION_STATUS.md`.
+Полный по-классный инвентарь легаси — `docs\UNITY_LEGACY_MAP.md`; манифест — `docs\EXTRACTION_STATUS.md`;
+декомпозиция ядра по доменам — `docs\TARGET_LAYOUT.md`.
 
-- [ ] **Механики-паритет** (закрываются в ядре, приоритет из `BATTLE_PARITY.md` §5): DoT-тик,
-      stun-пропуск хода/истечение, riposte-контратака, guard (`EffectCatalog` + редирект),
+- [ ] **Механики-паритет** (приоритет из `BATTLE_PARITY.md` §5; закрываются в ядре): DoT-тик урона,
+      stun-пропуск хода/истечение, riposte-контратака, guard (`EffectCatalog` + редирект атак),
       pull/push/shuffle-ранги, immobilize-Move, `RemoveConditions` в `ExecuteSkill`,
       death's door / heart attack.
-- [ ] **Campaign** (`EXTRACTION_PLAN` Фаза 4): `Campaign\` (имение/здания/квесты/week log/город) +
-      `Data\Campaign\` + `Data\Buildings\` → `Core.Campaign` (модели+DTP+парсеры; вобрать
-      JsonCamping/JsonTrinket/JsonQuests/JsonTownEvent из `Core.Data`).
-- [ ] **Save** (Фаза 2): `Data\Save` → `Core.Save` (DTO + бинарный кодек + `ISaveStorage`).
-- [ ] **Encounters/Bosses/Curios/Loot** → `Core.Content` (сopт), **Encounters/Bosses** → `Core.Combat`.
-- [ ] **Generation**: `DungeonGenerator`/`QuestGenerator` → доменный модуль (`Core.Raid`/`Core.Campaign`).
+- [ ] **Save** (Фаза 2): бинарный кодек + DTO + `ISaveStorage` (в `Core.Save` уже есть
+      `IBinarySaveData`); вынос логики сериализации из `SaveLoadManager`.
+- [ ] **Campaign** (Фаза 4): поведение имения/зданий/апгрейдов/квестов/города в `Core.Campaign`
+      (модели + DTO уже вынесены).
+- [ ] **Encounters/Bosses/Curios/Loot**: энкаунтеры/боссы → `Core.Combat`, контент-модели → `Core.Raid`.
+- [ ] **Generation**: `DungeonGenerator`/`QuestGenerator` → `Core.Raid`/`Core.Campaign` (чистые,
+      детерминированные, RNG на границе).
 - [ ] **Networking** (Фаза 5): Steam + Photon (`Sektor.Networking`, `PhotonTransport`, SessionManager).
-- [ ] **Presentation cutover** (Фаза 6): view-слой остаётся Unity/WPF, бизнес-логика — в ядро;
-      `RaidSceneMultiplayerManager`/`MultiplayerSync` → тонкие адаптеры поверх `Core.Duel`.
-- [ ] **Структура ядра**: декомпозиция по доменам по `TARGET_LAYOUT.md` (складывание `Core.Data`,
-      `TextFightContent` → `Core.Duel`, перенос `Result` в `Core.Common`).
+- [ ] **Presentation cutover** (Фаза 6): view-слой остаётся Unity/WPF; `RaidSceneMultiplayerManager`/
+      `MultiplayerSync` → тонкие адаптеры поверх `Core.Duel`.
+- [ ] **Чистка ядра** (из `ARCHITECTURE_REVIEW.md`): `Core.Ui` → клиентская граница; единый
+      токен-парсер и `Buff`-фабрика; `DuelAi` на кампанийном брейне; тринкеты в WPF-дуэли (P1.4);
+      локализация (P2.7).
+- [x] **Структура ядра**: декомпозиция по доменам исполнена — `Core.Common/Save/Campaign/Raid` +
+      `Clients.Content`, `Core.Data` распущен, `TextFightContent` → `Core.Duel\Fight`,
+      `Result` → `Core.Common`.
+- [ ] **Проверка `unity-2017\`** в реальном редакторе 2017.4 (человек; в окружении — только Unity 6000,
+      vendor-ошибки FMOD/Photon/MovieTexture не связаны с выносом).
 
 ## Задача: стресс по правилам кампании + каталог эффектов (по частям, простое → сложное)
 
