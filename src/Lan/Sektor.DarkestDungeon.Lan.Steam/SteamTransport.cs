@@ -1,14 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Text;
+
+using Sektor.DarkestDungeon.Lan.Contracts.Results;
+using Sektor.DarkestDungeon.Lan.Contracts.Transport;
+using Sektor.DarkestDungeon.Lan.Steam.Interop;
+
 namespace Sektor.DarkestDungeon.Lan.Steam
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Runtime.InteropServices;
-    using System.Text;
-
-    using Sektor.DarkestDungeon.Lan.Contracts.Results;
-    using Sektor.DarkestDungeon.Lan.Contracts.Transport;
-    using Sektor.DarkestDungeon.Lan.Steam.Interop;
-
     /// <summary>
     /// <see cref="ITransport"/> implementation over Steam P2P. Steam lobbies represent
     /// sessions; reliable, ordered messages are exchanged through the SteamNetworking

@@ -1,18 +1,18 @@
+using System.Collections.Generic;
+
+using NSubstitute;
+
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Core.Combat.Character;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
+using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
+using Sektor.DarkestDungeon.Core.Combat.Raid.Party;
+
 namespace Sektor.DarkestDungeon.Core.Combat.Tests.Mechanics
 {
-    using System.Collections.Generic;
-
-    using NSubstitute;
-
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Core.Combat.Character;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
-    using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
-    using Sektor.DarkestDungeon.Core.Combat.Raid.Party;
-
     [TestFixture]
     public class DeterminismTests
     {

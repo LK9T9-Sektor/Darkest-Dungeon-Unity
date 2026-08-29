@@ -1,9 +1,9 @@
+using System;
+using System.Runtime.InteropServices;
+using System.Text;
+
 namespace Sektor.DarkestDungeon.Lan.Steam.Interop
 {
-    using System;
-    using System.Runtime.InteropServices;
-    using System.Text;
-
     /// <summary>
     /// Encodes .NET strings to NUL-terminated UTF-8 buffers and back, because the
     /// Steamworks flat API exchanges lobby metadata as UTF-8 strings.

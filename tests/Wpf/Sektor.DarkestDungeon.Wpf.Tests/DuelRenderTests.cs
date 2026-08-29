@@ -1,17 +1,17 @@
+using System;
+using System.Linq;
+
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
+using Sektor.DarkestDungeon.Core.Duel;
+using Sektor.DarkestDungeon.Wpf.Data;
+using Sektor.DarkestDungeon.Wpf.Networking;
+using Sektor.DarkestDungeon.Wpf.ViewModels;
+
 namespace Sektor.DarkestDungeon.Wpf.Tests
 {
-    using System;
-    using System.Linq;
-
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-    using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
-    using Sektor.DarkestDungeon.Core.Duel;
-    using Sektor.DarkestDungeon.Wpf.Data;
-    using Sektor.DarkestDungeon.Wpf.Networking;
-    using Sektor.DarkestDungeon.Wpf.ViewModels;
-
     [TestFixture]
     public class DuelRenderTests
     {

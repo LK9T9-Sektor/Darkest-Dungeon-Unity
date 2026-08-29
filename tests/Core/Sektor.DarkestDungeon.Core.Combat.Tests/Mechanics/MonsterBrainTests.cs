@@ -1,10 +1,10 @@
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
+
 namespace Sektor.DarkestDungeon.Core.Combat.Tests.Mechanics
 {
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
-
     [TestFixture]
     public class MonsterBrainTests
     {

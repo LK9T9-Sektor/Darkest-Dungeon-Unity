@@ -1,16 +1,16 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Core.Combat.Character;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
+
 namespace Sektor.DarkestDungeon.Core.Combat.Tests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Core.Combat.Character;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
-
     [TestFixture]
     public class HeroClassFileParserTests
     {

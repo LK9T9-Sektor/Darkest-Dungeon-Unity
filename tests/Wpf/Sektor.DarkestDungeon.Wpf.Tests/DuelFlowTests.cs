@@ -1,12 +1,12 @@
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+using Sektor.DarkestDungeon.Core.Duel;
+using Sektor.DarkestDungeon.Wpf.Data;
+using Sektor.DarkestDungeon.Wpf.Networking;
+
 namespace Sektor.DarkestDungeon.Wpf.Tests
 {
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-    using Sektor.DarkestDungeon.Core.Duel;
-    using Sektor.DarkestDungeon.Wpf.Data;
-    using Sektor.DarkestDungeon.Wpf.Networking;
-
     [TestFixture]
     public class DuelFlowTests
     {

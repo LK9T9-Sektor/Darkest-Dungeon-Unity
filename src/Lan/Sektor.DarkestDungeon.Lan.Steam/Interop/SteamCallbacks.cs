@@ -1,8 +1,8 @@
+using System;
+using System.Runtime.InteropServices;
+
 namespace Sektor.DarkestDungeon.Lan.Steam.Interop
 {
-    using System;
-    using System.Runtime.InteropServices;
-
     /// <summary>Native callback dispatch message (CallbackMsg_t).</summary>
     [StructLayout(LayoutKind.Sequential)]
     internal struct CallbackMsg_t

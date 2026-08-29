@@ -630,6 +630,106 @@ Unity не трогаем до cutover `Core.Duel` (фаза 6 EXTRACTION_PLAN).
 
 ---
 
+## Задача: единый порядок usings — снаружи namespace (owned src + tests)
+
+### Цель
+
+В 43 owned-файлах (`src\Lan` — 8, `tests\` — 35) `using`-директивы лежат внутри тела
+`namespace` (стилистика StyleCop SA1200). Остальной код (`src\Core`, `src\Wpf`) использует
+usings в начале файла, до `namespace`. Требование: привести все owned `/src`/`/tests` к единому
+порядку — usings первым, затем `namespace`. Функциональных изменений нет (алиасы резолвятся на
+уровне compilation unit); это чистый рефакторинг оформления.
+
+Объём согласован: **только owned** — `src\Lan` и `tests\`. Legacy `unity\`/`unity-2017\`
+(включая `SaveLoadManager.cs`) и vendored (Photon/Spine/FMOD) не трогаем. Анализаторов и
+`.editorconfig` в репо нет — регрессии стиля не будет ни с той, ни с другой стороны.
+
+### Шаги
+
+1. [x] `src\Lan\` (8): `Sektor.DarkestDungeon.Lan.Cmd\Program.cs`,
+   `Sektor.DarkestDungeon.Lan.Contracts\Transport\ITransport.cs`,
+   `Sektor.DarkestDungeon.Lan.Steam\SteamTransport.cs`, `...\JsonTransportCodec.cs`,
+   `...\Interop\SteamRuntime.cs`, `...\Interop\SteamNative.cs`, `...\Interop\SteamCallbacks.cs`,
+   `...\Interop\NativeUtf8.cs`.
+2. [x] `tests\Core\Sektor.DarkestDungeon.Core.Combat.Tests` (12): `EffectCatalogTests`,
+   `HeroClassFileParserTests`, `HeroSkillSelectionTests`, `Mechanics\BattleSolverTests`,
+   `Mechanics\DeterminismTests`, `Mechanics\EffectTests`, `Mechanics\FormationSetTests`,
+   `Mechanics\MonsterBrainTests`, `Mechanics\RandomSolverTests`, `Mechanics\RecordingSubEffect`,
+   `Mechanics\RoundTests`, `Raid\Party\FormationDisplayOrderTests`.
+3. [x] `tests\Core\Sektor.DarkestDungeon.Core.Content.Tests` (7) и
+   `tests\Core\Sektor.DarkestDungeon.Core.Duel.Tests` (7): Database-тесты (`BuffContentMapperTests`,
+   `CurioCsvParserTests`, `HeirloomExchangeMapperTests`, `LootMapperTests`, `NarrationMapperTests`,
+   `PartyNameMapperTests`, `QuirkMapperTests`) и `DuelAiTests`, `DuelTurnFlowTests`, `ModeTests`,
+   `QuirkBuffTests`, `SkillEffectsTests`, `StressTests`, `SurpriseTests`.
+4. [x] Остальные тесты (9): `UiStyleTests`; `Lan.Tests` (`Codec\JsonTransportCodecTests`,
+   `Support\InMemoryTransport`, `Transport\MessageRoundTripTests`, `Transport\TransportLifecycleTests`);
+   `Wpf.Tests` (`DuelFlowTests`, `DuelRenderTests`, `LobbySlotTests`, `ScreenSmokeTests`).
+5. [x] Проверка: `dotnet build` всех затронутых проектов (Lan.*, тестовые) + полный прогон
+   тестов (`dotnet test`, 111 зелёных); линтер `tools\check-using-placement.ps1` = 0.
+   Unity-compile-check не нужен (правок под `unity/` нет).
+
+### Механика правки (одинаково для всех 43)
+
+- Вырезать блок `using ...;` из тела `namespace` (после `{`), вставить в начало файла до
+  `namespace`; убрать одинаковый отступ (4 пробела). Сохранить существующие пустые строки и
+  порядок групп (System / third-party / first-party) как есть. Пустую строку между usings и
+  `namespace` — оставить.
+
+### Затронутые файлы
+
+- 43 owned-файла: 8 в `src\Lan\`, 35 в `tests\`. Документация обновляется только в `PLAN.md`;
+  `docs\CHANGELOG.md` — косметика, не user-visible, не трогаем.
+
+### Критерии приёмки
+
+- Во всех owned файлах `src\` и `tests\` `using` стоят до `namespace`.
+- Все сборки компилируются; все тестовые сьюты зелёные; под `unity/`, `unity-2017\`,
+  `src\External\`, `src\Wpf\Sources\`, `src\Core\` — диффа нет.
+
+---
+
+## Задача: защитить правило «using до namespace» (3 слоя + AGENTS.md)
+
+### Цель (план на будущее, после основного рефакторинга)
+
+Паттерн «using внутри namespace» — легальная конвенция StyleCop SA1200, от которой уже нет
+смысла что-то отстаивать: всюду по проекту (включая `src\Core`, `src\Wpf`) принят противоположный
+порядок — usings снаружи. Нужно зафиксировать стандарт и не пускать регрессию. Объём защиты —
+только owned `src\` и `tests\` (vendored и legacy Unity не трогаем ничем).
+
+### Шаги
+
+1. [x] `AGENTS.md` — добавлен пункт про Using Placement в секцию «III. Clean Code &
+   Documentation»: в owned C# (`src\`, `tests\`) все `using`-директивы в начале файла, до
+   `namespace`; не внутри тела namespace (SA1200).
+2. [x] Корневой `.editorconfig`: секции `[src/**/*.cs]` и `[tests/**/*.cs]` с
+   `csharp_using_directive_placement = outside_namespace:warning` (IDE0065),
+   `dotnet_sort_system_directives_first = true` и `dotnet_separate_import_directive_groups = true`.
+   Legacy/vendored Unity (`unity\`, `unity-2017\`) исключены.
+3. [x] `tools\check-using-placement.ps1`: сканирует `src\` и `tests\` (кроме `src\External\`,
+   obj/bin), находит owned-файлы с `using`-директивой с отступом (после `namespace {`),
+   exit code 1 при находке. `using (...)`-statement'ы и `using var` в телах методов не считаются
+   директивами и игнорируются.
+4. [x] `.githooks\pre-commit`: перед Unity-веткой добавлен вызов
+   `tools\check-using-placement.ps1`, когда коммит содержит owned `.cs` под `src/`/`tests/`
+   (staged + untracked). Синтаксис проверен (`bash -n`, exit 0).
+5. [x] Verify: staged-проба owned-файла с using внутри namespace → хук падает (exit 1, файл
+   назван); чистый индекс → exit 0 (fast-path «No Unity changes»). Негативный кейс линтера
+   через `-Roots` на sandbox: `Bad.cs` пойман (exit 1), `Good.cs` пропущен.
+
+### Затронутые файлы
+
+- `AGENTS.md`, новый `src\.editorconfig` (или корневой), новый `tools\check-using-placement.ps1`,
+  `.githooks\pre-commit`, `PLAN.md`. Сам рефакторинг 43 файлов — отдельная задача выше.
+
+### Критерии приёмки
+
+- ИИ-агент (по AGENTS.md) и человек (по IDE) больше не создают owned-файл с using внутри namespace.
+- Защита не пересекается: vendored/legacy Unity исключены из проверки; pre-commit не замедляет
+  C#/docs-коммиты ощутимо (быстрый rg-проход по staged owned `.cs`).
+
+---
+
 ## Правила
 
 - Сначала ядро (`src\Core`), потом адаптеры; `src\External\` — read-only.

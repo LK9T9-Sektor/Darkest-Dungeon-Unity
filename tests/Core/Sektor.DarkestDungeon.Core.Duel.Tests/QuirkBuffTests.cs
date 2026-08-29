@@ -1,14 +1,14 @@
+using System;
+using System.IO;
+
+using Newtonsoft.Json;
+
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Core.Content.Database;
+
 namespace Sektor.DarkestDungeon.Core.Duel.Tests
 {
-    using System;
-    using System.IO;
-
-    using Newtonsoft.Json;
-
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Core.Content.Database;
-
     [TestFixture]
     public class QuirkBuffTests
     {

@@ -1,10 +1,10 @@
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
+
 namespace Sektor.DarkestDungeon.Core.Combat.Tests.Mechanics
 {
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
-
     [TestFixture]
     public class FormationSetTests
     {

@@ -56,6 +56,7 @@
 - **One Public Type Per File** — Every file must contain exactly one public type. The file name must match the type name exactly.
 - **Naming (new code only)** — New code follows standard C# conventions: private fields and private constants use `_camelCase` (underscore prefix), local variables use `camelCase`, public members and methods use `PascalCase`. Existing legacy code is exempt and left untouched.
 - **No Magic Strings** — Use the `nameof(...)` operator for code identifiers to ensure refactoring resilience. Use strongly-typed named constants at the definition site for external wire, storage, or configuration keys.
+- **Using Placement** — In owned C# (`src\`, `tests\`), all `using` directives go at the top of the file, before the `namespace` declaration; never inside the namespace body (StyleCop SA1200). Enforced by `tools\check-using-placement.ps1` (pre-commit) and `.editorconfig` (IDE0065).
 - **Mandatory XML Documentation** — All public types and members must have clear `///` XML comments.
 - **KISS/YAGNI** — Avoid over-abstracting code; it must be highly readable top-down. Don't add explanatory comments unless explicitly asked.
 - **Design Docs & Knowledge** — Place all high-level designs, architecture documentation, and context details in a centralized documentation directory. Keep global rules universal.

@@ -1,12 +1,12 @@
+using System.Linq;
+
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Wpf.Combat;
+using Sektor.DarkestDungeon.Wpf.ViewModels;
+
 namespace Sektor.DarkestDungeon.Wpf.Tests
 {
-    using System.Linq;
-
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Wpf.Combat;
-    using Sektor.DarkestDungeon.Wpf.ViewModels;
-
     [TestFixture]
     public class LobbySlotTests
     {

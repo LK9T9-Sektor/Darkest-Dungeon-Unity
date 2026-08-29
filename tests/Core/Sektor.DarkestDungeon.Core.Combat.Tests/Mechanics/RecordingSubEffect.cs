@@ -1,9 +1,9 @@
+using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
+
 namespace Sektor.DarkestDungeon.Core.Combat.Tests.Mechanics
 {
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
-
     internal sealed class RecordingSubEffect : SubEffect
     {
         public int InstantCalls { get; private set; }

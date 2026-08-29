@@ -1,14 +1,14 @@
+using System.IO;
+using System.Linq;
+
+using Newtonsoft.Json;
+
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Core.Content.Database;
+
 namespace Sektor.DarkestDungeon.Core.Content.Tests.Database
 {
-    using System.IO;
-    using System.Linq;
-
-    using Newtonsoft.Json;
-
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Core.Content.Database;
-
     [TestFixture]
     public class QuirkMapperTests
     {

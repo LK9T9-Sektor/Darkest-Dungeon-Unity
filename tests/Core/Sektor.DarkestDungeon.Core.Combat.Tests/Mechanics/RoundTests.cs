@@ -1,13 +1,13 @@
+using NSubstitute;
+
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
+using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
+
 namespace Sektor.DarkestDungeon.Core.Combat.Tests.Mechanics
 {
-    using NSubstitute;
-
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
-    using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
-
     [TestFixture]
     public class RoundTests
     {

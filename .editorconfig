@@ -1,0 +1,15 @@
+root = true
+
+# Owned C# code (src\, tests\): using directives must precede the namespace declaration.
+# Enforced by IDE0065 in the IDE, by `dotnet format`, and by tools\check-using-placement.ps1
+# in the pre-commit hook. The legacy/vendored code under unity\ and unity-2017\ is excluded.
+
+[src/**/*.cs]
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = true
+csharp_using_directive_placement = outside_namespace:warning
+
+[tests/**/*.cs]
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = true
+csharp_using_directive_placement = outside_namespace:warning

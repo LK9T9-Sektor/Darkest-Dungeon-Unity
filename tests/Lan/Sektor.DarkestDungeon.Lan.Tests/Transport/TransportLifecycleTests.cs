@@ -1,11 +1,11 @@
+using System.Collections.Generic;
+
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Lan.Tests.Support;
+
 namespace Sektor.DarkestDungeon.Lan.Tests.Transport
 {
-    using System.Collections.Generic;
-
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Lan.Tests.Support;
-
     [TestFixture]
     public class TransportLifecycleTests
     {

@@ -10,6 +10,15 @@
 
 ROOT=$(git rev-parse --show-toplevel)
 
+# Using-directive placement on owned C# (projects and tests): usings must precede the namespace.
+# Scans src/ and tests/ when the commit touches any owned .cs file. Legacy/vendored Unity code
+# (unity/, unity-2017/) is intentionally excluded.
+OWNED_CS=$( { git -C "$ROOT" diff --cached --name-only --diff-filter=ACM; git -C "$ROOT" ls-files --others --exclude-standard; } \
+    | grep -E '^(src|tests)/.*\.cs$' )
+if [ -n "$OWNED_CS" ]; then
+    pwsh -NoProfile -File "$ROOT/tools/check-using-placement.ps1" || exit 1
+fi
+
 # Any change (tracked, staged, deleted or new untracked non-ignored file) under the Unity roots?
 UNITY_CHANGED=$( { git -C "$ROOT" diff --name-only HEAD; git -C "$ROOT" ls-files --others --exclude-standard; } \
     | grep -E '^(unity|unity-2017)/' )

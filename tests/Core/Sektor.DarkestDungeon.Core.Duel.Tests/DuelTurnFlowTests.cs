@@ -1,11 +1,11 @@
+using System.Linq;
+
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+
 namespace Sektor.DarkestDungeon.Core.Duel.Tests
 {
-    using System.Linq;
-
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-
     [TestFixture]
     public class DuelTurnFlowTests
     {

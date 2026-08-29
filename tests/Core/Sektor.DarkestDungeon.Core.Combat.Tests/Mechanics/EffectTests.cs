@@ -1,16 +1,16 @@
+using System.Collections.Generic;
+
+using NSubstitute;
+
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
+using Sektor.DarkestDungeon.Core.Combat.Raid.Events;
+
 namespace Sektor.DarkestDungeon.Core.Combat.Tests.Mechanics
 {
-    using System.Collections.Generic;
-
-    using NSubstitute;
-
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
-    using Sektor.DarkestDungeon.Core.Combat.Raid.Events;
-
     [TestFixture]
     public class EffectTests
     {

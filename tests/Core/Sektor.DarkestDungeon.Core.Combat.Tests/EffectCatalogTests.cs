@@ -1,14 +1,14 @@
+using System.Linq;
+
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Core.Combat.Character;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects;
+
 namespace Sektor.DarkestDungeon.Core.Combat.Tests
 {
-    using System.Linq;
-
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Core.Combat.Character;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects;
-
     [TestFixture]
     public class EffectCatalogTests
     {

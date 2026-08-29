@@ -1,12 +1,12 @@
+using System.Linq;
+
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
+
 namespace Sektor.DarkestDungeon.Core.Duel.Tests
 {
-    using System.Linq;
-
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-    using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
-
     [TestFixture]
     public class SurpriseTests
     {

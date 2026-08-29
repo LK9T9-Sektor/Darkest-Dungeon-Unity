@@ -1,14 +1,14 @@
+using System.Linq;
+
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Core.Combat.Character;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
+
 namespace Sektor.DarkestDungeon.Core.Duel.Tests
 {
-    using System.Linq;
-
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Core.Combat.Character;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
-
     [TestFixture]
     public class SkillEffectsTests
     {

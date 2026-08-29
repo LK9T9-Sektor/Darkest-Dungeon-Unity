@@ -1,11 +1,11 @@
+using System.Threading;
+
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Wpf.Views;
+
 namespace Sektor.DarkestDungeon.Wpf.Tests
 {
-    using System.Threading;
-
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Wpf.Views;
-
     /// <summary>Loads every screen XAML against the real application resources (parse smoke test).</summary>
     [TestFixture]
     [Apartment(ApartmentState.STA)]

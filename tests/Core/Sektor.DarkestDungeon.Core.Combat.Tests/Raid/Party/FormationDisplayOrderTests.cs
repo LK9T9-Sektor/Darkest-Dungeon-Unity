@@ -1,14 +1,14 @@
+using System.Collections.Generic;
+using System.Linq;
+
+using NSubstitute;
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
+using Sektor.DarkestDungeon.Core.Combat.Raid.Party;
+
 namespace Sektor.DarkestDungeon.Core.Combat.Tests.Raid.Party
 {
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using NSubstitute;
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
-    using Sektor.DarkestDungeon.Core.Combat.Raid.Party;
-
     [TestFixture]
     public class FormationDisplayOrderTests
     {

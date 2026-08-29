@@ -1,10 +1,10 @@
+using NUnit.Framework;
+
+using Sektor.DarkestDungeon.Lan.Contracts.Transport;
+using Sektor.DarkestDungeon.Lan.Steam;
+
 namespace Sektor.DarkestDungeon.Lan.Tests.Codec
 {
-    using NUnit.Framework;
-
-    using Sektor.DarkestDungeon.Lan.Contracts.Transport;
-    using Sektor.DarkestDungeon.Lan.Steam;
-
     [TestFixture]
     public class JsonTransportCodecTests
     {

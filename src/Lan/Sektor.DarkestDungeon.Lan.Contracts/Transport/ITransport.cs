@@ -1,7 +1,7 @@
+using Sektor.DarkestDungeon.Lan.Contracts.Results;
+
 namespace Sektor.DarkestDungeon.Lan.Contracts.Transport
 {
-    using Sektor.DarkestDungeon.Lan.Contracts.Results;
-
     /// <summary>
     /// Message transport abstraction that isolates game logic from any concrete network provider.
     /// The transport only delivers bytes (as messages); it never owns game state.
