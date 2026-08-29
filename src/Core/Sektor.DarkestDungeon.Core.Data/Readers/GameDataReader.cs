@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Sektor.DarkestDungeon.Core.Campaign;
 using Sektor.DarkestDungeon.Core.Campaign.Database;
 using Sektor.DarkestDungeon.Core.Combat.Character;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Raid;
 using Sektor.DarkestDungeon.Core.Raid.Database;
@@ -156,7 +157,8 @@ namespace Sektor.DarkestDungeon.Core.Data.Readers
         /// <returns>The monster brain catalog.</returns>
         public static MonsterBrainCatalog ReadBrains(string jsonText)
         {
-            return MonsterBrainCatalog.Load(jsonText);
+            JsonMonsterBrainsDatabase root = JsonConvert.DeserializeObject<JsonMonsterBrainsDatabase>(jsonText);
+            return new MonsterBrainCatalog(new JsonBrainParser().Parse(root));
         }
 
         /// <summary>Builds the buff catalog from the Data\JsonBuffs.json bundle.</summary>

@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
-using Sektor.DarkestDungeon.Core.Data.Readers;
 
-namespace Sektor.DarkestDungeon.Core.Data.Catalogs
+namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.AI
 {
     /// <summary>Catalog of monster brains keyed by their identifier.</summary>
     public sealed class MonsterBrainCatalog
@@ -26,14 +24,6 @@ namespace Sektor.DarkestDungeon.Core.Data.Catalogs
         public int Count
         {
             get { return _brains.Count; }
-        }
-
-        /// <summary>Loads the catalog from the JsonAI.json file content.</summary>
-        /// <param name="jsonText">The JsonAI.json file content.</param>
-        /// <returns>A catalog containing all parsed brains.</returns>
-        public static MonsterBrainCatalog Load(string jsonText)
-        {
-            return new MonsterBrainCatalog(new JsonBrainParser().Parse(jsonText));
         }
 
         /// <summary>Gets the brain with the given identifier.</summary>

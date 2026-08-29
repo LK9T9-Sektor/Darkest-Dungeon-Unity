@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Sektor.DarkestDungeon.Core.Data.Dto
+namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.AI
 {
     /// <summary>A single desire entry (skill/target/bonus) of a JsonAI.json monster brain.</summary>
     public class JsonSelectionDesire

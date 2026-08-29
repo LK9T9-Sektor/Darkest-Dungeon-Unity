@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
-using Sektor.DarkestDungeon.Core.Data.Dto;
 
-namespace Sektor.DarkestDungeon.Core.Data.Readers
+namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.AI
 {
     /// <summary>
-    /// Parses the JsonAI.json content file into core <see cref="MonsterBrain"/> instances using the
+    /// Maps the JsonAI.json wire data into core <see cref="MonsterBrain"/> instances using the
     /// campaign wire-keys, mirroring the legacy Unity reader behavior.
     /// </summary>
     public sealed class JsonBrainParser
@@ -85,13 +83,12 @@ namespace Sektor.DarkestDungeon.Core.Data.Readers
             };
         }
 
-        /// <summary>Parses the given JsonAI.json text into monster brains.</summary>
-        /// <param name="jsonText">The JsonAI.json file content.</param>
-        /// <returns>The parsed monster brains, one per entry.</returns>
-        public List<MonsterBrain> Parse(string jsonText)
+        /// <summary>Maps the given deserialized JsonAI.json document into monster brains.</summary>
+        /// <param name="root">The deserialized JsonAI.json document.</param>
+        /// <returns>The mapped monster brains, one per entry.</returns>
+        public List<MonsterBrain> Parse(JsonMonsterBrainsDatabase root)
         {
             var brains = new List<MonsterBrain>();
-            JsonMonsterBrainsDatabase root = JsonConvert.DeserializeObject<JsonMonsterBrainsDatabase>(jsonText);
 
             if (root == null || root.monster_brains == null)
                 return brains;

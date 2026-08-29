@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Sektor.DarkestDungeon.Core.Data.Dto
+namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.AI
 {
     /// <summary>Root object of the JsonAI.json content file.</summary>
     public class JsonMonsterBrainsDatabase

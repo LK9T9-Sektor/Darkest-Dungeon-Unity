@@ -1,12 +1,11 @@
 using System;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
-using Sektor.DarkestDungeon.Core.Data.Catalogs;
-using Sektor.DarkestDungeon.Core.Data.Readers;
 
-namespace Sektor.DarkestDungeon.Core.Data.Tests
+namespace Sektor.DarkestDungeon.Core.Combat.Tests.Mechanics.AI
 {
     /// <summary>Tests for the JsonAI.json brain parser and catalog.</summary>
     public class JsonBrainParserTests
@@ -17,7 +16,7 @@ namespace Sektor.DarkestDungeon.Core.Data.Tests
         {
             var parser = new JsonBrainParser();
 
-            var brains = parser.Parse("{}");
+            var brains = parser.Parse(JsonConvert.DeserializeObject<JsonMonsterBrainsDatabase>("{}"));
 
             Assert.That(brains, Is.Empty);
         }
@@ -47,7 +46,7 @@ namespace Sektor.DarkestDungeon.Core.Data.Tests
                 }";
 
             var parser = new JsonBrainParser();
-            var brains = parser.Parse(Json);
+            var brains = parser.Parse(JsonConvert.DeserializeObject<JsonMonsterBrainsDatabase>(Json));
 
             Assert.That(brains, Has.Count.EqualTo(1));
             MonsterBrain brain = brains[0];
@@ -79,7 +78,7 @@ namespace Sektor.DarkestDungeon.Core.Data.Tests
                 }";
 
             var parser = new JsonBrainParser();
-            var brains = parser.Parse(Json);
+            var brains = parser.Parse(JsonConvert.DeserializeObject<JsonMonsterBrainsDatabase>(Json));
 
             Assert.That(brains, Has.Count.EqualTo(1));
             Assert.That(brains[0].SkillDesireSet, Has.Count.EqualTo(1));
@@ -93,7 +92,8 @@ namespace Sektor.DarkestDungeon.Core.Data.Tests
             string aiPath = FindUnityDataFile("Data", "JsonAI.json");
             Assert.That(aiPath, Is.Not.Null, "unity Assets/Resources/Data/JsonAI.json must be available.");
 
-            var catalog = MonsterBrainCatalog.Load(File.ReadAllText(aiPath));
+            JsonMonsterBrainsDatabase root = JsonConvert.DeserializeObject<JsonMonsterBrainsDatabase>(File.ReadAllText(aiPath));
+            var catalog = new MonsterBrainCatalog(new JsonBrainParser().Parse(root));
 
             Assert.That(catalog.Count, Is.GreaterThan(0));
             Assert.That(catalog.TryGet("default", out MonsterBrain brain), Is.True);

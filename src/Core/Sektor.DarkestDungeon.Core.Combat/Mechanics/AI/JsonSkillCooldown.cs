@@ -1,4 +1,4 @@
-namespace Sektor.DarkestDungeon.Core.Data.Dto
+namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.AI
 {
     /// <summary>Skill cooldown entry of a JsonAI.json monster brain.</summary>
     public class JsonSkillCooldown

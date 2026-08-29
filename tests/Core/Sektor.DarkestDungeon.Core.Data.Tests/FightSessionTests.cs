@@ -7,6 +7,7 @@ using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Duel;
 using Sektor.DarkestDungeon.Core.Duel.Fight;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Data.Catalogs;
 using Sektor.DarkestDungeon.Core.Data.Content;
 using Sektor.DarkestDungeon.Core.Data.Dto;
