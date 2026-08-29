@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 
 namespace Sektor.DarkestDungeon.Core.Combat.Character
@@ -23,6 +24,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
 
         /// <summary>Gets the cached monster count.</summary>
         public int Count { get { return _monsters.Count; } }
+
+        /// <summary>Gets the monster string ids in the catalog.</summary>
+        public IReadOnlyList<string> Ids { get { return _monsters.Keys.OrderBy(id => id).ToList(); } }
 
         /// <summary>Loads monster classes from file contents.</summary>
         /// <param name="fileContents">The monster .txt file contents.</param>

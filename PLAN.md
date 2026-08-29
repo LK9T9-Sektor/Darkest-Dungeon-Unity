@@ -89,7 +89,7 @@
 
 ### Фаза FC — Unity-клиенты (сначала unity-2017, затем active `unity\`)
 
-17. [ ] unity-2017: `FightContentLoader` (`Resources` → Core.Data), `FightScreen` — оверлей поверх всего,
+17. [x] unity-2017: `FightContentLoader` (`Resources` → Core.Data), `FightScreen` — оверлей поверх всего,
     вход из `TestActions`: 2 стороны × 4 слота, стрелки `[пусто → герой → монстр…]` по имени, seed,
     режим «Игрок/ИИ» и «ИИ vs ИИ», кнопка «Бой»; `FightBattleView` (карты/скиллы/цели/лог).
 18. [ ] active `unity\`: то же.
