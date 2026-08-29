@@ -35,12 +35,19 @@
     <None Include="..\..\..\unity\Assets\Resources\Data\JsonTraits.json"
           Link="Content\Traits\JsonTraits.json"
           CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\unity\Assets\Resources\Data\JsonAI.json"
+          Link="Content\AI\JsonAI.json"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\unity\Assets\Resources\Data\Monsters\*.txt"
+          Link="Content\Monsters\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Content\Sektor.DarkestDungeon.Core.Content.csproj" />
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Ui\Sektor.DarkestDungeon.Core.Ui.csproj" />
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Combat\Sektor.DarkestDungeon.Core.Combat.csproj" />
+    <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Data\Sektor.DarkestDungeon.Core.Data.csproj" />
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Duel\Sektor.DarkestDungeon.Core.Duel.csproj" />
     <ProjectReference Include="..\..\Lan\Sektor.DarkestDungeon.Lan.Contracts\Sektor.DarkestDungeon.Lan.Contracts.csproj" />
     <ProjectReference Include="..\..\Lan\Sektor.DarkestDungeon.Lan.Steam\Sektor.DarkestDungeon.Lan.Steam.csproj" />

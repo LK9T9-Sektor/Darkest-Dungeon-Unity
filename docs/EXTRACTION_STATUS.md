@@ -37,14 +37,16 @@
 | `unity/Assets/Scripts/Networking/RaidSceneMultiplayerManager.cs` (legacy-заглушка PvP, заменена дуэлью) | `src/Core/Sektor.DarkestDungeon.Core.Duel/` | вынесено |
 | `unity/Assets/Scripts/Raid/TorchMeter.cs` (торч + сюрприз 1-го раунда в дуэли) | `src/Core/Sektor.DarkestDungeon.Core.Duel/DuelController.cs` | вынесено |
 | `unity/Assets/Resources/Data/Mechanics/Effects.txt` (каталог: stress/heal/stun/dots/pull/push/cure/riposte/shuffle/tag/stat-buff/buff_ids/torch/set_mode) | `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/Skills/EffectCatalog.cs` | частично |
+| `unity/Assets/Scripts/Character/Monster.cs` + `MonsterData.cs` | `src/Core/Sektor.DarkestDungeon.Core.Combat/Character/Monster.cs` | вынесено |
+| `unity/Assets/Resources/Data/Monsters/` (460 `.txt`, парсер → `MonsterCatalog`) | `src/Core/Sektor.DarkestDungeon.Core.Combat/Character/MonsterClassFileParser.cs` + `Character/MonsterCatalog.cs` | вынесено |
+| `unity/Assets/Resources/Data/JsonAI.json` (brains → `MonsterBrainCatalog`) | `src/Core/Sektor.DarkestDungeon.Core.Data/Readers/JsonBrainParser.cs` + `Catalogs/MonsterBrainCatalog.cs` | вынесено |
+| `unity/Assets/Resources/Data/JsonBuffs.json` / `JsonQuirks.json` / `JsonTraits.json` (DTO + каталоги, общий ридер) | `src/Core/Sektor.DarkestDungeon.Core.Data/GameDataReader.cs` + `Catalogs/BuffCatalog.cs`/`QuirkCatalog.cs` | вынесено |
+| (стенд) бой «герои vs монстры» в TEST-меню (`unity/`, `unity-2017/`) | `src/Core/Sektor.DarkestDungeon.Core.Duel/Fight/FightSession.cs` | вынесено |
 
 ## Не вынесено (Unity-side, по дорожной карте `PLAN.md`)
 
 | Unity (legacy) | Core | Статус |
 | --- | --- | --- |
-| `unity/Assets/Scripts/Character/Monster.cs` + `MonsterData.cs` | — | не вынесено (M1) |
-| `unity/Assets/Resources/Data/Monsters/` (460 `.txt`, парсер → `MonsterCatalog`) | — | не вынесено (M1) |
-| `unity/Assets/Resources/Data/JsonAI.json` (brains → `MonsterBrainCatalog`) | — | не вынесено (M2, потом) |
 | `unity/Assets/Scripts/Setup/SaveSystem/` | — | не вынесено (дорожная карта: Save) |
 | `unity/Assets/Resources/Data/Buildings/` | — | не вынесено (дорожная карта: Campaign) |
 | `unity/Assets/Resources/Data/Dungeons/` | — | не вынесено (дорожная карта: Encounters) |

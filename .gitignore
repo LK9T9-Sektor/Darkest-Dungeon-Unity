@@ -186,3 +186,12 @@ UnityPackageManager/
 # --- FMOD generated cache (regenerated on every import) ---
 **/Assets/FMODStudioCache.asset
 **/Assets/FMODStudioCache.asset.meta
+
+# --- Editor-generated project settings noise (recreated on first editor open) ---
+**/Packages/
+**/ProjectSettings/PresetManager.asset
+**/ProjectSettings/VersionControlSettings.asset
+**/ProjectSettings/VFXManager.asset
+**/ProjectSettings/MemorySettings.asset
+**/ProjectSettings/MultiplayerManager.asset
+**/ProjectSettings/PhysicsCoreProjectSettings2D.asset

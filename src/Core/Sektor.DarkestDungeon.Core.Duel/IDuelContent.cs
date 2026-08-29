@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Sektor.DarkestDungeon.Core.Combat.Character;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Content.Character;
 
@@ -25,5 +26,11 @@ namespace Sektor.DarkestDungeon.Core.Duel
 
         /// <summary>Gets the virtue traits (resolve checks).</summary>
         IReadOnlyList<Trait> GetVirtues();
+
+        /// <summary>Gets a monster class by its id, or null when unknown.</summary>
+        MonsterClass GetMonsterClass(string monsterId);
+
+        /// <summary>Gets a monster brain by its id, or null when unknown.</summary>
+        MonsterBrain GetMonsterBrain(string brainId);
     }
 }

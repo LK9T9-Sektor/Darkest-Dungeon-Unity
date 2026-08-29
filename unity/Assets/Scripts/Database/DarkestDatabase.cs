@@ -7,6 +7,8 @@ using DarkestJson;
 using Sektor.DarkestDungeon.Core.Content.Campaign;
 using Sektor.DarkestDungeon.Core.Content.Database;
 using Sektor.DarkestDungeon.Core.Content.Raid;
+using JsonBuff = DarkestJson.JsonBuff;
+using JsonQuirk = DarkestJson.JsonQuirk;
 
 public class DarkestDatabase : MonoBehaviour
 {

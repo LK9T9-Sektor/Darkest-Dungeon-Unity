@@ -146,7 +146,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
             {
                 unit.CombatInfo.UpdateNextRound();
                 unit.CombatInfo.InitiativeRoll = unit.Character.Speed + RandomSolver.Next(0, 10) + RandomSolver.NextDouble();
-                OrderedUnits.Add(unit);
+                int turns = unit.Character.NumberOfTurns > 1 ? unit.Character.NumberOfTurns : 1;
+                for (int i = 0; i < turns; i++)
+                    OrderedUnits.Add(unit);
             }
 
             OrderedUnits = new List<ICombatUnit>(OrderedUnits.OrderByDescending(unit => unit.CombatInfo.InitiativeRoll));

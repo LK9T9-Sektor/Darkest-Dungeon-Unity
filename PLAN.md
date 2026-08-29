@@ -1,15 +1,24 @@
 # PLAN.md — Активный план задач
 
-## Задача: монстры в ядро + дорожная карта «всё в ядро»
+## Задача: Тест-бой (FightTester) на ядре + библиотека данных `Core.Data` + монстры — ветка `core-data`
 
 ### Цель
 
-Ядро уже содержит движок боя (`BattleSolver`, `Round`, 29 `SubEffect`, AI-desires), `EffectCatalog`
-(парсер `Effects.txt`), конкретную модель (`Character`, `Hero`, `FormationUnit`, `BattleGround`),
-`IBattleModifier` и `MonsterBrain`. **Нет** `Monster`-класса и парсера `Data\Monsters\*.txt` (460 файлов),
-`JsonAI.json` brains (дуэль использует дефолтный `BuildDefaultBrain`), multi-turn в `Round`.
-Выносим монстров в ядро (модель → парсер → каталог → дуэль), затем по дорожной карте — остальной
-Unity-контент (см. ниже). **Скоуп первой поставки: ядро + тесты, WPF-выбор монстра — потом.**
+Тест-бой — стенд проверки вынесенного в ядро кампанийного контента: герои и монстры из кампании,
+ИИ с кампанийным поведением (`JsonAI.json` brains), бой целиком на ядре. Для этого:
+
+1. Новая библиотека **`src\Core\Sektor.DarkestDungeon.Core.Data`** — единый читатель всего набора JSON
+   из `Data\` (+ `Mechanics\*.json`): один источник данных, поведение идентично во всех клиентах
+   (Unity/unity-2017/WPF). **Старый Unity-код не трогаем** (`DarkestDatabase`/`DarkestJsonReader` живут
+   как есть до cutover); существующие core-мапперы (`QuirkMapper`/`BuffContentMapper`/`TraitMapper`/
+   `EffectCatalog`/`HeroCatalog`) переиспользуем на месте.
+2. Вынос **монстров** (`Data\Monsters\*.txt`) и **мозгов** (`JsonAI.json`) в ядро. Сейчас в core нет
+   `Monster`/`MonsterClass`/`MonsterCatalog`, а дуэль использует дефолтный `BuildDefaultBrain`,
+   не кампанийные мозги; desires (Skill/Target/Bonus) уже портированы в `Core.Combat\Mechanics\AI`.
+3. Раннер **Тест-боя** в `Core.Duel\Fight\` (без enum/исключений, полиморфно): 2 стороны × 4 слота,
+   герои+монстры, пустые слоты разрешены.
+4. Тонкие **Unity-клиенты**: сначала unity-2017, затем active `unity\`; оверлей + вход из `TestActions`,
+   стрелки выбора `[пусто → герой → монстр…]` по имени, seed, «Игрок/ИИ» и «ИИ vs ИИ», кнопка «Бой».
 
 ### Фаза M0 — Статус-манифест выноса
 
@@ -18,51 +27,95 @@ Unity-контент (см. ниже). **Скоуп первой поставк�
     отчёт (31 строка, все пути существуют). Поддерживается в том же коммите, что и вынос (агентам —
     один grep-таргет вместо сканирования Unity-дерева). `[Obsolete]` на legacy-коде НЕ ставим
     (код живой до cutover; при cutover — `[Obsolete(error: true)]` на удаляемых типах).
+0a. [x] Ветка `core-data` создана от обновлённого `main` (wpf слит, fc9a4f5).
+
+### Фаза DB — Библиотека данных `src\Core\Sektor.DarkestDungeon.Core.Data`
+
+По смыслу: «данные игры». netstandard2.0, рефы Core.Content + Core.Combat; post-build — копия dll+pdb
+в оба `Plugins\Internal` (как у Combat). Newtonsoft добавить пакетом (netstandard2.0-совместимый).
+
+1. [x] csproj `Sektor.DarkestDungeon.Core.Data` + `Newtonsoft.Json`; папки `Dto\`, `Readers\`, `Catalogs\`.
+2. [x] DTO + читатели на весь набор JSON: `Data\*.json` + `Mechanics\*.json` (JsonAI, Buffs, Quirks,
+    Traits, Camping, Loot, Quests, Trinkets, Narration, PartyNames, Campaign, Provision, Roster,
+    TownEvents, HeirloomExchange, апгрейды/здания/curios). Эталон — существующие core-DTO
+    (`JsonBuffData`/`JsonQuirkData`/`JsonTraitData`/...), недостающие добавляем (в т.ч. `JsonMonsterBrains`).
+3. [x] `GameDataReader` — фасад десериализации (Newtonsoft внутри): файл = метод `ReadX(text)`.
+4. [x] Загрузчики каталогов из текстов, где модель в core есть: `QuirkCatalog`/`BuffCatalog`
+    (портированы из WPF), `TrinketCatalog`/`CampingSkillCatalog` (новые модели `Content\Trinket`/
+    `Content\Camping`), `TraitCatalog` (traits через `ReadTraits`), `MonsterBrainCatalog`,
+    `MonsterCatalog`/`HeroCatalog`/`EffectCatalog` (существующие).
+5. [x] WPF пересадить на `GameDataReader` (убрать инлайн `JsonConvert` в `DuelContent`/`QuirkCatalog`/
+    `BuffCatalog`); поведение идентичное, тесты зелёные (13/13).
 
 ### Фаза M1 — Модель и парсер монстров (в `Core.Combat`, зеркало `Assets\Scripts\`)
 
-1. [ ] `Character\MonsterClass.cs` — контент-модель: StringId, TypeId, Size, Attributes,
+6. [x] `Character\MonsterClass.cs` — контент-модель: StringId, TypeId, Size, Attributes,
     EnemyTypes (MonsterType), CombatSkills (+резолв `.effect` через `EffectCatalog`), PreferableSkill,
     MonsterBrainId, BattleModifier (флаги сюрприза), InitiativeTurns (`number_of_turns_per_round`).
-    Loot/DeathClass/Companions/etc. — позже (M-фазы дальше или вообще не нужны дуэли).
-2. [ ] `Character\MonsterClassFileParser.cs` — парсер DSL `Data\Monsters\*.txt`: `name`/`type`,
+    Loot/DeathClass/Companions/etc. — позже (не нужны Тест-бою).
+7. [x] `Character\MonsterClassFileParser.cs` — парсер DSL `Data\Monsters\*.txt`: `name`/`type`,
     `display: .size`, `enemy_type: .id`, `stats:` (.hp/.def/.prot/.spd/.stun|poison|bleed|debuff|move_resist),
-    `skill:` (все `.effect`, `.move`, `.launch`/`.target`, `.is_crit_valid`, кулдауны — ключи уже
-    читаются), `personality: .prefskill`, `initiative: .number_of_turns_per_round`,
-    `monster_brain: .id`, `battle_modifier:` (флаги сюрприза), `death_class:` (лёгкий вариант).
-3. [ ] `Character\MonsterCatalog.cs` — `Load(contents, effects)`.
-4. [ ] `Character\Monster.cs` — конкретный персонаж (`ICharacter`): IsMonster=true, MonsterTypes,
+    `skill:` (все `.effect`, `.move`, `.launch`/`.target`, `.is_crit_valid`, кулдауны), `personality:
+    .prefskill`, `initiative: .number_of_turns_per_round`, `monster_brain: .id`,
+    `battle_modifier:` (флаги сюрприза), `death_class:` (лёгкий вариант).
+8. [x] `Character\MonsterCatalog.cs` — `Load(contents, effects)`.
+9. [x] `Character\Monster.cs` — конкретный персонаж (`ICharacter`): IsMonster=true, MonsterTypes,
     Size, CombatSkills/CurrentCombatSkills, BattleModifiers, PreferableSkill; атрибуты/резисты из
     MonsterClass; без стресса (как в DD). `Character\BattleModifier.cs` — реализация `IBattleModifier`.
 
-### Фаза M2 — Контент-провайдер (ядро + тесты)
+### Фаза M2 — Мозги кампании: `JsonAI.json` → core (`Core.Data`)
 
-5. [ ] `IDuelContent.GetMonsterClass(string)`; тест `TestDuelContent` грузит реальные
-    `Data\Monsters\*.txt` (через unity-путь, как герои) + `MonsterCatalog.Load`.
-    WPF `DuelContent` — только если быстро (сейчас решено: WPF-выбор монстра позже).
-6. [ ] *(отложено)* `JsonAI.json` → `MonsterBrainCatalog` + `GetMonsterBrain(id)`; пока дефолтный brain.
+10. [x] DTO `JsonMonsterBrains`(+`Database`)/`JsonSkillCooldown`/desire-DTO в `Core.Data\Dto\`.
+11. [x] `JsonBrainParser` в `Core.Data\Readers\`: `JsonAI.json` → `List<MonsterBrain>`; mapping
+    type-строк → конструкторы desires через реестр фабрик (без switch); данные желаний —
+    `Dictionary<string, object>` из `data` (как сейчас в конструкторах желаний).
+12. [x] `MonsterBrainCatalog` в `Core.Data\Catalogs\` — `Load(text)`, `Get(id)`; тест `TestDuelContent`
+    подменяет дефолтный brain кампанийным. `IDuelContent.GetMonsterBrain(string)`.
 
-### Фаза M3 — Дуль-интеграция
+### Фаза M3 — Дуль-интеграция + раннер Тест-боя
 
-7. [ ] `DuelController`: `DuelMonsterPick` (classId+seed) для клиентской («Monsters») стороны →
-    `new Monster(class)`; AI — существующий `DuelAi`/`BuildDefaultBrain`.
-8. [ ] Сюрприз-ролл гейтится на `BattleModifiers.CanSurprise/CanBeSurprised/AlwaysSurprise/
+13. [x] `DuelController`: аддитивный overload под юнит-спецификацию (`classId`+`seed`): герой → `new Hero`,
+    монстр → `new Monster(class)` + мозг кампании; AI: герой → `DuelAi`, монстр →
+    `BattleSolver.UseMonsterBrain` (мозг кампании вместо дефолтного). `StartFight`
+    (+`IDuelContent.GetMonsterClass/GetMonsterBrain`)
+14. [x] Сюрприз-ролл гейтится на `BattleModifiers.CanSurprise/CanBeSurprised/AlwaysSurprise/
     AlwaysBeSurprised` (сейчас хардкод без гейта).
-9. [ ] `Round`: поддержка `number_of_turns_per_round > 1` (монстр ходит N раз за раунд).
+15. [x] `Round`: поддержка `number_of_turns_per_round > 1` (монстр ходит N раз за раунд).
+16. [x] `Core.Duel\Fight\`: `FightUnitSpec`/`HeroFightUnitSpec`/`MonsterFightUnitSpec` (полиморфно),
+    `FightSession` (`Tick`/`RunToCompletion`, герои → `DuelAi`, монстры → `UseMonsterBrain`),
+    `TextFightContent` (строки файлов → каталоги через Core.Data, реализует `IDuelContent`).
+    `StressParty` — только героям. Стороны — просто списки (`PlayerFightSide`/`AiFightSide`
+    опущены как лишняя обёртка).
+
+### Фаза FC — Unity-клиенты (сначала unity-2017, затем active `unity\`)
+
+17. [x] unity-2017: `FightContentLoader` (`Resources` → Core.Data), `FightScreen` — оверлей поверх всего,
+    вход из `TestActions`: 2 стороны × 4 слота, стрелки `[пусто → герой → монстр…]` по имени, seed,
+    режим «Игрок/ИИ» и «ИИ vs ИИ», кнопка «Бой»; `FightBattleView` (карты/скиллы/цели/лог).
+18. [x] active `unity\`: то же.
+19. [x] Проверки: `dotnet build` core + тесты; `unity-compile-check.ps1` для обоих деревьев;
+    `unity-check-script-references.ps1`. `.meta` для новых Unity-файлов — коммитить вместе с `.cs`.
 
 ### Фаза M4 — Тесты и проверка
 
-10. [ ] `MonsterClassFileParserTests` (реальные монстры: статы, enemy_type, резолв эффектов,
-    battle_modifier); дуэль «герои vs монстры» (атаки/хилы, AI-выбор скилла, сюрприз-гейт, multi-turn).
-    Все сьюты зелёные + navigation (WPF не ломается).
+20. [x] `GameDataReaderTests` (DTO всех читаемых JSON), `JsonBrainParserTests`, `MonsterClassFileParserTests`
+    (реальные монстры: статы, enemy_type, резолв эффектов, battle_modifier); дуэль/бой «герои vs монстры»
+    (атаки/хилы, AI-выбор скилла, сюрприз-гейт, multi-turn, пустые слоты, детерминизм по сиду).
+21. [x] Все сьюты зелёные + navigation (WPF не ломается).
 
-### Дорожная карта «всё в ядро» (после монстров)
+### Фаза D — Документация (в том же коммите)
 
-11. [ ] **Campaign** (`EXTRACTION_PLAN` Фаза 4): `Data\Campaign\` — город/квесты/провизия → `Core.Campaign`.
-12. [ ] **Save** (Фаза 2): `Data\Save` → `Core.Save` (DTO + IBinarySaveData + `ISaveStorage`).
-13. [ ] **Encounters/Bosses/Curios/Loot** → `Core.Content`; **JsonAI brains** → `Core.Combat`.
-14. [ ] **Networking** (Фаза 5): Steam + Photon (`Sektor.Networking`, `PhotonTransport`, SessionManager).
-15. [ ] **Presentation cutover** (Фаза 6): view-слой остаётся Unity/WPF, бизнес-логика — в ядро.
+22. [x] `docs\TESTING.md` — ручная проверка Тест-боя в обоих клиентах; `docs\CHANGELOG.md` — версия;
+    `docs\EXTRACTION_STATUS.md` — M1/M2 (монстры, мозги) → вынесено, новый модуль `Core.Data`;
+    `docs\ARCHITECTURE.md` — модуль данных и раннер.
+
+### Дорожная карта «всё в ядро» (после Тест-боя)
+
+- [ ] **Campaign** (`EXTRACTION_PLAN` Фаза 4): `Data\Campaign\` — город/квесты/провизия → `Core.Campaign`.
+- [ ] **Save** (Фаза 2): `Data\Save` → `Core.Save` (DTO + IBinarySaveData + `ISaveStorage`).
+- [ ] **Encounters/Bosses/Curios/Loot** → `Core.Content` (сopт), **Encounters/Bosses** → `Core.Combat`.
+- [ ] **Networking** (Фаза 5): Steam + Photon (`Sektor.Networking`, `PhotonTransport`, SessionManager).
+- [ ] **Presentation cutover** (Фаза 6): view-слой остаётся Unity/WPF, бизнес-логика — в ядро.
 
 ## Задача: стресс по правилам кампании + каталог эффектов (по частям, простое → сложное)
 

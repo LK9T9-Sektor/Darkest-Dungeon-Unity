@@ -1,50 +1,25 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 
-using Newtonsoft.Json;
-
 using Sektor.DarkestDungeon.Core.Combat.Character;
-using Sektor.DarkestDungeon.Core.Combat.Character.Utils;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-using Sektor.DarkestDungeon.Core.Content.Database;
+using Sektor.DarkestDungeon.Core.Data.Catalogs;
+using Sektor.DarkestDungeon.Core.Data.Readers;
 
 namespace Sektor.DarkestDungeon.Wpf.Data
 {
     /// <summary>Loads the buff definitions from the bundled content file into core <see cref="Buff"/> objects.</summary>
     public static class BuffCatalog
     {
-        private static readonly Dictionary<string, Buff> BuffsById = new Dictionary<string, Buff>();
+        private static readonly Core.Data.Catalogs.BuffCatalog Inner = LoadInner();
 
-        static BuffCatalog()
+        private static Core.Data.Catalogs.BuffCatalog LoadInner()
         {
             string path = Path.Combine(AppContext.BaseDirectory, "Content", "Buffs", "JsonBuffs.json");
             if (!File.Exists(path))
-                return;
+                return Core.Data.Catalogs.BuffCatalog.Empty;
 
-            var data = JsonConvert.DeserializeObject<JsonBuffData>(File.ReadAllText(path));
-            if (data?.buffs == null)
-                return;
-
-            foreach (var content in BuffContentMapper.Parse(data.buffs))
-            {
-                AttributeType attribute = CharacterHelper.StringToAttributeType(content.AttributeTypeName);
-                if (attribute == AttributeType.Undefined)
-                    continue;
-
-                var buff = new Buff(
-                    CharacterHelper.StringToBuffType(content.StatType),
-                    CharacterHelper.StringToBuffRule(content.RuleTypeName),
-                    attribute,
-                    content.Amount)
-                {
-                    Id = content.Id,
-                    IsFalseRule = content.IsFalseRule,
-                    SingleParam = content.RuleFloat,
-                    StringParam = content.RuleString,
-                };
-                BuffsById[content.Id] = buff;
-            }
+            return GameDataReader.ReadBuffs(File.ReadAllText(path));
         }
 
         /// <summary>Gets a buff by id, or null when the id is unknown.</summary>
@@ -52,8 +27,7 @@ namespace Sektor.DarkestDungeon.Wpf.Data
         /// <returns>The buff or null.</returns>
         public static Buff? Get(string id)
         {
-            Buff buff;
-            return BuffsById.TryGetValue(id, out buff) ? buff : null;
+            return Inner.Get(id);
         }
     }
 }

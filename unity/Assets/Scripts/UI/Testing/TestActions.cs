@@ -20,6 +20,7 @@ public static class TestActions
         new TestActionDefinition("Narration", Narration),
         new TestActionDefinition("Heirloom exchange", HeirloomExchange),
         new TestActionDefinition("Party names", PartyNames),
+        new TestActionDefinition("Fight tester", FightTester),
     };
 
     /// <summary>Gets the available test actions in display order.</summary>
@@ -135,5 +136,11 @@ public static class TestActions
 
         return "partyNames=" + names.Count + " first id='" + names[0].Id + "' classes="
             + (names[0].ClassIds != null ? names[0].ClassIds.Count : 0);
+    }
+
+    private static string FightTester()
+    {
+        FightScreen.Show();
+        return "open";
     }
 }
