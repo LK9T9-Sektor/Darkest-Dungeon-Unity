@@ -22,6 +22,22 @@
 
 ## 2. Целевая раскладка
 
+**Статус модулей** (легенда: **существует** · **создаётся** · **будущее** — обновляется в том же
+коммите, что и изменение структуры):
+
+| Модуль | Статус | Содержимое (итог) |
+|---|---|---|
+| `Core.Common` | создаётся | `Result`, `IProportionValue`, `IRng`, `InvariantCulture`, feature-flag, токен-парсер |
+| `Core.Content` | существует (сужается) | персонажно-боевой контент: `Character\` (Quirk/BuffContent), `Camping\`, `Trinket\` + DTO/мапперы |
+| `Core.Combat` | существует | боевой движок + модели (`Character\Hero/Monster/Statuses`, `Mechanics\Battle/Skills/Effects/AI`) |
+| `Core.Campaign` | создаётся | имение/здания/апгрейды/квесты/городские события/week log/ростер/провизия (модели + данные) |
+| `Core.Raid` | создаётся | подземелья/энкаунтеры/боссы/curio-взаимодействия/loot/пропы (модели + данные) |
+| `Core.Save` | создаётся | DTO + бинарный кодек + версии + `ISaveStorage`/`IBinarySaveData` |
+| `Core.Duel` | существует | PvP-оркестрация + `Fight\`-раннер (+`TextFightContent`) |
+| `Networking` | будущее | транспорт: Contracts/Steam/Photon (переименование `src\Lan`) |
+| `Clients.Content` | создаётся | клиентская граница: `GameDataReader` (Newtonsoft-фасад), Newtonsoft-каталоги; токены UI (`Core.Ui`) — опционально |
+| `Core.Ui` | существует (кандидат на перенос) | токены UI (`UiStyle`, `ArgbColor`) |
+
 ```
 src/
 ├── Core/
@@ -40,7 +56,7 @@ src/
 │   └── Duel          — PvP-оркестрация (DuelController/Seed/Payload/Ai) + Fight-раннер
 │                       + TextFightContent (IDuelContent-мост из Core.Data)
 ├── Networking/       — транспорт: Contracts (Result, каналы) / Steam / Photon (переименование src\Lan)
-└── Shared/           — клиентский shared (НЕ домен): токены UI (из Core.Ui), GameDataReader-фасад
+└── Clients/          — клиентская граница (НЕ домен): Clients.Content — GameDataReader-фасад
                         (Newtonsoft на границе, читает файлы → каталоги доменов)
 ```
 
