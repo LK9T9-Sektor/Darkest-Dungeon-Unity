@@ -48,6 +48,7 @@
   </Folder>
   <Folder Name="/src/" />
   <Folder Name="/src/Core/">
+    <Project Path="src/Core/Sektor.DarkestDungeon.Core.Data/Sektor.DarkestDungeon.Core.Data.csproj" />
     <Project Path="src/Core/Sektor.DarkestDungeon.Core.Content/Sektor.DarkestDungeon.Core.Content.csproj" />
     <Project Path="src/Core/Sektor.DarkestDungeon.Core.Ui/Sektor.DarkestDungeon.Core.Ui.csproj" />
     <Project Path="src/Core/Sektor.DarkestDungeon.Core.Combat/Sektor.DarkestDungeon.Core.Combat.csproj" />
@@ -62,6 +63,7 @@
   </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/Core/">
+    <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Data.Tests/Sektor.DarkestDungeon.Core.Data.Tests.csproj" />
     <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Content.Tests/Sektor.DarkestDungeon.Core.Content.Tests.csproj" />
     <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Ui.Tests/Sektor.DarkestDungeon.Core.Ui.Tests.csproj" />
     <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Combat.Tests/Sektor.DarkestDungeon.Core.Combat.Tests.csproj" />
