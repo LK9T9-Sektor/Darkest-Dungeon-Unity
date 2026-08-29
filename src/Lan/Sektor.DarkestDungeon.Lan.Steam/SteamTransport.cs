@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
-using Sektor.DarkestDungeon.Lan.Contracts.Results;
+using Sektor.DarkestDungeon.Core.Common;
 using Sektor.DarkestDungeon.Lan.Contracts.Transport;
 using Sektor.DarkestDungeon.Lan.Steam.Interop;
 

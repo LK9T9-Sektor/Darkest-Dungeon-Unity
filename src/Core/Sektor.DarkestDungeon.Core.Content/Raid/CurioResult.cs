@@ -1,3 +1,5 @@
+using Sektor.DarkestDungeon.Core.Common;
+
 namespace Sektor.DarkestDungeon.Core.Content.Raid
 {
     /// <summary>A single weighted curio result item.</summary>

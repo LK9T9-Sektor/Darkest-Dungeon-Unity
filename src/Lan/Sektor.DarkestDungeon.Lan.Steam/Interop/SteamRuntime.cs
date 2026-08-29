@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-using Sektor.DarkestDungeon.Lan.Contracts.Results;
+using Sektor.DarkestDungeon.Core.Common;
 
 namespace Sektor.DarkestDungeon.Lan.Steam.Interop
 {

@@ -1,4 +1,4 @@
-namespace Sektor.DarkestDungeon.Lan.Contracts.Results
+namespace Sektor.DarkestDungeon.Core.Common
 {
     /// <summary>
     /// Represents the outcome of an operation without throwing exceptions for business errors.

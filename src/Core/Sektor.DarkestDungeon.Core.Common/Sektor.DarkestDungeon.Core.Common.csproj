@@ -5,10 +5,6 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Sektor.DarkestDungeon.Core.Common\Sektor.DarkestDungeon.Core.Common.csproj" />
-  </ItemGroup>
-
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <ItemGroup>
       <CoreUnityPluginDir Include="$(CoreUnityPluginFolders)" />

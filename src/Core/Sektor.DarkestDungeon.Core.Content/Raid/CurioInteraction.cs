@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Sektor.DarkestDungeon.Core.Common;
 
 namespace Sektor.DarkestDungeon.Core.Content.Raid
 {

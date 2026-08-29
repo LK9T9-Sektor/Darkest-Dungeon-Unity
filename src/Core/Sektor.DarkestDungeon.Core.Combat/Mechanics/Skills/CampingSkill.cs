@@ -4,7 +4,7 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
-using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Common;
 
 using Sektor.DarkestDungeon.Core.Combat.Campaign;
 
