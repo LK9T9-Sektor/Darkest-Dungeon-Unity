@@ -1,5 +1,114 @@
 # PLAN.md — Активный план задач
 
+## Задача: спецификации всех механик по доменам — `docs/mechanics/` — ветка `docs/mechanics`
+
+### Цель
+
+Детальные документы по каждой механике (не только боевые DoT/эффекты, а вообще все) с условиями,
+проверками, порядком срабатывания и очередями — чтобы агенты не переоткрывали поведение методом
+проб (как было с станом/`UpdateRound`/`IsApplied`-гейтом в паритете). Папки по доменам (зеркало
+`TARGET_LAYOUT.md`): `combat/`, `duel/`, `content/`, `campaign/`, `raid/`, `save/`, `common/`,
+`clients/`, `networking/`, `presentation/`. Правило «механика = файл в `docs/mechanics/<domain>/`,
+документировать в том же коммите» фиксируется в `AGENTS.md`.
+
+### Единый шаблон документа
+
+1. Назначение и когда работает (условие, область, статус: реализовано/частично/данные/стаб).
+2. Модель данных (классы/статусы/атрибуты, `file:line`).
+3. Парсинг контента (ключи `Effects.txt`/`JsonBuffs`/`.bytes` → куда).
+4. Порядок срабатывания (трассировка шагов 1..N с `file:line`).
+5. Очередь и обновления (instant vs queued, per-turn/per-round, истечения).
+6. Проверки и клэмпы (таблица: условие → где → границы).
+7. **Нюансы и подводные камни** (очереди, гейты, нетривиальные условия — критично).
+8. Взаимодействия (RemoveConditions, смерть, immobilize, guard-редирект).
+9. Файлы-источники.
+
+### Шаги
+
+1. [x] `docs/mechanics/00_index.md` (навигатор: механика → файл → домен → статус) + шаблон;
+     правило в `AGENTS.md` (обязательное расписывание механик, разделы «Порядок срабатывания»
+     и «Нюансы/подводные камни»); правки `INDEX.md`, `GAME_RULES.md` (ссылки на `mechanics/`),
+     `PLAN.md`.
+2. [x] `combat/` — 14 боевых механик: `01_damage.md` (урон/хил/крит/меткость), `02_dot.md`,
+     `03_stun.md`, `04_riposte.md`, `05_guard.md`, `06_mark.md`, `07_rank_move.md`
+     (pull/push/shuffle), `08_immobilize.md`, `09_buffs.md` (+RemoveConditions), `10_torch.md`,
+     `11_modes.md`, `12_surprise.md`, `13_turn_order.md` (инициатива/очередь/per-turn), `14_death_stress.md`.
+3. [x] `duel/` — lockstep, `DuelSeed`/`DuelPayload`, `DuelPhase`-машина, `DuelAi`, `FightSession`,
+     `TextFightContent`.
+4. [x] `content/` (квирки, бафф-контент, trinket/camping), `common/` (Result, RandomSolver/IRng,
+     токен-парсер, feature-flag), `clients/` (`GameDataReader`), `save/` (`IBinarySaveData`),
+     `networking/` (Contracts/Steam/Photon), `presentation/` (WPF-экраны, Unity-оверлеи).
+5. [x] `campaign/`, `raid/` — честно по текущему состоянию (модели/DTO/парсеры/каталоги,
+     статус «поведение — Фаза 4»).
+6. [x] Проверка: документы читаемы, `file:line` существуют (grep по ключевым путям), статусы
+     согласованы с `BATTLE_PARITY.md`/`EXTRACTION_STATUS.md`; `check-using-placement` не требуется
+     (только `.md`); `PLAN.md` — шаги `[x]`.
+
+---
+
+## Задача: Механики-паритет с Unity (закрытие разрывов `BATTLE_PARITY.md` §5) — ветка `core-parity`
+
+### Цель
+
+Закрыть в ядре (`Core.Combat` + `Core.Duel`) разрывы боевых механик, которые в Unity-мультиплеере
+работают, а в дуэли/ядре отсутствуют или неполны. Legacy Unity **не правится**. Каждый пункт —
+задача по `BATTLE_PARITY.md` §5: DoT-тик, stun, riposte, guard, pull/push/shuffle, immobilize,
+RemoveConditions; death's door / heart attack — отдельно (кампанийные, больше объём).
+
+### Фаза A — Статусы по ходам + DoT-тик + стан
+
+1. [x] Статусы обновляются per-turn (Unity-паритет): `Character.UpdateRound()` вызывается в начале
+     хода юнита (`DuelController.BeginTurn`), а не раз в раунд (`NextRound`).
+2. [x] DoT-тик урона: в начале хода цели применять `CurrentTickDamage` (bleed + poison) к HP;
+     смерть от тика обрабатывается `CheckDeaths`.
+3. [x] Stun: в `BeginTurn` проверять `StatusType.Stun` → снять `StunApplied`, применить
+     `STUNRECOVERYBUFF` (через `IDuelContent.GetBuff`), пропустить ход (`CompleteTurn`).
+
+### Фаза B — Guard
+
+4. [x] `EffectCatalog.ParseEffect`: ключи `.guard` → `GuardEffect`, `.swap_source_and_target` →
+     `GuardEffect.SwapTargets`, `.clearguarding`/`.clearguarded` → `ClearGuardEffect`.
+5. [x] Редирект атак: в `DuelController.ExecuteSkill`/`BattleSolver` при `Guarded.IsApplied` бить по
+     `Guarded.Guard`, а не по цели.
+
+### Фаза C — Riposte-контратака
+
+6. [x] После попадания по цели с рипост-статусом исполнять `target.RiposteSkill` против атакующего
+     (в `DuelController.ExecuteSkill`, как `RaidSceneManager.ExecuteRiposteSkillActivation`).
+     Парсинг `riposte_skill` → `HeroClass.RiposteSkill` (`HeroClassFileParser`).
+
+### Фаза D — Pull / Push / Shuffle (реальные ранги)
+
+7. [x] `DuelBattleEvents.Pull/Push` двигают юнита в его партии (с учётом `IsImmobilized` и границ),
+     пересчитывают `Rank`; `ShuffleTargetEffect`/self-move скилла получают реальное перемещение.
+
+### Фаза E — Immobilize
+
+8. [x] `DuelController.TryMove` возвращает false при `IsImmobilized`; `.unimmobilize`/`.unstun`/
+     `.untag` парсятся `EffectCatalog` (эффекты уже есть в ядре).
+
+### Фаза F — RemoveConditions
+
+9. [x] В конце `DuelController.ExecuteSkill` (после `ProcessEventQueues`/`CheckDeaths`) вызывать
+     `Solver.RemoveConditions` для перформера и целей.
+9a. [x] Buff-идемпотентность: `Character.ApplyBuff`/`RevertBuff` получили `IsApplied`-гейт (как в
+     Unity), чтобы повторное применение правил не накладывало бафф дважды.
+
+### Фаза G — Тесты и проверка
+
+10. [x] Тесты: DoT-тик урона по ходам, stun-пропуск + recovery-бафф, riposte-контратака,
+      guard-редирект атаки, pull/push меняют ранг, immobilize блокирует move, RemoveConditions
+      снимает условия после скилла. Все 9 сьютов зелёные (Duel 26, Combat 53) + lockstep (WPF 17).
+11. [x] `dotnet build` + тесты; `unity-compile-check.ps1` для обоих деревьев (код ядра доставляется
+      в оба `Plugins\Internal`).
+
+### Фаза D2 — Документация (в том же коммите)
+
+12. [x] `BATTLE_PARITY.md` — разрывы закрыты; `TESTING.md` — что проверить; `CHANGELOG.md` — версия;
+      `PLAN.md` — шаги `[x]`; death's door/heart attack остаётся в roadmap как отдельная задача.
+
+---
+
 ## Задача: Тест-бой (FightTester) на ядре + библиотека данных `Core.Data` + монстры — ветка `core-data`
 
 ### Цель
@@ -114,10 +223,10 @@
 Полный по-классный инвентарь легаси — `docs\UNITY_LEGACY_MAP.md`; манифест — `docs\EXTRACTION_STATUS.md`;
 декомпозиция ядра по доменам — `docs\TARGET_LAYOUT.md`.
 
-- [ ] **Механики-паритет** (приоритет из `BATTLE_PARITY.md` §5; закрываются в ядре): DoT-тик урона,
+- [x] **Механики-паритет** (приоритет из `BATTLE_PARITY.md` §5; закрываются в ядре): DoT-тик урона,
       stun-пропуск хода/истечение, riposte-контратака, guard (`EffectCatalog` + редирект атак),
-      pull/push/shuffle-ранги, immobilize-Move, `RemoveConditions` в `ExecuteSkill`,
-      death's door / heart attack.
+      pull/push/shuffle-ранги, immobilize-Move, `RemoveConditions` в `ExecuteSkill` (см. задачу
+      «Механики-паритет» вверху). Остаётся: death's door / heart attack (кампанийные, отдельно).
 - [ ] **Save** (Фаза 2): бинарный кодек + DTO + `ISaveStorage` (в `Core.Save` уже есть
       `IBinarySaveData`); вынос логики сериализации из `SaveLoadManager`.
 - [ ] **Campaign** (Фаза 4): поведение имения/зданий/апгрейдов/квестов/города в `Core.Campaign`

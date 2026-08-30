@@ -83,6 +83,17 @@ Before planning or editing, read the relevant documents from `docs\`:
 - `EXTRACTION_PLAN.md` — core-extraction plan: `unity\` (active) + `unity-2017\` (legacy) + shared pure C# core in `src\`;
 - `TESTING.md` — manual in-game verification checklists; must be kept in sync with behavior changes;
 - `INDEX.md` — doc map: which document answers which question (entities, execution, wishlist `FEATURE_*.md`).
+- `docs\mechanics\00_index.md` — detailed per-mechanic specifications by domain (the "how it works" source of truth).
+
+**Mechanics specifications (mandatory):** every game mechanic is documented in a dedicated file under
+`docs\mechanics\<domain>\` (mirrors `TARGET_LAYOUT.md`; domains: `combat`, `duel`, `content`, `campaign`,
+`raid`, `save`, `common`, `clients`, `networking`, `presentation`). Each document follows the template
+in `docs\mechanics\00_index.md`: purpose/when it works → data model → content parsing → firing order
+(`file:line` trace) → queue/updates (instant vs queued, per-turn vs per-round) → checks/clamps →
+**gotchas / pitfalls** (firing order, gates, non-obvious conditions) → interactions → source files.
+When a mechanic is added or changed, update its spec **in the same commit** (plus the status in
+`00_index.md` when it matches/misses `BATTLE_PARITY.md`). The "firing order" and "gotchas" sections
+are mandatory — they exist to keep agents from re-discovering behavior by trial and error.
 
 Read only what the task relates to. Legacy edits stay minimal; `src\External\` is read-only.
 
