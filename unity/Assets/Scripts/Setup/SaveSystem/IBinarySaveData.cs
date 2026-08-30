@@ -9,144 +9,82 @@ public static class BinarySaveDataHelper
 {
     public static void Write<T>(this List<T> binaryDataList, BinaryWriter bw) where T : class, IBinarySaveData, new()
     {
-        var dataToSave = binaryDataList.FindAll(item => item.IsMeetingSaveCriteria);
-
-        bw.Write(dataToSave.Count);
-        dataToSave.ForEach(item => item.Write(bw));
+        SaveCodec.WriteList(binaryDataList, bw);
     }
 
     public static void Read<T>(this List<T> binaryDataList, BinaryReader br) where T : class, IBinarySaveData, new()
     {
-        binaryDataList.Clear();
-        int itemCount = br.ReadInt32();
-        for (int i = 0; i < itemCount; i++)
-            binaryDataList.Add(Create<T>(br));
+        SaveCodec.ReadList(binaryDataList, br, Create<T>);
     }
 
     public static void Write<T>(this List<List<T>> binaryDataLists, BinaryWriter bw) where T : class, IBinarySaveData, new()
     {
-        bw.Write(binaryDataLists.Count);
-        binaryDataLists.ForEach(item => item.Write(bw));
+        SaveCodec.WriteListList(binaryDataLists, bw);
     }
 
     public static void Read<T>(this List<List<T>> binaryDataLists, BinaryReader br) where T : class, IBinarySaveData, new()
     {
-        binaryDataLists.Clear();
-        int listCount = br.ReadInt32();
-        for (int i = 0; i < listCount; i++)
-        {
-            var newList = new List<T>();
-            newList.Read(br);
-            binaryDataLists.Add(newList);
-        }
+        SaveCodec.ReadListList(binaryDataLists, br, Create<T>);
     }
 
     public static void Write<T>(this Dictionary<string, T> binaryDataDictionary, BinaryWriter bw) where T : class, IBinarySaveData, new()
     {
-        bw.Write(binaryDataDictionary.Count(item => item.Value.IsMeetingSaveCriteria));
-
-        foreach (var entry in binaryDataDictionary)
-            if (entry.Value.IsMeetingSaveCriteria)
-                entry.Value.Write(bw);
+        SaveCodec.WriteDictionary(binaryDataDictionary, bw);
     }
 
     public static void Read<T>(this Dictionary<string, T> binaryDataDictionary, Func<T, string> keySelector, BinaryReader br) where T : class, IBinarySaveData, new()
     {
-        binaryDataDictionary.Clear();
-        int itemCount = br.ReadInt32();
-        for (int i = 0; i < itemCount; i++)
-        {
-            T newEntry = Create<T>(br);
-            binaryDataDictionary.Add(keySelector(newEntry), newEntry);
-        }
+        SaveCodec.ReadDictionary(binaryDataDictionary, br, Create<T>, keySelector);
     }
 
     public static void Write<T>(this Dictionary<int, Dictionary<string, T>> instancedDictionary, BinaryWriter bw) where T : class, IBinarySaveData, new()
     {
-        bw.Write(instancedDictionary.Count);
-
-        foreach (var entry in instancedDictionary)
-        {
-            bw.Write(entry.Key);
-            entry.Value.Write(bw);
-        }
+        SaveCodec.WriteInstancedDictionary(instancedDictionary, bw);
     }
 
     public static void Read<T>(this Dictionary<int, Dictionary<string, T>> instancedDictionary, Func<T, string> keySelector, BinaryReader br) where T : class, IBinarySaveData, new()
     {
-        instancedDictionary.Clear();
-        int instancesCount = br.ReadInt32();
-        for (int i = 0; i < instancesCount; i++)
-        {
-            var newInstance = new Dictionary<string, T>();
-            var instanceId = br.ReadInt32();
-            newInstance.Read(keySelector, br);
-            instancedDictionary.Add(instanceId, newInstance);
-        }
+        SaveCodec.ReadInstancedDictionary(instancedDictionary, br, Create<T>, keySelector);
     }
 
     public static void Write(this Dictionary<string, int> binaryDataDictionary, BinaryWriter bw)
     {
-        bw.Write(binaryDataDictionary.Count);
-
-        foreach (var entry in binaryDataDictionary)
-        {
-            bw.Write(entry.Key);
-            bw.Write(entry.Value);
-        }
+        SaveCodec.WriteStringIntDictionary(binaryDataDictionary, bw);
     }
 
     public static void Read(this Dictionary<string, int> binaryDataDictionary, BinaryReader br)
     {
-        binaryDataDictionary.Clear();
-
-        int itemCount = br.ReadInt32();
-        for (int i = 0; i < itemCount; i++)
-            binaryDataDictionary.Add(br.ReadString(), br.ReadInt32());
+        SaveCodec.ReadStringIntDictionary(binaryDataDictionary, br);
     }
 
     public static void Write(this List<int> binaryDataList, BinaryWriter bw)
     {
-        bw.Write(binaryDataList.Count);
-        binaryDataList.ForEach(bw.Write);
+        SaveCodec.WriteIntList(binaryDataList, bw);
     }
 
     public static void Read(this List<int> binaryDataList, BinaryReader br)
     {
-        binaryDataList.Clear();
-        int itemCount = br.ReadInt32();
-        for (int i = 0; i < itemCount; i++)
-            binaryDataList.Add(br.ReadInt32());
+        SaveCodec.ReadIntList(binaryDataList, br);
     }
 
     public static void Write(this List<string> binaryDataList, BinaryWriter bw)
     {
-        bw.Write(binaryDataList.Count);
-        for (int i = 0; i < binaryDataList.Count; i++)
-            bw.Write(binaryDataList[i] ?? "");
+        SaveCodec.WriteStringList(binaryDataList, bw);
     }
 
     public static void Read(this List<string> binaryDataList, BinaryReader br)
     {
-        binaryDataList.Clear();
-        int itemCount = br.ReadInt32();
-        for (int i = 0; i < itemCount; i++)
-            binaryDataList.Add(br.ReadString());
+        SaveCodec.ReadStringList(binaryDataList, br);
     }
 
     public static void Write(this List<bool> binaryDataList, BinaryWriter bw)
     {
-        bw.Write(binaryDataList.Count);
-        for (int i = 0; i < binaryDataList.Count; i++)
-            bw.Write(binaryDataList[i]);
+        SaveCodec.WriteBoolList(binaryDataList, bw);
     }
 
     public static void Read(this List<bool> binaryDataList, BinaryReader br)
     {
-        binaryDataList.Clear();
-        int itemCount = br.ReadInt32();
-        for (int i = 0; i < itemCount; i++)
-            binaryDataList.Add(br.ReadBoolean());
+        SaveCodec.ReadBoolList(binaryDataList, br);
     }
 
     public static T Create<T>(BinaryReader br) where T : class, IBinarySaveData

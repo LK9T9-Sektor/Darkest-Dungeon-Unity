@@ -1,5 +1,36 @@
 # PLAN.md — Активный план задач
 
+## Задача: Save (Фаза 2) — бинарный кодек + DTO + `ISaveStorage` в `Core.Save`
+
+### Цель
+
+Вынести сериализацию сохранений из legacy `SaveLoadManager` (Unity, 1751 стр.) в чистый
+`Core.Save` (netstandard2.0): бинарный кодек + DTO + `ISaveStorage`. Поведение кампании — Фаза 4;
+здесь только перенос/структурирование персистентности, не меняя семантику данных. Legacy Unity
+остаётся, ядро — источник истины для формата.
+
+### Шаги
+
+1. [x] Изучить `SaveLoadManager` + `SaveCampaignData`/`SaveRaidData`/все `IBinarySaveData`-типы
+     (структура бинарного формата, порядок записи, versioning).
+2. [x] `Core.Save`: `SaveCodec` (BinaryWriter/Reader-версия формата) + `SaveVersion` + `ISaveStorage`
+     (файл ↔ поток). **`SaveCampaignData` DTO — отложен**: его поля зависят от кампанийных
+     runtime-моделей (Quest/Dungeon/WeekActivityLog/DeathRecord/UpgradePurchases/QuirkInfo) — вынос
+     вместе с Фазой 4 (поле-маппинг и `Create<T>` остаются в Unity).
+3. [x] Unity-адаптер: `BinarySaveDataHelper` делегирует коллекции/версию в `SaveCodec`;
+     `SaveLoadManager` пишет/читает версию через `SaveCodec`. Минимальный diff.
+4. [x] Тесты: `Core.Save.Tests` (14) — round-trip кодеков, версия, фильтр `IsMeetingSaveCriteria`,
+     storage файл↔поток.
+5. [x] Доки: `docs/mechanics/save/save_binary.md` (актуализирована), `CHANGELOG`, `ARCHITECTURE`,
+     `00_index.md`.
+
+### Проверка
+
+6. [x] `dotnet build` + все 10 сьютов (172 теста, +14); `check-using-placement` OK;
+     `unity-compile-check` оба дерева (unity + unity-2017) — компиляция и script-reference OK.
+
+---
+
 ## Задача: MS-абстракция логирования + файловый логгер + паритет эффектов §2.8
 
 ### Цель
@@ -512,8 +543,9 @@ RemoveConditions; death's door / heart attack — отдельно (кампан
       stun-пропуск хода/истечение, riposte-контратака, guard (`EffectCatalog` + редирект атак),
       pull/push/shuffle-ранги, immobilize-Move, `RemoveConditions` в `ExecuteSkill` (см. задачу
       «Механики-паритет» вверху). Остаётся: death's door / heart attack (кампанийные, отдельно).
-- [ ] **Save** (Фаза 2): бинарный кодек + DTO + `ISaveStorage` (в `Core.Save` уже есть
-      `IBinarySaveData`); вынос логики сериализации из `SaveLoadManager`.
+- [x] **Save** (Фаза 2): бинарный кодек + версии + `ISaveStorage` (в `Core.Save` уже есть
+      `IBinarySaveData`); `BinarySaveDataHelper`/`SaveLoadManager` делегируют коллекции/версию коду
+      ядра. Остаётся: DTO-перенос `SaveCampaignData` — с Фазой 4 (зависит от кампанийных моделей).
 - [ ] **Campaign** (Фаза 4): поведение имения/зданий/апгрейдов/квестов/города в `Core.Campaign`
       (модели + DTO уже вынесены).
 - [ ] **Encounters/Bosses/Curios/Loot**: энкаунтеры/боссы → `Core.Combat`, контент-модели → `Core.Raid`.

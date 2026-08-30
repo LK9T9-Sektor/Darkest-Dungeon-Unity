@@ -5,10 +5,11 @@ using System;
 
 using Random = UnityEngine.Random;
 using Sektor.DarkestDungeon.Core.Raid;
+using Sektor.DarkestDungeon.Core.Save;
 
 public static class SaveLoadManager
 {
-    private static readonly string SaveVersion = "1";
+
 
 
     public static void WriteSave(SaveCampaignData saveData)
@@ -25,7 +26,7 @@ public static class SaveLoadManager
                 {
                     #region Estate
 
-                    bw.Write(SaveVersion);
+                    SaveCodec.WriteVersion(bw);
                     bw.Write(saveData.IsFirstStart);
                     bw.Write(saveData.HamletTitle);
                     bw.Write(saveData.LocationName);
@@ -183,7 +184,7 @@ public static class SaveLoadManager
                 {
                     #region Estate
 
-                    if (br.ReadString() != SaveVersion)
+                    if (!SaveCodec.ReadVersion(br))
                         throw new NotImplementedException("Updater for old save files is not implemented!");
 
                     saveData.IsFirstStart = br.ReadBoolean();

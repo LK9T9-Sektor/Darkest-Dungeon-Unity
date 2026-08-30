@@ -36,7 +36,7 @@
 | Content | квирки, бафф-контент, trinket/camping-каталоги | `content/` | данные |
 | Common | `Result`, `RandomSolver`/`IRng`, токен-парсер, feature-flag | `common/` | реализовано |
 | Clients | `GameDataReader` (Newtonsoft-фасад) | `clients/` | реализовано |
-| Save | `IBinarySaveData` (кодек/`ISaveStorage` — будущее) | `save/` | данные |
+| Save | `SaveCodec` + версии + `ISaveStorage` (DTO-перенос — с Фазой 4) | `save/` | реализовано |
 | Networking | Contracts/Steam/Photon (src\Lan) | `networking/` | частично |
 | Presentation | WPF-экраны, Unity-оверлеи Тест-боя | `presentation/` | реализовано |
 | Campaign | имение/здания/апгрейды/квесты/город/ростер/провизия | `campaign/` | данные |
