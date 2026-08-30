@@ -20,7 +20,7 @@
 ## 3. Порядок срабатывания (трассировка)
 
 1. `DuelController.StartDuel/StartFight` вызывает `RandomSolver.SetRandomSeed(sessionSeed)`
-   (`DuelController.cs:110,139`).
+   (`DuelController.cs:119,147`).
 2. Все роллы боя (меткость, крит, шансы эффектов, AI) используют `RandomSolver`.
 3. `DuelSeed.ComputeSessionSeed` также устанавливает сид при вычислении.
 

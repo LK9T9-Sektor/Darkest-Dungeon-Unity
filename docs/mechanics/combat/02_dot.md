@@ -38,9 +38,9 @@ effect: .name "Bleed 2" .chance 110% .dotBleed 2 .duration 3
 2. При успехе — `AddInstanse(DotBleed, duration ?? 3)` (`:40`).
 3. `ApplyQueued` (`:47`) — попап `Bleed`/`BleedResist` + overlay.
 
-**Тик урона** — в начале хода цели, `DuelController.BeginTurn` (`DuelController.cs:312`):
+**Тик урона** — в начале хода цели, `DuelController.BeginTurn` (`DuelController.cs:238`):
 
-1. `ApplyDotTicks(current)` (`DuelController.cs:344,369-387`): для `StatusType.Bleeding` и `Poison`,
+1. `ApplyDotTicks(current)` (`DuelController.cs:270-276,Mechanics/DotTickApplier`): для `StatusType.Bleeding` и `Poison`,
    если `IsApplied` — `TakeDamage(CurrentTickDamage)` + попап `Damage` + `UpdateOverlay`.
 2. `CheckDeaths()` (`:345`) — юнит может умереть от тика (см. `14_death_stress.md`); если умер —
    `CompleteTurn` и ход не исполняется.
@@ -62,7 +62,7 @@ effect: .name "Bleed 2" .chance 110% .dotBleed 2 .duration 3
 |---|---|---|
 | Шанс наложения | `BleedEffect.cs:27-36` | `chance/100 − резист + шанс`, клэмп 0..0.95 |
 | Количество тиков | `AddInstanse` | `duration ?? 3` |
-| Тик урона | `DuelController.cs:369-387` | сумма по всем инстансам, без защиты |
+| Тик урона | `DuelController.cs:Mechanics/DotTickApplier` | сумма по всем инстансам, без защиты |
 | Истечение | `DamageOverTimeInstanse.cs:17` | удаление при `TicksLeft <= 0` |
 
 ## 7. Нюансы и подводные камни
@@ -91,3 +91,4 @@ effect: .name "Bleed 2" .chance 110% .dotBleed 2 .duration 3
 - `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/Skills/Effects/CureEffect.cs`
 - `src/Core/Sektor.DarkestDungeon.Core.Duel/DuelController.cs`
 - `tests/Core/Sektor.DarkestDungeon.Core.Duel.Tests/ParityMechanicsTests.cs` (`DotTick_...`)
+

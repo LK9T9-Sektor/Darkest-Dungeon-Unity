@@ -34,11 +34,11 @@
 3. stat-баффы накладываются с `BuffRule.Riposting` (`:46-53`), которые активны, только когда
    `rules.IsRiposting` (см. `09_buffs.md`).
 
-**Контратака** — `DuelController.ExecuteSkill` (`DuelController.cs:571`):
+**Контратака** — `DuelController.ExecuteSkill` (`DuelController.cs:443`):
 
 1. `Solver.ExecuteSkill(unit, target, skill)` → урон/хил/эффекты (`:573`).
 2. `ProcessEventQueues()` (`:574`), `CheckDeaths()` (`:575`).
-3. `ExecuteRiposte(unit, target)` (`DuelController.cs:585-600`):
+3. `ExecuteRiposte(unit, target)` (`DuelController.cs:461-479`):
    - если цель мертва → выход;
    - если `Riposte.IsApplied` и `target.RiposteSkill != null` → `Solver.ExecuteSkill(target, attacker,
      riposteSkill, null)` + `ProcessEventQueues` + `CheckDeaths`.
@@ -56,7 +56,7 @@
 
 | Условие | Где | Границы |
 |---|---|---|
-| Статус применён | `DuelController.cs:588` | `Riposte.IsApplied` |
+| Статус применён | `DuelController.cs:466` | `Riposte.IsApplied` |
 | Скилл есть | `:590` | `RiposteSkill != null` |
 | Цель жива | `:586` | не `IsDead` |
 | Длительность | `RiposteEffect.cs:40-44` | `duration ?? 1`; `Combat` = без истечения |
@@ -87,3 +87,4 @@
 - `src/Core/Sektor.DarkestDungeon.Core.Combat/Character/HeroClassFileParser.cs`
 - `src/Core/Sektor.DarkestDungeon.Core.Duel/DuelController.cs` (`ExecuteRiposte`)
 - `tests/Core/Sektor.DarkestDungeon.Core.Duel.Tests/ParityMechanicsTests.cs` (`Riposte_...`)
+

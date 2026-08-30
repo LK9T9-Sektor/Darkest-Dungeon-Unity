@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Sektor.DarkestDungeon.Core.Combat.Character;
+using Sektor.DarkestDungeon.Core.Combat.Content;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
@@ -184,7 +185,7 @@ namespace Sektor.DarkestDungeon.Core.Duel
                 return;
             }
 
-            var allyStress = content.GetEffect("AfflictedAllyStress");
+            var allyStress = content.GetEffect(EffectIds.AfflictedAllyStress);
             if (allyStress == null)
                 return;
             var party = hero.Team == Team.Heroes ? BattleGround.HeroParty.Units : BattleGround.MonsterParty.Units;

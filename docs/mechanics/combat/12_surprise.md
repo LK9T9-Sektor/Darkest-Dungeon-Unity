@@ -24,7 +24,7 @@
 
 ## 4. Порядок срабатывания (трассировка)
 
-`DuelController.CheckSurprise` (`DuelController.cs:210`) вызывается в `StartBattle` (`:150`):
+`DuelController.CheckSurprise` (`DuelController.cs:232`) вызывается в `StartBattle` (`:150`):
 
 1. **AlwaysBeSurprised** монстров (`:213-219`): `MonstersSurprised`, флаг на всех монстрах, выход.
 2. **Шанс монстров** (`:221-239`): если нет `BattleModifiers` или `CanBeSurprised` —
@@ -54,7 +54,7 @@
 
 | Условие | Где | Границы |
 |---|---|---|
-| Always-флаги | `DuelController.cs:213,241` | безусловный сюрприз |
+| Always-флаги | `DuelController.cs:234,255` | безусловный сюрприз |
 | Базовый шанс | `:224,253` | `0.1 + торч-бонус` |
 | Атрибуты героев | `:226-229,255-258` | суммарные шансы |
 | Клэмп шанса | `:231,260` | 0..0.65 |
@@ -84,3 +84,4 @@
 - `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/Battle/Round.cs`
 - `src/Core/Sektor.DarkestDungeon.Core.Combat/Raid/Party/FormationUnitInfo.cs`
 - `tests/Core/Sektor.DarkestDungeon.Core.Duel.Tests/SurpriseTests.cs`
+

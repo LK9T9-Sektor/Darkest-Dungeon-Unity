@@ -33,7 +33,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
                 (float)effect.IntegerParams[EffectIntParams.Chance].Value / 100 : 1;
 
             debuffChance -= target.Character.GetSingleAttribute(AttributeType.Debuff).ModifiedValue;
-            debuffChance = performer == target ? 1 : Clamp01(debuffChance, 0.95f);
+            debuffChance = performer == target ? 1 : ChanceMath.Clamp01(debuffChance);
 
             if (RandomSolver.CheckSuccess(debuffChance))
             {
@@ -51,15 +51,6 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
 
             battleContext.Events.ShowPopup(target, PopupType.DebuffResist);
             return false;
-        }
-
-        private static float Clamp01(float value, float max)
-        {
-            if (value < 0)
-                return 0;
-            if (value > max)
-                return max;
-            return value;
         }
     }
 }

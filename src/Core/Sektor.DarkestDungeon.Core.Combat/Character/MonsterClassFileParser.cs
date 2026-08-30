@@ -356,7 +356,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
 
         private static float ClampAccuracy(float accuracy)
         {
-            return Math.Max(0.1f, Math.Min(accuracy, 0.95f));
+            return Math.Max(BattleConstants.MinAccuracy, Math.Min(accuracy, BattleConstants.MaxChance));
         }
     }
 }

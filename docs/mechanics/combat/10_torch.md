@@ -28,11 +28,11 @@
 
 1. `DuelController.StartDuel`/`StartFight` регистрируют мутацию:
    `Events.TorchDelta = delta => Context.TorchAmount = Clamp(0..100, TorchAmount + delta)`
-   (`DuelController.cs:109,138`).
+   (`DuelController.cs:118,146`).
 2. Эффект с `EffectTargetType.Global` и `Torch != null` → `Effect.Apply` (`Effect.cs:85-92`):
    `DecreaseTorch`/`IncreaseTorch`.
 3. `DuelBattleEvents.DecreaseTorch/IncreaseTorch` (`DuelBattleEvents.cs:171-184`) — лог + `TorchDelta`.
-4. Клэмп 0..100 в колбэке (`DuelController.cs:109`).
+4. Клэмп 0..100 в колбэке (`DuelController.cs:118`).
 
 ## 5. Очередь и обновления
 
@@ -45,8 +45,8 @@
 | Условие | Где | Границы |
 |---|---|---|
 | Дельт | `EffectCatalog.cs:200-209` | `torch_increase` суммируется с `torch_decrease` |
-| Клэмп | `DuelController.cs:109,138` | 0..100 |
-| Сюрприз-бонус | `DuelController.cs:281-291` | по диапазону торча |
+| Клэмп | `DuelController.cs:118,146` | 0..100 |
+| Сюрприз-бонус | `DuelController.cs:Mechanics/SurpriseResolver` | по диапазону торча |
 
 ## 7. Нюансы и подводные камни
 
@@ -58,7 +58,7 @@
 ## 8. Взаимодействия
 
 - Сюрприз 1-го раунда использует `TorchAmount` для бонуса шанса (`12_surprise.md`).
-- Rule-баффы `LightAbove`/`LightBelow` (`Character.cs:463-468`) читают `rules.TorchAmount`
+- Rule-баффы `LightAbove`/`LightBelow` (`Character.cs:BuffRuleEvaluator/LightAbove`) читают `rules.TorchAmount`
   (`DuelBattleContext.cs:107,115`).
 
 ## 9. Файлы-источники

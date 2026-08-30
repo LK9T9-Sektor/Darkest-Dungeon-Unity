@@ -60,7 +60,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
             {
                 if (performerGuardStatus.Targets.Contains(target))
                 {
-                    targetGuardedStatus.GuardDuration = effect.IntegerParams[EffectIntParams.Duration] ?? 1;
+                    targetGuardedStatus.GuardDuration = effect.IntegerParams[EffectIntParams.Duration] ?? BattleConstants.DefaultStatusDuration;
                 }
                 else
                 {
@@ -70,7 +70,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
                     if (targetGuardedStatus.IsApplied)
                         targetGuardedStatus.ResetStatus();
 
-                    targetGuardedStatus.GuardDuration = effect.IntegerParams[EffectIntParams.Duration] ?? 1;
+                    targetGuardedStatus.GuardDuration = effect.IntegerParams[EffectIntParams.Duration] ?? BattleConstants.DefaultStatusDuration;
                     targetGuardedStatus.Guard = performer;
                     performerGuardStatus.Targets.Add(target);
                     battleContext.Events.UpdateOverlay(target);
@@ -84,7 +84,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
                 if (targetGuardedStatus.IsApplied)
                     targetGuardedStatus.ResetStatus();
 
-                targetGuardedStatus.GuardDuration = effect.IntegerParams[EffectIntParams.Duration] ?? 1;
+                targetGuardedStatus.GuardDuration = effect.IntegerParams[EffectIntParams.Duration] ?? BattleConstants.DefaultStatusDuration;
                 targetGuardedStatus.Guard = performer;
                 performerGuardStatus.Targets.Add(target);
                 battleContext.Events.UpdateOverlay(performer);

@@ -28,7 +28,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
             if (performer != null && !performer.Character.IsMonster)
                 stunChance += performer.Character.GetSingleAttribute(AttributeType.StunChance).ModifiedValue;
 
-            stunChance = Clamp01(stunChance, 0.95f);
+            stunChance = ChanceMath.Clamp01(stunChance);
             if (RandomSolver.CheckSuccess(stunChance))
             {
                 stunStatus.StunApplied = true;
@@ -55,15 +55,6 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
                 battleContext.Events.ShowPopup(target, PopupType.StunResist);
                 return false;
             }
-        }
-
-        private static float Clamp01(float value, float max)
-        {
-            if (value < 0)
-                return 0;
-            if (value > max)
-                return max;
-            return value;
         }
     }
 }

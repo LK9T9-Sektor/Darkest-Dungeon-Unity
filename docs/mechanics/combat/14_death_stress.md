@@ -11,7 +11,7 @@
 
 ## 2. Модель данных
 
-- `DuelController.CheckDeaths` (`DuelController.cs:673`) — сбор умерших, `StressParty`.
+- `DuelController.CheckDeaths` (`DuelController.cs:549`) — сбор умерших, `StressParty`.
 - `DuelController.StressParty` (`:696`) — стресс союзникам.
 - `DuelBattleContext.ResolveOverstress` (`DuelBattleContext.cs:143`) — resolve-ролл.
 - `StressEffect` (`Mechanics/Skills/Effects/StressEffect.cs:10`) — стресс; `HandleOverstress`
@@ -28,7 +28,7 @@
 
 ## 4. Порядок срабатывания (трассировка)
 
-**Смерть** — `DuelController.CheckDeaths` (`DuelController.cs:673-690`) вызывается из `ExecuteSkill`
+**Смерть** — `DuelController.CheckDeaths` (`DuelController.cs:549`) вызывается из `ExecuteSkill`
 (`:575`), `ExecuteRiposte` (`:597`), `BeginTurn` после DoT-тиков (`:345`):
 
 1. Для всех юнитов: `HealthRatio <= 0 && !IsDead` → `IsDead = true`, в список (`:676-681`).
@@ -57,7 +57,7 @@
 
 | Условие | Где | Границы |
 |---|---|---|
-| Смерть | `DuelController.cs:676` | `HealthRatio <= 0 && !IsDead` |
+| Смерть | `DuelController.cs:553` | `HealthRatio <= 0 && !IsDead` |
 | Стресс союзникам | `:696-710` | только герои, не мёртвые |
 | Resolve-шанс | `DuelBattleContext.cs:150-155` | `0.25 + ResolveCheck`, клэмп 0.01..0.6 |
 | Виртуда-стресс | `:177-183` | 20–40 |
@@ -72,7 +72,7 @@
   устанавливается в дуэли (grep: только объявление).
 - Мёртвый юнит: `IsDead` — флаг `FormationUnitInfo`; сам юнит остаётся в партии (для стресса/лога).
 - `StressParty` использует `Effects["Stress 2"]` — если эффект отсутствует в контенте, стресс не
-  применяется (`DuelController.cs:697-700`).
+  применяется (`DuelController.cs:Mechanics/DeathCheck`).
 
 ## 8. Взаимодействия
 
@@ -89,3 +89,4 @@
 - `src/Core/Sektor.DarkestDungeon.Core.Combat/Character/Statuses/DeathsDoorStatusEffect.cs`,
   `DeathRecoveryStatusEffect.cs`
 - `tests/Core/Sektor.DarkestDungeon.Core.Duel.Tests/StressTests.cs`
+

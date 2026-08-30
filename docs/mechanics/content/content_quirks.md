@@ -22,7 +22,7 @@
 
 ## 4. Порядок срабатывания (трассировка)
 
-`DuelController.ApplyQuirks` (`DuelController.cs:557-578`):
+`DuelController.ApplyQuirks` (`DuelController.cs:517-538`):
 
 1. Для каждого `quirkId`: `hero.AddQuirk(quirkId)` (`:564`), `GetQuirk` (`:565`).
 2. Для каждого `quirk.Buffs`: `GetBuff(buffId)`; если бафф есть и у героя есть атрибут
@@ -38,7 +38,7 @@
 
 | Условие | Где | Границы |
 |---|---|---|
-| Квирк есть | `DuelController.cs:565-567` | иначе skip |
+| Квирк есть | `DuelController.cs:525-527` | иначе skip |
 | Атрибут баффа у героя | `:571` | `GetAttribute != null` (защита от NRE) |
 
 ## 7. Нюансы и подводные камни

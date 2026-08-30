@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Sektor.DarkestDungeon.Core.Common;
 using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Character.Statuses;
+using Sektor.DarkestDungeon.Core.Combat.Content;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
@@ -11,6 +13,7 @@ using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Events;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Party;
 using Sektor.DarkestDungeon.Core.Duel.Fight;
+using Sektor.DarkestDungeon.Core.Duel.Mechanics;
 
 namespace Sektor.DarkestDungeon.Core.Duel
 {
@@ -22,6 +25,12 @@ namespace Sektor.DarkestDungeon.Core.Duel
     public class DuelController
     {
         private readonly IDuelContent content;
+        private readonly ILogger logger;
+        private SurpriseResolver surpriseResolver;
+        private DotTickApplier dotTickApplier;
+        private StunRecoveryApplier stunRecoveryApplier;
+        private DeathCheck deathCheck;
+        private TurnMover turnMover;
 
         /// <summary>Gets the hero party (host's party).</summary>
         public FormationParty HeroParty { get; private set; } = new FormationParty();
@@ -80,9 +89,11 @@ namespace Sektor.DarkestDungeon.Core.Duel
 
         /// <summary>Initializes a new instance of the <see cref="DuelController"/> class.</summary>
         /// <param name="content">The content source for building parties from picks.</param>
-        public DuelController(IDuelContent content)
+        /// <param name="logger">The logger (defaults to a no-op logger).</param>
+        public DuelController(IDuelContent content, ILogger logger = null)
         {
             this.content = content;
+            this.logger = logger ?? NullLogger.Instance;
         }
 
         /// <summary>Starts the duel with identical formations on both sides.</summary>
@@ -105,6 +116,7 @@ namespace Sektor.DarkestDungeon.Core.Duel
             BattleGround = new BattleGround(HeroParty, MonsterParty);
             Context = new DuelBattleContext(BattleGround, Events, content);
             Solver = new BattleSolver(Context);
+            InitializeMechanics();
 
             Events.TorchDelta = delta => Context.TorchAmount = Math.Max(0, Math.Min(100, Context.TorchAmount + delta));
 
@@ -134,6 +146,7 @@ namespace Sektor.DarkestDungeon.Core.Duel
             BattleGround = new BattleGround(HeroParty, MonsterParty);
             Context = new DuelBattleContext(BattleGround, Events, content);
             Solver = new BattleSolver(Context);
+            InitializeMechanics();
 
             Events.TorchDelta = delta => Context.TorchAmount = Math.Max(0, Math.Min(100, Context.TorchAmount + delta));
 
@@ -207,105 +220,18 @@ namespace Sektor.DarkestDungeon.Core.Duel
             MonsterParty.AddUnit(unit);
         }
 
+        private void InitializeMechanics()
+        {
+            surpriseResolver = new SurpriseResolver(HeroParty, MonsterParty, BattleGround, Context.TorchAmount);
+            dotTickApplier = new DotTickApplier(Events);
+            stunRecoveryApplier = new StunRecoveryApplier(content);
+            deathCheck = new DeathCheck(HeroParty, MonsterParty, content, Context);
+            turnMover = new TurnMover(HeroParty, MonsterParty);
+        }
+
         private void CheckSurprise()
         {
-            bool monsterSideModded = MonsterParty.Units.Any(unit => unit.Character.BattleModifiers != null);
-
-            if (monsterSideModded && MonsterParty.Units.Any(unit => unit.Character.BattleModifiers.AlwaysBeSurprised))
-            {
-                BattleGround.SetSurpriseStatus(SurpriseStatus.MonstersSurprised);
-                foreach (var unit in MonsterParty.Units)
-                    unit.CombatInfo.IsSurprised = true;
-                return;
-            }
-
-            if (!monsterSideModded || MonsterParty.Units.Any(unit => unit.Character.BattleModifiers.CanBeSurprised))
-            {
-                float monstersSurprised = 0.1f + TorchSurpriseBonus(Context.TorchAmount, true);
-                foreach (var hero in HeroParty.Units)
-                {
-                    var attribute = hero.Character.GetSingleAttribute(AttributeType.MonsterSurpirseChance);
-                    if (attribute != null)
-                        monstersSurprised += attribute.ModifiedValue;
-                }
-                monstersSurprised = ClampSurpriseChance(monstersSurprised);
-
-                if (RandomSolver.CheckSuccess(monstersSurprised))
-                {
-                    BattleGround.SetSurpriseStatus(SurpriseStatus.MonstersSurprised);
-                    foreach (var unit in MonsterParty.Units)
-                        unit.CombatInfo.IsSurprised = true;
-                    return;
-                }
-            }
-
-            if (monsterSideModded && MonsterParty.Units.Any(unit => unit.Character.BattleModifiers.AlwaysSurprise))
-            {
-                BattleGround.SetSurpriseStatus(SurpriseStatus.HeroesSurprised);
-                foreach (var unit in HeroParty.Units)
-                    unit.CombatInfo.IsSurprised = true;
-                ShuffleParty(HeroParty);
-                return;
-            }
-
-            if (!monsterSideModded || MonsterParty.Units.Any(unit => unit.Character.BattleModifiers.CanSurprise))
-            {
-                float heroesSurprised = 0.1f + TorchSurpriseBonus(Context.TorchAmount, false);
-                foreach (var hero in HeroParty.Units)
-                {
-                    var attribute = hero.Character.GetSingleAttribute(AttributeType.PartySurpriseChance);
-                    if (attribute != null)
-                        heroesSurprised += attribute.ModifiedValue;
-                }
-                heroesSurprised = ClampSurpriseChance(heroesSurprised);
-
-                if (RandomSolver.CheckSuccess(heroesSurprised))
-                {
-                    BattleGround.SetSurpriseStatus(SurpriseStatus.HeroesSurprised);
-                    foreach (var unit in HeroParty.Units)
-                        unit.CombatInfo.IsSurprised = true;
-                    ShuffleParty(HeroParty);
-                }
-            }
-        }
-
-        private static float ClampSurpriseChance(float chance)
-        {
-            if (chance < 0f)
-                return 0f;
-            if (chance > 0.65f)
-                return 0.65f;
-            return chance;
-        }
-
-        private static float TorchSurpriseBonus(int torch, bool monsters)
-        {
-            if (torch > 75)
-                return monsters ? 0.25f : 0f;
-            if (torch > 50)
-                return monsters ? 0.15f : 0f;
-            if (torch > 25)
-                return monsters ? 0.10f : 0.15f;
-            if (torch > 0)
-                return monsters ? 0.05f : 0.25f;
-            return monsters ? 0f : 0.4f;
-        }
-
-        private static void ShuffleParty(FormationParty party)
-        {
-            for (int i = 0; i < party.Units.Count; i++)
-            {
-                int swapIndex = RandomSolver.Next(party.Units.Count);
-                if (swapIndex == i)
-                    continue;
-
-                var temp = party.Units[i];
-                party.Units[i] = party.Units[swapIndex];
-                party.Units[swapIndex] = temp;
-            }
-
-            for (int i = 0; i < party.Units.Count; i++)
-                ((FormationUnit)party.Units[i]).Rank = i + 1;
+            surpriseResolver.Resolve();
         }
 
         /// <summary>Begins the current turn.</summary>
@@ -341,8 +267,8 @@ namespace Sektor.DarkestDungeon.Core.Duel
             else
                 BattleGround.Round.PreMonsterTurn(current, BattleGround);
 
-            ApplyDotTicks(current);
-            CheckDeaths();
+            dotTickApplier.Apply(current);
+            deathCheck.Check();
             if (current.CombatInfo.IsDead)
             {
                 CompleteTurn();
@@ -356,7 +282,8 @@ namespace Sektor.DarkestDungeon.Core.Duel
                 ((IStunStatusEffect)current.Character.GetStatusEffect(StatusType.Stun)).StunApplied = false;
                 Events.ShowPopup(current, PopupType.Unstun);
                 Events.ResetHalo(current);
-                ApplyStunRecovery(current);
+                stunRecoveryApplier.Apply(current);
+                logger.Log("[duel] " + current.Character.Name + " was stunned; turn skipped.");
                 CompleteTurn();
                 return;
             }
@@ -364,35 +291,6 @@ namespace Sektor.DarkestDungeon.Core.Duel
             Phase = current.Team == Team.Heroes
                 ? DuelPhase.WaitingForHostAction
                 : DuelPhase.WaitingForClientAction;
-        }
-
-        private void ApplyDotTicks(ICombatUnit unit)
-        {
-            var bleeding = (DamageOverTimeStatusEffect)unit.Character.GetStatusEffect(StatusType.Bleeding);
-            if (bleeding.IsApplied)
-            {
-                int tickDamage = bleeding.CurrentTickDamage;
-                unit.Character.TakeDamage(tickDamage);
-                Events.ShowPopup(unit, PopupType.Damage, tickDamage.ToString());
-                Events.UpdateOverlay(unit);
-            }
-
-            var poison = (DamageOverTimeStatusEffect)unit.Character.GetStatusEffect(StatusType.Poison);
-            if (poison.IsApplied)
-            {
-                int tickDamage = poison.CurrentTickDamage;
-                unit.Character.TakeDamage(tickDamage);
-                Events.ShowPopup(unit, PopupType.Damage, tickDamage.ToString());
-                Events.UpdateOverlay(unit);
-            }
-        }
-
-        private void ApplyStunRecovery(ICombatUnit unit)
-        {
-            var recoveryBuff = content.GetBuff("STUNRECOVERYBUFF");
-            if (recoveryBuff == null)
-                return;
-            unit.Character.AddBuff(new BuffInfo(recoveryBuff, BuffDurationType.Round, BuffSourceType.Adventure, 2));
         }
 
         /// <summary>Executes the acting unit's skill and returns the wire payload to broadcast.</summary>
@@ -443,7 +341,7 @@ namespace Sektor.DarkestDungeon.Core.Duel
             if (parts[0] == DuelPayload.Move)
             {
                 int rank;
-                if (parts.Length == 2 && int.TryParse(parts[1], out rank) && TryMove(CurrentUnit, rank))
+                if (parts.Length == 2 && int.TryParse(parts[1], out rank) && turnMover.TryMove(CurrentUnit, rank))
                     CompleteTurn();
                 return;
             }
@@ -481,37 +379,11 @@ namespace Sektor.DarkestDungeon.Core.Duel
                 return null;
 
             var unit = CurrentUnit;
-            if (unit == null || !TryMove(unit, newRank))
+            if (unit == null || !turnMover.TryMove(unit, newRank))
                 return null;
 
             CompleteTurn();
             return DuelPayload.MoveAction(newRank);
-        }
-
-        /// <summary>Swaps a unit with the ally standing in an adjacent rank.</summary>
-        /// <param name="unit">The moving unit.</param>
-        /// <param name="newRank">The destination rank (must be adjacent).</param>
-        /// <returns>True if the move was performed.</returns>
-        private bool TryMove(ICombatUnit unit, int newRank)
-        {
-            if (unit == null || unit.CombatInfo.IsImmobilized)
-                return false;
-
-            var party = unit.Team == Team.Heroes ? HeroParty : MonsterParty;
-            if (newRank < 1 || newRank > party.Units.Count || Math.Abs(newRank - unit.Rank) != 1)
-                return false;
-
-            int fromIndex = party.Units.IndexOf(unit);
-            int toIndex = party.Units.FindIndex(candidate => candidate.Rank == newRank);
-            if (fromIndex < 0 || toIndex < 0)
-                return false;
-
-            var swap = party.Units[fromIndex];
-            party.Units[fromIndex] = party.Units[toIndex];
-            party.Units[toIndex] = swap;
-            for (int i = 0; i < party.Units.Count; i++)
-                ((FormationUnit)party.Units[i]).Rank = i + 1;
-            return true;
         }
 
         /// <summary>Completes the current turn and advances to the next unit or round.</summary>
@@ -580,6 +452,10 @@ namespace Sektor.DarkestDungeon.Core.Duel
 
             ExecuteRiposte(unit, target);
             RemoveConditions(unit, target);
+
+            foreach (var entry in Solver.SkillResult.SkillEntries)
+                logger.Log("[duel] " + unit.Character.Name + " used " + skill.Id + " -> " +
+                    target.Character.Name + " (" + entry.Type + (entry.Amount != 0 ? " " + entry.Amount : "") + ")");
         }
 
         private void ExecuteRiposte(ICombatUnit attacker, ICombatUnit target)
@@ -672,41 +548,7 @@ namespace Sektor.DarkestDungeon.Core.Duel
 
         private void CheckDeaths()
         {
-            var newlyDead = new List<ICombatUnit>();
-            foreach (var unit in HeroParty.Units.Concat(MonsterParty.Units))
-            {
-                if (unit.Character.HealthRatio <= 0 && !((FormationUnitInfo)unit.CombatInfo).IsDead)
-                {
-                    ((FormationUnitInfo)unit.CombatInfo).IsDead = true;
-                    newlyDead.Add(unit);
-                }
-            }
-
-            foreach (var dead in newlyDead)
-            {
-                if (dead.Character.IsMonster)
-                    continue;
-                var party = dead.Team == Team.Heroes ? HeroParty.Units : MonsterParty.Units;
-                StressParty(party);
-            }
-        }
-
-        /// <summary>Applies the party stress effect to surviving heroes.</summary>
-        /// <param name="party">The party whose living heroes receive stress.</param>
-        private void StressParty(List<ICombatUnit> party)
-        {
-            var effect = content.GetEffect("Stress 2");
-            if (effect == null || Context == null)
-                return;
-
-            foreach (var unit in party)
-            {
-                if (unit.Character.IsMonster || ((FormationUnitInfo)unit.CombatInfo).IsDead)
-                    continue;
-                foreach (var subEffect in effect.SubEffects)
-                    subEffect.ApplyInstant(null, unit, effect, Context);
-                Context.ResolveOverstress(unit);
-            }
+            deathCheck.Check();
         }
 
         private static CombatSkill FindSkill(ICombatUnit unit, string skillId)

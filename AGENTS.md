@@ -84,6 +84,14 @@ Before planning or editing, read the relevant documents from `docs\`:
 - `TESTING.md` — manual in-game verification checklists; must be kept in sync with behavior changes;
 - `INDEX.md` — doc map: which document answers which question (entities, execution, wishlist `FEATURE_*.md`).
 - `docs\mechanics\00_index.md` — detailed per-mechanic specifications by domain (the "how it works" source of truth).
+- `docs\CLEANUP.md` — core-code cleanup catalog (magic strings/numbers, god-classes, switch dispatch, logging).
+
+**Clean core rule:** the pure core (`src\Core\`, `src\Clients\`) is owned code and must be kept clean:
+no magic strings/numbers (use named constants — content ids in `Core.Combat\Content\`, clamps/chances as
+consts), no switch/if dispatch (use polymorphic strategies/registries), no god-class private methods
+(extract into testable classes with constructor DI), structural logging via `ILogger`. Legacy Unity and
+`src\External\` stay read-only. Cleanup must not change behavior — `dotnet test` is the guard; update
+`docs\CLEANUP.md` and affected `docs\mechanics\*` line references in the same commit.
 
 **Mechanics specifications (mandatory):** every game mechanic is documented in a dedicated file under
 `docs\mechanics\<domain>\` (mirrors `TARGET_LAYOUT.md`; domains: `combat`, `duel`, `content`, `campaign`,

@@ -10,7 +10,7 @@
 
 ## 2. Модель данных
 
-- `DuelController` (`Core.Duel/DuelController.cs:21`) — оркестратор; `HeroParty`/`MonsterParty`
+- `DuelController` (`Core.Duel/DuelController.cs:23`) — оркестратор; `HeroParty`/`MonsterParty`
   (`FormationParty`), `BattleGround`, `Context` (`DuelBattleContext`), `Solver` (`BattleSolver`),
   `Events` (`DuelBattleEvents`), `IsHost`, `Phase` (`DuelPhase`).
 - `DuelPhase` (`DuelPhase.cs:4`) — `NotStarted`/`WaitingForHostAction`/`WaitingForClientAction`/`Finished`.
@@ -23,7 +23,7 @@
 
 ## 4. Порядок срабатывания (трассировка)
 
-1. **Старт** — `StartDuel(hostPicks, clientPicks, sessionSeed, isHost)` (`DuelController.cs:93`):
+1. **Старт** — `StartDuel(hostPicks, clientPicks, sessionSeed, isHost)` (`DuelController.cs:104`):
    построение отрядов (`AddHero` для каждой стороны), `BattleGround`, `Context`, `Solver`,
    регистрация `TorchDelta`, `RandomSolver.SetRandomSeed(sessionSeed)` (`:110,139`), `Phase=NotStarted`.
 2. **Старт боя** — `StartBattle` (`:151`): `CheckSurprise` → `Round.StartBattle` → `BeginTurn`.

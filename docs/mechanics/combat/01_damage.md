@@ -25,10 +25,10 @@ CritMod, `.is_crit_valid`, `.heal` → HealComponent, `.effect` → `Effects` (�
 
 ## 4. Порядок срабатывания (трассировка)
 
-`DuelController.ExecuteSkill` (`DuelController.cs:571`) →
-`BattleSolver.ExecuteSkill` (`BattleSolver.cs:385`):
+`DuelController.ExecuteSkill` (`DuelController.cs:443`) →
+`BattleSolver.ExecuteSkill` (`BattleSolver.cs:388`):
 
-1. **Guard-редирект** (`BattleSolver.cs:393-397`): если цель — враг и под `Guarded` → цель заменяется
+1. **Guard-редирект** (`BattleSolver.cs:396-399`): если цель — враг и под `Guarded` → цель заменяется
    на `Guarded.Guard` **до** всех расчётов.
 2. `SkillsUsedThisTurn/SkillsUsedInBattle` пополняются (`:390-391`).
 3. `ApplyConditions(performer, target, skill)` (`:403`) — применяет rule-баффы обоих.
@@ -53,7 +53,7 @@ CritMod, `.is_crit_valid`, `.heal` → HealComponent, `.effect` → `Effects` (�
    - Обычный удар: `TakeDamage(damage)` (`:500`), entry `Hit` (или `Hit` с `IsZeroed` при `HasZeroHealth`),
      эффекты (`:507`).
 7. Возврат в `DuelController.ExecuteSkill`: `ProcessEventQueues()` (квеянные эффекты) → `CheckDeaths()`
-   → `ExecuteRiposte` (контратака) → `RemoveConditions(performer, target)` (`DuelController.cs:573-608`).
+   → `ExecuteRiposte` (контратака) → `RemoveConditions(performer, target)` (`DuelController.cs:443-490`).
 
 ## 5. Очередь и обновления
 
@@ -66,7 +66,7 @@ CritMod, `.is_crit_valid`, `.heal` → HealComponent, `.effect` → `Effects` (�
 
 | Условие | Где | Границы |
 |---|---|---|
-| Меткость | `BattleSolver.cs:451` | `acc−dodge`, клэмп 0..0.95 |
+| Меткость | `DamageResolver.cs (Mechanics/Battle)` | `acc−dodge`, клэмп 0..0.95 |
 | Урон | `:474` | `Ceil(Lerp·(1+DmgMod)·(1−prot))`, минимум 0 |
 | Крит-шанс героя | `:483` | `CritChance + skill.CritMod` |
 | Крит-шанс хила | `:422` | `CritChance + skill.CritMod/100` |
@@ -96,3 +96,5 @@ CritMod, `.is_crit_valid`, `.heal` → HealComponent, `.effect` → `Effects` (�
 - `src/Core/Sektor.DarkestDungeon.Core.Duel/DuelController.cs`
 - `src/Core/Sektor.DarkestDungeon.Core.Combat/Character/HeroClassFileParser.cs`
 - `tests/Core/Sektor.DarkestDungeon.Core.Combat.Tests/Mechanics/BattleSolverTests.cs`
+
+

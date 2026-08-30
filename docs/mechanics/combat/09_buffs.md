@@ -38,15 +38,15 @@
 вычисляется `apply`, затем `ApplyBuff`/`RevertBuff`. `IsApplied`-гейт гарантирует, что повторное
 применение не наложит дважды.
 
-**`ApplyConditions`** — `BattleSolver.ApplyConditions` (`BattleSolver.cs:580-589`):
+**`ApplyConditions`** — `BattleSolver.ApplyConditions` (`BattleSolver.cs:515-524`):
 
 1. `BattleContext.ApplyCombatUnitRules(performer, target, skill, isRiposte)` — rule-баффы обоих.
 2. `effect.ApplyTargetConditions(...)` для каждого эффекта скилла (условные баффы).
 
 **`RemoveConditions`** — вызывается **после каждого скилла**:
 
-- `DuelController.ExecuteSkill` → `RemoveConditions(unit, target)` (`DuelController.cs:602-608`) →
-  `Solver.RemoveConditions` (`BattleSolver.cs:591-595`): `ApplyIdleUnitRules` + `RemoveConditionalBuffs`.
+- `DuelController.ExecuteSkill` → `RemoveConditions(unit, target)` (`DuelController.cs:478-485`) →
+  `Solver.RemoveConditions` (`BattleSolver.cs:526-530`): `ApplyIdleUnitRules` + `RemoveConditionalBuffs`.
 - Также в `CalculateSkillPotential` (превью) (`:556-557`).
 
 **Идемпотентность** — `ApplyBuff`/`RevertBuff` (`Character.cs:385-419`) проверяют `buffEntry.IsApplied`
@@ -64,7 +64,7 @@
 
 | Условие | Где | Границы |
 |---|---|---|
-| Rule-бафф активен | `Character.cs:432-528` | по `BuffRule` (always/статус/HP/ранг/...) |
+| Rule-бафф активен | `Character.cs:432-437 (BuffRuleEvaluator)` | по `BuffRule` (always/статус/HP/ранг/...) |
 | Идемпотентность | `:385,404` | `IsApplied`-гейт |
 | Условные снимаются | `:184-191` | `BuffSourceType.Condition` |
 | Debuff-resist `.buff_ids` | `BuffEffect.cs:47-58` | `chance/100 − Debuff + DebuffChance`, клэмп 0.95 |
@@ -98,3 +98,4 @@
 - `src/Core/Sektor.DarkestDungeon.Core.Duel/DuelController.cs`, `DuelBattleContext.cs`
 - `tests/Core/Sektor.DarkestDungeon.Core.Duel.Tests/ParityMechanicsTests.cs`
   (`RemoveConditions_...`), `SkillEffectsTests.cs`
+

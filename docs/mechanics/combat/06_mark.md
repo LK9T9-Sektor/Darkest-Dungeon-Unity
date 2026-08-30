@@ -58,7 +58,7 @@
 ## 8. Взаимодействия
 
 - ИИ: `DuelTargetSelectionMarked` (см. `AI_BEHAVIOR.md`) выбирает отмеченные цели.
-- Rule-бафф `BuffRule.Status` (`Character.cs:478-485`) — активен, пока цель отмечена.
+- Rule-бафф `BuffRule.Status` (`Character.cs:BuffRuleEvaluator/Status`) — активен, пока цель отмечена.
 - `.untag` снимает метку (скиллы «Flare», «Clear Marked Target»).
 
 ## 9. Файлы-источники

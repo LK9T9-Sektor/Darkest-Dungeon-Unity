@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Sektor.DarkestDungeon.Core.Combat.Character;
+using Sektor.DarkestDungeon.Core.Combat.Content;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
@@ -20,6 +21,8 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
         private readonly IBattleContext BattleContext;
         private readonly SkillResult skillExecutionResult = new SkillResult();
         private readonly HeroActionInfo heroSkillExecutionInfo = new HeroActionInfo();
+        private readonly DamageResolver damageResolver = new DamageResolver();
+        private readonly HealResolver healResolver = new HealResolver();
 
         /// <summary>Initializes a new instance of the <see cref="BattleSolver"/> class.</summary>
         /// <param name="battleContext">The battle context.</param>
@@ -414,30 +417,13 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
             {
                 if (skill.Heal != null)
                 {
-                    float initialHeal = RandomSolver.Next(skill.Heal.MinAmount, skill.Heal.MaxAmount + 1) *
-                        (1 + performer.GetSingleAttribute(AttributeType.HpHealPercent).ModifiedValue);
-
-                    if (skill.IsCritValid)
-                    {
-                        float critChance = performer.GetSingleAttribute(AttributeType.CritChance).ModifiedValue + skill.CritMod / 100;
-                        if (RandomSolver.CheckSuccess(critChance))
-                        {
-                            int critHeal = target.Heal(initialHeal * 1.5f, true);
-                            BattleContext.Events.UpdateOverlay(targetUnit);
-                            SkillResult.AddResultEntry(new SkillResultEntry(targetUnit, critHeal, SkillResultType.CritHeal));
-
-                            ApplyEffects(performerUnit, targetUnit, skill);
-                            if (targetUnit.Character.IsMonster == false)
-                                BattleContext.ApplyEffectById("crit_heal_stress_heal", targetUnit, true);
-                            return;
-                        }
-                    }
-
-                    int heal = target.Heal(initialHeal, true);
+                    SkillResultEntry healEntry = healResolver.Resolve(performer, target, targetUnit, skill);
                     BattleContext.Events.UpdateOverlay(targetUnit);
+                    SkillResult.AddResultEntry(healEntry);
 
-                    SkillResult.AddResultEntry(new SkillResultEntry(targetUnit, heal, SkillResultType.Heal));
                     ApplyEffects(performerUnit, targetUnit, skill);
+                    if (healEntry.Type == SkillResultType.CritHeal && targetUnit.Character.IsMonster == false)
+                        BattleContext.ApplyEffectById(EffectIds.CritHealStressHeal, targetUnit, true);
                 }
                 else
                 {
@@ -447,64 +433,13 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
             }
             else
             {
-                float accuracy = skill.Accuracy + performer.Accuracy;
-                float hitChance = Clamp(accuracy - target.Dodge, 0, 0.95f);
-                float roll = (float)RandomSolver.NextDouble();
-                if (target.BattleModifiers != null && target.BattleModifiers.CanBeHit == false)
-                    roll = float.MaxValue;
-
-                if (roll > hitChance)
-                {
-                    if (!(skill.CanMiss == false || (target.BattleModifiers != null && target.BattleModifiers.CanBeMissed == false)))
-                    {
-                        if (roll > Math.Min(accuracy, 0.95f))
-                            SkillResult.AddResultEntry(new SkillResultEntry(targetUnit, SkillResultType.Miss));
-                        else
-                            SkillResult.AddResultEntry(new SkillResultEntry(targetUnit, SkillResultType.Dodge));
-
-                        ApplyEffects(performerUnit, targetUnit, skill);
-                        return;
-                    }
-                }
-
-                float initialDamage = !performer.IsMonster ?
-                    Lerp(performer.MinDamage, performer.MaxDamage, (float)RandomSolver.NextDouble()) * (1 + skill.DamageMod) :
-                    Lerp(skill.DamageMin, skill.DamageMax, (float)RandomSolver.NextDouble()) * performer.DamageMod;
-
-                int damage = CeilToInt(initialDamage * (1 - target.Protection));
-                if (damage < 0)
-                    damage = 0;
-
-                if (target.BattleModifiers != null && target.BattleModifiers.CanBeDamagedDirectly == false)
-                    damage = 0;
-
-                if (skill.IsCritValid)
-                {
-                    float critChance = performer.GetSingleAttribute(AttributeType.CritChance).ModifiedValue + skill.CritMod;
-                    if (RandomSolver.CheckSuccess(critChance))
-                    {
-                        int critDamage = target.TakeDamage(damage * 1.5f);
-                        BattleContext.Events.UpdateOverlay(targetUnit);
-
-                        if (target.HasZeroHealth)
-                            SkillResult.AddResultEntry(new SkillResultEntry(targetUnit, critDamage, true, SkillResultType.Crit));
-                        else
-                            SkillResult.AddResultEntry(new SkillResultEntry(targetUnit, critDamage, SkillResultType.Crit));
-
-                        ApplyEffects(performerUnit, targetUnit, skill);
-                        if (targetUnit.Character.IsMonster == false)
-                            BattleContext.ApplyEffectById("Stress 2", targetUnit, true);
-                        return;
-                    }
-                }
-                damage = target.TakeDamage(damage);
+                SkillResultEntry damageEntry = damageResolver.Resolve(performer, target, targetUnit, skill);
                 BattleContext.Events.UpdateOverlay(targetUnit);
-                if (target.HasZeroHealth)
-                    SkillResult.AddResultEntry(new SkillResultEntry(targetUnit, damage, true, SkillResultType.Hit));
-                else
-                    SkillResult.AddResultEntry(new SkillResultEntry(targetUnit, damage, SkillResultType.Hit));
+                SkillResult.AddResultEntry(damageEntry);
 
                 ApplyEffects(performerUnit, targetUnit, skill);
+                if (damageEntry.Type == SkillResultType.Crit && targetUnit.Character.IsMonster == false)
+                    BattleContext.ApplyEffectById(EffectIds.Stress2, targetUnit, true);
             }
         }
 
@@ -523,7 +458,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
             {
                 ApplyConditions(performerUnit, targetUnit, skill);
                 float accuracy = skill.Accuracy + performer.Accuracy;
-                float hitChance = Clamp(accuracy - target.Dodge, 0, 0.95f);
+                float hitChance = Clamp(accuracy - target.Dodge, 0, BattleConstants.MaxChance);
                 if (skill.CanMiss == false)
                     hitChance = 1;
                 else if (target.BattleModifiers != null && target.BattleModifiers.CanBeMissed == false)
@@ -594,11 +529,6 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
             targetUnit.Character.RemoveConditionalBuffs();
         }
 
-        private static float Lerp(float a, float b, float t)
-        {
-            return a + (b - a) * t;
-        }
-
         private static int CeilToInt(float value)
         {
             return (int)Math.Ceiling(value);
@@ -614,3 +544,4 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
         }
     }
 }
+

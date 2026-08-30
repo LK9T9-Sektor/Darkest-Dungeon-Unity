@@ -33,14 +33,14 @@
    цели (`((IResetableStatusEffect)GetStatusEffect(Guard)).ResetStatus()`, `:36`).
 4. `ApplyQueued` (`:43`) — попап `Stunned`/`StunResist`.
 
-**Пропуск хода** — `DuelController.BeginTurn` (`DuelController.cs:312`):
+**Пропуск хода** — `DuelController.BeginTurn` (`DuelController.cs:238`):
 
 1. `ApplyDotTicks(current)` + `CheckDeaths` (тик/смерть до стана) (`:344-346`).
 2. `UpdateRound()` (`:348`) — декремент статусов/раундовых баффов.
 3. Если `Stun.IsApplied` (`:350-361`): `StunApplied = false`, попап `Unstun`, `ResetHalo`,
    `ApplyStunRecovery(current)` (`:359`), затем `CompleteTurn()` — ход пропущен.
 
-`ApplyStunRecovery` (`DuelController.cs:390-399`): `content.GetBuff("STUNRECOVERYBUFF")` →
+`ApplyStunRecovery` (`DuelController.cs:Mechanics/StunRecoveryApplier`): `content.GetBuff("STUNRECOVERYBUFF")` →
 `AddBuff(new BuffInfo(buff, BuffDurationType.Round, BuffSourceType.Adventure, 2))`.
 
 **Истечение** — стан сам по себе не тикает (`StunStatusEffect.UpdateNextTurn` пуст, `:18`); снятие
@@ -57,8 +57,8 @@
 |---|---|---|
 | Уже застан | `StunEffect.cs:21` | выход без перезаписи |
 | Шанс | `StunEffect.cs:24-31` | `chance/100 − Stun + StunChance`, клэмп 0..0.95 |
-| Пропуск хода | `DuelController.cs:350-361` | стан снят + recovery + `CompleteTurn` |
-| Recovery | `DuelController.cs:390-399` | +0.4 stun-resist, 2 раунда |
+| Пропуск хода | `DuelController.cs:281-289` | стан снят + recovery + `CompleteTurn` |
+| Recovery | `DuelController.cs:Mechanics/StunRecoveryApplier` | +0.4 stun-resist, 2 раунда |
 
 ## 7. Нюансы и подводные камни
 
@@ -84,3 +84,5 @@
 - `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/Skills/Effects/StunEffect.cs`, `UnstunEffect.cs`
 - `src/Core/Sektor.DarkestDungeon.Core.Duel/DuelController.cs` (`BeginTurn`, `ApplyStunRecovery`)
 - `tests/Core/Sektor.DarkestDungeon.Core.Duel.Tests/ParityMechanicsTests.cs` (`Stun_...`)
+
+

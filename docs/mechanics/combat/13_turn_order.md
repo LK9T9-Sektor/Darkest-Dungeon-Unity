@@ -24,7 +24,7 @@
 
 ## 4. Порядок срабатывания (трассировка)
 
-**Старт боя** — `DuelController.StartBattle` (`DuelController.cs:151-153`):
+**Старт боя** — `DuelController.StartBattle` (`DuelController.cs:159-163`):
 `CheckSurprise()` → `Round.StartBattle` (`:124-128`: `RoundNumber=0`, `NextRound`) → `BeginTurn`.
 
 **Формирование очереди** — `Round.NextRound` (`Round.cs:133-169`):
@@ -36,7 +36,7 @@
 4. Сортировка по `InitiativeRoll` убыванию (`:154`).
 5. Раунд 0 + сюрприз: инициатива застигнутой стороны `−= 100`, ресорт (`:156-166`).
 
-**Ход юнита** — `DuelController.BeginTurn` (`DuelController.cs:312`):
+**Ход юнита** — `DuelController.BeginTurn` (`DuelController.cs:238`):
 
 1. `IsSurprised = false` (`:330`); если юнит мёртв → удалить из очереди + `CompleteTurn` (`:332-337`).
 2. `PreHeroTurn`/`PreMonsterTurn` (`:339-342`) — `UpdateNextTurn()` (инициатива) + `OrderedUnits.Remove`
@@ -91,3 +91,4 @@
 - `src/Core/Sektor.DarkestDungeon.Core.Combat/Raid/Party/FormationUnitInfo.cs`
 - `src/Core/Sektor.DarkestDungeon.Core.Duel/DuelController.cs` (`BeginTurn`/`CompleteTurn`/`NextRound`)
 - `tests/Core/Sektor.DarkestDungeon.Core.Duel.Tests/DuelTurnFlowTests.cs`
+

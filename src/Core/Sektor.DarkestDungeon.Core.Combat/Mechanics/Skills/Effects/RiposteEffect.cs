@@ -33,12 +33,12 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
                 return false;
 
             var riposteStatus = (IRiposteStatusEffect)target.Character.GetStatusEffect(StatusType.Riposte);
-            int duration = effect.IntegerParams[EffectIntParams.Duration] ?? 1;
+            int duration = effect.IntegerParams[EffectIntParams.Duration] ?? BattleConstants.DefaultStatusDuration;
 
             if (duration == -1)
             {
                 riposteStatus.DurationType = DurationType.Combat;
-                duration = 1;
+                duration = BattleConstants.DefaultStatusDuration;
             }
 
             riposteStatus.RiposteDuration = duration;

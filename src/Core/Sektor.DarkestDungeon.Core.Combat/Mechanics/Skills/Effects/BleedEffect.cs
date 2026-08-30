@@ -33,11 +33,11 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
             if (performer != null && !performer.Character.IsMonster)
                 bleedChance += performer.Character.GetSingleAttribute(AttributeType.BleedChance).ModifiedValue;
 
-            bleedChance = Clamp01(bleedChance, 0.95f);
+            bleedChance = ChanceMath.Clamp01(bleedChance);
             if (RandomSolver.CheckSuccess(bleedChance))
             {
                 var bleedStatus = (IDotStatusEffect)target.Character.GetStatusEffect(StatusType.Bleeding);
-                bleedStatus.AddInstanse(DotBleed, effect.IntegerParams[EffectIntParams.Duration] ?? 3);
+                bleedStatus.AddInstanse(DotBleed, effect.IntegerParams[EffectIntParams.Duration] ?? BattleConstants.DefaultDotDuration);
                 return true;
             }
             return false;
@@ -61,14 +61,6 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
                 return false;
             }
         }
-
-        private static float Clamp01(float value, float max)
-        {
-            if (value < 0)
-                return 0;
-            if (value > max)
-                return max;
-            return value;
-        }
     }
 }
+

@@ -1,5 +1,61 @@
 # PLAN.md — Активный план задач
 
+## Задача: уборка кода ядра (`Core.*`) — магия, ветвления, приватные методы, логи
+
+### Цель
+
+Ядро выросло из Unity-легаси и несёт legacy-стиль: магические строки (id эффектов/баффов/теги
+логов), магические числа (клэмпы 0.95/0.65/0.1, шансы), большие switch/if (диспетчеры правил,
+строковые парсеры), god-классы с приватными методами (в т.ч. `DuelController`, ~720 строк),
+отсутствие логирования. Копирование из Unity не оправдывает плохой код. Уборка: именованные
+константы, полиморфизм вместо ветвлений (AGENTS.md §II), вынос приватной логики в тестируемые
+классы, структурное логирование, минимум изменений поведения (тесты — охранник). Legacy Unity и
+`src/External` не трогаем.
+
+### Фаза C0 — Аудит и карта уборки
+
+1. [x] `docs/CLEANUP.md` — каталог проблем по модулям (магия, god-классы, ветвления) с file:line и
+     приоритетами; правило «ядро чистится, legacy/External — нет» зафиксировать в AGENTS.md.
+
+### Фаза C1 — Константы и идентификаторы
+
+2. [x] Каталог контент-идентификаторов: `Core.Combat/Content/EffectIds.cs`, `BuffIds.cs`,
+     `BattleConstants.cs` (named-константы). Заменены магические строки в `DuelController`,
+     `DuelBattleContext`, `BattleSolver`, эффектах; магические числа (клэмпы 0.95, длительности 3/1,
+     крит ×1.5, сюрприз 0.1/0.65, минимальная меткость 0.1).
+3. [x] `ChanceMath.Clamp01` — единая утилита вместо 9 дублей private `Clamp01(..., 0.95f)`.
+
+### Фаза C2 — Полиморфизм вместо ветвлений
+
+4. [x] `Character.ApplyBuffRule` (switch по `BuffRule`, ~90 строк) → `BuffRuleEvaluator`
+     (реестр функций по правилу, OCP); `StringToStatusType`/`StringToMonsterType` перенесены.
+5. [x] `EffectCatalog.ParseEffect` (god-метод ~140 строк) → `EffectParser` (отдельный тестируемый
+     класс); `MapTarget` → реестр-словарь.
+6. [ ] AI-desires (`SkillSelectionDesire`/`TargetSelection*`) — switch по строкам-ключам → реестр
+     (отложено, P2 в CLEANUP §3b).
+
+### Фаза C3 — Вынос приватной логики в классы
+
+7. [x] `DuelController` декомпозиция: `SurpriseResolver`, `DotTickApplier`, `StunRecoveryApplier`,
+     `DeathCheck`, `TurnMover` (все `Core.Duel/Mechanics`, конструкторы-DI).
+8. [x] `BattleSolver` — `DamageResolver`/`HealResolver` (чистые расчёты, без BattleContext);
+     `ExecuteSkill` — оркестратор (guard-редирект, эффекты, стресс).
+
+### Фаза C4 — Логирование
+
+9. [x] `Core.Common/ILogger` + `NullLogger` (no-op для тестов); DI через конструктор
+     `DuelController(content, logger = null)`. Логирование: ходы (стан/пропуск), скиллы
+     (`[duel] <name> used <skill> -> <target> (<type> <amount>)`).
+10. [ ] `DuelBattleEvents.Log` → структурированные записи (отложено, P2 — затронет WPF-UI).
+
+### Фаза C5 — Проверка и доки
+
+11. [x] Все 9 сьютов зелёные (135); `dotnet build` без новых ошибок; lockstep-тесты проходят.
+12. [x] `docs/mechanics/*` синхронизированы с новыми file:line/классами; `TESTING.md` —
+      паритет-механики; `CHANGELOG.md` — версия; `PLAN.md` — шаги `[x]`.
+
+---
+
 ## Задача: спецификации всех механик по доменам — `docs/mechanics/` — ветка `docs/mechanics`
 
 ### Цель

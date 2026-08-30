@@ -33,7 +33,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
             if (performer != null && !performer.Character.IsMonster)
                 moveChance += performer.Character.GetSingleAttribute(AttributeType.MoveChance).ModifiedValue;
 
-            moveChance = Clamp01(moveChance, 0.95f);
+            moveChance = ChanceMath.Clamp01(moveChance);
             if (RandomSolver.CheckSuccess(moveChance))
             {
                 battleContext.Events.Push(target, PushParam);
@@ -55,15 +55,6 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
                 battleContext.Events.ShowPopup(target, PopupType.MoveResist);
                 return false;
             }
-        }
-
-        private static float Clamp01(float value, float max)
-        {
-            if (value < 0)
-                return 0;
-            if (value > max)
-                return max;
-            return value;
         }
     }
 }

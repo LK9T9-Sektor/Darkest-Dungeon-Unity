@@ -431,105 +431,10 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         /// <param name="rules">The combat rules context.</param>
         protected virtual void ApplyBuffRule(BuffInfo buffEntry, BattleRulesContext rules)
         {
-            bool apply = false;
-            switch (buffEntry.Buff.RuleType)
-            {
-                case BuffRule.Always:
-                    apply = !buffEntry.Buff.IsFalseRule;
-                    break;
-                case BuffRule.Afflicted:
-                    apply = RulesMatch(rules.Unit.Character.IsAfflicted, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.Virtued:
-                    apply = RulesMatch(rules.Unit.Character.IsVirtued, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.DeathsDoor:
-                    apply = RulesMatch(rules.Unit.Character.AtDeathsDoor, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.FirstRound:
-                    apply = rules.BattleGround != null && rules.BattleGround.BattleStatus == BattleStatus.Fighting
-                        && RulesMatch(rules.BattleGround.Round.RoundNumber == 0, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.HpAbove:
-                    apply = RulesMatch(rules.Unit.Character.HealthRatio > buffEntry.Buff.SingleParam, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.HpBelow:
-                    apply = RulesMatch(rules.Unit.Character.HealthRatio < buffEntry.Buff.SingleParam, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.StressAbove:
-                    apply = RulesMatch(rules.Unit.Character.Stress.CurrentValue > buffEntry.Buff.SingleParam, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.StressBelow:
-                    apply = RulesMatch(rules.Unit.Character.Stress.CurrentValue < buffEntry.Buff.SingleParam, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.InRank:
-                    apply = RulesMatch(rules.Unit.Rank == buffEntry.Buff.SingleParam + 1, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.Size:
-                    apply = rules.Target != null && RulesMatch(rules.Target.Size == buffEntry.Buff.SingleParam, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.LightAbove:
-                    apply = RulesMatch(rules.TorchAmount > buffEntry.Buff.SingleParam, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.LightBelow:
-                    apply = RulesMatch(rules.TorchAmount < buffEntry.Buff.SingleParam, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.Skill:
-                    apply = rules.Skill != null && RulesMatch(rules.Skill.Id == buffEntry.Buff.StringParam, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.Melee:
-                    apply = rules.Skill != null && RulesMatch(rules.Skill.Type == "melee", buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.Ranged:
-                    apply = rules.Skill != null && RulesMatch(rules.Skill.Type == "ranged", buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.Status:
-                    if (rules.Target != null)
-                    {
-                        StatusType targetStatus = StringToStatusType(buffEntry.Buff.StringParam);
-                        if (targetStatus != StatusType.None)
-                            apply = RulesMatch(rules.Target.Character.GetStatusEffect(targetStatus).IsApplied, buffEntry.Buff.IsFalseRule);
-                    }
-                    break;
-                case BuffRule.EnemyType:
-                    if (rules.Target != null && rules.Target.Character.IsMonster && rules.Target.Character.MonsterTypes != null)
-                    {
-                        MonsterType monsterType = StringToMonsterType(buffEntry.Buff.StringParam);
-                        apply = RulesMatch(rules.Target.Character.MonsterTypes.Contains(monsterType), buffEntry.Buff.IsFalseRule);
-                    }
-                    break;
-                case BuffRule.InMode:
-                    apply = rules.Unit.Character.InMode
-                        && RulesMatch(rules.Unit.Character.CurrentMode != null
-                            && rules.Unit.Character.CurrentMode.Id == buffEntry.Buff.StringParam, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.Riposting:
-                    apply = RulesMatch(rules.IsRiposting, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.InCamp:
-                    apply = RulesMatch(rules.IsDoingCamping, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.InCorridor:
-                    apply = RulesMatch(rules.IsInHall, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.InDungeon:
-                    apply = rules.Dungeon != null && RulesMatch(rules.Dungeon == buffEntry.Buff.StringParam, buffEntry.Buff.IsFalseRule);
-                    break;
-                case BuffRule.InActivity:
-                case BuffRule.WalkBack:
-                    apply = false;
-                    break;
-            }
-
-            if (apply)
+            if (BuffRuleEvaluator.IsActive(buffEntry, rules))
                 ApplyBuff(buffEntry);
             else
                 RevertBuff(buffEntry);
-        }
-
-        private static bool RulesMatch(bool condition, bool isFalseRule)
-        {
-            return isFalseRule ? !condition : condition;
         }
 
         private static int CeilToInt(float value)
@@ -549,36 +454,6 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
             if (value > max)
                 return max;
             return value;
-        }
-
-        private static StatusType StringToStatusType(string value)
-        {
-            switch (value)
-            {
-                case "stun": return StatusType.Stun;
-                case "bleeding": return StatusType.Bleeding;
-                case "poison": return StatusType.Poison;
-                case "marked": return StatusType.Marked;
-                case "riposte": return StatusType.Riposte;
-                case "guard": return StatusType.Guard;
-                case "guarded": return StatusType.Guarded;
-                case "deaths_door": return StatusType.DeathsDoor;
-                case "death_recovery": return StatusType.DeathRecovery;
-                default: return StatusType.None;
-            }
-        }
-
-        private static MonsterType StringToMonsterType(string value)
-        {
-            switch (value)
-            {
-                case "unholy": return MonsterType.Unholy;
-                case "man": return MonsterType.Man;
-                case "eldritch": return MonsterType.Eldritch;
-                case "beast": return MonsterType.Beast;
-                case "corpse": return MonsterType.Corpse;
-                default: return MonsterType.None;
-            }
         }
     }
 }

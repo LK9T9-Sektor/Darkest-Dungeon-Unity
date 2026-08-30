@@ -33,11 +33,11 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
             if (performer != null && !performer.Character.IsMonster)
                 poisonChance += performer.Character.GetSingleAttribute(AttributeType.PoisonChance).ModifiedValue;
 
-            poisonChance = Clamp01(poisonChance, 0.95f);
+            poisonChance = ChanceMath.Clamp01(poisonChance);
             if (RandomSolver.CheckSuccess(poisonChance))
             {
                 var poisonStatus = (IDotStatusEffect)target.Character.GetStatusEffect(StatusType.Poison);
-                poisonStatus.AddInstanse(DotPoison, effect.IntegerParams[EffectIntParams.Duration] ?? 3);
+                poisonStatus.AddInstanse(DotPoison, effect.IntegerParams[EffectIntParams.Duration] ?? BattleConstants.DefaultDotDuration);
                 return true;
             }
             return false;
@@ -61,14 +61,6 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
                 return false;
             }
         }
-
-        private static float Clamp01(float value, float max)
-        {
-            if (value < 0)
-                return 0;
-            if (value > max)
-                return max;
-            return value;
-        }
     }
 }
+

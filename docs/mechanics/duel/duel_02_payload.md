@@ -19,7 +19,7 @@
 ## 3. Порядок срабатывания (трассировка)
 
 1. Локальная сторона исполняет действие → возвращает payload (`ExecuteLocalSkill`/`Pass`/`Move`).
-2. Payload передаётся удалённой стороне → `ApplyRemoteSkill(payload)` (`DuelController.cs:429`):
+2. Payload передаётся удалённой стороне → `ApplyRemoteSkill(payload)` (`DuelController.cs:327`):
    - `split('|')` (`:454`);
    - `"pass"` → `CompleteTurn` (`:458-463`);
    - `"move"` → `int.TryParse(rank)` + `TryMove(CurrentUnit, rank)` → `CompleteTurn` (`:464-470`);

@@ -42,7 +42,7 @@
 партнёра из партии и тянет/толкает через `Events.Pull/Push` на разницу рангов (`:38-41`, `:61-64`).
 `ApplyQueued` (`:72`) — тот же поток через EventQueue (поштучно с move-resist).
 
-**Self-move** — `BattleSolver.ExecuteSkill` (`BattleSolver.cs:405-410`): `skill.Move.Pullforward` →
+**Self-move** — `BattleSolver.ExecuteSkill` (`BattleSolver.cs:408-413`): `skill.Move.Pullforward` →
 `Events.Pull(performer, ...)`, `Pushback` → `Events.Push`; блокируется `IsImmobilized` (`:405`).
 
 ## 5. Очередь и обновления
@@ -64,7 +64,7 @@
 ## 7. Нюансы и подводные камни
 
 - **Immobilize блокирует перемещение на трёх уровнях**: эффект (`MoveUnit`), self-move
-  (`BattleSolver.cs:405`), ручной move (`DuelController.TryMove`).
+  (`BattleSolver.cs:408`), ручной move (`DuelController.TryMove`).
 - **Перемещение не меняет очередь ходов** — юнит переместился по рангу, но его инициатива в раунде
   остаётся.
 - **Pull/Push двигают на `amount` позиций**, не «до ранга N» — при `amount > расстояние` юнит

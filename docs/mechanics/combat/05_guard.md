@@ -41,7 +41,7 @@ effect: .name "Antiq ProtectMe Guard" .target "target" .guard 1 .swap_source_and
      `GuardDuration = duration ?? 1`, добавить в `performerGuard.Targets` (`:67-78`).
 3. Иначе (нет активного guard) — то же самое без ветки продления (`:80-89`).
 
-**Редирект атак** — `BattleSolver.ExecuteSkill` (`BattleSolver.cs:393-397`):
+**Редирект атак** — `BattleSolver.ExecuteSkill` (`BattleSolver.cs:396-399`):
 
 ```csharp
 var guarded = targetUnit.Character.GetStatusEffect(StatusType.Guarded) as IGuardedStatusEffect;

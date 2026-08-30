@@ -125,7 +125,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
                     if (performer != null && !performer.Character.IsMonster)
                         debuffChance += performer.Character.GetSingleAttribute(AttributeType.DebuffChance).ModifiedValue;
 
-                    debuffChance = Clamp01(debuffChance, 0.95f);
+                    debuffChance = ChanceMath.Clamp01(debuffChance);
                     if (performer == target)
                         debuffChance = 1;
 
@@ -153,7 +153,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
                     if (performer != null && !performer.Character.IsMonster)
                         debuffChance += performer.Character.GetSingleAttribute(AttributeType.DebuffChance).ModifiedValue;
 
-                    debuffChance = Clamp01(debuffChance, 0.95f);
+                    debuffChance = ChanceMath.Clamp01(debuffChance);
                     if (performer == target)
                         debuffChance = 1;
 
@@ -191,7 +191,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
                     if (performer != null && !performer.Character.IsMonster)
                         debuffChance += performer.Character.GetSingleAttribute(AttributeType.DebuffChance).ModifiedValue;
 
-                    debuffChance = performer == target ? 1 : Clamp01(debuffChance, 0.95f);
+                    debuffChance = performer == target ? 1 : ChanceMath.Clamp01(debuffChance);
 
                     if (RandomSolver.CheckSuccess(debuffChance))
                     {
@@ -222,7 +222,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
                     if (performer != null && !performer.Character.IsMonster)
                         debuffChance += performer.Character.GetSingleAttribute(AttributeType.DebuffChance).ModifiedValue;
 
-                    debuffChance = performer == target ? 1 : Clamp01(debuffChance, 0.95f);
+                    debuffChance = performer == target ? 1 : ChanceMath.Clamp01(debuffChance);
 
                     if (RandomSolver.CheckSuccess(debuffChance))
                     {
@@ -288,15 +288,6 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
             foreach (var statInfo in StatMultBuffs)
                 target.Character.AddBuff(new BuffInfo(new Buff(BuffType.StatMultiply, BuffRule.Always, statInfo.Key, statInfo.Value),
                     BuffDurationType.Round, BuffSourceType.Condition));
-        }
-
-        private static float Clamp01(float value, float max)
-        {
-            if (value < 0)
-                return 0;
-            if (value > max)
-                return max;
-            return value;
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
                 return false;
 
             var markStatus = (IMarkStatusEffect)target.Character.GetStatusEffect(StatusType.Marked);
-            markStatus.MarkDuration = effect.IntegerParams[EffectIntParams.Duration] ?? 3;
+            markStatus.MarkDuration = effect.IntegerParams[EffectIntParams.Duration] ?? BattleConstants.DefaultMarkDuration;
             markStatus.DurationType = DurationType;
             return true;
         }

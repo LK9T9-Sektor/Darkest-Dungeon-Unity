@@ -17,7 +17,7 @@
 
 ## 3. Порядок срабатывания (трассировка)
 
-1. `DuelController.StartFight` (`DuelController.cs:120`) получает `content` из конструктора.
+1. `DuelController.StartFight` (`DuelController.cs:132`) получает `content` из конструктора.
 2. `AddMonster` (`:194-207`) — `GetMonsterClass` + `GetMonsterBrain` → `new Monster(class)` +
    `AssignBrain`.
 3. `AddPlayerUnit`/`AddHero` (`:155,604`) — `GetHeroClass` → `HeroGeneration.GenerateHero`.
@@ -37,7 +37,7 @@
 
 | Условие | Где | Границы |
 |---|---|---|
-| Нет класса/монстра | `DuelController.cs:161,197` | `return` (юнит не добавлен) |
+| Нет класса/монстра | `DuelController.cs:173,209` | `return` (юнит не добавлен) |
 | Нет баффа/эффекта | `DuelBattleContext.cs:121-127,133-136` | `null`-безопасно |
 
 ## 6. Нюансы и подводные камни
