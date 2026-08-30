@@ -40,7 +40,7 @@
 | Networking | Contracts/Steam/Photon (src\Lan) | `networking/` | частично |
 | Presentation | WPF-экраны, Unity-оверлеи Тест-боя | `presentation/` | реализовано |
 | Campaign | имение/здания/апгрейды/квесты/город/ростер/провизия | `campaign/` | данные |
-| Raid | подземелья/энкаунтеры/боссы/curio/loot/пропы | `raid/` | данные |
+| Raid | подземелья/энкаунтеры/боссы/curio/loot/пропы | `raid/` | данные (+ генерация: `raid/dungeon_generation.md`) |
 
 ## Связанные доки
 

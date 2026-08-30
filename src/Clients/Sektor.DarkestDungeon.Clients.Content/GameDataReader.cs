@@ -11,6 +11,7 @@ using Sektor.DarkestDungeon.Core.Content.Database;
 using Sektor.DarkestDungeon.Core.Content.Trinket;
 using Sektor.DarkestDungeon.Core.Raid;
 using Sektor.DarkestDungeon.Core.Raid.Database;
+using Sektor.DarkestDungeon.Core.Raid.Generation;
 
 namespace Sektor.DarkestDungeon.Clients.Content
 {
@@ -221,6 +222,22 @@ namespace Sektor.DarkestDungeon.Clients.Content
         public static MonsterCatalog ReadMonsters(IEnumerable<string> monsterFiles, EffectCatalog effects)
         {
             return MonsterCatalog.Load(monsterFiles, effects);
+        }
+
+        /// <summary>Parses the dungeon generation data DSL text into entries.</summary>
+        /// <param name="content">The MapGenerator text.</param>
+        /// <returns>The generation data entries.</returns>
+        public static List<DungeonGenerationData> ReadDungeonGenerationData(string content)
+        {
+            return DungeonGenerationDataParser.Parse(content);
+        }
+
+        /// <summary>Parses the dungeon environment DSL text.</summary>
+        /// <param name="content">The region environment text.</param>
+        /// <returns>The environment data.</returns>
+        public static DungeonEnviromentData ReadDungeonEnviromentData(string content)
+        {
+            return DungeonEnviromentDataParser.Parse(content);
         }
     }
 }

@@ -24,6 +24,12 @@
     <Content Include="..\..\..\unity\Assets\Resources\Data\JsonLoot.json"
              Link="Data\JsonLoot.json"
              CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\..\unity\Assets\Resources\Data\Mechanics\MapGenerator.txt"
+             Link="Data\Mechanics\MapGenerator.txt"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\..\unity\Assets\Resources\Data\Dungeons\Crypts.bytes"
+             Link="Data\Dungeons\Crypts.bytes"
+             CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

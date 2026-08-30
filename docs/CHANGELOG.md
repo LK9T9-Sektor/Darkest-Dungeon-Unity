@@ -2,6 +2,16 @@
 
 ## Не выпущено (после 1.0.6)
 
+### Генерация подземелья в ядро (`Core.Raid\Generation`)
+
+- **`DungeonGenerator` → ядро**: чистая детерминированная генерация (топология комнат/коридоров,
+  население типами боев/curio/ловушек/голода, environment-пропы и энкаунтеры) — из
+  `MapGenerator.txt` + `Dungeons/*.bytes`. `IRng`/`SystemRandomRng` в `Core.Common`.
+- **Unity-адаптер** `DungeonGenerator.cs` — тонкая обёртка (ядро + маппинг в Unity-модели +
+  quest-цели); старый код — `DungeonGeneratorLegacy.cs` до ручной проверки.
+- Парсеры DSL (`DungeonGenerationDataParser`/`DungeonEnviromentDataParser`) + фасады
+  `GameDataReader.ReadDungeonGenerationData`/`ReadDungeonEnviromentData`.
+
 ### Death's door + heart attack в ядре
 
 - **Death's door**: герой при 0 HP входит в death's door (дебаффы `deathsdoor*`, `BarkStress` 6,

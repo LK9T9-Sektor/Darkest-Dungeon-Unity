@@ -1,5 +1,70 @@
 # PLAN.md — Активный план задач
 
+## Задача: DungeonGenerator → ядро (`Core.Raid\Generation`) — вариант A
+
+### Цель
+
+Перенести процедурную генерацию подземелья из `unity\Assets\Scripts\Generation\DungeonGenerator.cs`
+(712 стр.) в чистый детерминированный модуль `Core.Raid\Generation`:
+`(genData, envData, каталоги, seed) → Dungeon-результат`. Всё Unity (Random/Mathf/Assertions,
+глобальный `DarkestDungeonManager.Data`, живые модели) — за пределами ядра. Unity-адаптер — тонкая
+обёртка, старый генератор остаётся до ручной проверки (минимальный дифф). **Quest-цели
+(`PopulateQuestGoals`) срезаются** из ядра (топология + население + enviroment в ядре; quest-цели —
+отдельно позже, в Unity-адаптере или отдельным шагом).
+
+### Фаза DG1 — Модели данных генерации (чистые, `Core.Raid\Generation`)
+
+1. [x] `DungeonGenerationData` — поля из `MapGenerator.txt` (length/quest_type/dungeon_type,
+     base_room/corridor, gridsize, spacing, connectivity, min_final_distance, все min/max).
+2. [x] `DungeonEnviromentData` + `DungeonBattleMash` + `DungeonPropsEncounter` +
+     `DungeonBattleEncounter` — из `Dungeons/*.bytes` (hall_variants, room_variants, mash-секции,
+     prop-encounters, named-encounters).
+3. [x] Парсеры DSL (`MapGenerator` / `Enviroment`) → `Clients.Content\GameDataReader`
+     (`ReadDungeonGenerationData`, `ReadDungeonEnviromentData`).
+
+### Фаза DG2 — Модели результата (вариант A, чистые)
+
+4. [x] `Dungeon`, `DungeonRoom`, `Hallway`, `HallSector`, `Area` (база), `Door` + enums `Direction`,
+     `Knowledge` — в `Core.Raid\Generation` (без `IBinarySaveData`, без Unity; `Prop`/`Curio`/
+     `BattleEncounter` — из существующего `Core.Raid`).
+
+### Фаза DG3 — Чистая топология
+
+5. [x] Внутренние `GenRoom`/`GenHall` (без `Assert` — честные ветки/fallback).
+6. [x] `GenerateRooms`, `FindMaxConnectivityRoom`, `FindLongestPathRoom`, `FindBorderingRooms`,
+     `ForceBorderRooms`, `ForceHallConnection`, `CalculateMinPath`, `MarkEntrance` — чистая
+     топология на `AreaType` + позиции (как в Unity, с тем же порядком `RandomSolver` вызовов).
+
+### Фаза DG4 — Население + enviroment
+
+7. [x] `PopulateRooms`/`PopulateHalls` — чистые (количества боев/ловушек/curio/голода из genData,
+     `AreaType`), `Mathf.Clamp` → локальный.
+8. [x] `LoadRoomEnviroment`/`LoadHallEnviroment` — `RandomSolver.ChooseByRandom` + каталоги
+     (Curios/Obstacles/Traps/encounters) аргументом, `BattleEncounter` — из ядра.
+9. [x] `DungeonGenerator.Generate(genData, envData, questParams, catalogs, seed) → Dungeon`
+     (оркестратор; **без** `PopulateQuestGoals`).
+
+### Фаза DG5 — Unity-адаптер-обёртка
+
+10. [x] `unity\Assets\Scripts\Generation\DungeonGenerator.cs` → тонкая обёртка: читает
+      `DarkestDungeonManager.Data` → зовёт ядро → мапит результат в свои `Dungeon`/`Room`/`Hallway`.
+      Старый код — рядом (вынесен в `DungeonGeneratorLegacy.cs`), удаляется после ручной проверки.
+
+### Фаза DG6 — Тесты
+
+11. [x] Детерминизм по сиду; структура (кол-во комнат/коридоров/сетка/вход/связность);
+      население (типы в пределах min/max); реальные `MapGenerator.txt` + `Crypts.bytes`;
+      порядок `RandomSolver`-вызовов (важно для сида).
+
+### Фаза DG7 — Доки
+
+12. [x] `docs/mechanics/raid/dungeon_generation.md` — полная спецификация (модели, парсинг,
+      порядок срабатывания с file:line, роли, население, детерминизм, **нюансы**: порядок RNG,
+      ForceHallConnection-пустышка, MarkEntrance-рандом, `1+(x-1)*7`); `00_index.md`,
+      `EXTRACTION_STATUS.md`, `CHANGELOG.md`, `PLAN.md`.
+
+---
+
 ## Задача: Death's door + heart attack в ядре (закрытие паритет-разрыва `BATTLE_PARITY.md` §2.2)
 
 ### Цель
@@ -350,8 +415,8 @@ RemoveConditions; death's door / heart attack — отдельно (кампан
 - [ ] **Campaign** (Фаза 4): поведение имения/зданий/апгрейдов/квестов/города в `Core.Campaign`
       (модели + DTO уже вынесены).
 - [ ] **Encounters/Bosses/Curios/Loot**: энкаунтеры/боссы → `Core.Combat`, контент-модели → `Core.Raid`.
-- [ ] **Generation**: `DungeonGenerator`/`QuestGenerator` → `Core.Raid`/`Core.Campaign` (чистые,
-      детерминированные, RNG на границе).
+- [ ] **Generation**: `DungeonGenerator` → `Core.Raid\Generation` (сделано, quest-цели в Unity-адаптере);
+      `QuestGenerator` → `Core.Campaign\Generation` (чистые, детерминированные, RNG на границе).
 - [ ] **Networking** (Фаза 5): Steam + Photon (`Sektor.Networking`, `PhotonTransport`, SessionManager).
 - [ ] **Presentation cutover** (Фаза 6): view-слой остаётся Unity/WPF; `RaidSceneMultiplayerManager`/
       `MultiplayerSync` → тонкие адаптеры поверх `Core.Duel`.

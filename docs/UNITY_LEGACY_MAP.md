@@ -23,7 +23,7 @@
 | `Managers` | 12 | Оркестрация сцен/игры (god-классы) | презентация |
 | `Setup` | 27 | Старт игры, контент-загрузка, сейвы | презентация |
 | `Networking` | 14 | Мультиплеер: Steam/Photon, дуэль-оркестрация | презентация |
-| `Generation` | 6 | Генерация подземелий/квестов | домен (не вынесен) |
+| `Generation` | 6 | Генерация подземелий/квестов | част. (DungeonGenerator вынесен в `Core.Raid\Generation`; QuestGenerator — нет) |
 | `UI` | 149 | Все UI-окна/панели/слоты/контролы | презентация |
 | `ImageEffects` | 38 | Пост-эффекты (Unity Standard Assets, vendored) | ассеты |
 | `Sounds` / `PlayerInput` | 0 | Пусто | — |
@@ -213,12 +213,12 @@ JsonTrinket` — `Core.Content\Camping|Trinket`; `JsonQuests/JsonTownEvent/JsonB
 
 ---
 
-## 9. `Generation` (6) — генерация подземелий/квестов (не вынесено)
+## 9. `Generation` (6) — генерация подземелий/квестов (част.)
 
 | Класс | Роль |
 |---|---|
-| `DungeonGenerator.cs` (712) | Процедурная генерация подземелья (комнаты/коридоры) |
-| `DungeonGenerationData.cs`, `DungeonEnviromentData.cs`, `QuestGenerationData.cs`, `QuestGenerator.cs`, `CampaignGenerationData.cs` | Данные/генерация квестов и кампании |
+| `DungeonGenerator.cs` (712) | Процедурная генерация подземелья (комнаты/коридоры) — вынесена в `Core.Raid\Generation`; Unity-файл теперь тонкий адаптер (`DungeonGeneratorLegacy.cs` — старый код, до проверки) |
+| `DungeonGenerationData.cs`, `DungeonEnviromentData.cs`, `QuestGenerationData.cs`, `QuestGenerator.cs`, `CampaignGenerationData.cs` | Данные/генерация квестов и кампании (QuestGenerator — не вынесен) |
 
 ---
 
