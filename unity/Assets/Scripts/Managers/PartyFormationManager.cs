@@ -1,5 +1,5 @@
 using UnityEngine;
-using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Raid;
 
 public class PartyFormationManager : MonoBehaviour
 {

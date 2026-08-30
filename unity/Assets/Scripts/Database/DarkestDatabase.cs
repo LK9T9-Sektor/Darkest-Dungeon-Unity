@@ -1,12 +1,14 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using DarkestJson;
-using Sektor.DarkestDungeon.Core.Content.Campaign;
+using Sektor.DarkestDungeon.Core.Campaign;
+using Sektor.DarkestDungeon.Core.Campaign.Database;
 using Sektor.DarkestDungeon.Core.Content.Database;
-using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Raid.Database;
+using Sektor.DarkestDungeon.Core.Raid;
 using JsonBuff = DarkestJson.JsonBuff;
 using JsonQuirk = DarkestJson.JsonQuirk;
 

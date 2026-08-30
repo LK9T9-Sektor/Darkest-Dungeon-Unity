@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using Sektor.DarkestDungeon.Core.Content.Raid;
-using Sektor.DarkestDungeon.Core.Content.Campaign;
+using Sektor.DarkestDungeon.Core.Raid;
+using Sektor.DarkestDungeon.Core.Campaign;
 
 public interface IRaidArea : IPointerClickHandler
 {

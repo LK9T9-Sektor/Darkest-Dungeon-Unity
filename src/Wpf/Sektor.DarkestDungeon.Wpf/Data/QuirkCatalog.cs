@@ -2,22 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
+using Sektor.DarkestDungeon.Clients.Content;
 using Sektor.DarkestDungeon.Core.Content.Character;
-using Sektor.DarkestDungeon.Core.Data.Catalogs;
-using Sektor.DarkestDungeon.Core.Data.Readers;
 
 namespace Sektor.DarkestDungeon.Wpf.Data
 {
     /// <summary>Loads the hero quirk catalog from the bundled content file.</summary>
     public static class QuirkCatalog
     {
-        private static readonly Core.Data.Catalogs.QuirkCatalog Inner = LoadInner();
+        private static readonly Sektor.DarkestDungeon.Core.Content.Character.QuirkCatalog Inner = LoadInner();
 
-        private static Core.Data.Catalogs.QuirkCatalog LoadInner()
+        private static Sektor.DarkestDungeon.Core.Content.Character.QuirkCatalog LoadInner()
         {
             string path = Path.Combine(AppContext.BaseDirectory, "Content", "Quirks", "JsonQuirks.json");
             if (!File.Exists(path))
-                return Core.Data.Catalogs.QuirkCatalog.Empty;
+                return Sektor.DarkestDungeon.Core.Content.Character.QuirkCatalog.Empty;
 
             return GameDataReader.ReadQuirks(File.ReadAllText(path));
         }

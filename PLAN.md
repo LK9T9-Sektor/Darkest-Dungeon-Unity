@@ -111,11 +111,31 @@
 
 ### Дорожная карта «всё в ядро» (после Тест-боя)
 
-- [ ] **Campaign** (`EXTRACTION_PLAN` Фаза 4): `Data\Campaign\` — город/квесты/провизия → `Core.Campaign`.
-- [ ] **Save** (Фаза 2): `Data\Save` → `Core.Save` (DTO + IBinarySaveData + `ISaveStorage`).
-- [ ] **Encounters/Bosses/Curios/Loot** → `Core.Content` (сopт), **Encounters/Bosses** → `Core.Combat`.
+Полный по-классный инвентарь легаси — `docs\UNITY_LEGACY_MAP.md`; манифест — `docs\EXTRACTION_STATUS.md`;
+декомпозиция ядра по доменам — `docs\TARGET_LAYOUT.md`.
+
+- [ ] **Механики-паритет** (приоритет из `BATTLE_PARITY.md` §5; закрываются в ядре): DoT-тик урона,
+      stun-пропуск хода/истечение, riposte-контратака, guard (`EffectCatalog` + редирект атак),
+      pull/push/shuffle-ранги, immobilize-Move, `RemoveConditions` в `ExecuteSkill`,
+      death's door / heart attack.
+- [ ] **Save** (Фаза 2): бинарный кодек + DTO + `ISaveStorage` (в `Core.Save` уже есть
+      `IBinarySaveData`); вынос логики сериализации из `SaveLoadManager`.
+- [ ] **Campaign** (Фаза 4): поведение имения/зданий/апгрейдов/квестов/города в `Core.Campaign`
+      (модели + DTO уже вынесены).
+- [ ] **Encounters/Bosses/Curios/Loot**: энкаунтеры/боссы → `Core.Combat`, контент-модели → `Core.Raid`.
+- [ ] **Generation**: `DungeonGenerator`/`QuestGenerator` → `Core.Raid`/`Core.Campaign` (чистые,
+      детерминированные, RNG на границе).
 - [ ] **Networking** (Фаза 5): Steam + Photon (`Sektor.Networking`, `PhotonTransport`, SessionManager).
-- [ ] **Presentation cutover** (Фаза 6): view-слой остаётся Unity/WPF, бизнес-логика — в ядро.
+- [ ] **Presentation cutover** (Фаза 6): view-слой остаётся Unity/WPF; `RaidSceneMultiplayerManager`/
+      `MultiplayerSync` → тонкие адаптеры поверх `Core.Duel`.
+- [ ] **Чистка ядра** (из `ARCHITECTURE_REVIEW.md`): `Core.Ui` → клиентская граница; единый
+      токен-парсер и `Buff`-фабрика; `DuelAi` на кампанийном брейне; тринкеты в WPF-дуэли (P1.4);
+      локализация (P2.7).
+- [x] **Структура ядра**: декомпозиция по доменам исполнена — `Core.Common/Save/Campaign/Raid` +
+      `Clients.Content`, `Core.Data` распущен, `TextFightContent` → `Core.Duel\Fight`,
+      `Result` → `Core.Common`.
+- [ ] **Проверка `unity-2017\`** в реальном редакторе 2017.4 (человек; в окружении — только Unity 6000,
+      vendor-ошибки FMOD/Photon/MovieTexture не связаны с выносом).
 
 ## Задача: стресс по правилам кампании + каталог эффектов (по частям, простое → сложное)
 
@@ -780,6 +800,113 @@ usings в начале файла, до `namespace`. Требование: пр�
 - ИИ-агент (по AGENTS.md) и человек (по IDE) больше не создают owned-файл с using внутри namespace.
 - Защита не пересекается: vendored/legacy Unity исключены из проверки; pre-commit не замедляет
   C#/docs-коммиты ощутимо (быстрый rg-проход по staged owned `.cs`).
+
+---
+
+## Задача: паритет-документация, карта Unity-легаси, критика и целевая декомпозиция
+
+### Цель
+
+Зафиксировать, что и как реализовано/различается между мультиплеерной дуэлью Unity и WPF-дуэлью
+(ядром); полностью задокументировать Unity-легаси (какие механики и в каких классах); дать
+профессиональную архитектурную критику (Unity + текущего ядра + разделения проектов); предложить
+целевую декомпозицию `src\Core\` по доменам (данные = домен). **Легаси Unity не трогаем** — только
+документируем; разрывы закрываются в ядре.
+
+### Решения
+
+- Глубина карты: класс-уровень — доменные папки (Mechanics/Character/Raid/Campaign/Database),
+  папка-уровень — презентация (UI/Managers/Setup/Networking/Generation/ImageEffects/Sounds).
+- Данные = домен: `Core.Data` складывается в доменные модули, `GameDataReader` остаётся тонким
+  фасадом (подтверждено).
+- Критика — отдельный `docs\ARCHITECTURE_REVIEW.md`.
+- Эталон — активный `unity\`; расхождения `unity-2017\` фиксируются только где существенны.
+
+### Порция 1 — Паритет и правило «легаси не трогаем»
+
+1. [x] `docs\BATTLE_PARITY.md`: матрица Unity MP vs WPF-дуэль/ядро — «одинаково» / «разрыв» (file:line)
+     / «стаб в обоих»; группы эффектов (DoT, stun, riposte, guard, pull/push/shuffle, immobilize,
+     deaths-door, heart attack, rule-баффы, мультиплеер-специфика); скиллы-жертвы (ManAtArms
+     Defender/Retribution, HoundMaster Guard Dog, DoT/stun-скиллы).
+2. [x] `AGENTS.md` + `EXTRACTION_STATUS.md`: правило «легаси Unity живёт до cutover; разрывы
+     отслеживаются в `BATTLE_PARITY.md`, в Unity не правятся».
+3. [x] `INDEX.md`, `PLAN.md`.
+
+### Порция 2 — Карта Unity-легаси
+
+4. [x] `docs\UNITY_LEGACY_MAP.md` суб-порциями по папкам (Managers/Setup → Mechanics → Character →
+     Raid → Campaign → Database → Networking → Generation → UI/ImageEffects/Sounds). Формат: папка →
+     ответственность → ключевые классы (god-классы с размером) → механики → статус выноса. Каждая
+     суб-порция — отдельным коммитом + точечное обновление `EXTRACTION_STATUS.md`.
+
+### Порция 3 — Фронт выноса
+
+5. [x] Углубить `EXTRACTION_STATUS.md` (пер-модульные разрывы) + `PLAN.md` дорожная карта по доменам:
+     Save, Campaign, Encounters/Curios/Loot, Networking, Presentation cutover, закрытие механик-разрывов
+     из BATTLE_PARITY (в ядре).
+
+### Порция 4 — Критика
+
+6. [x] `docs\ARCHITECTURE_REVIEW.md`: Unity-легаси (god-классы, синглтоны, корутины, magic-strings,
+     RPC vs локстап, сид-хак, мёртвый код) + текущее ядро (слои Data→Duel, DTO-сплит Content vs Data,
+     Result-инвариант, мёртвый код, stale-доки, Newtonsoft vs 2017.4, `Core.Ui`). Каждый пункт —
+     файл:строка + рекомендация.
+
+### Порция 5 — Целевая декомпозиция
+
+7. [x] `docs\TARGET_LAYOUT.md`: раскладка `src\Core\<модуль>` по доменам (Common/Content/Combat/
+     Campaign/Raid/Save/Duel/Networking/Ui), правила зависимостей (DAG, без восходящих), что куда
+     переезжает (складывание Core.Data, TextFightContent → Duel), обоснование, миграционный путь.
+
+### Порция 6 — Проверка
+
+8. [x] `INDEX.md`, финальный проход `tools\check-using-placement.ps1`, build/test (если затронут код),
+     сверка `PLAN.md`.
+
+### Критерии приёмки
+
+- Каждая строка паритета и критики сверена с кодом (file:line).
+- Карта покрывает все 502 файла; манифест выноса согласован с картой.
+- Из карты+паритета+декомпозиции виден полный приоритизированный фронт работ.
+- Unity-легаси не изменён; доки в том же коммите, что и затронутый код.
+
+---
+
+## Задача: библиотеки доменов (данные = домен) — исполнено
+
+### Цель
+
+Завести библиотеки под вычисленные домены (см. `TARGET_LAYOUT.md`): `Core.Common`, `Core.Save`,
+`Core.Campaign`, `Core.Raid`, клиентская граница `Clients.Content`; распустить `Core.Data`
+(данные = домен: DTO/парсеры/каталоги живут в модуле своего домена, Newtonsoft — на границе).
+
+### Шаги
+
+1. [x] `Core.Common` — `Result`/`Result<T>` из `Lan.Contracts` (+правка Lan/Wpf), `IProportionValue`/
+     `ISingleProportion` из `Content\Raid`; ребро `Combat → Content` убрано (Combat зависит только от
+     Common после переноса примитивов).
+2. [x] `Core.Save` — `IBinarySaveData` из `Content\Save`; `Content\Raid\Prop → Core.Save`.
+3. [x] `Core.Campaign` — модели `Content\Campaign\*` + мапперы + DTO из `Content\Database` и `Data\Dto`
+     (`JsonQuests/TownEvent/Building/Upgrades/Roster/Provision/Inventory/...`); тесты → `Campaign.Tests`.
+4. [x] `Core.Raid` — модели `Content\Raid\*` (Curio/Prop/AreaType) + `CurioCsvParser`/`Loot`/`CsvReader`
+     + DTO; `JsonCurrencyCost` → `Content\Database` (общий); тесты → `Raid.Tests`.
+5. [x] Brains: `JsonMonsterBrains` DTO + чистый `JsonBrainParser` + `MonsterBrainCatalog` → `Combat\AI`;
+     Newtonsoft-десериализация — в `GameDataReader`.
+6. [x] `Clients.Content` (`src\Clients\`) — `GameDataReader` (Newtonsoft-фасад); `BuffCatalog`/`QuirkCatalog`
+     стали чистыми (`Load(Json*Data)`) и переехали в `Combat\Character` / `Content\Character`;
+     `TrinketCatalog`/`CampingSkillCatalog` + DTO — в `Content\Trinket|Camping`.
+7. [x] `TextFightContent` → `Core.Duel\Fight`; `FightContentLoader` (оба Unity-дерева) обновлён;
+     **`Core.Data` распущен**; `GameDataReaderTests`/`FightSessionTests` → `Clients.Content.Tests`.
+8. [x] Проверка: `dotnet build` + все 9 тест-сьютов зелёные (Combat 49, Duel 17, Content 5, Campaign 6,
+     Raid 4, Clients.Content 10, Ui, Lan 14, Wpf 17); `unity-compile-check` для `unity\` — зелёный;
+     `unity-check-script-references.ps1` для обоих деревьев — зелёный; `check-using-placement` — зелёный.
+
+### Примечание по проверке `unity-2017\`
+
+`unity-2017\` в этом окружении компилируется редактором Unity 6000 (2017.4 не установлен) → известные
+vendor-ошибки (FMOD `EventBrowser`, Photon `Hashtable`/`GUIText`, `MoviePlayer.MovieTexture`) — **не
+относятся к этому выносу**. Ошибок по типу `Core.*` в 2017-дереве нет (мои изменения компилируются чисто);
+script-reference check — зелёный. Финальную проверку 2017.4 проводит человек в реальном редакторе.
 
 ---
 

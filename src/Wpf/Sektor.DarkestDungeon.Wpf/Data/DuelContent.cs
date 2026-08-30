@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Sektor.DarkestDungeon.Clients.Content;
 using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
+using Sektor.DarkestDungeon.Core.Content.Camping;
 using Sektor.DarkestDungeon.Core.Content.Character;
-using Sektor.DarkestDungeon.Core.Data.Catalogs;
-using Sektor.DarkestDungeon.Core.Data.Readers;
+using Sektor.DarkestDungeon.Core.Content.Trinket;
 using Sektor.DarkestDungeon.Core.Duel;
 using Sektor.DarkestDungeon.Wpf.Combat;
 

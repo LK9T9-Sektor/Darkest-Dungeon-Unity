@@ -22,6 +22,7 @@
 - **No Raw Sources in Presentation** — Never place raw `.cs` files belonging to the core domain or tests directly inside the presentation layer assets folder.
 - **Automated Delivery Target** — Every core project must feature a post-build target that automatically compiles and copies its compiled binaries (`.dll` and `.pdb`) to a single flat internal plugins directory within the presentation layer.
 - **Minimal Legacy Diff** — Existing legacy code stays as-is. When a task touches a legacy file, make the smallest change required; no opportunistic cleanup, re-styling, or refactoring of old code. Extract logic into core modules only when the current task actually requires it. Keep commit diffs focused.
+- **Parity Tracking** — Mechanic parity between legacy Unity and the core is tracked in `docs\BATTLE_PARITY.md` (e.g. the multiplayer duel `RaidSceneMultiplayerManager` path vs the WPF duel on `Core.Combat`/`Core.Duel`). Parity gaps are closed **in the core only**; legacy Unity stays live until cutover (phase 6 of `EXTRACTION_PLAN.md`) and is never modified to chase parity.
 
 ---
 
@@ -68,7 +69,8 @@
 
 ### V. Structural Evolution
 
-- **Module Growth Lifecycle** — Features, entities, and use cases start flat as a single file in a general folder. Once a feature expands beyond one public type, it must be promoted to a standalone top-level module (its own folder and namespace), never hidden inside subfolders. Further growth promotes it to a dedicated assembly.
+- **Domain Architecture (Canonical Modules)** — The core layout is an architecture decision, not ad-hoc growth. The canonical module set (authoritative: `docs\TARGET_LAYOUT.md`) is: `Common` (base types/primitives), `Content` (character/combat content), `Combat`, `Campaign`, `Raid`, `Save`, `Duel` for the domain; `Networking` for transport; `Clients.*` for the client boundary (loading facade, UI tokens). **Data = domain**: a domain owns its models, DTOs, parsers and catalogs from the start. A canonical domain library is created up front (architecture decision, documented in `TARGET_LAYOUT.md`/`ARCHITECTURE.md` in the same commit), not "grown into". Dependencies form a DAG without upward references: no core module depends on `Duel`/`Ui`/clients, and domains never reference transport (`Networking`). JSON deserialization (Newtonsoft) lives at the client boundary, not in the domain.
+- **Module Growth Lifecycle** — Within a canonical module, features/entities/use cases start flat as a single file in the module's general folder. Once a feature expands beyond one public type it must be promoted to its own subfolder/namespace (never hidden inside unrelated subfolders), and further growth promotes it to a dedicated assembly — always inside its canonical domain module.
 
 ---
 

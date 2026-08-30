@@ -11,7 +11,7 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Events;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Common;
 
 namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.AI
 {

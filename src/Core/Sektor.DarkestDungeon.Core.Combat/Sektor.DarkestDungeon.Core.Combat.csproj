@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Sektor.DarkestDungeon.Core.Common\Sektor.DarkestDungeon.Core.Common.csproj" />
     <ProjectReference Include="..\Sektor.DarkestDungeon.Core.Content\Sektor.DarkestDungeon.Core.Content.csproj" />
   </ItemGroup>
 

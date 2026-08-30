@@ -1,5 +1,5 @@
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
-using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Common;
 
 namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
 {

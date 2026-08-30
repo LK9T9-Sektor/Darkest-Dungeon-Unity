@@ -1,6 +1,7 @@
 using UnityEngine;
+using Sektor.DarkestDungeon.Core.Common;
 using System.Collections.Generic;
-using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Raid;
 
 public abstract class TargetSelectionDesire : IProportionValue
 {

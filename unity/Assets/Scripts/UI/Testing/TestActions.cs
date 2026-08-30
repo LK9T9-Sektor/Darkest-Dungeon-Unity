@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using System.Text;
 
 using Sektor.DarkestDungeon.Core.Content.Database;
-using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Raid.Database;
+using Sektor.DarkestDungeon.Core.Raid;
 
 /// <summary>
 /// The set of in-game test checks shown in the TEST menu. Each check reads the loaded content

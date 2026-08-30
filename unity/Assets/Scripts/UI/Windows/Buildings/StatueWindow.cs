@@ -1,7 +1,7 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine;
-using Sektor.DarkestDungeon.Core.Content.Campaign;
+using Sektor.DarkestDungeon.Core.Campaign;
 
 public class StatueWindow : BuildingWindow
 {

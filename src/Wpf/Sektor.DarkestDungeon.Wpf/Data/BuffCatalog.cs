@@ -1,23 +1,22 @@
 using System;
 using System.IO;
 
+using Sektor.DarkestDungeon.Clients.Content;
 using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
-using Sektor.DarkestDungeon.Core.Data.Catalogs;
-using Sektor.DarkestDungeon.Core.Data.Readers;
 
 namespace Sektor.DarkestDungeon.Wpf.Data
 {
     /// <summary>Loads the buff definitions from the bundled content file into core <see cref="Buff"/> objects.</summary>
     public static class BuffCatalog
     {
-        private static readonly Core.Data.Catalogs.BuffCatalog Inner = LoadInner();
+        private static readonly Sektor.DarkestDungeon.Core.Combat.Character.BuffCatalog Inner = LoadInner();
 
-        private static Core.Data.Catalogs.BuffCatalog LoadInner()
+        private static Sektor.DarkestDungeon.Core.Combat.Character.BuffCatalog LoadInner()
         {
             string path = Path.Combine(AppContext.BaseDirectory, "Content", "Buffs", "JsonBuffs.json");
             if (!File.Exists(path))
-                return Core.Data.Catalogs.BuffCatalog.Empty;
+                return Sektor.DarkestDungeon.Core.Combat.Character.BuffCatalog.Empty;
 
             return GameDataReader.ReadBuffs(File.ReadAllText(path));
         }

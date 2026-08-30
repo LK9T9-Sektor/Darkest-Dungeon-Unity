@@ -1,5 +1,6 @@
 using System.Collections.Generic;
-using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Common;
+using Sektor.DarkestDungeon.Core.Raid;
 
 public class DungeonEnviromentData
 {

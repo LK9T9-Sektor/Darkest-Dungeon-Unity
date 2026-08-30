@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine.Assertions;
-using Sektor.DarkestDungeon.Core.Content.Save;
-using Sektor.DarkestDungeon.Core.Content.Raid;
+using Sektor.DarkestDungeon.Core.Save;
+using Sektor.DarkestDungeon.Core.Raid;
 
 public class Dungeon : IBinarySaveData
 {

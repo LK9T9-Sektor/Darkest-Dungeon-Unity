@@ -18,21 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\..\..\unity\Assets\Resources\Data\Mechanics\HeirloomExchange.json"
-             Link="Data\Mechanics\HeirloomExchange.json"
-             CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\..\..\unity\Assets\Resources\Data\PartyNames.json"
-             Link="Data\PartyNames.json"
-             CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\..\..\unity\Assets\Resources\Data\Curios\Curios.csv"
-             Link="Data\Curios\Curios.csv"
-             CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\..\..\unity\Assets\Resources\Data\Narration.json"
-             Link="Data\Narration.json"
-             CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\..\..\unity\Assets\Resources\Data\JsonLoot.json"
-             Link="Data\JsonLoot.json"
-             CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\..\..\unity\Assets\Resources\Data\JsonQuirks.json"
              Link="Data\JsonQuirks.json"
              CopyToOutputDirectory="PreserveNewest" />

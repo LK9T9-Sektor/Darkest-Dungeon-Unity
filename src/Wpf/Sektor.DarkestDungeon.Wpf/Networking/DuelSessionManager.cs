@@ -1,5 +1,5 @@
 using System;
-using Sektor.DarkestDungeon.Lan.Contracts.Results;
+using Sektor.DarkestDungeon.Core.Common;
 using Sektor.DarkestDungeon.Lan.Contracts.Transport;
 
 namespace Sektor.DarkestDungeon.Wpf.Networking

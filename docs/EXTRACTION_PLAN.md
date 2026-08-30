@@ -34,17 +34,24 @@
   ИИ `DuelAi`. Ре-имплементация мультиплеерного PvP-боя Unity (`RaidSceneMultiplayerManager`/
   `MultiplayerSync`), который в Unity не разнесён. WPF-клиент — тонкий потребитель; cutover Unity —
   Фаза 6. См. `DUEL_ARCHITECTURE.md`. Тесты — `tests\Core\Sektor.DarkestDungeon.Core.Duel.Tests`.
-- `src\Core\Content\` — данные контента (Фаза 1, в работе): `Raid\` (пропы/курio: `Prop`,
-  `Curio`, `CurioResult`, `IProportionValue`, `AreaType`), `Campaign\` (модели `HeirloomExchange`,
-  `PartyNameEntry`,   `NarrationEntry`/`NarrationAudioEvent`), `Save\` (бинарный интерфейс
-  `IBinarySaveData` — старт Фазы 2), `Database\` (DTO `Json*` и мапперы-парсеры: `CurioCsvParser`
-  для CSV, `NarrationMapper`/`LootMapper` для JSON — loot: `LootDatabase`, `LootTable`,
-  `LootEntry`). Ядро **не зависит от Newtonsoft**: DTO-члены названы
-  snake_case в точности по legacy-JSON, поэтому десериализуются любой версией Newtonsoft без
-  атрибутов. Причина: сборки Newtonsoft 11/12/13 (включая `net45`/`netstandard2.0`) ссылаются на
-  контрактные сборки net6.0 (`System.Runtime, Version=6.0.0.0`) и не читаются компилятором Unity
-  2017.4 (`CS0009`). JSON-десериализация пока остаётся на границе презентации
-  (`JsonDarkestDeserializer.GetJsonObject<T>`); CSV-парсер — чистый, в ядре.
+- `src\Core\Content\` — персонажно-боевой контент: `Character\` (`Quirk`, `BuffContent`,
+  `QuirkCatalog`), `Camping\` (модель + DTO + каталог), `Trinket\` (модель + DTO + каталог),
+  `Database\` (DTO `Json*` и мапперы: `BuffContentMapper`, `QuirkMapper`). Ядро **не зависит от
+  Newtonsoft**: DTO-члены названы snake_case в точности по legacy-JSON, поэтому десериализуются любой
+  версией Newtonsoft без атрибутов. Причина: сборки Newtonsoft 11/12/13 (включая `net45`/`netstandard2.0`)
+  ссылаются на контрактные сборки net6.0 (`System.Runtime, Version=6.0.0.0`) и не читаются компилятором
+  Unity 2017.4 (`CS0009`). **Решение:** десериализация живёт на клиентской границе
+  (`Clients.Content\GameDataReader`), а не в ядре.
+- `src\Core\Common\` — базовые типы: `Result`/`Result<T>`, `IProportionValue`/`ISingleProportion`,
+  (целевые — `IRng`, `InvariantCulture`, feature-flag, токен-парсер).
+- `src\Core\Save\` — бинарный интерфейс `IBinarySaveData` (старт Фазы 2).
+- `src\Core\Campaign\` — кампанийные модели/данные: `HeirloomExchange`, `PartyNameEntry`,
+  `NarrationEntry`/`NarrationAudioEvent` + DTO (`JsonQuests`/`JsonTownEvent`/`JsonBuilding`/`JsonUpgrades`/
+  `JsonRoster`/`JsonProvision`/...) + мапперы.
+- `src\Core\Raid\` — рейд-данные: `Prop`/`Curio`/`CurioResult`/`AreaType` + `CurioCsvParser`/
+  `Loot`/`CsvReader` + DTO (`JsonCurioProp*`).
+- `src\Clients\Content\` — клиентская граница (НЕ домен): `GameDataReader` — Newtonsoft-фасад
+  «файл → каталоги доменов»; потребляется WPF и Unity-стендами.
 - `src\Core\Ui\` — презентационные токены runtime-оверлеев (engine-free): путь шрифта,
   семантические размеры текста и цвета (`ArgbColor`), доставляются DLL в оба проекта; Unity-side
   конструктор (`RuntimeUiFactory`) дублируется в деревьях и читает токены из ядра. Единый источник
@@ -59,7 +66,8 @@ repo/
 ├── AGENTS.md            # карта-манифест, правила
 ├── docs/                # документация (см. INDEX.md)
 ├── src/
-│   ├── Core/            # домен: Common, Content, Save, Combat, Duel, Campaign, Modes
+│   ├── Core/            # домен: Common, Content, Combat, Campaign, Raid, Save, Duel
+│   ├── Clients/         # клиентская граница (не домен): Clients.Content (GameDataReader, Newtonsoft)
 │   ├── Networking/      # транспорт: Contracts, Steam, Photon (из Lan\)
 │   └── External/        # вендоренный референс (read-only)
 ├── content/             # общие ресурсы-данные (трекаются): контент, локализация (см. FEATURE_SHARED_ASSETS)
@@ -104,10 +112,10 @@ repo/
    `BuffContentMapper` + тесты на `JsonBuffs.json`; в `CharacterHelper` портированы
    `StringToBuffType`/`StringToBuffRule`. Квирки применяются в WPF-дуэли как permanent-баффы
    (`BuffSourceType.Quirk`) — как в Unity.
-  (оба проекта) мапит их напрямую. Следующий шаг: перенести `JsonConvert` в ядро и десериализовать
-  JSON напрямую в модели — но только после того, как Unity-проекты получат Newtonsoft, читаемый
-  компилятором 2017.4 (сейчас сборки Newtonsoft 11/12/13 ссылаются на контракты net6.0 и дают
-  `CS0009` в 2017.4; см. `KNOWN_ISSUES.md` §13).
+  (оба проекта) мапит их напрямую. **Решение по JSON-границе:** `JsonConvert` в ядро НЕ переносится —
+  десериализация живёт на клиентской границе (`Clients.Content\GameDataReader`), домен знает только
+  DTO (snake_case) + чистые мапперы. Причина: сборки Newtonsoft 11/12/13 ссылаются на контракты
+  net6.0 и дают `CS0009` в 2017.4 (см. `KNOWN_ISSUES.md` §13).
 - **Фаза 2. Сейвы** → `src\Core\Save`: DTO + бинарный кодек + версии; IO в Unity через `ISaveStorage`.
 - **Фаза 3. Бой** → `src\Core\Combat`: `BattleSolver`/`Round`/Effects/AI как чистая
   симуляция; архитектура — **симуляция + события для view** (решение принято). *(вынесено, готово)*:

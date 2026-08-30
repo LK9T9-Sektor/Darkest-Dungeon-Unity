@@ -10,6 +10,13 @@
 > **Важно:** legacy-код в `unity\` остаётся живой реализацией Unity-игры до cutover и НЕ помечается
 > `[Obsolete]` (семантически враньё + шум CS0618 в call-site'ах). `[Obsolete(error: true)]` — только
 > на удаляемых Unity-дублях в момент cutover.
+>
+> **Паритет механик** (что реализовано в legacy vs в ядре, с file:line и скиллами-жертвами) —
+> в `docs\BATTLE_PARITY.md`. Разрывы закрываются в ядре; legacy Unity не правится под паритет
+> (до cutover, `EXTRACTION_PLAN.md` Фаза 6).
+>
+> **По-классная карта** всех 502 файлов легаси (ответственности, god-классы, статус выноса) —
+> в `docs\UNITY_LEGACY_MAP.md`; манифест ниже — сжатая сверка.
 
 ## Вынесено в ядро
 
@@ -39,9 +46,14 @@
 | `unity/Assets/Resources/Data/Mechanics/Effects.txt` (каталог: stress/heal/stun/dots/pull/push/cure/riposte/shuffle/tag/stat-buff/buff_ids/torch/set_mode) | `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/Skills/EffectCatalog.cs` | частично |
 | `unity/Assets/Scripts/Character/Monster.cs` + `MonsterData.cs` | `src/Core/Sektor.DarkestDungeon.Core.Combat/Character/Monster.cs` | вынесено |
 | `unity/Assets/Resources/Data/Monsters/` (460 `.txt`, парсер → `MonsterCatalog`) | `src/Core/Sektor.DarkestDungeon.Core.Combat/Character/MonsterClassFileParser.cs` + `Character/MonsterCatalog.cs` | вынесено |
-| `unity/Assets/Resources/Data/JsonAI.json` (brains → `MonsterBrainCatalog`) | `src/Core/Sektor.DarkestDungeon.Core.Data/Readers/JsonBrainParser.cs` + `Catalogs/MonsterBrainCatalog.cs` | вынесено |
-| `unity/Assets/Resources/Data/JsonBuffs.json` / `JsonQuirks.json` / `JsonTraits.json` (DTO + каталоги, общий ридер) | `src/Core/Sektor.DarkestDungeon.Core.Data/GameDataReader.cs` + `Catalogs/BuffCatalog.cs`/`QuirkCatalog.cs` | вынесено |
-| (стенд) бой «герои vs монстры» в TEST-меню (`unity/`, `unity-2017/`) | `src/Core/Sektor.DarkestDungeon.Core.Duel/Fight/FightSession.cs` | вынесено |
+| `unity/Assets/Resources/Data/JsonAI.json` (brains → `MonsterBrainCatalog`) | `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/AI/JsonBrainParser.cs` (чистый) + `MonsterBrainCatalog.cs` | вынесено |
+| `unity/Assets/Resources/Data/JsonBuffs.json` (DTO + каталоги, общий ридер) | `src/Clients/Sektor.DarkestDungeon.Clients.Content/GameDataReader.cs` (Newtonsoft-фасад) | вынесено |
+
+> **Реорганизация ядра (данные = домен, см. `TARGET_LAYOUT.md`):** `Core.Data` распущен; DTO/парсеры/
+> каталоги разведены по доменам (`Core.Campaign`, `Core.Raid`, `Core.Content\Camping|Trinket`,
+> `Core.Combat\AI`); `Result`/`IProportionValue` — в `Core.Common`; `IBinarySaveData` — в `Core.Save`;
+> `TextFightContent` — в `Core.Duel\Fight`; `GameDataReader` (Newtonsoft) — на клиентской границе
+> `Clients.Content`. Манифест ниже ведёт только Unity→core вынос.
 
 ## Не вынесено (Unity-side, по дорожной карте `PLAN.md`)
 
@@ -53,3 +65,16 @@
 | `unity/Assets/Resources/Data/Curios/` | — | не вынесено (дорожная карта: Curios) |
 | `unity/Assets/Scripts/Networking/` | — | не вынесено (дорожная карта: Networking) |
 | `unity/Assets/Scripts/UI/` | — | не вынесено (Presentation; остаётся Unity/WPF, бизнес-логика — в ядро) |
+
+## Паритет-разрывы (механики, которые в ядре неполны)
+
+Задачи по порядку приоритета из `BATTLE_PARITY.md` §5 — все закрываются **в ядре**:
+
+1. DoT-тик урона (bleed/poison не наносят урон в дуэли).
+2. Stun: пропуск хода + истечение.
+3. Riposte-контратака (`RiposteSkill` не исполняется).
+4. Guard: ключ `.guard` в `EffectCatalog` + редирект атак.
+5. Pull/Push/Shuffle: реальное перемещение рангов.
+6. Immobilize: блок ручного Move + истечение.
+7. `RemoveConditions` после скилла в `ExecuteSkill`.
+8. Death's door / heart attack (больше объём, кампанийные механики).

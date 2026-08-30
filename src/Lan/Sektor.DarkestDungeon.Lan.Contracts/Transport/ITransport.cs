@@ -1,4 +1,4 @@
-using Sektor.DarkestDungeon.Lan.Contracts.Results;
+using Sektor.DarkestDungeon.Core.Common;
 
 namespace Sektor.DarkestDungeon.Lan.Contracts.Transport
 {

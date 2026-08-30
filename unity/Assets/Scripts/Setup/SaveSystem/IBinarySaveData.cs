@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Sektor.DarkestDungeon.Core.Content.Raid;
-using Sektor.DarkestDungeon.Core.Content.Save;
+using Sektor.DarkestDungeon.Core.Raid;
+using Sektor.DarkestDungeon.Core.Save;
 
 public static class BinarySaveDataHelper
 {

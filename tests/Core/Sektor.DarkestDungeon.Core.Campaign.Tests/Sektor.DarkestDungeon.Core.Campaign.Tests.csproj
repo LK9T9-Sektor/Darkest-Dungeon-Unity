@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Core\Sektor.DarkestDungeon.Core.Campaign\Sektor.DarkestDungeon.Core.Campaign.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\..\unity\Assets\Resources\Data\Mechanics\HeirloomExchange.json"
+             Link="Data\Mechanics\HeirloomExchange.json"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\..\unity\Assets\Resources\Data\PartyNames.json"
+             Link="Data\PartyNames.json"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\..\unity\Assets\Resources\Data\Narration.json"
+             Link="Data\Narration.json"
+             CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
