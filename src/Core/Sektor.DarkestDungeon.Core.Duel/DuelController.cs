@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Sektor.DarkestDungeon.Core.Combat.Character;
+using Sektor.DarkestDungeon.Core.Combat.Character.Statuses;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
@@ -328,16 +329,70 @@ namespace Sektor.DarkestDungeon.Core.Duel
 
             current.CombatInfo.IsSurprised = false;
 
+            if (current.CombatInfo.IsDead)
+            {
+                BattleGround.Round.OrderedUnits.Remove(current);
+                CompleteTurn();
+                return;
+            }
+
             if (current.Team == Team.Heroes)
-            {
                 BattleGround.Round.PreHeroTurn(current, BattleGround);
-                Phase = DuelPhase.WaitingForHostAction;
-            }
             else
-            {
                 BattleGround.Round.PreMonsterTurn(current, BattleGround);
-                Phase = DuelPhase.WaitingForClientAction;
+
+            ApplyDotTicks(current);
+            CheckDeaths();
+            if (current.CombatInfo.IsDead)
+            {
+                CompleteTurn();
+                return;
             }
+
+            ((Character)current.Character).UpdateRound();
+
+            if (current.Character.GetStatusEffect(StatusType.Stun).IsApplied)
+            {
+                ((IStunStatusEffect)current.Character.GetStatusEffect(StatusType.Stun)).StunApplied = false;
+                Events.ShowPopup(current, PopupType.Unstun);
+                Events.ResetHalo(current);
+                ApplyStunRecovery(current);
+                CompleteTurn();
+                return;
+            }
+
+            Phase = current.Team == Team.Heroes
+                ? DuelPhase.WaitingForHostAction
+                : DuelPhase.WaitingForClientAction;
+        }
+
+        private void ApplyDotTicks(ICombatUnit unit)
+        {
+            var bleeding = (DamageOverTimeStatusEffect)unit.Character.GetStatusEffect(StatusType.Bleeding);
+            if (bleeding.IsApplied)
+            {
+                int tickDamage = bleeding.CurrentTickDamage;
+                unit.Character.TakeDamage(tickDamage);
+                Events.ShowPopup(unit, PopupType.Damage, tickDamage.ToString());
+                Events.UpdateOverlay(unit);
+            }
+
+            var poison = (DamageOverTimeStatusEffect)unit.Character.GetStatusEffect(StatusType.Poison);
+            if (poison.IsApplied)
+            {
+                int tickDamage = poison.CurrentTickDamage;
+                unit.Character.TakeDamage(tickDamage);
+                Events.ShowPopup(unit, PopupType.Damage, tickDamage.ToString());
+                Events.UpdateOverlay(unit);
+            }
+        }
+
+        private void ApplyStunRecovery(ICombatUnit unit)
+        {
+            var recoveryBuff = content.GetBuff("STUNRECOVERYBUFF");
+            if (recoveryBuff == null)
+                return;
+            unit.Character.AddBuff(new BuffInfo(recoveryBuff, BuffDurationType.Round, BuffSourceType.Adventure, 2));
         }
 
         /// <summary>Executes the acting unit's skill and returns the wire payload to broadcast.</summary>
@@ -439,7 +494,7 @@ namespace Sektor.DarkestDungeon.Core.Duel
         /// <returns>True if the move was performed.</returns>
         private bool TryMove(ICombatUnit unit, int newRank)
         {
-            if (unit == null)
+            if (unit == null || unit.CombatInfo.IsImmobilized)
                 return false;
 
             var party = unit.Team == Team.Heroes ? HeroParty : MonsterParty;
@@ -522,6 +577,35 @@ namespace Sektor.DarkestDungeon.Core.Duel
             Solver.ExecuteSkill(unit, target, skill, null);
             ProcessEventQueues();
             CheckDeaths();
+
+            ExecuteRiposte(unit, target);
+            RemoveConditions(unit, target);
+        }
+
+        private void ExecuteRiposte(ICombatUnit attacker, ICombatUnit target)
+        {
+            if (target == null || ((FormationUnitInfo)target.CombatInfo).IsDead)
+                return;
+            if (!target.Character.GetStatusEffect(StatusType.Riposte).IsApplied)
+                return;
+
+            var riposteSkill = target.Character.RiposteSkill;
+            if (riposteSkill == null)
+                return;
+
+            Solver.SkillResult.Reset();
+            Solver.ExecuteSkill(target, attacker, riposteSkill, null);
+            ProcessEventQueues();
+            CheckDeaths();
+        }
+
+        private void RemoveConditions(ICombatUnit performer, ICombatUnit target)
+        {
+            if (Solver == null)
+                return;
+            Solver.RemoveConditions(performer);
+            if (target != null)
+                Solver.RemoveConditions(target);
         }
 
         private void ProcessEventQueues()
@@ -581,11 +665,6 @@ namespace Sektor.DarkestDungeon.Core.Duel
         {
             if (BattleGround == null)
                 return;
-
-            foreach (var unit in HeroParty.Units)
-                ((Character)unit.Character).UpdateRound();
-            foreach (var unit in MonsterParty.Units)
-                ((Character)unit.Character).UpdateRound();
 
             BattleGround.Round.NextRound(BattleGround);
             BeginTurn();

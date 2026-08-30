@@ -82,6 +82,13 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
                         float weaponAccuracy = hasWeapon ? GetOrZero(weaponStats, AttributeType.AttackRating) : 0f;
                         ApplyCombatSkill(result.CombatSkills, tokens, weaponAccuracy, effects);
                         break;
+                    case "riposte_skill":
+                        float riposteWeaponAccuracy = hasWeapon ? GetOrZero(weaponStats, AttributeType.AttackRating) : 0f;
+                        var riposteSkills = new List<CombatSkill>();
+                        ApplyCombatSkill(riposteSkills, tokens, riposteWeaponAccuracy, effects);
+                        if (riposteSkills.Count > 0)
+                            result.RiposteSkill = riposteSkills[0];
+                        break;
                     case "skill_selection":
                         result.CanSelectCombatSkills = "true" == GetValue(tokens, "can_select_combat_skills");
                         int maxSelected;

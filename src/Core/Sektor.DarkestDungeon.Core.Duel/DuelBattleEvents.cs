@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
+using Sektor.DarkestDungeon.Core.Combat.Raid.Party;
 
 namespace Sektor.DarkestDungeon.Core.Duel
 {
@@ -85,12 +86,42 @@ namespace Sektor.DarkestDungeon.Core.Duel
         public void Pull(ICombatUnit unit, int amount, bool changeUnitOrder = true)
         {
             Log.Add("[pull] " + unit.Character.Name + " by " + amount);
+            MoveUnit(unit, -amount);
         }
 
         /// <inheritdoc/>
         public void Push(ICombatUnit unit, int amount, bool changeUnitOrder = true)
         {
             Log.Add("[push] " + unit.Character.Name + " by " + amount);
+            MoveUnit(unit, amount);
+        }
+
+        private static void MoveUnit(ICombatUnit unit, int delta)
+        {
+            if (unit == null || unit.CombatInfo.IsImmobilized)
+                return;
+
+            var party = unit.Party;
+            if (party == null || party.Units == null || party.Units.Count < 2)
+                return;
+
+            int index = party.Units.IndexOf(unit);
+            if (index < 0)
+                return;
+
+            int target = index + delta;
+            if (target < 0)
+                target = 0;
+            if (target >= party.Units.Count)
+                target = party.Units.Count - 1;
+            if (target == index)
+                return;
+
+            party.Units.RemoveAt(index);
+            party.Units.Insert(target, unit);
+
+            for (int i = 0; i < party.Units.Count; i++)
+                ((FormationUnit)party.Units[i]).Rank = i + 1;
         }
 
         /// <inheritdoc/>

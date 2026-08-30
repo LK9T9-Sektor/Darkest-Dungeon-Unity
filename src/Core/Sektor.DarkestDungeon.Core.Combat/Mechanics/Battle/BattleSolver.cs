@@ -390,6 +390,13 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
             performerUnit.CombatInfo.SkillsUsedThisTurn.Add(skill.Id);
             performerUnit.CombatInfo.SkillsUsedInBattle.Add(skill.Id);
 
+            var guarded = targetUnit.Character.GetStatusEffect(StatusType.Guarded) as IGuardedStatusEffect;
+            if (targetUnit.Team != performerUnit.Team && guarded != null && guarded.IsApplied && guarded.Guard != null
+                && guarded.Guard != performerUnit)
+            {
+                targetUnit = guarded.Guard;
+            }
+
             var target = targetUnit.Character;
             var performer = performerUnit.Character;
 

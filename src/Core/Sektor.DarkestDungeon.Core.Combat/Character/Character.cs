@@ -384,6 +384,10 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         /// <param name="buffEntry">The buff entry.</param>
         protected void ApplyBuff(BuffInfo buffEntry)
         {
+            if (buffEntry.IsApplied)
+                return;
+            buffEntry.IsApplied = true;
+
             switch (buffEntry.Buff.Type)
             {
                 case BuffType.StatAdd:
@@ -399,6 +403,10 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         /// <param name="buffEntry">The buff entry.</param>
         protected void RevertBuff(BuffInfo buffEntry)
         {
+            if (!buffEntry.IsApplied)
+                return;
+            buffEntry.IsApplied = false;
+
             switch (buffEntry.Buff.Type)
             {
                 case BuffType.StatAdd:

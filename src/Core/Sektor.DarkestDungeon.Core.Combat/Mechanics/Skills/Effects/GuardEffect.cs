@@ -15,6 +15,13 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
 
         private bool SwapTargets { get; set; }
 
+        /// <summary>Initializes a new instance of the <see cref="GuardEffect"/> class.</summary>
+        /// <param name="swapTargets">Whether the guard performer and target are swapped.</param>
+        public GuardEffect(bool swapTargets = false)
+        {
+            SwapTargets = swapTargets;
+        }
+
         /// <inheritdoc/>
         public override void Apply(ICombatUnit performer, ICombatUnit target, Effect effect, IBattleContext battleContext)
         {

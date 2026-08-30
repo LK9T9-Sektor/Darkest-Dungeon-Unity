@@ -118,6 +118,37 @@ namespace Sektor.DarkestDungeon.Core.Combat.Tests
             Assert.That(setMode.Mode, Is.EqualTo("beast"));
         }
 
+        [Test]
+        public void Load_ParsesGuardClearAndRecoveryKeys()
+        {
+            var catalog = EffectCatalog.Load(
+                "effect: .name \"MAA Guard 1\" .target \"target\" .chance 100% .guard 1 .on_hit true .on_miss true .duration 2\n" +
+                "effect: .name \"Antiq ProtectMe Guard\" .target \"target\" .chance 100% .guard 1 .swap_source_and_target true .on_hit true .on_miss true .duration 2\n" +
+                "effect: .name \"Clear Guards\" .target \"performer\" .chance 100% .clearguarding 1 .clearguarded 1 .on_hit true .on_miss true\n" +
+                "effect: .name \"Clear Stunned\" .target \"target\" .chance 100% .unstun 1 .untag 1 .on_hit true .on_miss true\n" +
+                "effect: .name \"Unimmobilize\" .target \"target\" .chance 100% .unimmobilize 1 .on_hit true .on_miss false");
+
+            Assert.That(catalog.Count, Is.EqualTo(5));
+
+            var guard = catalog.Get("MAA Guard 1");
+            Assert.That(guard, Is.Not.Null, "A guard-only effect should no longer be dropped.");
+            var guardEffect = guard.SubEffects.OfType<GuardEffect>().Single();
+            Assert.That(guardEffect, Is.Not.Null);
+
+            var swapped = catalog.Get("Antiq ProtectMe Guard");
+            var swappedEffect = swapped.SubEffects.OfType<GuardEffect>().Single();
+
+            var clear = catalog.Get("Clear Guards");
+            Assert.That(clear.SubEffects.OfType<ClearGuardEffect>().Single(), Is.Not.Null);
+
+            var unstun = catalog.Get("Clear Stunned");
+            Assert.That(unstun.SubEffects.OfType<UnstunEffect>().Single(), Is.Not.Null);
+            Assert.That(unstun.SubEffects.OfType<UntagEffect>().Single(), Is.Not.Null);
+
+            var unimmobilize = catalog.Get("Unimmobilize");
+            Assert.That(unimmobilize.SubEffects.OfType<UnimmobilizeEffect>().Single(), Is.Not.Null);
+        }
+
         private static void AssertSubEffect<T>(Effect effect)
             where T : SubEffect
         {

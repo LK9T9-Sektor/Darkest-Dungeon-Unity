@@ -149,6 +149,32 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
                     effect.SubEffects.Add(statBuff);
             }
 
+            if (tokens.ContainsKey("guard"))
+            {
+                bool swapTargets;
+                if (!bool.TryParse(GetValue(tokens, "swap_source_and_target"), out swapTargets))
+                    swapTargets = false;
+                effect.SubEffects.Add(new GuardEffect(swapTargets));
+            }
+
+            bool clearGuarding = tokens.ContainsKey("clearguarding");
+            bool clearGuarded = tokens.ContainsKey("clearguarded");
+            if (clearGuarding || clearGuarded)
+            {
+                var clearGuard = new ClearGuardEffect();
+                clearGuard.SetFlags(clearGuarding, clearGuarded);
+                effect.SubEffects.Add(clearGuard);
+            }
+
+            if (tokens.ContainsKey("unstun"))
+                effect.SubEffects.Add(new UnstunEffect());
+
+            if (tokens.ContainsKey("unimmobilize"))
+                effect.SubEffects.Add(new UnimmobilizeEffect());
+
+            if (tokens.ContainsKey("untag"))
+                effect.SubEffects.Add(new UntagEffect());
+
             string firstBuffId = GetValue(tokens, "buff_ids");
             if (firstBuffId != null)
             {

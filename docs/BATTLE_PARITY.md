@@ -54,7 +54,7 @@
 | Механика | Unity MP | WPF-дуэль | Статус |
 |---|---|---|---|
 | Наложение + резист (`chance − resist + performerChance`) | `BleedEffect.cs:13-39`, `PoisonEffect.cs:13-39` | `BleedEffect.cs:24-63`, `PoisonEffect.cs:24-63` | ✅ |
-| **Тик урона** в начале хода цели (`CurrentTickDamage`) | `RaidSceneMultiplayerManager.cs:1129-1199` (bleed), `:1202-1274` (poison) | `DamageOverTimeStatusEffect.CurrentTickDamage` (`:15`) **никем не потребляется** — только таймер/истечение (`:24-29`) | ⚠️ |
+| **Тик урона** в начале хода цели (`CurrentTickDamage`) | `RaidSceneMultiplayerManager.cs:1129-1199` (bleed), `:1202-1274` (poison) | `DuelController.BeginTurn` применяет `CurrentTickDamage` (bleed+poison) в начале хода цели, `CheckDeaths` после | ✅ |
 | Idle-юниты (нет ходов): тик ×1.5 | `RaidSceneMultiplayerManager.cs:1022-1104` | — (тиков нет) | ⚠️ |
 
 ### 2.4 Stun / immobilize / move-блокировки
@@ -62,38 +62,38 @@
 | Механика | Unity MP | WPF-дуэль | Статус |
 |---|---|---|---|
 | Наложение стана + резист + сброс guard | `StunEffect.cs:7-32` | `StunEffect.cs:15-58` | ✅ |
-| **Пропуск хода** при стане + `STUNRECOVERYBUFF` | `RaidSceneMultiplayerManager.cs:1279-1296` | `BeginTurn`/`CompleteTurn`/`DuelAi` не проверяют `StatusType.Stun` (grep: 0 в боевом пути) | ⚠️ |
-| Истечение стана | `Character.ApplyStunRecovery` | `StunStatusEffect.UpdateNextTurn` пуст (`StunStatusEffect.cs:18-20`) — стан вечен до `UnstunEffect` (недостижим) | ⚠️ |
+| **Пропуск хода** при стане + `STUNRECOVERYBUFF` | `RaidSceneMultiplayerManager.cs:1279-1296` | `DuelController.BeginTurn`: стан снимается, `STUNRECOVERYBUFF` применяется, ход пропускается (`CompleteTurn`) | ✅ |
+| Истечение стана | `Character.ApplyStunRecovery` | стан снимается в начале хода цели (`BeginTurn`), затем recovery-бафф на 2 раунда | ✅ |
 | Стартовый +40% stun-resist всем 8 юнитам (мультиплеер-хак) | `RaidSceneMultiplayerManager.cs:417-438` | — | ⚠️ (опционально, режимное) |
 | Immobilize: блок self-move скилла | `BattleSolver.cs:312` | `BattleSolver.cs:398` | ✅ |
-| **Immobilize: блок ручного Move + истечение** | `FormationUnit.cs:210, 233`; `RaidSceneMultiplayerManager.cs:2255, 2262` | `TryMove` (`DuelController.cs:440-460`) не проверяет `IsImmobilized`; истечения нет | ⚠️ |
+| **Immobilize: блок ручного Move + истечение** | `FormationUnit.cs:210, 233`; `RaidSceneMultiplayerManager.cs:2255, 2262` | `TryMove` (`DuelController.cs:440-460`) проверяет `IsImmobilized`; `.unimmobilize`/`.unstun`/`.untag` парсятся `EffectCatalog` | ✅ |
 
 ### 2.5 Riposte / guard / mark
 
 | Механика | Unity MP | WPF-дуэль | Статус |
 |---|---|---|---|
 | Наложение riposte-статуса + rule-баффы (`BuffRule.Riposting`) | `RiposteEffect.cs:16-42` | `RiposteEffect.cs:30-68` | ✅ |
-| **Контратака** при атаке по рипост-юниту (`RiposteSkill`) | `ExecuteRiposteSkillActivation` (`RaidSceneManager.cs:3818-3863`) | `RiposteSkill` есть (`Hero.cs:69`), но `ExecuteSkill` вызывается только из игровых действий — контратаки нет | ⚠️ |
-| **Guard**: парсинг `.guard` + редирект атак | `GuardEffect.cs:26-78`, `ExecuteGuardRedirection` (`RaidSceneManager.cs:3806-3816`) | `EffectCatalog` **не парсит `.guard`** (все 8 guard-эффектов `Effects.txt` — guard-only → эффект выброшен `ParseEffect` → null); редиректа нет | ⚠️ |
+| **Контратака** при атаке по рипост-юниту (`RiposteSkill`) | `ExecuteRiposteSkillActivation` (`RaidSceneManager.cs:3818-3863`) | `DuelController.ExecuteRiposte` после `ExecuteSkill`; `RiposteSkill` парсится (`HeroClassFileParser`, `riposte_skill`) | ✅ |
+| **Guard**: парсинг `.guard` + редирект атак | `GuardEffect.cs:26-78`, `ExecuteGuardRedirection` (`RaidSceneManager.cs:3806-3816`) | `EffectCatalog` парсит `.guard`/`.swap_source_and_target`/`.clearguarding`/`.clearguarded`; `BattleSolver.ExecuteSkill` редиректит атаку на `Guarded.Guard` | ✅ |
 | Mark/Tag + `buff_duration_type` (Round/Combat) | `TagEffect.cs:6-15`, `Effect.cs:360-363` | `TagEffect.cs:17-38` (duration ?? 3), `buff_duration_type` не читается | ⚠️ (незначительный) |
 | Mark-таргетинг ИИ | `TargetSelectionMarked` | `DuelTargetSelectionMarked.cs:27-42` | ✅ |
 
-**Скиллы-жертвы (в ядре/дуэли делают не то, что в Unity):**
-- ManAtArms **Defender** — `"MAA Guard 1"` + `"Defender 1"`: guard-часть отброшена (`MAA Guard 1` — guard-only), работает только prot-бафф; редиректа атак нет.
-- HoundMaster **Guard Dog** — `"HM Guard 1"` (guard-only) → эффект полностью пустой.
-- ManAtArms **Retribution** — `"MAA Riposte 1"` + `"Mark Self"`: рипост-статус ставится, но контратаки нет.
-- ManAtArms `riposte_skill` **riposte1** — парсится в `RiposteSkill`, но никогда не исполняется.
-- Все **DoT-скиллы** (блайт/блед, напр. Plague Doctor, HoundMaster) — накладывают статус, урона не наносят.
-- Все **stun-скиллы** — цель всё равно действует в свой ход.
+**Скиллы-жертвы (в ядре/дуэли теперь соответствуют Unity):**
+- ManAtArms **Defender** — `"MAA Guard 1"` парсится в `GuardEffect`; атаки по guarded-цели редиректятся на защитника.
+- HoundMaster **Guard Dog** — `"HM Guard 1"` (guard-only) → guard-эффект активен.
+- ManAtArms **Retribution** — рипост-статус ставится, контратака исполняется через `RiposteSkill`.
+- ManAtArms `riposte_skill` **riposte1** — парсится в `HeroClass.RiposteSkill` и исполняется при контратаке.
+- **DoT-скиллы** (блайт/блед) — накладывают статус + тик урона в начале хода цели.
+- **Stun-скиллы** — цель пропускает ход.
 
 ### 2.6 Перемещение рангов: pull / push / shuffle
 
 | Механика | Unity MP | WPF-дуэль | Статус |
 |---|---|---|---|
 | Move-resist ролл | `PullEffect.cs:13-32`, `PushEffect.cs:13-32` | `PullEffect.cs:24-58`, `PushEffect.cs:24-58` | ✅ |
-| **Фактическое перемещение** (`FormationUnit.Pull/Push`, уважает immobilize) | `FormationUnit.cs:208-252` | `DuelBattleEvents.Pull/Push` (`DuelBattleEvents.cs:85-94`) — **только лог**, ранги не меняются | ⚠️ |
-| Shuffle (одиночный/отрядный) | `ShuffleTargetEffect.cs` (+`:75-94` роллы) | `ShuffleTargetEffect.cs:25-127` → те же `Events.Pull/Push` — лог | ⚠️ |
-| Self-move скилла (`.move`/`MoveComponent`) | `BattleSolver.cs:312-318` | `BattleSolver.cs:398-404` → `Events.Pull/Push` — лог | ⚠️ |
+| **Фактическое перемещение** (`FormationUnit.Pull/Push`, уважает immobilize) | `FormationUnit.cs:208-252` | `DuelBattleEvents.Pull/Push` реально двигают юнита в партии (уважает `IsImmobilized`, границы), пересчитывают `Rank` | ✅ |
+| Shuffle (одиночный/отрядный) | `ShuffleTargetEffect.cs` (+`:75-94` роллы) | `ShuffleTargetEffect.cs:25-127` → те же `Events.Pull/Push` — теперь реальное перемещение | ✅ |
+| Self-move скилла (`.move`/`MoveComponent`) | `BattleSolver.cs:312-318` | `BattleSolver.cs:398-404` → `Events.Pull/Push` — реальное перемещение | ✅ |
 
 ### 2.7 Buff-система (стат-баффы/дебаффы, `.buff_ids`)
 
@@ -103,7 +103,7 @@
 | Ключи: `attack_rating_add`, `defense_rating_add`, `protection_rating_add`, `speed_rating[_add]`, `critical_rating`/`crit_chance_add`, `damage_low/high_multiply` | `Effect.cs:600-735` | `EffectCatalog.cs:112-122` | ✅ |
 | Debuff-resist ролл (`chance − target.Debuff + performer.DebuffChance`) | `CombatStatBuffEffect.cs:121-145` | `CombatStatBuffEffect.cs:149-165` | ✅ |
 | `.buff_ids` из `JsonBuffs.json` (негативные — через debuff-resist) | `Effect.cs:736-748`, `BuffEffect.cs:15-75` | `EffectCatalog.cs:152-167`, `BuffEffect.cs:29-202` через `IBattleContext.GetBuff` | ✅ |
-| Rule-баффы (hp/stress/light/rank/skill-type/mode/monster-type) | `Character.ApplyAllBuffRules` (`Character.cs:432-436`), триггер `ApplyConditions`/`RemoveConditions` каждый скилл | применяются (`DuelBattleContext.ApplyCombatUnitRules`), но **`RemoveConditions` вызывается только из `CalculateSkillPotential`** (`BattleSolver.cs:549-550`, `:587`), не из `ExecuteSkill` — условия висят до раундового таймера | ⚠️ |
+| Rule-баффы (hp/stress/light/rank/skill-type/mode/monster-type) | `Character.ApplyAllBuffRules` (`Character.cs:432-436`), триггер `ApplyConditions`/`RemoveConditions` каждый скилл | применяются (`DuelBattleContext.ApplyCombatUnitRules`); **`RemoveConditions` теперь вызывается после каждого скилла** в `DuelController.ExecuteSkill` (перформер + цель) | ✅ |
 
 ### 2.8 Прочие эффекты
 
@@ -113,7 +113,7 @@
 | `set_mode` + `<mode>_effects` (Абоминация), continue-turn | `SetModeEffect.cs:11-31`, `CombatSkill.cs:340-367` | `EffectCatalog.cs:186-188`, `HeroClassFileParser.cs:340-376`, `DuelController.FinishSkillAction` (`:364-370`) | ✅ |
 | `.kill` / `.kill_enemy_type` | `KillEffect.cs`, `KillEnemyTypeEffect.cs:11-23` | не парсятся; `MarkedForDeath` (`KillEffect.cs:20`) никем не потребляется (смерть только по `HealthRatio ≤ 0`, `DuelController.cs:599`) | ⚠️ |
 | `.disease` (квирк герою) | `DiseaseEffect.cs:13-40` | не парсится | ⚠️ |
-| `.summon` / `.control` (сирена) / `.capture` / `.performer_rank_target` / `.clear_rank_target` / `.unstun` / `.untag` / `.unimmobilize` / `.clearguard` | `SummonMonstersEffect.cs`, `ControlEffect.cs:13-36`, `CaptureEffect.cs:9-47`, `PerformerRankTargetEffect.cs`, `ClearRankTargetEffect.cs`, `UnstunEffect.cs`, `UntagEffect.cs`, `UnimmobilizeEffect.cs`, `ClearGuardEffect.cs` | **не парсятся `EffectCatalog.ParseEffect`** (`EffectCatalog.cs:66-205`) — скиллы с только такими ключами в дуэли без суб-эффектов | ⚠️ |
+| `.summon` / `.control` (сирена) / `.capture` / `.performer_rank_target` / `.clear_rank_target` / `.clearguard` | `SummonMonstersEffect.cs`, `ControlEffect.cs:13-36`, `CaptureEffect.cs:9-47`, `PerformerRankTargetEffect.cs`, `ClearRankTargetEffect.cs`, `ClearGuardEffect.cs` | **не парсятся `EffectCatalog.ParseEffect`** (`EffectCatalog.cs:66-205`) — скиллы с только такими ключами в дуэли без суб-эффектов | ⚠️ |
 | `.cure` (снять bleed+poison) | `CureEffect.cs:5-40` | `CureEffect.cs:15-51` | ✅ |
 
 ## 3. Стабы в обоих (не разрыв)
@@ -131,15 +131,31 @@
 retreat с trait-роллами (`:1685-1801`), bark-релеи (`:1588-1623`), результаты/победа (`:485-512`).
 WPF-дуэль использует другую (lockstep) модель — сравнение см. в `DUEL_ARCHITECTURE.md` §2, §4.
 
-## 5. Резюме: что закрыть в ядре (приоритет)
+## 5. Резюме: что закрыто в ядре (приоритет)
 
-1. **DoT-тик урона** (start-of-turn цели) — `DamageOverTimeStatusEffect.CurrentTickDamage` никем не потребляется.
-2. **Stun: пропуск хода + истечение** (`StunStatusEffect.UpdateNextTurn` пуст, `BeginTurn`/`CompleteTurn` не проверяют стан).
-3. **Riposte-контратака** — исполнять `RiposteSkill` при атаке по рипост-юниту.
-4. **Guard** — ключ `.guard` в `EffectCatalog` + редирект атак.
-5. **Pull/Push/Shuffle** — реальное перемещение рангов.
-6. **Immobilize** — блок `TryMove` + истечение.
-7. **RemoveConditions после скилла** в `ExecuteSkill`.
-8. Death's door / heart attack — отдельно (кампанийные механики, больше объём).
+> Закрыто (в ядре; legacy Unity не менялся):
+>
+> 1. ✅ **DoT-тик урона** — `DuelController.BeginTurn` применяет `CurrentTickDamage` (bleed+poison)
+>    в начале хода цели + `CheckDeaths`; статусы/баффы тикают per-turn (`UpdateRound` в `BeginTurn`).
+> 2. ✅ **Stun: пропуск хода + истечение** — `BeginTurn` снимает стан, применяет `STUNRECOVERYBUFF`
+>    (через `IDuelContent.GetBuff`), пропускает ход.
+> 3. ✅ **Riposte-контратака** — `DuelController.ExecuteRiposte` исполняет `RiposteSkill` цели против
+>    атакующего; `HeroClassFileParser` парсит `riposte_skill`.
+> 4. ✅ **Guard** — `EffectCatalog` парсит `.guard`/`.swap_source_and_target`/`.clearguarding`/
+>    `.clearguarded`; `BattleSolver.ExecuteSkill` редиректит атаку на `Guarded.Guard`.
+> 5. ✅ **Pull/Push/Shuffle** — `DuelBattleEvents.Pull/Push` реально двигают юнитов в партии
+>    (уважают `IsImmobilized`, границы), пересчитывают `Rank`.
+> 6. ✅ **Immobilize** — `DuelController.TryMove` блокируется при `IsImmobilized`; `.unimmobilize`/
+>    `.unstun`/`.untag` парсятся.
+> 7. ✅ **RemoveConditions после скилла** — `DuelController.ExecuteSkill` вызывает `RemoveConditions`
+>    для перформера и цели после `ProcessEventQueues`/`CheckDeaths`.
+> 8. ✅ **Buff-идемпотентность** — `Character.ApplyBuff`/`RevertBuff` получили `IsApplied`-гейт
+>    (как в Unity), чтобы повторное применение правил не накладывало бафф дважды.
+
+Остаётся отдельной задачей (кампанийные механики, больше объём):
+
+- **Death's door / heart attack** — ввод в death's door при 0 HP, ролл `DeathBlow`-резиста +
+  `DeathsDoorSurvivalDebuff`, исполнение heart attack (сейчас 0 HP = смерть, `DuelController.cs:599`).
+- Idle-юниты (0 ходов за раунд): DoT-тик ×1.5 (`RaidSceneMultiplayerManager.cs:1022-1104`).
 
 Каждый пункт — задача в ядре (`PLAN.md`); в Unity ничего не меняется.

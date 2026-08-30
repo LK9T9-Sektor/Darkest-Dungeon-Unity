@@ -16,6 +16,15 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
         private bool ClearGuarding { get; set; }
         private bool ClearGuarded { get; set; }
 
+        /// <summary>Sets which guard sides are cleared by this effect.</summary>
+        /// <param name="clearGuarding">Whether the guarding (performer) status is cleared.</param>
+        /// <param name="clearGuarded">Whether the guarded (target) status is cleared.</param>
+        public void SetFlags(bool clearGuarding, bool clearGuarded)
+        {
+            ClearGuarding = clearGuarding;
+            ClearGuarded = clearGuarded;
+        }
+
         /// <inheritdoc/>
         public override void Apply(ICombatUnit performer, ICombatUnit target, Effect effect, IBattleContext battleContext)
         {

@@ -43,7 +43,7 @@
 | `unity/Assets/Resources/Data/JsonTraits.json` (аффекции/виртуды дуэли) | `src/Core/Sektor.DarkestDungeon.Core.Combat/Character/JsonTrait.cs` | вынесено |
 | `unity/Assets/Scripts/Networking/RaidSceneMultiplayerManager.cs` (legacy-заглушка PvP, заменена дуэлью) | `src/Core/Sektor.DarkestDungeon.Core.Duel/` | вынесено |
 | `unity/Assets/Scripts/Raid/TorchMeter.cs` (торч + сюрприз 1-го раунда в дуэли) | `src/Core/Sektor.DarkestDungeon.Core.Duel/DuelController.cs` | вынесено |
-| `unity/Assets/Resources/Data/Mechanics/Effects.txt` (каталог: stress/heal/stun/dots/pull/push/cure/riposte/shuffle/tag/stat-buff/buff_ids/torch/set_mode) | `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/Skills/EffectCatalog.cs` | частично |
+| `unity/Assets/Resources/Data/Mechanics/Effects.txt` (каталог: stress/heal/stun/dots/pull/push/cure/riposte/guard/shuffle/tag/stat-buff/buff_ids/torch/set_mode/unstun/unimmobilize/untag) | `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/Skills/EffectCatalog.cs` | вынесено |
 | `unity/Assets/Scripts/Character/Monster.cs` + `MonsterData.cs` | `src/Core/Sektor.DarkestDungeon.Core.Combat/Character/Monster.cs` | вынесено |
 | `unity/Assets/Resources/Data/Monsters/` (460 `.txt`, парсер → `MonsterCatalog`) | `src/Core/Sektor.DarkestDungeon.Core.Combat/Character/MonsterClassFileParser.cs` + `Character/MonsterCatalog.cs` | вынесено |
 | `unity/Assets/Resources/Data/JsonAI.json` (brains → `MonsterBrainCatalog`) | `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/AI/JsonBrainParser.cs` (чистый) + `MonsterBrainCatalog.cs` | вынесено |
@@ -68,13 +68,13 @@
 
 ## Паритет-разрывы (механики, которые в ядре неполны)
 
-Задачи по порядку приоритета из `BATTLE_PARITY.md` §5 — все закрываются **в ядре**:
+> **Закрыто** (в ядре; подробности — `BATTLE_PARITY.md` §5): DoT-тик урона (в начале хода цели),
+> stun-пропуск хода + `STUNRECOVERYBUFF`, riposte-контратака (+ парсинг `riposte_skill`),
+> guard (`.guard`/`.swap_source_and_target`/`.clearguarding`/`.clearguarded` + редирект атак),
+> pull/push/shuffle (реальные ранги), immobilize (блок `TryMove` + `.unimmobilize`/`.unstun`/`.untag`),
+> `RemoveConditions` после скилла; buff-идемпотентность (`ApplyBuff`/`RevertBuff` с `IsApplied`-гейтом).
 
-1. DoT-тик урона (bleed/poison не наносят урон в дуэли).
-2. Stun: пропуск хода + истечение.
-3. Riposte-контратака (`RiposteSkill` не исполняется).
-4. Guard: ключ `.guard` в `EffectCatalog` + редирект атак.
-5. Pull/Push/Shuffle: реальное перемещение рангов.
-6. Immobilize: блок ручного Move + истечение.
-7. `RemoveConditions` после скилла в `ExecuteSkill`.
-8. Death's door / heart attack (больше объём, кампанийные механики).
+Остаётся отдельной задачей:
+
+- **Death's door / heart attack** (больше объём, кампанийные механики).
+- Idle-юниты (0 ходов за раунд): DoT-тик ×1.5.
