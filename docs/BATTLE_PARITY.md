@@ -111,9 +111,10 @@
 |---|---|---|---|
 | Torch (`torch_decrease`/`torch_increase`), клэмп 0–100, сюрприз-бонус | `Effect.cs:69-79`; торч=100 в MP | `Effect.cs:85-92` → `DuelBattleEvents.cs:140-153` → `DuelController.cs:108` | ✅ |
 | `set_mode` + `<mode>_effects` (Абоминация), continue-turn | `SetModeEffect.cs:11-31`, `CombatSkill.cs:340-367` | `EffectCatalog.cs:186-188`, `HeroClassFileParser.cs:340-376`, `DuelController.FinishSkillAction` (`:364-370`) | ✅ |
-| `.kill` / `.kill_enemy_type` | `KillEffect.cs`, `KillEnemyTypeEffect.cs:11-23` | не парсятся; `MarkedForDeath` (`KillEffect.cs:20`) никем не потребляется (смерть только по `HealthRatio ≤ 0`, `DuelController.cs:599`) | ⚠️ |
-| `.disease` (квирк герою) | `DiseaseEffect.cs:13-40` | не парсится | ⚠️ |
-| `.summon` / `.control` (сирена) / `.capture` / `.performer_rank_target` / `.clear_rank_target` / `.clearguard` | `SummonMonstersEffect.cs`, `ControlEffect.cs:13-36`, `CaptureEffect.cs:9-47`, `PerformerRankTargetEffect.cs`, `ClearRankTargetEffect.cs`, `ClearGuardEffect.cs` | **не парсятся `EffectCatalog.ParseEffect`** (`EffectCatalog.cs:66-205`) — скиллы с только такими ключами в дуэли без суб-эффектов | ⚠️ |
+| `.kill` / `.kill_enemy_types` | `KillEffect.cs`, `KillEnemyTypeEffect.cs:11-23` | `EffectParser.cs` → `KillEffect`/`KillEnemyTypeEffect`; `MarkedForDeath` потребляется `DeathCheck` (`Duel\Mechanics\DeathCheck.cs:60,75,108`) | ✅ |
+| `.disease` (квирк герою) | `DiseaseEffect.cs:13-40` | парсится только `any` → `DiseaseEffect(null, true)` (случайная болезнь); конкретные id не резолвятся (парсер без каталога квирков) | ⚠️ (частично) |
+| `.summon` / `.control` (сирена) / `.capture` / `.clearguard` | `SummonMonstersEffect.cs`, `ControlEffect.cs:13-36`, `CaptureEffect.cs:9-47`, `ClearGuardEffect.cs` | **осознанно не парсятся** — кампанийные монстры, в дуэли не встречаются | ⚠️ (осознанно) |
+| `.performer_rank_target` / `.clear_rank_target` | `PerformerRankTargetEffect.cs`, `ClearRankTargetEffect.cs` | `EffectParser.cs` → `PerformerRankTargetEffect`/`ClearRankTargetEffect` | ✅ |
 | `.cure` (снять bleed+poison) | `CureEffect.cs:5-40` | `CureEffect.cs:15-51` | ✅ |
 
 ## 3. Стабы в обоих (не разрыв)
@@ -151,11 +152,18 @@ WPF-дуэль использует другую (lockstep) модель — с�
 >    для перформера и цели после `ProcessEventQueues`/`CheckDeaths`.
 > 8. ✅ **Buff-идемпотентность** — `Character.ApplyBuff`/`RevertBuff` получили `IsApplied`-гейт
 >    (как в Unity), чтобы повторное применение правил не накладывало бафф дважды.
+> 9. ✅ **Kill-эффекты** — `EffectParser` парсит `.kill` (→ `KillEffect`) и `.kill_enemy_types`
+>    (→ `KillEnemyTypeEffect`); `MarkedForDeath` потребляется `DeathCheck`.
+> 10. ✅ **Rank-target эффекты** — `.performer_rank_target`/`.clear_rank_target` парсятся.
+> 11. ✅ **Логирование** — ядро принимает структурный `ILogger` (`Core.Common`); WPF-клиент
+>     подключает MS-абстракцию (`Microsoft.Extensions.Logging.Abstractions 3.1.12`) + файловый
+>     логгер (`Logs\duel.log`) через `MsLoggerAdapter`/`FileLoggerProvider`.
 
 Остаётся отдельной задачей (кампанийные механики, больше объём):
 
 - Idle-юниты (0 ходов за раунд): DoT-тик ×1.5 (`RaidSceneMultiplayerManager.cs:1022-1104`).
-- `.kill` / `.kill_enemy_type` / death-class corpse-подстановка (`KillEffect` ставит `MarkedForDeath`,
-  `DeathCheck` учитывает `MarkedForDeath`, но смена класса на corpse-монстра не реализована).
+- `.kill` death-class corpse-подстановка (смена класса на corpse-монстра после смерти не реализована).
+- `.disease` с конкретным id квирка (парсится только `any`); `.summon`/`.control`/`.capture` —
+  осознанно не парсятся (кампанийные монстры, в дуэли не встречаются).
 
 Каждый пункт — задача в ядре (`PLAN.md`); в Unity ничего не меняется.

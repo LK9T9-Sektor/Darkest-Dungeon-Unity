@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Sektor.DarkestDungeon.Core.Common;
 using Sektor.DarkestDungeon.Core.Duel;
 using Sektor.DarkestDungeon.Lan.Contracts.Transport;
 using Sektor.DarkestDungeon.Wpf.Combat;
@@ -22,6 +23,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private readonly DuelSessionManager session;
         private readonly INavigationService navigation;
         private readonly IReadOnlyList<string> availableClasses;
+        private readonly ILogger logger;
         private DateTime? waitingSince;
         private bool started;
         private bool disposed;
@@ -66,10 +68,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <param name="navigation">The navigation service.</param>
         /// <param name="transport">The duel transport.</param>
         /// <param name="availableClasses">The selectable hero class ids.</param>
-        public DuelLobbyViewModel(INavigationService navigation, ITransport transport, IReadOnlyList<string> availableClasses)
+        /// <param name="logger">The structural logger.</param>
+        public DuelLobbyViewModel(INavigationService navigation, ITransport transport, IReadOnlyList<string> availableClasses, ILogger logger)
         {
             this.navigation = navigation;
             this.availableClasses = availableClasses;
+            this.logger = logger;
             session = new DuelSessionManager(transport);
             for (int i = 0; i < 4; i++)
                 Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses));
@@ -171,7 +175,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 : new[] { session.LocalPlayerId, session.RivalPlayerId };
             int sessionSeed = DuelSeed.ComputeSessionSeed(orderedIds);
 
-            var duel = new DuelController(new DuelContent());
+            var duel = new DuelController(new DuelContent(), logger);
             if (session.IsHost)
                 duel.StartDuel(ToPicks(BuildConfig()), ToPicks(session.RivalParty), sessionSeed, isHost: true);
             else

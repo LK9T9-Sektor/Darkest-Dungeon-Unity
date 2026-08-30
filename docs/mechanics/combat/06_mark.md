@@ -15,10 +15,15 @@
   кроме `Combat`, `:21-30`).
 - `TagEffect` (`Mechanics/Skills/Effects/TagEffect.cs:9`) — наложение.
 - `UntagEffect` (`Mechanics/Skills/Effects/UntagEffect.cs:9`) — снятие.
+- `PerformerRankTargetEffect` (`Effects/PerformerRankTargetEffect.cs`) — `.performer_rank_target`
+  → `Events.MarkRank(target)` (метка ранга цели).
+- `ClearRankTargetEffect` (`Effects/ClearRankTargetEffect.cs`) — `.clear_rank_target`
+  → `Events.ClearRankMarks(target)` (сброс меток ранга соперника).
 
 ## 3. Парсинг контента
 
-`EffectCatalog`: `.tag`/`.mark` → `TagEffect` (`EffectCatalog.cs`); `.duration` → тики. Ключ
+`EffectParser`: `.tag`/`.mark` → `TagEffect`; `.duration` → тики; `.performer_rank_target` →
+`PerformerRankTargetEffect`; `.clear_rank_target` → `ClearRankTargetEffect`. Ключ
 `buff_duration_type` (Round/Combat) **не читается** — `DurationType` всегда `Round` по умолчанию
 (паритет-разрыв, незначительный).
 
@@ -34,6 +39,10 @@
 `DurationType.Combat`.
 
 **Снятие** — `UntagEffect` (`.untag`): `MarkDuration = 0` (`UntagEffect.cs:23`).
+
+**Rank-target** — `.performer_rank_target` → `PerformerRankTargetEffect.ApplyInstant`
+(`:21-28`) → `Events.MarkRank(target)`; `.clear_rank_target` → `ClearRankTargetEffect.ApplyInstant`
+(`:21-28`) → `Events.ClearRankMarks(target)`.
 
 ## 5. Очередь и обновления
 
@@ -64,5 +73,7 @@
 ## 9. Файлы-источники
 
 - `src/Core/Sektor.DarkestDungeon.Core.Combat/Character/Statuses/MarkStatusEffect.cs`
-- `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/Skills/Effects/TagEffect.cs`, `UntagEffect.cs`
-- `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/Skills/EffectCatalog.cs`
+- `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/Skills/Effects/TagEffect.cs`, `UntagEffect.cs`,
+  `PerformerRankTargetEffect.cs`, `ClearRankTargetEffect.cs`
+- `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/Skills/EffectParser.cs`
+- `src/Core/Sektor.DarkestDungeon.Core.Combat/Raid/Party/FormationRanks.cs`

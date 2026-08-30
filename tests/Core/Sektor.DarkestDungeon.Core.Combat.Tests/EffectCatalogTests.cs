@@ -149,6 +149,38 @@ namespace Sektor.DarkestDungeon.Core.Combat.Tests
             Assert.That(unimmobilize.SubEffects.OfType<UnimmobilizeEffect>().Single(), Is.Not.Null);
         }
 
+        [Test]
+        public void Load_ParsesKillAndRankTargetKeys()
+        {
+            var catalog = EffectCatalog.Load(
+                "effect: .name \"Kill Target\" .target \"target\" .chance 100% .kill 1 .on_hit true .on_miss true\n" +
+                "effect: .name \"Clear Corpses\" .target \"target_group\" .chance 100% .kill_enemy_types corpse .on_hit true .on_miss false\n" +
+                "effect: .name \"Rank Target Enemy 1\" .target \"target\" .chance 100% .performer_rank_target 1 .on_hit true .on_miss true\n" +
+                "effect: .name \"Clear Enemy Rank Target\" .target \"performer\" .chance 100% .clear_rank_target 1234 .on_hit true .on_miss true\n" +
+                "effect: .name \"Disease Any\" .target \"target\" .chance 33% .disease any .on_hit true .on_miss false");
+
+            Assert.That(catalog.Count, Is.EqualTo(5));
+
+            AssertSubEffect<KillEffect>(catalog.Get("Kill Target"));
+
+            var clearCorpses = catalog.Get("Clear Corpses");
+            Assert.That(clearCorpses, Is.Not.Null);
+            var killType = clearCorpses.SubEffects.OfType<KillEnemyTypeEffect>().Single();
+
+            AssertSubEffect<PerformerRankTargetEffect>(catalog.Get("Rank Target Enemy 1"));
+            AssertSubEffect<ClearRankTargetEffect>(catalog.Get("Clear Enemy Rank Target"));
+            AssertSubEffect<DiseaseEffect>(catalog.Get("Disease Any"));
+        }
+
+        [Test]
+        public void Load_IgnoresUnknownKillEnemyType()
+        {
+            var catalog = EffectCatalog.Load(
+                "effect: .name \"Bad Kill Type\" .target \"target\" .chance 100% .kill_enemy_types dragon .on_hit true .on_miss true");
+
+            Assert.That(catalog.Count, Is.EqualTo(0));
+        }
+
         private static void AssertSubEffect<T>(Effect effect)
             where T : SubEffect
         {

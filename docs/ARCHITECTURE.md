@@ -37,6 +37,12 @@ WPF-клиент линкует `.bytes`-файлы из unity-контента 
 Монстры кампании (M1) — `Character\Monster.cs` + `MonsterClassFileParser`/`MonsterCatalog`:
 читают `Data/Monsters/*.txt` (статы, `enemy_type`, резолв эффектов из `Effects.txt`, `battle_modifier`).
 
+Логирование: ядро принимает структурный `ILogger` (`Core.Common`, DI, без синглтонов) — no-op
+`NullLogger` по умолчанию. Внешние пакеты логирования живут **только на клиентской границе**: WPF
+подключает `Microsoft.Extensions.Logging.Abstractions 3.1.12` (чистый netstandard2.0, совместим с
+Unity 2017.4; версии 6.x+ тянут `System.Buffers`/`System.Memory` и дают `CS0009`) и пишет в
+`Logs\duel.log` через `MsLoggerAdapter`/`FileLoggerProvider` (WPF `Logging\`).
+
 ### Сеть (`src\Networking\`)
 
 | Модуль | Ответственность |

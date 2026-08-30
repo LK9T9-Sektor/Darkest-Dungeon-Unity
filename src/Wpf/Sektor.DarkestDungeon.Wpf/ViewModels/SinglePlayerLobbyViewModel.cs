@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Sektor.DarkestDungeon.Core.Common;
 using Sektor.DarkestDungeon.Core.Duel;
 using Sektor.DarkestDungeon.Wpf.Combat;
 using Sektor.DarkestDungeon.Wpf.Data;
@@ -18,6 +19,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         private readonly INavigationService navigation;
         private readonly IReadOnlyList<string> availableClasses;
+        private readonly ILogger logger;
 
         /// <summary>Gets the four hero slots of the player's party.</summary>
         public ObservableCollection<HeroSlotViewModel> Slots { get; } = new ObservableCollection<HeroSlotViewModel>();
@@ -37,10 +39,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Initializes a new instance of the <see cref="SinglePlayerLobbyViewModel"/> class.</summary>
         /// <param name="navigation">The navigation service.</param>
         /// <param name="availableClasses">The selectable hero class ids.</param>
-        public SinglePlayerLobbyViewModel(INavigationService navigation, IReadOnlyList<string> availableClasses)
+        /// <param name="logger">The structural logger.</param>
+        public SinglePlayerLobbyViewModel(INavigationService navigation, IReadOnlyList<string> availableClasses, ILogger logger)
         {
             this.navigation = navigation;
             this.availableClasses = availableClasses;
+            this.logger = logger;
             for (int i = 0; i < 4; i++)
                 Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses));
             for (int i = 0; i < 4; i++)
@@ -61,7 +65,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private void Start()
         {
             int sessionSeed = Environment.TickCount;
-            var duel = new DuelController(new DuelContent());
+            var duel = new DuelController(new DuelContent(), logger);
             duel.StartDuel(ToPicks(Slots), ToPicks(AiSlots), sessionSeed, isHost: true);
             if (!duel.IsStarted)
                 return;

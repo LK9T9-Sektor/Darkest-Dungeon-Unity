@@ -1,5 +1,51 @@
 # PLAN.md — Активный план задач
 
+## Задача: MS-абстракция логирования + файловый логгер + паритет эффектов §2.8
+
+### Цель
+
+Заменить самописный логгер на MS-абстракцию `Microsoft.Extensions.Logging.Abstractions 3.1.12`
+(чистый netstandard2.0, совместим с Unity 2017.4) **на границе** (ядро остаётся чистым без NuGet —
+вариант A); файловый логгер (запись в текстовый файл) для WPF и Unity. Закрыть парсинг эффектов
+§2.8: `.kill`/`.kill_enemy_type`/`.performer_rank_target`/`.clear_rank_target` (классы уже есть,
+`MarkedForDeath` уже потребляется `DeathCheck`). `.summon`/`.control`/`.capture` — **пропускаем**
+(кампанийные монстры, в дуэли не встречаются).
+
+### Фаза LG1 — MS-абстракция на границе
+
+1. [x] `Microsoft.Extensions.Logging.Abstractions` 3.1.12 → WPF (net8.0) + оба Unity-дерева.
+2. [x] `MsLoggerAdapter : Core.Common.ILogger` — оборачивает MS `ILogger` (Log/Warn → LogInformation/
+     LogWarning). В WPF + unity + unity-2017.
+3. [x] `FileLogger` + `FileLoggerProvider` — запись `[timestamp] [level] message` в текстовый файл.
+4. [x] WPF: `DuelLobbyViewModel`/`SinglePlayerLobbyViewModel` передают логгер в `DuelController`;
+     Unity — аналогично (по возможности).
+
+### Фаза LG2 — Паритет эффектов §2.8
+
+5. [x] `EffectParser`: `.kill` → `KillEffect`, `.kill_enemy_types <type>` → `KillEnemyTypeEffect`,
+     `.performer_rank_target <rank>` → `PerformerRankTargetEffect`,
+     `.clear_rank_target` → `ClearRankTargetEffect`; константы в `EffectIds`/enum.
+6. [x] `.disease` → `DiseaseEffect(null, true)` (только `any`; конкретные id — кампанийный остаток).
+
+### Фаза LG3 — Тесты
+
+7. [x] Parser-тесты новых эффектов (+2); файловый логгер (+3: запись/формат/категория, Warn,
+     мин-уровень); DuelController с логгером; все 158 тестов зелёные.
+
+### Фаза LG4 — Доки
+
+8. [x] `BATTLE_PARITY` §2.8 (`.kill`/`.kill_enemy_types`/rank-target/disease — парсятся; `:114`
+     устарела — обновлена), §5 (пункты 9-11); `06_mark.md` + `14_death_stress.md`; `ARCHITECTURE`
+     (логгер на границе); `CHANGELOG`; `CLEANUP` C6.
+
+### Проверка
+
+9. [x] `dotnet build` + 9 сьютов (158 тестов, +5 новых) зелёные; lockstep;
+     `check-using-placement` OK. Unity-деревья не затронуты (только `src/`/`tests/`/`docs/`) —
+     `unity-compile-check` не требуется.
+
+---
+
 ## Задача: Quest-цели в ядро + документирование `ForceHallConnection` (QuestGenerator — отдельно)
 
 ### Цель

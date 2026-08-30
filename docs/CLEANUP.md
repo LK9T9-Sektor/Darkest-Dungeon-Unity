@@ -39,6 +39,7 @@
 | C3 | Вынос: `SurpriseResolver`/`DotTickApplier`/`StunRecoveryApplier`/`DeathCheck`/`TurnMover` (Duel), `DamageResolver`/`HealResolver` (Combat) | [x] |
 | C4 | `ILogger`/`NullLogger` + логирование `DuelController` (ходы/скиллы/стан) | [x] |
 | C5 | Тесты/build + синхронизация `docs/mechanics/*` | [x] |
+| C6 | MS-абстракция на границе: WPF подключает `Microsoft.Extensions.Logging.Abstractions 3.1.12`, `MsLoggerAdapter`/`FileLogger`/`FileLoggerProvider` (запись в `Logs\duel.log`); ядро без внешних пакетов | [x] |
 
 ## 3b. Осталось (отложено/будущее)
 

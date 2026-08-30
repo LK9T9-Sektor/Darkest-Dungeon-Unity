@@ -1,7 +1,8 @@
 # 14_death_stress.md — Смерть, death's door, стресс отряда, resolve, heart attack
 
 > Домен: `combat` + `duel` (ядро `Core.Combat` + `Core.Duel`). Статус: **реализовано**
-> (death's door / heart attack закрыты; `.kill`/корпус-подстановка — остаток).
+> (death's door / heart attack закрыты; `.kill`/`.kill_enemy_types` парсятся — `KillEffect`/
+> `KillEnemyTypeEffect` ставят `MarkedForDeath`; корпус-подстановка — остаток).
 
 ## 1. Назначение и когда работает
 

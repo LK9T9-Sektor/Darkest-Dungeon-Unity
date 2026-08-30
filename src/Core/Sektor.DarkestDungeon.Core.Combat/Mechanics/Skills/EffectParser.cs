@@ -137,6 +137,30 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
             if (tokens.ContainsKey("untag"))
                 effect.SubEffects.Add(new UntagEffect());
 
+            if (tokens.ContainsKey("kill"))
+                effect.SubEffects.Add(new KillEffect());
+
+            string killEnemyType = GetValue(tokens, "kill_enemy_types");
+            if (killEnemyType != null)
+            {
+                MonsterType monsterType = StringToMonsterType(killEnemyType);
+                if (monsterType != MonsterType.None)
+                    effect.SubEffects.Add(new KillEnemyTypeEffect(monsterType));
+            }
+
+            if (tokens.ContainsKey("performer_rank_target"))
+                effect.SubEffects.Add(new PerformerRankTargetEffect());
+
+            if (tokens.ContainsKey("clear_rank_target"))
+                effect.SubEffects.Add(new ClearRankTargetEffect());
+
+            string disease = GetValue(tokens, "disease");
+            if (disease != null)
+            {
+                if (disease == "any")
+                    effect.SubEffects.Add(new DiseaseEffect(null, true));
+            }
+
             string firstBuffId = GetValue(tokens, "buff_ids");
             if (firstBuffId != null)
             {
@@ -299,6 +323,19 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
         {
             foreach (var pair in source)
                 target[pair.Key] = pair.Value;
+        }
+
+        private static MonsterType StringToMonsterType(string value)
+        {
+            switch (value)
+            {
+                case "unholy": return MonsterType.Unholy;
+                case "man": return MonsterType.Man;
+                case "beast": return MonsterType.Beast;
+                case "eldritch": return MonsterType.Eldritch;
+                case "corpse": return MonsterType.Corpse;
+                default: return MonsterType.None;
+            }
         }
     }
 }
