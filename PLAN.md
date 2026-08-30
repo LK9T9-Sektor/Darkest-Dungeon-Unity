@@ -1,5 +1,61 @@
 # PLAN.md — Активный план задач
 
+## Задача: Quest-цели в ядро + документирование `ForceHallConnection` (QuestGenerator — отдельно)
+
+### Цель
+
+Перенести `PopulateQuestGoals` (kill_monster/activate/gather) из Unity-адаптера в ядро
+(`Core.Raid\Generation`) как `DungeonGenerator.ApplyQuestGoal`. Unity `Quest`/`QuestGoal`/`IQuestData`
+в ядро не тащим — примитивная модель `DungeonQuestGoal`. `ForceHallConnection` — **оставляем как в
+Unity** (паритет; `BaseCorridorNumber` не влияет — недоделка оригинала, документируем).
+`QuestGenerator` — отдельная задача после (зависит от runtime-моделей Campaign, Фаза 4).
+
+### Фаза QG1 — Модель цели
+
+1. [x] `Core.Raid\Generation\DungeonQuestGoal.cs` — `Type`, `MonsterNameIds`, `CurioName`,
+     `Amount`, `ItemId`, `ItemAmount`.
+
+### Фаза QG2 — Ядро `ApplyQuestGoal`
+
+2. [x] `DungeonGenerator.ApplyQuestGoal(Dungeon, DungeonQuestGoal, envData, difficulty, rng)`:
+     kill → boss-комната + `BattleEncounter`; activate/gather → curio-комнаты по `MinPath`-сегментам
+     с `CurioInteraction`/`ItemInteraction`/`CurioResult`; `UnityEngine.Random` → `IRng`.
+
+### Фаза QG3 — Unity-адаптер
+
+3. [x] `unity\...\Generation\DungeonGenerator.cs` (оба дерева): конвертер `quest.Goal` →
+     `DungeonQuestGoal`, вызов ядра; удалить свою `PopulateQuestGoals`.
+
+### Фаза QG4 — Тесты
+
+4. [x] kill → boss+encounter; activate → `Amount` curio-комнат; gather → curio с Item/CurioResult;
+      детерминизм по сиду (новые тесты в `DungeonGeneratorTests`, 14/14).
+
+### Фаза QG5 — Доки
+
+5. [x] `dungeon_generation.md` — quest-цели в ядре, `ForceHallConnection`-пустышка (каркас работает,
+      `while count != hallNumber` мёртвый с TODO+break, `BaseCorridorNumber` не влияет — недоделка
+      оригинала, оставлена для паритета); `EXTRACTION_STATUS`, `CHANGELOG`, `PLAN`, `00_index`;
+      `QuestGenerator` — эскиз отдельной задачи в `PLAN.md`.
+
+### QuestGenerator — эскиз отдельной задачи (после Campaign-моделей, Фаза 4)
+
+- Модели runtime: `Quest`/`QuestGoal`/`QuestData` (kill/activate/gather/visit/trait/deaths_door),
+  `Campaign` (QuestsComleted, Dungeons MasteryLevel, Heroes Resolve, EventModifiers, CompletedPlot),
+  `CompletionReward`/`ItemDefinition`.
+- Data: `QuestDatabase` (QuestGeneration, QuestTypes/GoalLists, QuestGoals, PlotQuests);
+  `JsonQuests`/`JsonQuestGoal` уже в `Core.Campaign\Database`.
+- Чистый `IRng` вместо `Random`/`RandomSolver`-глобала; `ChooseByRandom` по `IProportionValue`.
+- Unity-адаптер + тесты (детерминизм, распределение по сложностям/типам/целям/наградам).
+- Статус: `EXTRACTION_STATUS`, `UNITY_LEGACY_MAP` §9, `dungeon_generation.md`.
+
+### Проверка
+
+6. [x] `dotnet build` + все 9 сьютов; lockstep; `unity-compile-check` оба дерева;
+      `check-using-placement`.
+
+---
+
 ## Задача: DungeonGenerator → ядро (`Core.Raid\Generation`) — вариант A
 
 ### Цель

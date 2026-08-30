@@ -17,8 +17,12 @@ public static class DungeonGenerator
         var core = CoreGen.DungeonGenerator.Generate(ConvertGenData(genData), ConvertEnvData(envData),
             quest.Dungeon, quest.Difficulty, new SystemRandomRng(seed));
 
+        var goal = ConvertGoal(quest.Goal);
+        if (goal != null)
+            CoreGen.DungeonGenerator.ApplyQuestGoal(core, goal, ConvertEnvData(envData), quest.Difficulty,
+                new SystemRandomRng(seed));
+
         Dungeon dungeon = MapDungeon(core);
-        PopulateQuestGoals(dungeon, quest, core, envData);
 
         dungeon.DungeonMash = DarkestDungeonManager.Data.DungeonEnviromentData[quest.Dungeon].
             BattleMashes.Find(mash => mash.MashId == quest.Difficulty);
@@ -26,6 +30,42 @@ public static class DungeonGenerator
             BattleMashes.Find(mash => mash.MashId == quest.Difficulty);
 
         return dungeon;
+    }
+
+    private static CoreGen.DungeonQuestGoal ConvertGoal(QuestGoal goal)
+    {
+        if (goal == null || string.IsNullOrEmpty(goal.Type))
+            return null;
+
+        var result = new CoreGen.DungeonQuestGoal { Type = goal.Type };
+
+        switch (goal.Type)
+        {
+            case "kill_monster":
+                var killData = goal.QuestData as QuestKillMonsterData;
+                if (killData != null)
+                    result.MonsterNameIds.AddRange(killData.MonsterNameIds);
+                break;
+            case "activate":
+                var activateData = goal.QuestData as QuestActivateData;
+                if (activateData != null)
+                {
+                    result.CurioName = activateData.CurioName;
+                    result.Amount = activateData.Amount;
+                }
+                break;
+            case "gather":
+                var gatherData = goal.QuestData as QuestGatherData;
+                if (gatherData != null)
+                {
+                    result.CurioName = gatherData.CurioName;
+                    result.ItemId = gatherData.Item.Id;
+                    result.ItemAmount = gatherData.Item.Amount;
+                }
+                break;
+        }
+
+        return result;
     }
 
     private static CoreGen.DungeonGenerationData ConvertGenData(DungeonGenerationData data)
@@ -193,87 +233,6 @@ public static class DungeonGenerator
         if (DarkestDungeonManager.Data.Curios.TryGetValue(coreProp.StringId, out curio))
             return curio;
         return new Curio(coreProp.StringId);
-    }
-
-    private static void PopulateQuestGoals(Dungeon dungeon, Quest quest, CoreGen.Dungeon core,
-        DungeonEnviromentData envData)
-    {
-        switch (quest.Goal.Type)
-        {
-            case "kill_monster":
-                var killData = quest.Goal.QuestData as QuestKillMonsterData;
-                if (killData != null)
-                {
-                    var bossCoreRoom = FindLongestPathRoom(core);
-                    var bossRoom = dungeon.Rooms[bossCoreRoom.Id];
-                    bossRoom.Type = AreaType.Boss;
-                    var bossEncounter = envData.BattleMashes.Find(mash => mash.MashId == quest.Difficulty).
-                        BossEncounters.Find(encounter => encounter.MonsterSet.Contains(killData.MonsterNameIds[0]));
-                    if (bossEncounter != null)
-                        bossRoom.BattleEncounter = new BattleEncounter(bossEncounter.MonsterSet);
-                }
-                break;
-            case "activate":
-                var activateData = quest.Goal.QuestData as QuestActivateData;
-                if (activateData != null)
-                {
-                    var lastPath = FindLongestPath(core);
-                    for (int i = 0; i < activateData.Amount; i++)
-                    {
-                        var availableRooms = core.Rooms.Values.Where(room =>
-                            room.MinPath >= (float)i / activateData.Amount * lastPath &&
-                            room.MinPath <= (float)(i + 1) / activateData.Amount * lastPath).ToList();
-                        if (availableRooms.Count == 0)
-                            break;
-                        int randomRoom = UnityEngine.Random.Range(0, availableRooms.Count - 1);
-                        var questRoom = dungeon.Rooms[availableRooms[randomRoom].Id];
-                        if (questRoom.Type == AreaType.Empty)
-                        {
-                            questRoom.Type = AreaType.Curio;
-                            questRoom.Prop = new Curio(activateData.CurioName) { IsQuestCurio = true };
-                        }
-                        else
-                            i--;
-                    }
-                }
-                break;
-            case "gather":
-                var gatherData = quest.Goal.QuestData as QuestGatherData;
-                if (gatherData != null)
-                {
-                    var lastPath = FindLongestPath(core);
-                    for (int i = 0; i < gatherData.Item.Amount; i++)
-                    {
-                        var availableRooms = core.Rooms.Values.Where(room =>
-                            room.MinPath >= (float)i / gatherData.Item.Amount * lastPath &&
-                            room.MinPath <= (float)(i + 1) / gatherData.Item.Amount * lastPath).ToList();
-                        if (availableRooms.Count == 0)
-                            break;
-                        int randomRoom = UnityEngine.Random.Range(0, availableRooms.Count - 1);
-                        var questRoom = dungeon.Rooms[availableRooms[randomRoom].Id];
-                        if (questRoom.Type == AreaType.Empty)
-                        {
-                            questRoom.Type = AreaType.Curio;
-                            questRoom.Prop = new Curio(gatherData.CurioName) { IsQuestCurio = true };
-                        }
-                        else
-                            i--;
-                    }
-                }
-                break;
-        }
-    }
-
-    private static int FindLongestPath(CoreGen.Dungeon core)
-    {
-        return core.Rooms.Values.Max(room => room.MinPath);
-    }
-
-    private static CoreGen.DungeonRoom FindLongestPathRoom(CoreGen.Dungeon core)
-    {
-        int maxPath = FindLongestPath(core);
-        var maxRooms = core.Rooms.Values.Where(room => room.MinPath == maxPath).ToList();
-        return maxRooms.Count > 0 ? maxRooms[UnityEngine.Random.Range(0, maxRooms.Count)] : core.Rooms[core.StartingRoomId];
     }
 
     private static Direction ToUnityDirection(CoreGen.Direction direction)

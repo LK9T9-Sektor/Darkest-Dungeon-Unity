@@ -7,8 +7,10 @@
 - **`DungeonGenerator` → ядро**: чистая детерминированная генерация (топология комнат/коридоров,
   население типами боев/curio/ловушек/голода, environment-пропы и энкаунтеры) — из
   `MapGenerator.txt` + `Dungeons/*.bytes`. `IRng`/`SystemRandomRng` в `Core.Common`.
-- **Unity-адаптер** `DungeonGenerator.cs` — тонкая обёртка (ядро + маппинг в Unity-модели +
-  quest-цели); старый код — `DungeonGeneratorLegacy.cs` до ручной проверки.
+- **Quest-цели в ядро**: `DungeonQuestGoal` + `ApplyQuestGoal` (kill_monster → boss-комната +
+  энкаунтер; activate/gather → curio-комнаты по `MinPath`); Unity-адаптер конвертит `quest.Goal`.
+- **Unity-адаптер** `DungeonGenerator.cs` — тонкая обёртка (ядро + маппинг в Unity-модели);
+  старый код — `DungeonGeneratorLegacy.cs` до ручной проверки.
 - Парсеры DSL (`DungeonGenerationDataParser`/`DungeonEnviromentDataParser`) + фасады
   `GameDataReader.ReadDungeonGenerationData`/`ReadDungeonEnviromentData`.
 

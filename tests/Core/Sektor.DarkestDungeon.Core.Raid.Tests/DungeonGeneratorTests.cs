@@ -125,6 +125,68 @@ namespace Sektor.DarkestDungeon.Core.Raid.Tests
             Assert.That(dungeon.GridSizeY, Is.EqualTo(1 + (genData.GridSizeY - 1) * 7));
         }
 
+        [Test]
+        public void ApplyQuestGoal_KillMonster_PlacesBossRoomWithEncounter()
+        {
+            var (genData, envData) = LoadRealData();
+            var dungeon = DungeonGenerator.Generate(genData, envData, "crypts", 1, new SystemRandomRng(7));
+
+            var goal = new DungeonQuestGoal
+            {
+                Type = "kill_monster",
+                MonsterNameIds = { "necromancer_A" },
+            };
+            DungeonGenerator.ApplyQuestGoal(dungeon, goal, envData, 1, new SystemRandomRng(7));
+
+            var bossRoom = dungeon.Rooms.Values.FirstOrDefault(room => room.Type == AreaType.Boss);
+            Assert.That(bossRoom, Is.Not.Null, "A kill_monster goal should place a boss room.");
+            Assert.That(bossRoom.BattleEncounter, Is.Not.Null, "The boss room should carry an encounter.");
+            Assert.That(bossRoom.BattleEncounter.Monsters, Does.Contain("necromancer_A"));
+        }
+
+        [Test]
+        public void ApplyQuestGoal_Activate_PlacesCurioRoomsAlongThePath()
+        {
+            var (genData, envData) = LoadRealData();
+            var dungeon = DungeonGenerator.Generate(genData, envData, "crypts", 1, new SystemRandomRng(7));
+
+            var goal = new DungeonQuestGoal
+            {
+                Type = "activate",
+                CurioName = "sarcophagus",
+                Amount = 2,
+            };
+            DungeonGenerator.ApplyQuestGoal(dungeon, goal, envData, 1, new SystemRandomRng(7));
+
+            var questCurios = dungeon.Rooms.Values.Where(room => room.Type == AreaType.Curio
+                && room.Prop is Curio curio && curio.IsQuestCurio).ToList();
+            Assert.That(questCurios.Count, Is.EqualTo(2),
+                "An activate goal should place the requested number of quest curios.");
+        }
+
+        [Test]
+        public void ApplyQuestGoal_Gather_PlacesQuestCurioWithLootResult()
+        {
+            var (genData, envData) = LoadRealData();
+            var dungeon = DungeonGenerator.Generate(genData, envData, "crypts", 1, new SystemRandomRng(7));
+
+            var goal = new DungeonQuestGoal
+            {
+                Type = "gather",
+                CurioName = "crate",
+                ItemId = "provision_food",
+                ItemAmount = 2,
+            };
+            DungeonGenerator.ApplyQuestGoal(dungeon, goal, envData, 1, new SystemRandomRng(7));
+
+            var questCurio = dungeon.Rooms.Values
+                .Select(room => room.Prop as Curio)
+                .FirstOrDefault(curio => curio != null && curio.IsQuestCurio);
+            Assert.That(questCurio, Is.Not.Null, "A gather goal should place a quest curio.");
+            Assert.That(questCurio.Results, Has.Count.GreaterThan(0));
+            Assert.That(questCurio.Results[0].Results[0].Item, Is.EqualTo("provision_food"));
+        }
+
         private static (DungeonGenerationData, DungeonEnviromentData) LoadRealData()
         {
             string mapPath = Path.Combine(AppContext.BaseDirectory, "Data", "Mechanics", "MapGenerator.txt");

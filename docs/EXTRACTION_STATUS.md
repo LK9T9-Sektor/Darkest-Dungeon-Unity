@@ -48,7 +48,7 @@
 | `unity/Assets/Resources/Data/Monsters/` (460 `.txt`, парсер → `MonsterCatalog`) | `src/Core/Sektor.DarkestDungeon.Core.Combat/Character/MonsterClassFileParser.cs` + `Character/MonsterCatalog.cs` | вынесено |
 | `unity/Assets/Resources/Data/JsonAI.json` (brains → `MonsterBrainCatalog`) | `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/AI/JsonBrainParser.cs` (чистый) + `MonsterBrainCatalog.cs` | вынесено |
 | `unity/Assets/Resources/Data/JsonBuffs.json` (DTO + каталоги, общий ридер) | `src/Clients/Sektor.DarkestDungeon.Clients.Content/GameDataReader.cs` (Newtonsoft-фасад) | вынесено |
-| `unity/Assets/Scripts/Generation/DungeonGenerator.cs` (топология+население+enviroment) + `MapGenerator.txt` + `Dungeons/*.bytes` (парсеры) | `src/Core/Sektor.DarkestDungeon.Core.Raid/Generation/` (`DungeonGenerator`, модели, парсеры) | вынесено (quest-цели — в Unity-адаптере `DungeonGenerator.cs`, legacy — `DungeonGeneratorLegacy.cs`) |
+| `unity/Assets/Scripts/Generation/DungeonGenerator.cs` (топология+население+enviroment+quest-цели) + `MapGenerator.txt` + `Dungeons/*.bytes` (парсеры) | `src/Core/Sektor.DarkestDungeon.Core.Raid/Generation/` (`DungeonGenerator`, модели, парсеры, `DungeonQuestGoal`) | вынесено (legacy — `DungeonGeneratorLegacy.cs`) |
 
 > **Реорганизация ядра (данные = домен, см. `TARGET_LAYOUT.md`):** `Core.Data` распущен; DTO/парсеры/
 > каталоги разведены по доменам (`Core.Campaign`, `Core.Raid`, `Core.Content\Camping|Trinket`,

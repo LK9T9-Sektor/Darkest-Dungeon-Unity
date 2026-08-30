@@ -20,6 +20,117 @@ namespace Sektor.DarkestDungeon.Core.Raid.Generation
         /// <param name="difficulty">The difficulty mash id (1-based).</param>
         /// <param name="rng">The seeded random source.</param>
         /// <returns>The generated dungeon.</returns>
+        /// <summary>Applies the quest-goal placement to a generated dungeon (boss or curio rooms).</summary>
+        /// <param name="dungeon">The generated dungeon.</param>
+        /// <param name="goal">The quest-goal description.</param>
+        /// <param name="envData">The region environment data (for the boss encounter).</param>
+        /// <param name="difficulty">The difficulty mash id (1-based).</param>
+        /// <param name="rng">The seeded random source.</param>
+        public static void ApplyQuestGoal(Dungeon dungeon, DungeonQuestGoal goal,
+            DungeonEnviromentData envData, int difficulty, IRng rng)
+        {
+            if (dungeon == null || goal == null)
+                return;
+
+            switch (goal.Type)
+            {
+                case "kill_monster":
+                    ApplyKillMonsterGoal(dungeon, goal, envData, difficulty);
+                    break;
+                case "activate":
+                    ApplyCurioGoal(dungeon, goal, goal.Amount, rng);
+                    break;
+                case "gather":
+                    ApplyGatherGoal(dungeon, goal, goal.ItemAmount, rng);
+                    break;
+            }
+        }
+
+        private static void ApplyKillMonsterGoal(Dungeon dungeon, DungeonQuestGoal goal,
+            DungeonEnviromentData envData, int difficulty)
+        {
+            var bossCoreRoom = FindLongestPathRoom(dungeon);
+            var bossRoom = dungeon.Rooms[bossCoreRoom.Id];
+            bossRoom.Type = AreaType.Boss;
+
+            var mash = envData.BattleMashes.FirstOrDefault(item => item.MashId == difficulty);
+            if (mash == null)
+                return;
+
+            var bossEncounter = mash.BossEncounters.FirstOrDefault(encounter =>
+                goal.MonsterNameIds.Count > 0 && encounter.MonsterSet.Contains(goal.MonsterNameIds[0]));
+            if (bossEncounter != null)
+                bossRoom.BattleEncounter = new BattleEncounter(bossEncounter.MonsterSet);
+        }
+
+        private static void ApplyCurioGoal(Dungeon dungeon, DungeonQuestGoal goal, int amount, IRng rng)
+        {
+            int lastPath = FindLongestPath(dungeon);
+            for (int i = 0; i < amount; i++)
+            {
+                var availableRooms = dungeon.Rooms.Values.Where(room =>
+                    room.MinPath >= (float)i / amount * lastPath &&
+                    room.MinPath <= (float)(i + 1) / amount * lastPath).ToList();
+                if (availableRooms.Count == 0)
+                    break;
+
+                int randomRoom = rng.Next(availableRooms.Count - 1);
+                var questRoom = dungeon.Rooms[availableRooms[randomRoom].Id];
+                if (questRoom.Type != AreaType.Empty)
+                {
+                    i--;
+                    continue;
+                }
+
+                questRoom.Type = AreaType.Curio;
+                questRoom.Prop = new Curio(goal.CurioName) { IsQuestCurio = true };
+            }
+        }
+
+        private static void ApplyGatherGoal(Dungeon dungeon, DungeonQuestGoal goal, int itemAmount, IRng rng)
+        {
+            int lastPath = FindLongestPath(dungeon);
+            for (int i = 0; i < itemAmount; i++)
+            {
+                var availableRooms = dungeon.Rooms.Values.Where(room =>
+                    room.MinPath >= (float)i / itemAmount * lastPath &&
+                    room.MinPath <= (float)(i + 1) / itemAmount * lastPath).ToList();
+                if (availableRooms.Count == 0)
+                    break;
+
+                int randomRoom = rng.Next(availableRooms.Count - 1);
+                var questRoom = dungeon.Rooms[availableRooms[randomRoom].Id];
+                if (questRoom.Type != AreaType.Empty)
+                {
+                    i--;
+                    continue;
+                }
+
+                questRoom.Type = AreaType.Curio;
+                var curio = new Curio(goal.CurioName) { IsQuestCurio = true };
+                curio.Results.Add(new CurioInteraction(1, "loot")
+                {
+                    Results =
+                    {
+                        new CurioResult(1, 1, goal.ItemId),
+                    },
+                });
+                questRoom.Prop = curio;
+            }
+        }
+
+        private static DungeonRoom FindLongestPathRoom(Dungeon dungeon)
+        {
+            int maxPath = FindLongestPath(dungeon);
+            var maxRooms = dungeon.Rooms.Values.Where(room => room.MinPath == maxPath).ToList();
+            return maxRooms.Count > 0 ? maxRooms[0] : dungeon.Rooms[dungeon.StartingRoomId];
+        }
+
+        private static int FindLongestPath(Dungeon dungeon)
+        {
+            return dungeon.Rooms.Values.Max(room => room.MinPath);
+        }
+
         public static Dungeon Generate(DungeonGenerationData genData, DungeonEnviromentData envData,
             string dungeonName, int difficulty, IRng rng)
         {
