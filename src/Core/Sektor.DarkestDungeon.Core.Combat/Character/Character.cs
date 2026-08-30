@@ -43,6 +43,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         public virtual bool IsMonster { get { return false; } }
 
         /// <inheritdoc/>
+        public virtual bool SupportsDeathDoor { get { return false; } }
+
+        /// <inheritdoc/>
         public bool InMode { get { return CurrentMode != null; } }
 
         /// <inheritdoc/>

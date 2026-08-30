@@ -54,6 +54,27 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         public override bool IsAfflicted { get { return Trait != null && Trait.IsAffliction; } }
 
         /// <inheritdoc/>
+        public override bool SupportsDeathDoor { get { return true; } }
+
+        /// <summary>Gets the death's door resistance (DeathBlow attribute, clamped to 0..0.87).</summary>
+        public float DeathResist
+        {
+            get
+            {
+                var deathResist = GetSingleAttribute(AttributeType.DeathBlow);
+                if (deathResist == null)
+                    return DefaultDeathResist;
+                return Clamp(deathResist.ModifiedValue, 0f, MaxDeathResist);
+            }
+        }
+
+        /// <summary>Default death's door resistance when no DeathBlow attribute is present.</summary>
+        private const float DefaultDeathResist = 0.5f;
+
+        /// <summary>Maximum allowed death's door resistance.</summary>
+        private const float MaxDeathResist = 0.87f;
+
+        /// <inheritdoc/>
         public override bool IsReligious { get { return HeroClass.IsReligious; } }
 
         /// <inheritdoc/>
@@ -169,6 +190,75 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
             Trait = trait;
             foreach (var buff in buffs)
                 AddBuff(new BuffInfo(buff, BuffDurationType.Permanent, BuffSourceType.Trait));
+        }
+
+        /// <summary>Enters death's door: marks the status and applies the death's door debuffs.</summary>
+        /// <param name="deathDoorBuffs">The death's door debuffs (resolved from content).</param>
+        public void ApplyDeathDoor(IReadOnlyList<Buff> deathDoorBuffs)
+        {
+            var deathDoorStatus = (DeathsDoorStatusEffect)GetStatusEffect(StatusType.DeathsDoor);
+            if (deathDoorStatus.IsApplied)
+                return;
+
+            deathDoorStatus.AtDeathsDoor = true;
+            RevertMortality();
+
+            foreach (var buff in deathDoorBuffs)
+                AddBuff(new BuffInfo(buff, BuffDurationType.Permanent, BuffSourceType.DeathsDoor));
+        }
+
+        /// <summary>Leaves death's door (e.g. after healing): clears the status and enters mortality.</summary>
+        /// <param name="mortalityBuffs">The mortality recovery debuffs (resolved from content).</param>
+        public void RevertDeathsDoor(IReadOnlyList<Buff> mortalityBuffs)
+        {
+            if (!GetStatusEffect(StatusType.DeathsDoor).IsApplied)
+                return;
+
+            ((IResetableStatusEffect)GetStatusEffect(StatusType.DeathsDoor)).ResetStatus();
+            for (int i = BuffInfo.Count - 1; i >= 0; i--)
+            {
+                if (BuffInfo[i].SourceType == BuffSourceType.DeathsDoor)
+                    RemoveBuff(BuffInfo[i]);
+            }
+
+            ApplyMortality(mortalityBuffs);
+        }
+
+        /// <summary>Enters mortality recovery: marks the status and applies the mortality debuffs.</summary>
+        /// <param name="mortalityBuffs">The mortality recovery debuffs (resolved from content).</param>
+        public void ApplyMortality(IReadOnlyList<Buff> mortalityBuffs)
+        {
+            var mortalityStatus = (DeathRecoveryStatusEffect)GetStatusEffect(StatusType.DeathRecovery);
+            if (mortalityStatus.IsApplied)
+                return;
+
+            mortalityStatus.AtDeathRecovery = true;
+            foreach (var buff in mortalityBuffs)
+                AddBuff(new BuffInfo(buff, BuffDurationType.Permanent, BuffSourceType.Mortality));
+        }
+
+        /// <summary>Leaves mortality recovery: clears the status and removes the mortality debuffs.</summary>
+        public void RevertMortality()
+        {
+            var mortalityStatus = (DeathRecoveryStatusEffect)GetStatusEffect(StatusType.DeathRecovery);
+            if (!mortalityStatus.IsApplied)
+                return;
+
+            mortalityStatus.ResetStatus();
+            for (int i = BuffInfo.Count - 1; i >= 0; i--)
+            {
+                if (BuffInfo[i].SourceType == BuffSourceType.Mortality)
+                    RemoveBuff(BuffInfo[i]);
+            }
+        }
+
+        private static float Clamp(float value, float min, float max)
+        {
+            if (value < min)
+                return min;
+            if (value > max)
+                return max;
+            return value;
         }
     }
 }

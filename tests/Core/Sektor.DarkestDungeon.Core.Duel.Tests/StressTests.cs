@@ -48,9 +48,11 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
 
             var victim = duel.HeroParty.Units[0];
             victim.Character.GetPairedAttribute(AttributeType.HitPoints).CurrentValue = 1;
+            ((SingleAttribute)victim.Character.GetSingleAttribute(AttributeType.DeathBlow)).RawValue = 0f;
 
             var attacker = duel.MonsterParty.Units[0];
             ((SingleAttribute)attacker.Character.GetSingleAttribute(AttributeType.AttackRating)).RawValue = 1.0f;
+            ((SingleAttribute)victim.Character.GetSingleAttribute(AttributeType.DefenseRating)).RawValue = 0f;
             var skill = attacker.Character.CurrentCombatSkills.FirstOrDefault(
                 s => s.Category == SkillCategory.Damage && duel.GetAvailableTargets(attacker, s).Contains(victim));
             Assert.That(skill, Is.Not.Null, "The attacker should have a damage skill that can hit the victim.");
@@ -58,8 +60,12 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
             int otherStress = (int)duel.HeroParty.Units[1].Character.Stress.CurrentValue;
 
             duel.ExecuteSkill(attacker, victim, skill);
+            Assert.That(victim.Character.AtDeathsDoor, Is.True,
+                "A hero at zero health should enter death's door instead of dying immediately.");
 
-            Assert.That(victim.CombatInfo.IsDead, Is.True, "The victim should be dead.");
+            duel.ExecuteSkill(attacker, victim, skill);
+            Assert.That(victim.CombatInfo.IsDead, Is.True,
+                "A hero at death's door should die when the death blow resistance roll fails.");
             Assert.That((int)duel.HeroParty.Units[1].Character.Stress.CurrentValue, Is.EqualTo(otherStress + 15),
                 "A hero death should stress the surviving party by 15 (Effects['Stress 2']).");
         }

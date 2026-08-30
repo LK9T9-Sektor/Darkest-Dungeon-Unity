@@ -68,6 +68,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         /// <inheritdoc/>
         public override bool IsMonster { get { return true; } }
 
+        /// <summary>Gets a value indicating whether the monster can die from direct damage.</summary>
+        public bool CanDieFromDamage { get { return _monsterClass.CanDieFromDamage; } }
+
         /// <inheritdoc/>
         public override IBattleModifier BattleModifiers { get { return _monsterClass.Modifiers; } }
 

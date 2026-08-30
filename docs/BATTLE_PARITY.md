@@ -46,8 +46,8 @@
 | `.stress`/`.healstress` (герои, реверт аффекции на 0) | `StressEffect.cs:14-47`, `StressHealEffect.cs:14-41` | `StressEffect.cs:28-110`, `StressHealEffect.cs:28-113` | ✅ |
 | Resolve-ролл (аффекция/виртуда) при перегрузке | очередь в `StressEffect` (`:35-43`) | `DuelBattleContext.ResolveOverstress` (`DuelBattleContext.cs:143-198`) | ✅ |
 | Стресс отряду при смерти героя («Stress 2»/«Stress 3») | `RaidSceneMultiplayerManager.cs:1955` | `DuelController.CheckDeaths`/`StressParty` (`DuelController.cs:594-631`) | ✅ |
-| **Heart attack** (сердечный приступ при перегрузке) | очередь `StressEffect` | только событие → лог (`DuelBattleEvents.cs:63-66`), исполнения нет | ⚠️ |
-| **Death's door** (DeathResist + `DeathsDoorSurvivalDebuff`) | `RaidSceneMultiplayerManager.cs:112-120, 2020-2031` | 0 HP = смерть (`Character.cs:230-235`, `DuelController.cs:599`) | ⚠️ |
+| **Heart attack** (сердечный приступ при перегрузке) | очередь `StressEffect` | `DuelBattleEvents.AddHeartAttackCheck` → `HeartAttackHandler`: на death's door → смерть, иначе → 100% HP + стресс 75% + death's door | ✅ |
+| **Death's door** (DeathResist + `DeathsDoorSurvivalDebuff`) | `RaidSceneMultiplayerManager.cs:112-120, 2020-2031` | `DeathCheck`: вход в death's door при 0 HP (баффы + `BarkStress` 6), ролл `DeathResist − resistIgnoreBonus(0.3)`, `DeathsDoorSurvivalDebuff`, хил снимает | ✅ |
 
 ### 2.3 DoT (bleed / poison)
 
@@ -154,8 +154,8 @@ WPF-дуэль использует другую (lockstep) модель — с�
 
 Остаётся отдельной задачей (кампанийные механики, больше объём):
 
-- **Death's door / heart attack** — ввод в death's door при 0 HP, ролл `DeathBlow`-резиста +
-  `DeathsDoorSurvivalDebuff`, исполнение heart attack (сейчас 0 HP = смерть, `DuelController.cs:599`).
 - Idle-юниты (0 ходов за раунд): DoT-тик ×1.5 (`RaidSceneMultiplayerManager.cs:1022-1104`).
+- `.kill` / `.kill_enemy_type` / death-class corpse-подстановка (`KillEffect` ставит `MarkedForDeath`,
+  `DeathCheck` учитывает `MarkedForDeath`, но смена класса на corpse-монстра не реализована).
 
 Каждый пункт — задача в ядре (`PLAN.md`); в Unity ничего не меняется.

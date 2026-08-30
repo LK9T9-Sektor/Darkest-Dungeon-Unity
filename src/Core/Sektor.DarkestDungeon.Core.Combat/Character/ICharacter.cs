@@ -39,6 +39,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         /// <summary>Gets a value indicating whether the character is a monster.</summary>
         bool IsMonster { get; }
 
+        /// <summary>Gets a value indicating whether the character supports the death's door mechanic.</summary>
+        bool SupportsDeathDoor { get; }
+
         /// <summary>Gets a value indicating whether the character is in a special mode.</summary>
         bool InMode { get; }
 

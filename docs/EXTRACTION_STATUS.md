@@ -72,9 +72,11 @@
 > stun-пропуск хода + `STUNRECOVERYBUFF`, riposte-контратака (+ парсинг `riposte_skill`),
 > guard (`.guard`/`.swap_source_and_target`/`.clearguarding`/`.clearguarded` + редирект атак),
 > pull/push/shuffle (реальные ранги), immobilize (блок `TryMove` + `.unimmobilize`/`.unstun`/`.untag`),
-> `RemoveConditions` после скилла; buff-идемпотентность (`ApplyBuff`/`RevertBuff` с `IsApplied`-гейтом).
+> `RemoveConditions` после скилла; buff-идемпотентность (`ApplyBuff`/`RevertBuff` с `IsApplied`-гейтом);
+> **death's door** (вход при 0 HP, `DeathBlow`-ролл, survival-бафф, хил-снятие) + **heart attack**
+> (стресс 200); `MonsterClass.CanDieFromDamage` (парсинг `death_class:`).
 
 Остаётся отдельной задачей:
 
-- **Death's door / heart attack** (больше объём, кампанийные механики).
 - Idle-юниты (0 ходов за раунд): DoT-тик ×1.5.
+- `.kill`/`.kill_enemy_type` + корпус-подстановка (`MarkedForDeath` учитывается, смена класса — нет).

@@ -227,6 +227,38 @@ combat_skill: .id ""rage"" .level 0 .type ""melee"" .atk 85% .dmg 0% .crit 5% .l
             Assert.That(rage.Category, Is.EqualTo(SkillCategory.Damage));
         }
 
+        [Test]
+        public void Parse_ReadsDeathsDoorBuffsAndRecoveryBuffs()
+        {
+            var content = Sample + @"
+deaths_door: .buffs deathsdoorACCDebuff deathsdoorDMGLowDebuff .recovery_buffs mortalityACCDebuff .recovery_heart_attack_buffs heartattackACCDebuff
+";
+            var heroClass = HeroClassFileParser.Parse(content);
+
+            Assert.That(heroClass, Is.Not.Null);
+            Assert.That(heroClass.DeathDoor, Is.Not.Null);
+            CollectionAssert.AreEquivalent(
+                new[] { "deathsdooraccdebuff", "deathsdoordmglowdebuff" }, heroClass.DeathDoor.Buffs);
+            CollectionAssert.AreEquivalent(new[] { "mortalityaccdebuff" }, heroClass.DeathDoor.RecoveryBuffs);
+            CollectionAssert.AreEquivalent(new[] { "heartattackaccdebuff" }, heroClass.DeathDoor.HeartAttackBuffs);
+        }
+
+        [Test]
+        public void Parse_RealRoster_HasDeathsDoorData()
+        {
+            string directory = FindUnityHeroesDirectory();
+            if (directory == null)
+                Assert.Ignore("Unity heroes content not available in this environment.");
+
+            var content = File.ReadAllText(Path.Combine(directory, "Crusader.bytes"));
+            var heroClass = HeroClassFileParser.Parse(content);
+
+            Assert.That(heroClass, Is.Not.Null);
+            Assert.That(heroClass.DeathDoor, Is.Not.Null, "The crusader should carry death's door data.");
+            Assert.That(heroClass.DeathDoor.Buffs, Has.Count.GreaterThan(0), "Death's door debuffs should be parsed.");
+            Assert.That(heroClass.DeathDoor.RecoveryBuffs, Has.Count.GreaterThan(0), "Mortality buffs should be parsed.");
+        }
+
         private static string FindUnityHeroesDirectory()
         {
             var current = new DirectoryInfo(AppContext.BaseDirectory);

@@ -109,6 +109,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
                             IsTrue(GetValue(tokens, "always_surprise")),
                             IsTrue(GetValue(tokens, "always_be_surprised")));
                         break;
+                    case "death_class":
+                        result.CanDieFromDamage = ReadBoolOr(GetValue(tokens, "can_die_from_damage"), true);
+                        break;
                 }
             }
 

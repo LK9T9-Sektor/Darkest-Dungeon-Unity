@@ -1,5 +1,67 @@
 # PLAN.md — Активный план задач
 
+## Задача: Death's door + heart attack в ядре (закрытие паритет-разрыва `BATTLE_PARITY.md` §2.2)
+
+### Цель
+
+В ядре герой умирает сразу при 0 HP, а `AtDeathsDoor`/`AtDeathRecovery` никогда не устанавливаются;
+heart attack — только событие в лог. Закрыть по Unity-эталону (`Hero.ApplyDeathDoor/RevertDeathsDoor/
+ApplyMortality/RevertMortality`, `PrepareDeath`, heart-attack-очередь): вход в death's door, ролл
+`DeathBlow`-резиста при повторном ударе, survival-бафф, снятие хилом, heart attack при стрессе 200.
+Death's door — только для героев (обеих сторон дуэли); монстры умирают сразу.
+
+### Фаза 1 — Модель: `DeathDoor`-данные + методы `Hero`
+
+1. [x] `Character/DeathDoor.cs` — модель (`Buffs`, `RecoveryBuffs`, `HeartAttackBuffs`).
+2. [x] `HeroClass.DeathDoor` + парсинг `deaths_door:` секции в `HeroClassFileParser`
+     (`.buffs`, `.recovery_buffs`, `.recovery_heart_attack_buffs`).
+3. [x] `Hero`: `DeathResist` (DeathBlow, клэмп 0..0.87, дефолт 0.5); `ApplyDeathDoor`/
+     `RevertDeathsDoor`/`ApplyMortality`/`RevertMortality`; `SupportsDeathDoor` (Hero=true,
+     Monster/Character=false); `Monster.CanDieFromDamage` + парсинг `death_class:`; ресолв баффов
+     case-insensitive (`BuffCatalog`/`TestDuelContent`).
+
+### Фаза 2 — `DeathCheck`: смерть vs death's door
+
+4. [x] Монстры: `HealthRatio <= 0` → смерть (с учётом `CanDieFromDamage=false` — не умирает).
+5. [x] Герои при `HealthRatio <= 0 && !IsDead`: если не `AtDeathsDoor` и не `MarkedForDeath` →
+     вход в death's door (флаг + death-door-баффы + survival-бафф + `BarkStress` 6 + попап
+     `DeathsDoor`), НЕ умирает; если уже на death's door/`MarkedForDeath` → ролл
+     `DeathResist - resistIgnoreBonus(0.3 при численном перевесе)` + survival-бафф (если не
+     `MarkedForDeath`) или смерть + `StressParty`.
+6. [x] Константы: `DeathsDoorSurvivalDebuff`, `MaxDeathResist 0.87`, `ResistOverrideBonus 0.3`,
+     `DeathsDoorSurvivalDuration 3`, `EffectIds.BarkStress`.
+
+### Фаза 3 — Heart attack (стресс = 200)
+
+7. [x] `DuelBattleEvents.HeartAttackHandler` (колбэк, как `TorchDelta`); регистрация в
+     `DuelController.InitializeMechanics`.
+8. [x] `HeartAttackHandler` (Core.Duel/Mechanics): на death's door → `MarkedForDeath` + смерть +
+     `StressParty`; иначе → `TakeDamagePercent(1.0)` + стресс 75% + вход в death's door.
+
+### Фаза 4 — Снятие при хиле
+
+9. [x] `DuelController.RecoverDeathsDoorIfHealed` после скилла: герой `AtDeathsDoor` и HP > 0 →
+     `Hero.RevertDeathsDoor(recovery-баффы)` + mortality.
+
+### Фаза 5 — Тесты
+
+10. [x] `DeathsDoorTests` (6): вход в death's door (не умирает, флаг); ролл на death's door
+      (выжил/умер + стресс отряду); хил снимает death's door; heart attack (оба пути);
+      парсер `deaths_door:` (2 в `HeroClassFileParserTests`); `MonsterClass.CanDieFromDamage`
+      default true (баг: bool default false → монстры не умирали, `FightSessionTests` упал).
+
+### Фаза 6 — Доки (тот же коммит)
+
+11. [x] `BATTLE_PARITY.md` §2.2/§5; `docs/mechanics/combat/14_death_stress.md`; `EXTRACTION_STATUS.md`;
+      `TESTING.md`; `CHANGELOG.md`; `PLAN.md` шаги `[x]`.
+
+### Проверка
+
+12. [x] `dotnet build` + 9 сьютов зелёные (Duel 32, Combat 55, Clients 7); lockstep;
+      `check-using-placement`; unity-compile-check оба дерева — в финальном коммите.
+
+---
+
 ## Задача: уборка кода ядра (`Core.*`) — магия, ветвления, приватные методы, логи
 
 ### Цель

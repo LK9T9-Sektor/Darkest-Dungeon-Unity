@@ -34,6 +34,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         /// <summary>Gets or sets the available modes.</summary>
         public List<CharacterMode> Modes { get; set; }
 
+        /// <summary>Gets or sets the death's door debuffs (and mortality/heart-attack recovery).</summary>
+        public DeathDoor DeathDoor { get; set; }
+
         /// <summary>Gets or sets the class tags (e.g. "religious").</summary>
         public List<string> Tags { get; set; }
 

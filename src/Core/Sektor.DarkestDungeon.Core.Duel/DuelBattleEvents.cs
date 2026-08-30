@@ -17,6 +17,9 @@ namespace Sektor.DarkestDungeon.Core.Duel
         /// <summary>Gets or sets the callback invoked with a torch delta (wired by the duel controller).</summary>
         public Action<int> TorchDelta { get; set; }
 
+        /// <summary>Gets or sets the callback executed when a hero suffers a heart attack (wired by the duel controller).</summary>
+        public Action<ICombatUnit> HeartAttackHandler { get; set; }
+
         /// <inheritdoc/>
         public void ShowPopup(ICombatUnit target, PopupType type, string value = null)
         {
@@ -64,6 +67,8 @@ namespace Sektor.DarkestDungeon.Core.Duel
         public void AddHeartAttackCheck(ICombatUnit unit)
         {
             Log.Add("[heart-attack] check for " + unit.Character.Name);
+            if (HeartAttackHandler != null)
+                HeartAttackHandler(unit);
         }
 
         /// <inheritdoc/>

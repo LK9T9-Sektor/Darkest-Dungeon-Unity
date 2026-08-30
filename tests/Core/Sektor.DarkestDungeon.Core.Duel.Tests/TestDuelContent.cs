@@ -128,7 +128,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
 
         private static Dictionary<string, Buff> LoadBuffs()
         {
-            var result = new Dictionary<string, Buff>();
+            var result = new Dictionary<string, Buff>(System.StringComparer.OrdinalIgnoreCase);
             string path = Path.Combine(AppContext.BaseDirectory, "Content", "Buffs", "JsonBuffs.json");
             if (!File.Exists(path))
                 return result;

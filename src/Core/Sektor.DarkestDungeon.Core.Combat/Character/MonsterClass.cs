@@ -37,6 +37,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         /// <summary>Gets or sets the monster battle modifiers.</summary>
         public BattleModifier Modifiers { get; set; }
 
+        /// <summary>Gets or sets a value indicating whether the monster can die from direct damage.</summary>
+        public bool CanDieFromDamage { get; set; }
+
         /// <summary>Initializes a new instance of the <see cref="MonsterClass"/> class.</summary>
         public MonsterClass()
         {
@@ -46,6 +49,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
             PreferableSkill = -1;
             Size = 1;
             InitiativeTurns = 1;
+            CanDieFromDamage = true;
         }
     }
 }

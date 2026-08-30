@@ -116,6 +116,12 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
                             });
                         }
                         break;
+                    case "deaths_door":
+                        result.DeathDoor = new DeathDoor(
+                            ReadIdList(tokens, "buffs"),
+                            ReadIdList(tokens, "recovery_buffs"),
+                            ReadIdList(tokens, "recovery_heart_attack_buffs"));
+                        break;
                 }
             }
 
@@ -186,6 +192,26 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         {
             string value;
             return tokens.TryGetValue(key, out value) ? value : null;
+        }
+
+        private static List<string> ReadIdList(Dictionary<string, string> tokens, string key)
+        {
+            var ids = new List<string>();
+            string first = GetValue(tokens, key);
+            if (first == null)
+                return ids;
+
+            ids.Add(first);
+            int index = 2;
+            while (true)
+            {
+                string next = GetValue(tokens, key + "#" + index);
+                if (next == null)
+                    break;
+                ids.Add(next);
+                index++;
+            }
+            return ids;
         }
 
         private static void ApplyResistances(HeroClass result, Dictionary<string, string> tokens)

@@ -21,5 +21,8 @@ namespace Sektor.DarkestDungeon.Core.Combat.Content
 
         /// <summary>Stress healed when an enemy dies.</summary>
         public const string HealStress1 = "Heal Stress 1";
+
+        /// <summary>Stress applied on entering death's door (BarkStress, 6).</summary>
+        public const string BarkStress = "BarkStress";
     }
 }

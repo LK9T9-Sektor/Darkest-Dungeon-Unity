@@ -32,5 +32,17 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
 
         /// <summary>Default riposte/guard duration (in rounds).</summary>
         public const int DefaultStatusDuration = 1;
+
+        /// <summary>Maximum allowed death's door resistance.</summary>
+        public const float MaxDeathResist = 0.87f;
+
+        /// <summary>Resistance bonus of the numerically superior side on death's door rolls.</summary>
+        public const float ResistOverrideBonus = 0.3f;
+
+        /// <summary>Duration (in combat rounds) of the death's door survival debuff.</summary>
+        public const int DeathsDoorSurvivalDuration = 3;
+
+        /// <summary>Survival debuff value applied to the death blow resistance.</summary>
+        public const float DeathsDoorSurvivalValue = -0.1f;
     }
 }

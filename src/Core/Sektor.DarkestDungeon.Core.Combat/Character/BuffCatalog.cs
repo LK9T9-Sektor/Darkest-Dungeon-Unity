@@ -9,7 +9,8 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
     /// <summary>Loads the buff definitions from the campaign JsonBuffs.json content into core <see cref="Buff"/> instances.</summary>
     public sealed class BuffCatalog
     {
-        private readonly Dictionary<string, Buff> _buffsById = new Dictionary<string, Buff>();
+        private readonly Dictionary<string, Buff> _buffsById =
+            new Dictionary<string, Buff>(System.StringComparer.OrdinalIgnoreCase);
 
         private BuffCatalog()
         {

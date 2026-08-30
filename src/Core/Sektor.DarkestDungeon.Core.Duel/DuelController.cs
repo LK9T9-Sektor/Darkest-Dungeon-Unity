@@ -31,6 +31,7 @@ namespace Sektor.DarkestDungeon.Core.Duel
         private StunRecoveryApplier stunRecoveryApplier;
         private DeathCheck deathCheck;
         private TurnMover turnMover;
+        private HeartAttackHandler heartAttackHandler;
 
         /// <summary>Gets the hero party (host's party).</summary>
         public FormationParty HeroParty { get; private set; } = new FormationParty();
@@ -227,6 +228,8 @@ namespace Sektor.DarkestDungeon.Core.Duel
             stunRecoveryApplier = new StunRecoveryApplier(content);
             deathCheck = new DeathCheck(HeroParty, MonsterParty, content, Context);
             turnMover = new TurnMover(HeroParty, MonsterParty);
+            heartAttackHandler = new HeartAttackHandler(deathCheck, Events);
+            Events.HeartAttackHandler = unit => heartAttackHandler.Apply(unit);
         }
 
         private void CheckSurprise()
@@ -452,10 +455,37 @@ namespace Sektor.DarkestDungeon.Core.Duel
 
             ExecuteRiposte(unit, target);
             RemoveConditions(unit, target);
+            RecoverDeathsDoorIfHealed(target);
 
             foreach (var entry in Solver.SkillResult.SkillEntries)
                 logger.Log("[duel] " + unit.Character.Name + " used " + skill.Id + " -> " +
                     target.Character.Name + " (" + entry.Type + (entry.Amount != 0 ? " " + entry.Amount : "") + ")");
+        }
+
+        private void RecoverDeathsDoorIfHealed(ICombatUnit target)
+        {
+            var hero = target?.Character as Hero;
+            if (hero == null || !hero.AtDeathsDoor || hero.CurrentHealth <= 0)
+                return;
+
+            hero.RevertDeathsDoor(ResolveDeathsDoorBuffs(hero, recovery: true));
+            logger.Log("[duel] " + hero.Name + " healed off death's door.");
+        }
+
+        private List<Buff> ResolveDeathsDoorBuffs(Hero hero, bool recovery)
+        {
+            var buffs = new List<Buff>();
+            var ids = recovery ? hero.HeroClass?.DeathDoor?.RecoveryBuffs : hero.HeroClass?.DeathDoor?.Buffs;
+            if (ids == null)
+                return buffs;
+
+            foreach (var buffId in ids)
+            {
+                var buff = content.GetBuff(buffId);
+                if (buff != null)
+                    buffs.Add(buff);
+            }
+            return buffs;
         }
 
         private void ExecuteRiposte(ICombatUnit attacker, ICombatUnit target)
