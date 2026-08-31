@@ -1511,5 +1511,5 @@ script-reference check — зелёный. Финальную проверку 2
 
 - [x] `dotnet build src\Wpf\Sektor.DarkestDungeon.Wpf` — 0 errors.
 - [x] `dotnet test` — WPF 25/25 (+1 новый) и все связанные suites green.
-- [ ] `tools\check-using-placement.ps1` — последний прогон после всех правок.
+- [x] `tools\check-using-placement.ps1` — OK (прогон после всех правок).
 - [ ] Визуальная проверка по `docs\TESTING.md` (ред. 2026-08-31): обновлённые шаги 4.
