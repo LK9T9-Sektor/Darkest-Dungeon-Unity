@@ -1,8 +1,9 @@
+using System.Collections.Generic;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 
 namespace Sektor.DarkestDungeon.Core.Combat.Character
 {
-    /// <summary>Deterministic hero generation: same seed produces the same hero on both clients.</summary>
+    /// <summary>Deterministic hero generation: the same class and seed produce the same hero on both clients.</summary>
     public static class HeroGeneration
     {
         private static readonly string[] FirstNames =
@@ -10,6 +11,26 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
             "Reynauld", "Dismas", "Paracelsus", "Junia", "Alhazred",
             "Aram", "Baldwin", "Barristan", "Bonnie", "Boudica",
         };
+
+        private static readonly IReadOnlyDictionary<string, string> CanonicalNames =
+            new Dictionary<string, string>
+            {
+                { "plague_doctor", "Paracelsus" },
+                { "highwayman", "Dismas" },
+                { "crusader", "Reynauld" },
+                { "vestal", "Junia" },
+                { "occultist", "Alhazred" },
+                { "man_at_arms", "Barristan" },
+                { "hellion", "Boudica" },
+                { "leper", "Baldwin" },
+                { "bounty_hunter", "Bonnie" },
+                { "grave_robber", "Auda" },
+                { "jester", "Sarmenti" },
+                { "houndmaster", "William" },
+                { "abomination", "Vincent" },
+                { "arbalest", "Eleanor" },
+                { "antiquarian", "Iona" },
+            };
 
         /// <summary>Generates a hero of the given class from a deterministic seed.</summary>
         /// <param name="heroClass">The hero class.</param>
@@ -19,7 +40,8 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         {
             RandomSolver.SetRandomSeed(seed);
             string name = FirstNames[RandomSolver.Next(FirstNames.Length)];
-            return new Hero(heroClass, 0, name);
+            CanonicalNames.TryGetValue(heroClass.StringId, out string canonicalName);
+            return new Hero(heroClass, 0, canonicalName ?? name);
         }
     }
 }

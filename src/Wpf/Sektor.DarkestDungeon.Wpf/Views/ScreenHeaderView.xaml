@@ -1,15 +1,23 @@
 <UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.ScreenHeaderView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-        <!-- Close (back) cross, always top-left -->
-        <Button Content="X" Width="38" Height="38" FontSize="18" FontWeight="Bold"
-                Foreground="#C0392B" Style="{StaticResource HudButton}" ToolTip="Close"
-                Command="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+    <!-- Quest + retreat cross housed in a single framed control: the cross is pinned to its
+         top-left corner, the quest text beside it. -->
+    <Border Style="{StaticResource OverlayPanel}" Padding="{StaticResource SpacingSmall}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-        <!-- Title/quest panel, flush next to the cross -->
-        <Border Style="{StaticResource OverlayPanel}" Padding="16,8" Margin="10,0,0,0">
-            <StackPanel>
+            <!-- Close (back) cross, pinned to the top-left corner of the control -->
+            <Button Content="&#x2715;" Width="34" Height="34" FontSize="16" FontWeight="Bold"
+                    Foreground="#C0392B" Style="{StaticResource HudButton}" ToolTip="Close"
+                    VerticalAlignment="Top" HorizontalAlignment="Left"
+                    Command="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+
+            <!-- Title/quest panel -->
+            <StackPanel Grid.Column="1" Margin="4,0,0,0" VerticalAlignment="Top">
                 <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=UserControl}}"
                            Foreground="#E8D9B0" FontSize="20" FontWeight="Bold"
                            TextTrimming="CharacterEllipsis" />
@@ -17,6 +25,6 @@
                            Foreground="#C8C0B0" FontSize="13" TextWrapping="Wrap" Margin="0,2,0,0"
                            MaxWidth="360" TextTrimming="CharacterEllipsis" />
             </StackPanel>
-        </Border>
-    </StackPanel>
+        </Grid>
+    </Border>
 </UserControl>

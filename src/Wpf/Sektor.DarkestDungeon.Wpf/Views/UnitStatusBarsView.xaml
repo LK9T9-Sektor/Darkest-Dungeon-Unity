@@ -1,0 +1,103 @@
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.UnitStatusBarsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Standalone status control for a unit card: HP bar + value, stress bar + value and the
+         action pips (white = not acted this round yet, gray = already acted), pinned flush to the
+         right edge so the bars stay full-width. -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- HP bar (full width) -->
+        <ItemsControl Grid.Row="0" ItemsSource="{Binding HpSegments}" HorizontalAlignment="Stretch">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="12" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Rectangle Height="11" Margin="1,0">
+                        <Rectangle.Style>
+                            <Style TargetType="Rectangle">
+                                <Setter Property="Fill" Value="#2A2A2A" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding}" Value="1">
+                                        <Setter Property="Fill" Value="#8A3A2A" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Rectangle.Style>
+                    </Rectangle>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <TextBlock Grid.Row="1" Text="{Binding HpText}" Foreground="#B0A080" FontSize="9"
+                   HorizontalAlignment="Center" TextAlignment="Center" />
+
+        <!-- Stress bar (full width) -->
+        <ItemsControl Grid.Row="2" ItemsSource="{Binding StressPips}" HorizontalAlignment="Stretch" Margin="0,3,0,0">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="10" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Rectangle Height="8" Margin="1,0">
+                        <Rectangle.Style>
+                            <Style TargetType="Rectangle">
+                                <Setter Property="Fill" Value="#2A2A2A" />
+                                <Setter Property="Stroke" Value="Transparent" />
+                                <Setter Property="StrokeThickness" Value="1" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding}" Value="1">
+                                        <Setter Property="Fill" Value="#8A7A3A" />
+                                        <Setter Property="Stroke" Value="White" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding}" Value="2">
+                                        <Setter Property="Fill" Value="#7A3030" />
+                                        <Setter Property="Stroke" Value="White" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Rectangle.Style>
+                    </Rectangle>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <TextBlock Grid.Row="3" Text="{Binding StressText}" Foreground="#B0A080" FontSize="9"
+                   HorizontalAlignment="Center" TextAlignment="Center" />
+
+        <!-- Action pips: one per remaining/used action, flush to the right border (1 unit).
+             White = not acted yet this round, gray = acted. Span the HP + stress rows. -->
+        <ItemsControl Grid.RowSpan="4" ItemsSource="{Binding ActionPips}"
+                      HorizontalAlignment="Right" VerticalAlignment="Stretch" Margin="0,1,1,2">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="1" Rows="{Binding ActionsTotal}" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Rectangle Width="5" Margin="1,1,0,1" HorizontalAlignment="Right">
+                        <Rectangle.Style>
+                            <Style TargetType="Rectangle">
+                                <Setter Property="Fill" Value="#5A5A5A" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding}" Value="1">
+                                        <Setter Property="Fill" Value="White" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Rectangle.Style>
+                    </Rectangle>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</UserControl>

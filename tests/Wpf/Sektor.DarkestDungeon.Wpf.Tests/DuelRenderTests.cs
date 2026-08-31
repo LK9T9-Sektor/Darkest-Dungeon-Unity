@@ -94,6 +94,66 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         }
 
         [Test]
+        public void Snapshot_EveryCardHasNonZeroRank()
+        {
+            var view = CreateView(CreateDuel());
+
+            Assert.That(view.Heroes.Select(hero => hero.Rank), Is.All.GreaterThan(0));
+            Assert.That(view.Monsters.Select(monster => monster.Rank), Is.All.GreaterThan(0));
+        }
+
+        [Test]
+        public void Snapshot_ActionPipsMatchRoundProgress()
+        {
+            var view = CreateView(CreateDuel());
+            var currentId = view.Heroes.Concat(view.Monsters).FirstOrDefault(card => card.IsCurrent)?.CombatId;
+
+            foreach (var card in view.Heroes.Concat(view.Monsters))
+            {
+                Assert.That(card.ActionsTotal, Is.GreaterThanOrEqualTo(1));
+                Assert.That(card.ActionPips.Count, Is.EqualTo(card.ActionsTotal));
+                Assert.That(card.ActionPips, Is.All.InRange(0, 1));
+                Assert.That(card.RemainingActions, Is.InRange(0, card.ActionsTotal));
+            }
+
+            if (currentId != null)
+            {
+                var current = view.Heroes.Concat(view.Monsters).First(card => card.CombatId == currentId.Value);
+                Assert.That(current.RemainingActions, Is.EqualTo(1), "The acting unit keeps its action this round.");
+            }
+        }
+
+        [Test]
+        public void Actor_PanelReflectsCurrentUnitStats()
+        {
+            var duel = CreateDuel();
+            var view = CreateView(duel);
+            var unit = duel.CurrentUnit!;
+            var stats = view.RaidHud.Hero.Stats;
+
+            Assert.That(view.RaidHud.Hero.Name, Is.EqualTo(unit.Character.Name));
+            Assert.That(stats.HitPoints, Is.EqualTo(
+                (int)unit.Character.GetPairedAttribute(AttributeType.HitPoints).CurrentValue + " / "
+                + (int)unit.Character.GetPairedAttribute(AttributeType.HitPoints).ModifiedValue));
+            Assert.That(stats.Speed, Is.EqualTo(((int)unit.Character.Speed).ToString()));
+            Assert.That(stats.Accuracy, Is.EqualTo("+" + (int)unit.Character.Accuracy));
+            Assert.That(stats.Crit, Is.EqualTo((int)(unit.Character.Crit * 100) + "%"));
+            Assert.That(stats.Dodge, Is.EqualTo(((int)unit.Character.Dodge).ToString()));
+            Assert.That(stats.Protection, Is.EqualTo(((int)unit.Character.Protection) + "%"));
+        }
+
+        [Test]
+        public void Snapshot_HeroCardsShowCanonicalClassName()
+        {
+            var view = CreateView(CreateDuel());
+
+            Assert.That(view.Heroes.Select(hero => hero.Name), Is.All.EqualTo("Reynauld"));
+            Assert.That(view.Monsters.Select(monster => monster.Name), Is.All.EqualTo("Dismas"));
+            Assert.That(view.Heroes[0].ClassName, Is.EqualTo("Crusader"));
+            Assert.That(view.Monsters[0].ClassName, Is.EqualTo("Highwayman"));
+        }
+
+        [Test]
         public void ExecuteSkill_UpdatesSnapshotHp()
         {
             var duel = CreateDuel();
@@ -168,7 +228,28 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             var view = CreateView(duel);
 
             Assert.That(view.RaidHud.Hero.Name, Is.EqualTo(duel.CurrentUnit?.Character.Name));
-            Assert.That(view.Quest.Goal, Is.EqualTo(view.Status));
+            Assert.That(view.Quest.Goal, Is.EqualTo("Defeat the rival party"));
+        }
+
+        [Test]
+        public void Turn_End_GreysActedUnitPips()
+        {
+            var duel = CreateDuel();
+            var view = CreateView(duel);
+
+            if (!duel.IsLocalTurn)
+            {
+                Assert.Pass("Rival starts first; the pip greying is covered by the pass path next round.");
+                return;
+            }
+
+            var actedId = duel.CurrentUnit!.CombatInfo.CombatId;
+            view.PassCommand.Execute(null);
+
+            var actedCard = view.Heroes.Concat(view.Monsters).Single(card => card.CombatId == actedId);
+            Assert.That(actedCard.RemainingActions, Is.EqualTo(0), "The acting unit's pip turns gray once it moved.");
+            Assert.That(view.Heroes.Concat(view.Monsters).Single(card => card.IsCurrent).RemainingActions,
+                Is.EqualTo(1), "The new current unit keeps a white pip.");
         }
 
         [Test]

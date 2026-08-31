@@ -1,0 +1,163 @@
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.DuelUnitCardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views">
+    <!-- Solid rectangular CCG card split into two blocks: on top the vertical character card
+         (header with the centred name + corner rank badge, fully tiled portrait area, status
+         effects, damage popups and the class name under it), below the standalone status control
+         with the HP bar, HP value, stress bar, stress value and the action pips. -->
+    <Border Width="185" Background="#14100C" BorderBrush="#3A2E22" BorderThickness="2" CornerRadius="10">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- VERTICAL CHARACTER CARD -->
+            <Grid Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- HEADER: hero name centred (space reserved on both sides so the corner rank badge
+                     never overlaps the name) -->
+                <Border Grid.Row="0" Background="#1A1410" BorderBrush="#3A2E22" BorderThickness="0,0,0,2"
+                        Padding="6,4,5,4">
+                    <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"
+                               TextAlignment="Center" TextTrimming="CharacterEllipsis" Margin="36,0,36,0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#C96A5A" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEnemy}" Value="True">
+                                        <Setter Property="Foreground" Value="#6A8AC9" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Border>
+
+                <!-- CENTRAL AREA: full-tile portrait region (future art) with team/target/current
+                     highlight, the status effects strip and floating damage popups -->
+                <Border Grid.Row="1" BorderThickness="3" ClipToBounds="True">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="#8A2E2E" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEnemy}" Value="True">
+                                    <Setter Property="BorderBrush" Value="#2E4A8A" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsTarget}" Value="True">
+                                    <Setter Property="BorderBrush" Value="#D9B46A" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                    <Setter Property="BorderBrush" Value="White" />
+                                    <Setter Property="BorderThickness" Value="4" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Grid>
+                        <Border>
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="#5A4A3A" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsEnemy}" Value="True">
+                                            <Setter Property="Background" Value="#6A2E24" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                            <Setter Property="Background" Value="#3A3022" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                        </Border>
+                        <Image Source="{Binding Portrait}" Stretch="Fill" />
+                        <TextBlock Text="?" Foreground="#E8D9B0" FontSize="36"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                        <!-- Status effects: buffs/debuffs flow left-to-right, top-to-bottom for every team -->
+                        <ItemsControl ItemsSource="{Binding StatusEffects}" HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Top" Margin="4,4,4,0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel FlowDirection="LeftToRight" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Width="16" Height="16" Background="#2A2218" BorderBrush="#4A3E2C"
+                                            BorderThickness="1" CornerRadius="2" Margin="2" ToolTip="{Binding}">
+                                        <TextBlock Text="{Binding}" FontSize="7" Foreground="#E8D9B0"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Floating damage popup over the central area -->
+                        <TextBlock Text="{Binding DamagePopupText}" FontSize="22" FontWeight="Bold"
+                                   Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   TextAlignment="Center" TextWrapping="Wrap" Margin="6"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Opacity" Value="0" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DamagePopupVisible}" Value="True">
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                         From="1" To="0" Duration="0:0:0.9" />
+                                                        <ThicknessAnimation Storyboard.TargetProperty="Margin"
+                                                                            From="0,40,0,0" To="0,6,0,0" Duration="0:0:0.9" />
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </Border>
+
+                <!-- CLASS NAME: under the portrait, above the HP/stress bars (separated by a line) -->
+                <Border Grid.Row="2" Background="#10100D" BorderBrush="#3A2E22" BorderThickness="0,1,0,0"
+                        Padding="6,4,6,4">
+                    <TextBlock Text="{Binding ClassName}" Foreground="#E8D9B0" FontSize="12"
+                               FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center"
+                               TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" MaxWidth="170" />
+                </Border>
+            </Grid>
+
+            <!-- STATUS BARS: standalone control with the HP/stress bars + values and the action pips -->
+            <views:UnitStatusBarsView Grid.Row="1" Margin="6,3,6,6" />
+
+            <!-- RANK BADGE pinned to the corner: heroes top-right, enemies top-left, flush, a bit larger -->
+            <Border Grid.RowSpan="2" Background="#3A3022" BorderBrush="#6A5A3A" BorderThickness="2"
+                    Padding="7,2" VerticalAlignment="Top"
+                    ToolTip="Position (rank)">
+                <TextBlock Text="{Binding Rank}" Foreground="#E8D9B0" FontSize="15" FontWeight="Bold"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="HorizontalAlignment" Value="Right" />
+                        <Setter Property="CornerRadius" Value="0,8,0,8" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsEnemy}" Value="True">
+                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                <Setter Property="CornerRadius" Value="8,0,8,0" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

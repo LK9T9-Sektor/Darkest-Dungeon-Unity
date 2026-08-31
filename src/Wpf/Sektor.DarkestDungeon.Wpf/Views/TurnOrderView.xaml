@@ -8,7 +8,9 @@
             <TextBlock Text="TURN ORDER" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="16"
                        FontWeight="Bold" HorizontalAlignment="Right" />
 
-            <!-- One row, reading right-to-left like the in-game turn order -->
+            <!-- One row, reading right-to-left like the in-game turn order. The strip shows the whole
+                 round sequence captured at the round start, so tiles never collapse or jump; the
+                 acting unit keeps its white frame for the whole turn and dead units just dim in place. -->
             <ItemsControl ItemsSource="{Binding TurnOrder}" FlowDirection="RightToLeft" Margin="0,6,0,0">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -17,10 +19,9 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Width="70" Height="72" CornerRadius="6" Margin="4">
+                        <Border Width="72" Height="96" CornerRadius="6" Margin="4" Background="#2A2220">
                             <Border.Style>
                                 <Style TargetType="Border">
-                                    <Setter Property="Background" Value="#2A2220" />
                                     <Setter Property="BorderBrush" Value="#8A2E2E" />
                                     <Setter Property="BorderThickness" Value="2" />
                                     <Style.Triggers>
@@ -31,32 +32,59 @@
                                             <Setter Property="BorderBrush" Value="White" />
                                             <Setter Property="BorderThickness" Value="3" />
                                         </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsDead}" Value="True">
+                                            <Setter Property="Opacity" Value="0.35" />
+                                            <Setter Property="BorderBrush" Value="#555555" />
+                                        </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Border.Style>
-                            <StackPanel Margin="4" VerticalAlignment="Center">
-                                <!-- Image slot (empty until a portrait is provided) -->
-                                <Image Source="{Binding Portrait}" Width="30" Height="30"
-                                       HorizontalAlignment="Center" Stretch="UniformToFill" />
-                                <TextBlock Text="{Binding Name}" FontSize="11" HorizontalAlignment="Center"
-                                           TextTrimming="CharacterEllipsis" MaxWidth="60" Margin="0,2,0,0">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#C96A5A" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsEnemy}" Value="True">
-                                                <Setter Property="Foreground" Value="#6A8AC9" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,2,0,0">
-                                    <TextBlock Text="{Binding Speed}" FontSize="10" Foreground="#8A7A5A" />
-                                    <TextBlock Text="{Binding InitiativeRoll, StringFormat=  &#x2192;  {0:0.0}}"
-                                               FontSize="10" Foreground="#C8B088" />
-                                </StackPanel>
-                            </StackPanel>
+
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <!-- Name on top -->
+                                <TextBlock Grid.Row="0" Text="{Binding Name}" FontSize="11"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"
+                                           MaxWidth="66" Margin="2,3,2,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="#C96A5A" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsEnemy}" Value="True">
+                                                    <Setter Property="Foreground" Value="#6A8AC9" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+
+                                <!-- Bordered slot reserved for the future character icon -->
+                                <Border Grid.Row="1" Margin="3,4,3,4" BorderBrush="#3A2E22"
+                                        BorderThickness="1" CornerRadius="3" />
+
+                                <!-- Bottom values flush to the edges: real speed bottom-left, the
+                                     rolled initiative (speed + roll) bottom-right -->
+                                <Grid Grid.Row="2" Margin="3,0,3,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Speed}" FontSize="11"
+                                               FontWeight="Bold" Foreground="#8A7A5A"
+                                               HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                                               ToolTip="Speed" />
+                                    <TextBlock Grid.Column="1" Text="{Binding InitiativeRoll, StringFormat={}{0:0.0}}"
+                                               FontSize="11" FontWeight="Bold" Foreground="#C8B088"
+                                               HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                               ToolTip="Round initiative" />
+                                </Grid>
+                            </Grid>
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

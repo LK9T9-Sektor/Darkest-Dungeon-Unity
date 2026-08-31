@@ -1,0 +1,29 @@
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.HeroTrinketsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Trinkets control: top row spans both columns with a centered pouch glyph; below are
+         two trinket slots reserved for future images. -->
+    <Border Style="{StaticResource OverlayPanel}" Padding="6">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Pouch glyph, centered over the full width -->
+            <Path Grid.Row="0" Grid.ColumnSpan="2" Width="22" Height="19" Stretch="Uniform"
+                  HorizontalAlignment="Center" Fill="#C8A060" ToolTip="Trinkets"
+                  Data="M3,3 C3,1 8,0 10,0 C12,0 17,1 17,3 L16,13 C16,16 13,18 10,18 C7,18 4,16 4,13 Z" />
+
+            <!-- Trinket slots (future images) -->
+            <Border Grid.Row="1" Grid.Column="0" Height="40" Margin="0,8,3,0" Background="#2A2218"
+                    BorderBrush="#3A2E22" BorderThickness="1" CornerRadius="4" VerticalAlignment="Bottom" />
+            <Border Grid.Row="1" Grid.Column="1" Height="40" Margin="3,8,0,0" Background="#2A2218"
+                    BorderBrush="#3A2E22" BorderThickness="1" CornerRadius="4" VerticalAlignment="Bottom" />
+        </Grid>
+    </Border>
+</UserControl>

@@ -124,17 +124,35 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private bool _damagePopupVisible;
 
+        /// <summary>Gets the active status effect ids (buffs and debuffs) shown around the portrait.</summary>
+        /// <remarks>Reserved for battle status effects; empty until the duel exposes them.</remarks>
+        public IReadOnlyList<string> StatusEffects { get; } = new List<string>();
+
         /// <summary>Gets the hit point ratio (0-1) for the health bar.</summary>
         public double HpRatio { get { return HpMax <= 0 ? 0 : (double)HpCurrent / HpMax; } }
 
         /// <summary>Gets the hit points text.</summary>
         public string HpText { get { return HpCurrent + " / " + HpMax; } }
 
+        /// <summary>Gets the stress value text.</summary>
+        public string StressText { get { return Stress.ToString(); } }
+
+        /// <summary>Gets or sets the total number of actions per round (1 unless an ability grants more).</summary>
+        [ObservableProperty]
+        private int _actionsTotal = 1;
+
+        /// <summary>Gets or sets the amount of actions this unit can still take this round.</summary>
+        [ObservableProperty]
+        private int _remainingActions = 1;
+
         /// <summary>Gets the hp bar segments (1 = filled, 0 = empty).</summary>
         public List<int> HpSegments { get; } = new List<int>();
 
         /// <summary>Gets the stress pips (0 = empty, 1 = normal, 2 = stressed).</summary>
         public List<int> StressPips { get; } = new List<int>();
+
+        /// <summary>Gets the action pips (1 = not spent yet, 0 = used).</summary>
+        public List<int> ActionPips { get; } = new List<int>();
 
         /// <summary>Initializes a new instance of the <see cref="DuelUnitViewModel"/> class.</summary>
         /// <param name="combatId">The combat id.</param>
@@ -162,6 +180,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             int stressFilled = Math.Min(10, (int)Math.Round(Stress / 10.0));
             for (int i = 0; i < 10; i++)
                 StressPips.Add(i < stressFilled ? (i >= 5 ? 2 : 1) : 0);
+
+            ActionPips.Clear();
+            int remaining = Math.Max(0, Math.Min(ActionsTotal, RemainingActions));
+            for (int i = 0; i < ActionsTotal; i++)
+                ActionPips.Add(i < remaining ? 1 : 0);
         }
 
         partial void OnHpCurrentChanged(int value)
@@ -177,6 +200,17 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         }
 
         partial void OnStressChanged(int value)
+        {
+            OnPropertyChanged(nameof(StressText));
+            UpdateBars();
+        }
+
+        partial void OnActionsTotalChanged(int value)
+        {
+            UpdateBars();
+        }
+
+        partial void OnRemainingActionsChanged(int value)
         {
             UpdateBars();
         }

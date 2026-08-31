@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Media;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -44,6 +45,17 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private bool isMoveMode;
         private readonly FormationDisplayOrder heroOrder = FormationDisplayOrder.HeroSide();
         private readonly FormationDisplayOrder monsterOrder = FormationDisplayOrder.MonsterSide();
+
+        /// <summary>Quest text shown in the top-left panel (no round/actor info there).</summary>
+        private const string QuestText = "Defeat the rival party";
+
+        /// <summary>Round number the captured turn order belongs to (-1 until the first snapshot).</summary>
+        private int _lastRound = -1;
+
+        /// <summary>Full initiative sequence of the current round, captured when the round changes.
+        /// The core pops each unit out of <c>Round.OrderedUnits</c> when its turn is prepped, so the
+        /// remaining list alone would drop both the acting unit and everyone who already moved.</summary>
+        private List<int> _roundStartOrder = new List<int>();
 
         /// <summary>Gets the local party unit cards (left ranks).</summary>
         public ObservableCollection<DuelUnitViewModel> Heroes { get; } = new ObservableCollection<DuelUnitViewModel>();
@@ -231,16 +243,54 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             if (controller.BattleGround == null || current == null)
                 return;
 
-            int currentId = current.CombatInfo.CombatId;
-            foreach (var unit in controller.BattleGround.Round.OrderedUnits)
+            int round = controller.BattleGround.Round.RoundNumber;
+            if (round != _lastRound)
             {
+                _lastRound = round;
+                _roundStartOrder = controller.BattleGround.Round.OrderedUnits
+                    .Select(unit => unit.CombatInfo.CombatId)
+                    .ToList();
+            }
+
+            // The acting unit is removed from OrderedUnits when its turn is prepped, so make sure the
+            // captured sequence always starts with it (keeps the strip from jumping mid-turn).
+            var selected = controller.BattleGround.Round.SelectedUnit;
+            if (selected != null && !_roundStartOrder.Contains(selected.CombatInfo.CombatId))
+                _roundStartOrder.Insert(0, selected.CombatInfo.CombatId);
+
+            int currentId = current.CombatInfo.CombatId;
+            int currentIndex = _roundStartOrder.IndexOf(currentId);
+            if (currentIndex < 0)
+                currentIndex = 0;
+
+            var unitsById = new Dictionary<int, ICombatUnit>();
+            foreach (var unit in controller.HeroParty.Units.Concat(controller.MonsterParty.Units))
+                unitsById[unit.CombatInfo.CombatId] = unit;
+
+            foreach (var combatId in _roundStartOrder)
+            {
+                if (!unitsById.TryGetValue(combatId, out var unit))
+                    continue;
+
                 var entry = new DuelTurnEntryViewModel(
                     unit.Character.Name,
                     unit.Team == Team.Monsters,
                     (int)unit.Character.Speed,
-                    unit.CombatInfo.InitiativeRoll);
-                entry.IsCurrent = unit.CombatInfo.CombatId == currentId;
+                    unit.CombatInfo.InitiativeRoll)
+                {
+                    IsCurrent = combatId == currentId,
+                    IsDead = unit.CombatInfo.IsDead,
+                };
                 TurnOrder.Add(entry);
+            }
+
+            // Units that already moved this round (ordered before the current one) have no actions
+            // left (gray pips); the acting unit and everyone still to come keep theirs (white pips).
+            foreach (var card in Heroes.Concat(Monsters))
+            {
+                int index = _roundStartOrder.IndexOf(card.CombatId);
+                bool dead = unitsById.TryGetValue(card.CombatId, out var unit) && unit.CombatInfo.IsDead;
+                card.RemainingActions = dead || index < 0 || index < currentIndex ? 0 : 1;
             }
         }
 
@@ -287,7 +337,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         private void RefreshEvents()
         {
-            Events.Round = controller.BattleGround?.Round.RoundNumber ?? 1;
+            int round = controller.BattleGround?.Round.RoundNumber ?? 1;
+            Events.Round = round;
+            Torch.Round = round;
         }
 
         private void RefreshActor()
@@ -303,8 +355,26 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 character.CurrentCombatSkills ?? Enumerable.Empty<CombatSkill>(),
                 (int)character.GetPairedAttribute(AttributeType.HitPoints).CurrentValue,
                 (int)character.GetPairedAttribute(AttributeType.HitPoints).ModifiedValue,
-                (int)character.Stress.CurrentValue);
-            Quest.Goal = Status;
+                (int)character.Stress.CurrentValue,
+                (int)character.Speed,
+                (int)character.MinDamage,
+                (int)character.MaxDamage,
+                (int)character.Accuracy,
+                (int)(character.Crit * 100),
+                (int)character.Dodge,
+                (int)character.Protection);
+            Quest.Goal = QuestText;
+            Torch.ActorName = character.Name;
+            Torch.ActorColor = CreateTeamBrush(unit.Team);
+        }
+
+        private static Brush CreateTeamBrush(Team team)
+        {
+            var brush = new SolidColorBrush(team == Team.Monsters
+                ? Color.FromRgb(0x6A, 0x8A, 0xC9)
+                : Color.FromRgb(0xC9, 0x6A, 0x5A));
+            brush.Freeze();
+            return brush;
         }
 
         private void Hover(DuelUnitViewModel? unit)

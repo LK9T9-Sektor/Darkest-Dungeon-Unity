@@ -1,59 +1,15 @@
 <UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.MapView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:ui="clr-namespace:Sektor.DarkestDungeon.Wpf.Ui">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Placeholder map: a single centered square; content never overflows the panel. -->
     <Border Style="{StaticResource OverlayPanel}">
-        <Grid>
-            <!-- Square map area with a grid, cells aligned, as in Darkest Dungeon -->
-            <Canvas Width="280" Height="280" HorizontalAlignment="Center" VerticalAlignment="Center" ClipToBounds="True">
-
-                <!-- Grid lines: 6x6 over 280px (cell = 56px) -->
-                <Path Stroke="#2A2018" StrokeThickness="1"
-                      Data="M0,0 L280,0 M0,56 L280,56 M0,112 L280,112 M0,168 L280,168 M0,224 L280,224 M0,280 L280,280 M0,0 L0,280 M56,0 L56,280 M112,0 L112,280 M168,0 L168,280 M224,0 L224,280 M280,0 L280,280" />
-
-                <!-- Corridor path: right angles along the grid between room cells -->
-                <Path Stroke="#5A4A3A" StrokeThickness="8"
-                      Data="M28,260 L28,130 L134,130 L134,242 L246,242 L246,40 L190,40 L190,18 L246,18" />
-
-                <!-- Room nodes (top-left aligned to grid cells) -->
-                <ItemsControl ItemsSource="{Binding Rooms}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Canvas />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemContainerStyle>
-                        <Style TargetType="ContentPresenter">
-                            <Setter Property="Canvas.Left" Value="{Binding X}" />
-                            <Setter Property="Canvas.Top" Value="{Binding Y}" />
-                        </Style>
-                    </ItemsControl.ItemContainerStyle>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Width="44" Height="36" CornerRadius="6"
-                                    BorderBrush="{x:Static ui:UiBrushes.Label}" BorderThickness="2">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Background" Value="#3A2E22" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsVisited}" Value="True">
-                                                <Setter Property="Background" Value="#5A4A3A" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <TextBlock Text="{Binding Type}" Foreground="#E8D9B0" FontSize="11"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-
-                <!-- Current position marker (start cell) -->
-                <Border Width="14" Height="14" CornerRadius="7"
-                        Background="{x:Static ui:UiBrushes.Label}"
-                        Canvas.Left="21" Canvas.Top="235" />
-            </Canvas>
+        <Grid ClipToBounds="True">
+            <Border Width="120" Height="120" CornerRadius="8"
+                    BorderBrush="#3A2E22" BorderThickness="2"
+                    Background="#140F0C" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="?" Foreground="#8A7A5A" FontSize="30"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
         </Grid>
     </Border>
 </UserControl>

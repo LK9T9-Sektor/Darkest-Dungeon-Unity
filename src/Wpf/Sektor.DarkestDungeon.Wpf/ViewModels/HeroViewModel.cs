@@ -66,7 +66,27 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <param name="hpCurrent">The current hit points.</param>
         /// <param name="hpMax">The maximum hit points.</param>
         /// <param name="stress">The stress value.</param>
-        public void Apply(string name, string className, IEnumerable<CombatSkill> combatSkills, int hpCurrent, int hpMax, int stress)
+        /// <param name="speed">The speed value.</param>
+        /// <param name="minDamage">The minimum damage.</param>
+        /// <param name="maxDamage">The maximum damage.</param>
+        /// <param name="accuracy">The accuracy.</param>
+        /// <param name="crit">The critical chance percentage.</param>
+        /// <param name="dodge">The dodge value.</param>
+        /// <param name="protection">The protection percentage.</param>
+        public void Apply(
+            string name,
+            string className,
+            IEnumerable<CombatSkill> combatSkills,
+            int hpCurrent,
+            int hpMax,
+            int stress,
+            int speed,
+            int minDamage,
+            int maxDamage,
+            int accuracy,
+            int crit,
+            int dodge,
+            int protection)
         {
             Name = name;
             ClassName = className;
@@ -74,6 +94,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             Stats.HeroClass = className;
             Stats.HitPoints = hpCurrent + " / " + hpMax;
             Stats.Stress = stress + " / 100";
+            Stats.Speed = speed.ToString();
+            Stats.Damage = minDamage + " - " + maxDamage;
+            Stats.Accuracy = "+" + accuracy;
+            Stats.Crit = crit + "%";
+            Stats.Dodge = dodge.ToString();
+            Stats.Protection = protection + "%";
 
             CombatSkills.Clear();
             foreach (var skill in combatSkills)

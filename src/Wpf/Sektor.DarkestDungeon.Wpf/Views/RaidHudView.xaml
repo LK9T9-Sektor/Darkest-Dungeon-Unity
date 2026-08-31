@@ -2,27 +2,15 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views">
-    <Grid Margin="8,8,8,8">
+    <!-- Right column of the bottom HUD area: log/inventory/map content plus the vertical glyph
+         toggle strip at the right edge (bottom-to-top: INVENTORY, MAP, LOG). -->
+    <Grid Margin="4">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="360" />
-            <ColumnDefinition Width="2" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="2" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <!-- Left: hero info, filling the HUD height (content pinned to the bottom) -->
-        <views:HeroInfoPanelView Grid.Column="0" DataContext="{Binding RaidHud}"
-                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-        <Border Grid.Column="1" Background="#3A2E22" />
-
-        <!-- Center: unit tooltip, stretching to fill the column -->
-        <views:UnitTooltipView Grid.Column="2" DataContext="{Binding TooltipTarget}"
-                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="12,0,12,0" />
-        <Border Grid.Column="3" Background="#3A2E22" />
-
-        <!-- Right: log/inventory/map, filling the HUD height -->
-        <Grid Grid.Column="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ClipToBounds="True">
             <views:LogView DataContext="{Binding}"
                            Visibility="{Binding DataContext.RaidHud.IsLogShown, RelativeSource={RelativeSource AncestorType={x:Type views:RaidHudView}}, Converter={StaticResource BoolToVisibility}}" />
             <views:InventoryView DataContext="{Binding RaidHud.Inventory}"
@@ -30,5 +18,18 @@
             <views:MapView DataContext="{Binding RaidHud.Map}"
                            Visibility="{Binding DataContext.RaidHud.IsMapShown, RelativeSource={RelativeSource AncestorType={x:Type views:RaidHudView}}, Converter={StaticResource BoolToVisibility}}" />
         </Grid>
+
+        <!-- Glyph toggle strip, bottom-anchored: INVENTORY at the bottom, then MAP, then LOG -->
+        <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Bottom" Margin="4,0,0,0">
+            <Button Content="&#x2630;" Style="{StaticResource HudButton}" Width="40" Height="40"
+                    FontSize="16" ToolTip="Log"
+                    Command="{Binding RaidHud.ShowLogCommand}" Margin="0,0,0,4" />
+            <Button Content="&#x271B;" Style="{StaticResource HudButton}" Width="40" Height="40"
+                    FontSize="16" ToolTip="Map"
+                    Command="{Binding RaidHud.ShowMapCommand}" Margin="0,0,0,4" />
+            <Button Content="&#x25A6;" Style="{StaticResource HudButton}" Width="40" Height="40"
+                    FontSize="16" ToolTip="Inventory"
+                    Command="{Binding RaidHud.ShowInventoryCommand}" />
+        </StackPanel>
     </Grid>
 </UserControl>

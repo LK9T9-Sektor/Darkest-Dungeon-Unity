@@ -25,6 +25,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private bool _isCurrent;
 
+        /// <summary>Gets a value indicating whether the unit is dead (the tile is dimmed in place,
+        /// keeping the turn order strip free of layout jumps).</summary>
+        [ObservableProperty]
+        private bool _isDead;
+
         /// <summary>Initializes a new instance of the <see cref="DuelTurnEntryViewModel"/> class.</summary>
         /// <param name="name">The unit display name.</param>
         /// <param name="isEnemy">Whether the unit belongs to the enemy side.</param>
