@@ -7,6 +7,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Line = System.Windows.Shapes.Line;
+using Polygon = System.Windows.Shapes.Polygon;
 using Rectangle = System.Windows.Shapes.Rectangle;
 
 using NUnit.Framework;
@@ -258,7 +260,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                 throw new AssertionException("Render failed: " + error);
         }
 
-        private static Grid BuildArrowOverlay(out DuelBattleView duelView, out DuelBattleViewModel view, out DuelUnitViewModel validTarget)
+        private static Canvas BuildArrowOverlay(out DuelBattleView duelView, out DuelBattleViewModel view, out DuelUnitViewModel validTarget)
         {
             var existing = Application.Current;
             var app = existing ?? new App();
@@ -273,12 +275,13 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             foreach (var skill in view.Skills)
             {
                 view.SelectSkillCommand.Execute(skill);
-                target = view.Heroes.Concat(view.Monsters).FirstOrDefault(unit => unit.IsTarget);
+                target = view.Heroes.Concat(view.Monsters)
+                    .FirstOrDefault(unit => unit.IsTarget && !unit.IsCurrent);
                 if (target != null)
                     break;
             }
 
-            Assert.That(target, Is.Not.Null, "At least one skill must expose a valid hover target.");
+            Assert.That(target, Is.Not.Null, "At least one skill must expose a valid non-self hover target.");
 
             duelView = new DuelBattleView { DataContext = view };
             duelView.Measure(new Size(WindowWidth, WindowHeight));
@@ -286,13 +289,14 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             duelView.UpdateLayout();
 
             validTarget = target!;
-            return (Grid)duelView.FindName("ArrowGrid");
+            return (Canvas)duelView.FindName("TargetLayer");
         }
 
-        /// <summary>The hover arrow uses the pre-built strip cells: only visibility is toggled, the
-        /// sheet never hits tests, and an invalid/none hover leaves every cell collapsed.</summary>
+        /// <summary>The hover arrow is a badge + line + arrowhead computed by math: the badge floats
+        /// above the acting card while a skill is selected, the sheet never hits tests, a valid hover
+        /// reveals the line with a 3-point arrowhead, and clearing hides the line but keeps the badge.</summary>
         [Test]
-        public void DuelArrow_HoverShowsBandAndClears()
+        public void DuelArrow_HoverShowsLineAndClears()
         {
             Exception? error = null;
             var thread = new Thread(() =>
@@ -302,32 +306,38 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                     DuelBattleView duelView;
                     DuelBattleViewModel view;
                     DuelUnitViewModel target;
-                    var grid = BuildArrowOverlay(out duelView, out view, out target);
-                    Assert.That(grid.IsHitTestVisible, Is.False, "The overlay must never intercept card clicks.");
+                    var layer = BuildArrowOverlay(out duelView, out view, out target);
+                    Assert.That(layer.IsHitTestVisible, Is.False, "The overlay must never intercept card clicks.");
 
-                    var cells = grid.Children.OfType<Rectangle>().ToArray();
-                    Assert.That(cells.Length, Is.EqualTo(DuelArrowCells.CellCount));
-                    Assert.That(grid.Visibility, Is.EqualTo(Visibility.Collapsed), "The overlay starts collapsed.");
+                    var line = (Line)duelView.FindName("ArrowLine");
+                    var head = (Polygon)duelView.FindName("ArrowHead");
+                    var badge = (Border)duelView.FindName("SkillBadge");
+                    Assert.That(line, Is.Not.Null);
+                    Assert.That(head, Is.Not.Null);
+                    Assert.That(badge, Is.Not.Null);
+
+                    Assert.That(line.Visibility, Is.EqualTo(Visibility.Collapsed), "The line starts hidden.");
+                    Assert.That(head.Visibility, Is.EqualTo(Visibility.Collapsed), "The arrowhead starts hidden.");
 
                     duelView.ShowArrowFor(target);
-                    var expected = DuelArrowCells.MaskFor(view.CurrentActorTeam, view.CurrentActorRank, target.Rank);
-                    Assert.That(expected.Count, Is.GreaterThan(0), "A valid hover must light at least one cell.");
-                    Assert.That(grid.Visibility, Is.EqualTo(Visibility.Visible), "Hovering reveals the overlay.");
-                    Assert.That(grid.ColumnDefinitions[0].Width.GridUnitType, Is.EqualTo(GridUnitType.Pixel),
-                        "The lead column is calibrated to the measured first card.");
-                    Assert.That(grid.ColumnDefinitions[DuelArrowCells.CellCount].Width.GridUnitType, Is.EqualTo(GridUnitType.Pixel),
-                        "The last slot column is calibrated to the measured last card.");
-                    for (int i = 0; i < cells.Length; i++)
-                    {
-                        bool lit = expected.Contains(i);
-                        Assert.That(cells[i].Visibility == Visibility.Visible, Is.EqualTo(lit),
-                            "Cell " + i + " visibility does not match the rank-aware band mask.");
-                    }
+
+                    Assert.That(badge.Visibility, Is.EqualTo(Visibility.Visible),
+                        "The selected-skill badge floats above the acting card while a skill is selected.");
+                    Assert.That(line.Visibility, Is.EqualTo(Visibility.Visible), "Hovering a valid target reveals the line.");
+                    Assert.That(head.Visibility, Is.EqualTo(Visibility.Visible), "Hovering reveals the arrowhead.");
+                    Assert.That(head.Points.Count, Is.EqualTo(3));
+                    Assert.That(line.X1, Is.GreaterThan(0), "The line starts at the badge above the acting card.");
+                    Assert.That(line.Y1, Is.GreaterThan(0));
+                    Assert.That(line.X2, Is.GreaterThan(0));
+                    Assert.That(line.Y2, Is.GreaterThan(0));
+                    Assert.That(Math.Abs(line.X2 - line.X1) + Math.Abs(line.Y2 - line.Y1), Is.GreaterThan(0),
+                        "The line must span from the badge to the hovered card.");
 
                     duelView.ClearArrow();
-                    Assert.That(grid.Visibility, Is.EqualTo(Visibility.Collapsed), "Clearing hides the overlay.");
-                    Assert.That(cells.All(cell => cell.Visibility == Visibility.Collapsed), Is.True,
-                        "Clearing the arrow collapses every cell again.");
+                    Assert.That(line.Visibility, Is.EqualTo(Visibility.Collapsed), "Clearing hides the line.");
+                    Assert.That(head.Visibility, Is.EqualTo(Visibility.Collapsed), "Clearing hides the arrowhead.");
+                    Assert.That(badge.Visibility, Is.EqualTo(Visibility.Visible),
+                        "The badge stays visible while the skill is still selected.");
                 }
                 catch (Exception e)
                 {

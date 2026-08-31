@@ -310,6 +310,8 @@ namespace Sektor.DarkestDungeon.Core.Duel
             var skill = FindSkill(unit, skillId);
             if (unit == null || target == null || skill == null || !IsSkillUsable(unit, skill))
                 return null;
+            if (!GetAvailableTargets(unit, skill).Contains(target))
+                return null;
 
             ExecuteSkill(unit, target, skill);
             FinishSkillAction(unit, skill);
@@ -439,27 +441,35 @@ namespace Sektor.DarkestDungeon.Core.Duel
                 ?? MonsterParty.Units.FirstOrDefault(u => u.CombatInfo.CombatId == combatId);
         }
 
-        /// <summary>Executes a skill against a target (core solver).</summary>
+        /// <summary>Executes a skill against a primary target, expanding to every valid target (AOE / party effects).</summary>
         /// <param name="unit">The acting unit.</param>
-        /// <param name="target">The target unit.</param>
+        /// <param name="primaryTarget">The clicked target; expanded to the full target set.</param>
         /// <param name="skill">The skill.</param>
-        public void ExecuteSkill(ICombatUnit unit, ICombatUnit target, CombatSkill skill)
+        public void ExecuteSkill(ICombatUnit unit, ICombatUnit primaryTarget, CombatSkill skill)
         {
-            if (Solver == null || BattleGround == null)
+            if (Solver == null || BattleGround == null || primaryTarget == null)
                 return;
 
+            var targets = Solver.SelectSkillTargets(unit, primaryTarget, skill).Targets;
             Solver.SkillResult.Reset();
-            Solver.ExecuteSkill(unit, target, skill, null);
+            foreach (var target in targets)
+            {
+                if (target.CombatInfo.IsDead)
+                    continue;
+                Solver.ExecuteSkill(unit, target, skill, null);
+            }
             ProcessEventQueues();
             CheckDeaths();
 
-            ExecuteRiposte(unit, target);
-            RemoveConditions(unit, target);
-            RecoverDeathsDoorIfHealed(target);
+            foreach (var target in targets)
+                ExecuteRiposte(unit, target);
+            RemoveConditions(unit, targets);
+            foreach (var target in targets)
+                RecoverDeathsDoorIfHealed(target);
 
             foreach (var entry in Solver.SkillResult.SkillEntries)
                 logger.Log("[duel] " + unit.Character.Name + " used " + skill.Id + " -> " +
-                    target.Character.Name + " (" + entry.Type + (entry.Amount != 0 ? " " + entry.Amount : "") + ")");
+                    entry.Target?.Character.Name + " (" + entry.Type + (entry.Amount != 0 ? " " + entry.Amount : "") + ")");
         }
 
         private void RecoverDeathsDoorIfHealed(ICombatUnit target)
@@ -505,18 +515,21 @@ namespace Sektor.DarkestDungeon.Core.Duel
             CheckDeaths();
         }
 
-        private void RemoveConditions(ICombatUnit performer, ICombatUnit target)
+        private void RemoveConditions(ICombatUnit performer, List<ICombatUnit> targets)
         {
             if (Solver == null)
                 return;
             Solver.RemoveConditions(performer);
-            if (target != null)
+            if (targets == null)
+                return;
+            foreach (var target in targets)
                 Solver.RemoveConditions(target);
         }
 
         private void ProcessEventQueues()
         {
-            foreach (var unit in HeroParty.Units.Concat(MonsterParty.Units))
+            var units = HeroParty.Units.Concat(MonsterParty.Units).ToList();
+            foreach (var unit in units)
             {
                 if (unit.EventQueue.Count == 0)
                     continue;

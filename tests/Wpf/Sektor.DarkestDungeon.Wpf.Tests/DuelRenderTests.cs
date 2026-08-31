@@ -4,6 +4,8 @@ using System.Linq;
 using NUnit.Framework;
 
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 using Sektor.DarkestDungeon.Core.Duel;
 using Sektor.DarkestDungeon.Wpf.Data;
@@ -307,6 +309,98 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
 
             Assert.That(view.Log.Count, Is.GreaterThan(logCount));
             Assert.That(view.Log[view.Log.Count - 1], Is.Not.Empty);
+        }
+
+        [Test]
+        public void SelectTarget_InvalidTarget_IsIgnored()
+        {
+            var duel = CreateDuel();
+            var view = CreateView(duel);
+
+            if (!duel.IsLocalTurn || view.Skills.Count == 0)
+            {
+                Assert.Pass("Rival starts first; the invalid-target path is covered on the local side.");
+                return;
+            }
+
+            view.SelectSkillCommand.Execute(view.Skills[0]);
+            var invalid = view.Heroes.Concat(view.Monsters).FirstOrDefault(card => !card.IsTarget);
+            Assert.That(invalid, Is.Not.Null, "There should be at least one card outside the selected skill's targets.");
+
+            var targetCard = view.Heroes.Concat(view.Monsters).FirstOrDefault(card => card.IsTarget);
+            if (targetCard == null)
+                Assert.Pass("Selected skill has no valid targets; nothing can be executed.");
+
+            int hpBefore = targetCard.HpCurrent;
+            int logCount = view.Log.Count;
+
+            view.TargetCommand.Execute(invalid);
+
+            Assert.That(view.Log.Count, Is.EqualTo(logCount), "Clicking an invalid target must not trigger a skill action.");
+            Assert.That(targetCard.HpCurrent, Is.EqualTo(hpBefore),
+                "No damage or heal should be applied through an invalid target.");
+        }
+
+        [Test]
+        public void HealSkill_SelectsOnlyAlliesAndHealsTheClickedAlly()
+        {
+            var duel = CreateDuel();
+            var view = CreateView(duel);
+
+            ICombatUnit? unit = null;
+            CombatSkill? healSkill = null;
+            int guard = 0;
+            while (!duel.IsFinished && guard++ < 100)
+            {
+                if (duel.IsLocalTurn)
+                {
+                    var heal = duel.CurrentUnit?.Character.CurrentCombatSkills?.FirstOrDefault(
+                        s => s.Category == SkillCategory.Heal && duel.IsSkillUsable(duel.CurrentUnit!, s));
+                    if (heal != null)
+                    {
+                        unit = duel.CurrentUnit;
+                        healSkill = heal;
+                        break;
+                    }
+                    duel.ExecuteLocalPass();
+                    view.Refresh();
+                }
+                else
+                {
+                    duel.ApplyRemoteSkill(DuelPayload.PassAction());
+                    view.Refresh();
+                }
+            }
+
+            if (unit == null || healSkill == null)
+                Assert.Pass("No hero reached a turn with a usable heal skill.");
+
+            var woundedAlly = duel.HeroParty.Units.FirstOrDefault(u => u != unit);
+            Assert.That(woundedAlly, Is.Not.Null);
+            woundedAlly.Character.TakeDamage(4);
+            view.Refresh();
+
+            var healButton = view.Skills.FirstOrDefault(s => s.Id == healSkill.Id);
+            Assert.That(healButton, Is.Not.Null);
+            view.SelectSkillCommand.Execute(healButton);
+
+            Assert.That(view.Heroes.Count(card => card.IsTarget), Is.GreaterThan(0),
+                "A heal skill highlights the friendly cards.");
+            Assert.That(view.Monsters.All(card => !card.IsTarget), Is.True,
+                "Enemies are never valid targets of a heal.");
+
+            int logCount = view.Log.Count;
+            view.TargetCommand.Execute(view.Monsters.First());
+            Assert.That(view.Log.Count, Is.EqualTo(logCount),
+                "Clicking an enemy with a heal selected must not trigger an action.");
+
+            var woundedCard = view.Heroes.First(card => card.CombatId == woundedAlly.CombatInfo.CombatId);
+            int hpBefore = woundedCard.HpCurrent;
+            view.TargetCommand.Execute(woundedCard);
+
+            var healedCard = view.Heroes.First(card => card.CombatId == woundedAlly.CombatInfo.CombatId);
+            Assert.That(healedCard.HpCurrent, Is.GreaterThan(hpBefore),
+                "Clicking a wounded ally with a heal must raise its hit points.");
         }
 
         [Test]

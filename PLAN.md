@@ -1634,3 +1634,94 @@ script-reference check — зелёный. Финальную проверку 2
 - [x] Рендер-тест (1600×900, оффскрин) — прежние ассерты + новый ховер-тест полосы.
 - [x] Unity-compile-check не нужен (правок под `unity/` нет).
 - [ ] Визуальная проверка по `docs\TESTING.md` — за пользователем.
+
+---
+
+## Задача: WPF-бой — механики целиком на ядре + стрелка «бейдж скилла → цель» (ветка `core/agents-branching-rule`)
+
+### Цель
+
+Механики боя (баффы/дебаффы, pull/push, АОЕ) в ядре есть и работают (`BattleSolver` в `Core.Combat`),
+но WPF-дуэль их не дотягивает: (1) `DuelController.ExecuteSkill` исполняет `Solver.ExecuteSkill` по
+**одной** цели (в отличие от Unity `ExecuteSkillBase`, который итерирует `targetInfo.Targets`) → АОЕ
+и партийные хилы/баффы бьют только по кликнутой цели; (2) `ExecuteLocalSkill` не валидирует цель →
+атакующей способностью можно кликнуть себя/союзника; (3) полоска статусов на карточке пустая →
+баффы/дебаффы не видны. Плюс заменить «полосу из прямоугольников» стрелки цели на: иконку
+выбранной способности **над карточкой действующего героя** + прямую линию от неё до наведённой цели
+со стрелкой на конце (чистая математика, ничего сложного). Фикс в `DuelController` чинит и AI
+(`DuelAi`/`FightSession` — оба брали только `Targets[0]`). Legacy Unity не трогаем.
+
+### Фаза 1 — Core: валидация цели + мультитаргет (`Core.Duel\DuelController.cs`)
+
+1. [x] `ExecuteLocalSkill`: цель должна быть в `GetAvailableTargets(unit, skill)`, иначе `null`
+     (клик игнорируется, выбор скилла сохраняется, ход не заканчивается).
+2. [x] `ExecuteSkill(unit, primaryTarget, skill)`: раскрыть `Solver.SelectSkillTargets(unit,
+     primaryTarget, skill)` → цикл `Solver.ExecuteSkill` по каждой цели; затем `ProcessEventQueues`,
+     `CheckDeaths`, `ExecuteRiposte` по каждой цели, `RemoveConditions` (перформер + все цели),
+     `RecoverDeathsDoorIfHealed`. Self-move внутри скилла клампится (паритет Unity). Бонус: корень
+     «pull/push не работают» — `ProcessEventQueues` теперь итерирует снапшот `Units` (иначе
+     `MoveUnit` ронял «коллекция изменена» посреди перечисления).
+
+### Фаза 2 — Core: доступ к активным баффам (`Core.Combat\Character\Character.cs`)
+
+3. [x] Публичный `IReadOnlyList<BuffInfo> BuffInfos` (интерфейс `ICharacter` не меняется).
+
+### Фаза 3 — WPF ViewModel (`DuelBattleViewModel.cs`, `DuelUnitViewModel.cs`)
+
+4. [x] `SelectTarget`: guard — только `IsTarget` (скилл) / смежность ранга (move) перед вызовом
+     контроллера.
+5. [x] `ToUnit`: заполнять `StatusEffects` (id + остаток длительности) из `BuffInfos`;
+     `DuelUnitViewModel.StatusEffects` → сеттируемая.
+6. [x] `SelectedSkill` (DuelSkillViewModel?) для бейджа стрелки (+ `IsLocalTurn` на VM).
+
+### Фаза 4 — WPF: стрелка (новый `Ui\TargetArrowMath.cs`, `DuelBattleView.xaml(.cs)`)
+
+7. [x] Новый `Ui\TargetArrowMath.cs` — чистые функции: точки линии + `ArrowHead(end, start, length,
+     spread)` → 3 точки треугольника (тестируемо).
+8. [x] `DuelBattleView.xaml`: удалить `ArrowGrid`/`ArrowCell`; внутри Viewbox-грида верхняя строка
+     (`54`) под бейдж + `Canvas x:Name="TargetLayer"` (Grid.RowSpan/ColumnSpan=2,
+     Panel.ZIndex=10, IsHitTestVisible=False) с `SkillBadge` + `ArrowLine` + `ArrowHead`.
+9. [x] `DuelBattleView.xaml.cs`: бейдж — над карточкой действующего юнита (TransformToVisual в
+     координаты Canvas, top-center), линия из центра бейджа в центр карточки-цели, стрелка через
+     `TargetArrowMath`; `ClearArrow` гасит линию/стрелку (бейдж остаётся, пока скилл выбран);
+     позиционирование бейджа на `LayoutUpdated`; move-режим — линия без бейджа.
+10. [x] Удалить `Ui\DuelArrowCells.cs` + `tests\Wpf\...\DuelArrowCellsTests.cs`.
+
+### Фаза 5 — Тесты
+
+11. [x] Core `tests\Core\Sektor.DarkestDungeon.Core.Duel.Tests\DuelSkillExecutionTests.cs`: самоклик/
+      алли-клик атакой отклонён (crusader `smite` → null, HP не меняется); hellion `breakthru` бьёт
+      всех врагов в рангах 1–3; vestal `gods_comfort` хиляет всю партию (4 Heal-записи);
+      vestal `divine_grace` (одиночный хил) лечит **только кликнутого** раненого аллея (другой
+      раненый без изменений); PD `emboldening_vapours` вешает бафф (BuffInfos не пуст);
+      occultist `daemons_pull` меняет ранг цели; lockstep `TurnFlow_BothSides_RemainInLockstep`
+      остаётся зелёным.
+12. [x] WPF `tests\Wpf\...\DuelRenderTests.cs`: `SelectTarget` по невалидной цели ничего не исполняет
+      (log/HP без изменений); `HealSkill_SelectsOnlyAlliesAndHealsTheClickedAlly` — после выбора
+      хил-скилла `IsTarget` только у союзников (враги нет), клик по врагу игнорируется, клик по
+      раненому союзнику лечит его; новый `TargetArrowMathTests` (направление/длина/точки);
+      `RenderCaptureTests` переписан на бейдж+линию+стрелку.
+
+### Фаза 6 — Доки (тот же коммит)
+
+13. [x] `BATTLE_PARITY.md` (§0 цепочка скилла + §5 — мультитаргет-исполнение в дуэли);
+      `docs/mechanics/combat/01_damage.md` (мультитаргет-цикл), `09_buffs.md` (партийные баффы),
+      `07_rank_move.md` (pull/push в дуэли); `docs/mechanics/presentation/` (стрелка);
+      `TESTING.md` (ручные проверки); `CHANGELOG.md` (версия); `PLAN.md` шаги `[x]`.
+
+### Проверка
+
+14. [x] `dotnet test Darkest-Dungeon-Unity.slnx` — все 9 сьютов зелёные (Duel 39, Combat 61,
+      Wpf 32 и др.); `tools\check-using-placement.ps1` — OK.
+      Правки только `src\`/`tests\`/`docs\` → `unity-compile-check` не требуется.
+
+### Затронутые файлы
+
+- Core: `src\Core\Sektor.DarkestDungeon.Core.Duel\DuelController.cs`,
+  `src\Core\Sektor.DarkestDungeon.Core.Combat\Character\Character.cs`.
+- WPF: `ViewModels\DuelBattleViewModel.cs`, `ViewModels\DuelUnitViewModel.cs`,
+  `Views\DuelBattleView.xaml(.cs)`, новый `Ui\TargetArrowMath.cs`, удалить `Ui\DuelArrowCells.cs`.
+- Тесты: новый `DuelSkillExecutionTests.cs`, `TargetArrowMathTests.cs`; правки `DuelRenderTests.cs`;
+  удалить `DuelArrowCellsTests.cs`.
+- Доки: `BATTLE_PARITY.md`, `docs/mechanics/combat/{01_damage,07_rank_move,09_buffs}.md`,
+  `docs/mechanics/presentation/`, `TESTING.md`, `CHANGELOG.md`, `PLAN.md`.

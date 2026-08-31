@@ -41,6 +41,16 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 
 - **Не дублировать доменную логику во ViewModel** — вводы через `DuelController`, состояние из ядра.
 - `DuelContent` (реализация `IDuelContent`) — единственное место загрузки контента в WPF.
+- **Валидация целей**: `DuelBattleViewModel.SelectTarget` исполняет скилл только по подсвеченной
+  цели (`unit.IsTarget`) / смежному рангу (move); само ядро дополнительно отклоняет невалидную цель
+  в `ExecuteLocalSkill` (`DuelController.cs:311`).
+- **Стрелка цели** — `DuelBattleView.xaml.cs` + `Ui/TargetArrowMath.cs`: при выбранной способности
+  над карточкой действующего юнита висит бейдж (имя скилла); на ховере валидной цели из центра
+  бейджа в центр карточки-цели строится прямая `Line` + треугольник-стрелка (`TargetArrowMath.ArrowHead`,
+  чистая математика; позиции через `TransformToVisual(TargetLayer)` в координаты Viewbox-сцены).
+  Бейдж позиционируется на `LayoutUpdated`, пока скилл выбран; move-режим — линия без бейджа.
+- **Баффы/дебаффы на карточках** — `DuelUnitViewModel.StatusEffects` заполняется из
+  `Character.BuffInfos` (`DuelBattleViewModel.BuildStatusEffects`): id + остаток раундов.
 
 ## 7. Взаимодействия
 
@@ -51,6 +61,6 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 
 ## 8. Файлы-источники
 
-- `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/*`, `ViewModels/*`, `Data/DuelContent.cs`,
-  `Combat/AiRivalLink.cs`, `Networking/NetworkRivalLink.cs`
+- `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/*`, `ViewModels/*`, `Ui/TargetArrowMath.cs`,
+  `Data/DuelContent.cs`, `Combat/AiRivalLink.cs`, `Networking/NetworkRivalLink.cs`
 - `docs/FEATURE_DESKTOP_CLIENT.md`

@@ -21,7 +21,7 @@
 | Движок | legacy `RaidSceneManager` (6043 стр.) + `BattleSolver` | `BattleSolver` в `Core.Combat` |
 | Синхронизация | RPC-репликация общего состояния (оба клиента крутят один бой) | локстап: обмен только вводами `DuelPayload`, состояние считается детерминированно по `DuelSeed` |
 | Стороны | обе стороны — герои; «монстры» — отряд приглашённого игрока | обе стороны — герои (`DuelHeroPick`); монстры — только в Fight-раннере |
-| Цепочка скилла | `HeroTurn` → `ExecuteHeroSkill` (`RaidSceneMultiplayerManager.cs:1662`) → `RaidSceneManager.cs:4292-4380` → `ExecuteSkillBase` → `BattleSolver.ExecuteSkill` (`RaidSceneManager.cs:3958-4002`) | `DuelController.ExecuteSkill` (`DuelController.cs:516-525`) → `BattleSolver.ExecuteSkill` (`BattleSolver.cs:385-502`) → `ApplyEffects` (`BattleSolver.cs:559-567`) → `ProcessEventQueues` (`DuelController.cs:527-539`) |
+| Цепочка скилла | `HeroTurn` → `ExecuteHeroSkill` (`RaidSceneMultiplayerManager.cs:1662`) → `RaidSceneManager.cs:4292-4380` → `ExecuteSkillBase` → `BattleSolver.ExecuteSkill` (`RaidSceneManager.cs:3958-4002`, итерирует `targetInfo.Targets` — АОЕ/партийные эффекты) | `DuelController.ExecuteSkill` (`DuelController.cs:448`) → `SelectSkillTargets` раскрывает мультитаргет (`:453`) → цикл `Solver.ExecuteSkill` по каждой цели (`:455-458`) → `ApplyEffects` (`BattleSolver.cs:501`) → `ProcessEventQueues` (`DuelController.cs:529`, снапшот `Units`) |
 
 ## 1. Легенда
 
@@ -158,6 +158,14 @@ WPF-дуэль использует другую (lockstep) модель — с�
 > 11. ✅ **Логирование** — ядро принимает структурный `ILogger` (`Core.Common`); WPF-клиент
 >     подключает MS-абстракцию (`Microsoft.Extensions.Logging.Abstractions 3.1.12`) + файловый
 >     логгер (`Logs\duel.log`) через `MsLoggerAdapter`/`FileLoggerProvider`.
+> 12. ✅ **Мультитаргет-исполнение в дуэли** — `DuelController.ExecuteSkill` раскрывает цель через
+>     `Solver.SelectSkillTargets` (`DuelController.cs:453`) и исполняет `BattleSolver.ExecuteSkill`
+>     по каждой цели (паритет Unity `ExecuteSkillBase`): АОЕ, партийные хилы и баффы теперь бьют по
+>     всем целям. `ExecuteLocalSkill` валидирует цель против `GetAvailableTargets` (`:311`) —
+>     атаковать себя/союзника атакующей способностью нельзя.
+> 13. ✅ **`ProcessEventQueues` на снапшоте `Units`** (`DuelController.cs:529`) — квеянные
+>     pull/push/shuffle (перестановка `Units.RemoveAt/Insert`) больше не роняют перечисление
+>     «коллекция изменена»: корень «притяжки/отталкивания врага не работают» закрыт.
 
 Остаётся отдельной задачей (кампанийные механики, больше объём):
 

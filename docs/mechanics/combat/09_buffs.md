@@ -45,7 +45,8 @@
 
 **`RemoveConditions`** — вызывается **после каждого скилла**:
 
-- `DuelController.ExecuteSkill` → `RemoveConditions(unit, target)` (`DuelController.cs:478-485`) →
+- `DuelController.ExecuteSkill` → `RemoveConditions(unit, targets)` (`DuelController.cs:518-524`) —
+  перформер + **все** цели мультитаргета →
   `Solver.RemoveConditions` (`BattleSolver.cs:526-530`): `ApplyIdleUnitRules` + `RemoveConditionalBuffs`.
 - Также в `CalculateSkillPotential` (превью) (`:556-557`).
 

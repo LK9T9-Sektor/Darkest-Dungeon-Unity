@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -11,100 +12,124 @@ using Sektor.DarkestDungeon.Wpf.ViewModels;
 
 namespace Sektor.DarkestDungeon.Wpf.Views
 {
-    /// <summary>Battle screen view: hosts the pre-built hover-arrow strip and card hover wiring.</summary>
+    /// <summary>Battle screen view: hosts the selected-skill badge and the hover target arrow.</summary>
     public partial class DuelBattleView : PumpableScreenBase
     {
-        private Rectangle[] _arrowCells = new Rectangle[0];
-        private bool _calibrated;
-        private bool _awaitingLayout;
+        private const double BadgeWidth = 40;
+        private const double BadgeHeight = 24;
+        private const double BadgeGap = 6;
+        private const double ArrowHeadLength = 14;
+        private const double ArrowHeadSpread = 7;
 
-        /// <summary>Shows the attack arrow for the hovered target card, or hides it when invalid.</summary>
+        private void OnLoaded(object? sender, RoutedEventArgs e)
+        {
+            LayoutUpdated += OnLayoutUpdated;
+        }
+
+        private void OnLayoutUpdated(object? sender, EventArgs e)
+        {
+            UpdateBadge();
+        }
+
+        /// <summary>Shows the target arrow for the hovered card, or hides it when invalid.</summary>
         /// <param name="target">The hovered unit card.</param>
         internal void ShowArrowFor(DuelUnitViewModel target)
         {
-            EnsureCells();
             var viewModel = DataContext as DuelBattleViewModel;
-            if (viewModel == null || target == null || !viewModel.CanShowArrow(target))
+            if (viewModel == null || target == null)
             {
                 ClearArrow();
                 return;
             }
 
-            var mask = DuelArrowCells.MaskFor(viewModel.CurrentActorTeam, viewModel.CurrentActorRank, target.Rank);
-            for (int i = 0; i < _arrowCells.Length; i++)
-                _arrowCells[i].Visibility = mask.Contains(i) ? Visibility.Visible : Visibility.Collapsed;
+            UpdateBadge();
+            if (!viewModel.CanShowArrow(target))
+            {
+                HideLine();
+                return;
+            }
 
-            ArrowGrid.Visibility = Visibility.Visible;
+            var actorCard = FindActorCard();
+            var targetCard = FindCard(target.CombatId);
+            if (actorCard == null || targetCard == null)
+            {
+                HideLine();
+                return;
+            }
+
+            Point start = SkillBadge.Visibility == Visibility.Visible ? BadgeCenter() : TopCenter(actorCard);
+            Point end = Center(targetCard);
+
+            ArrowLine.X1 = start.X;
+            ArrowLine.Y1 = start.Y;
+            ArrowLine.X2 = end.X;
+            ArrowLine.Y2 = end.Y;
+            ArrowLine.Visibility = Visibility.Visible;
+
+            ArrowHead.Points = new PointCollection(
+                TargetArrowMath.ArrowHead(end, start, ArrowHeadLength, ArrowHeadSpread));
+            ArrowHead.Visibility = Visibility.Visible;
         }
 
-        /// <summary>Collapses the overlay and every pre-built arrow cell.</summary>
+        /// <summary>Collapses the hover line and arrowhead; the selected-skill badge stays visible.</summary>
         internal void ClearArrow()
         {
-            EnsureCells();
-            foreach (var cell in _arrowCells)
-                cell.Visibility = Visibility.Collapsed;
-            ArrowGrid.Visibility = Visibility.Collapsed;
+            HideLine();
+            UpdateBadge();
         }
 
-        /// <summary>Calibrates the strip columns against the measured card positions exactly once
-        /// (on the first layout that has the cards realized); every later call only toggles the
-        /// pre-built cells' Visibility.</summary>
-        private void EnsureCells()
+        private void HideLine()
         {
-            if (_calibrated)
-                return;
+            ArrowLine.Visibility = Visibility.Collapsed;
+            ArrowHead.Visibility = Visibility.Collapsed;
+        }
 
-            _arrowCells = ArrowGrid.Children.OfType<Rectangle>().ToArray();
-            if (_arrowCells.Length != DuelArrowCells.CellCount)
-                return;
-
-            if (CalibrateArrowColumns())
+        private void UpdateBadge()
+        {
+            var viewModel = DataContext as DuelBattleViewModel;
+            if (viewModel == null || viewModel.SelectedSkill == null || viewModel.IsLocalTurn == false)
             {
-                _calibrated = true;
+                SkillBadge.Visibility = Visibility.Collapsed;
                 return;
             }
 
-            if (!_awaitingLayout)
-            {
-                _awaitingLayout = true;
-                LayoutUpdated += CalibrateOnNextLayout;
-            }
+            var actorCard = FindActorCard();
+            if (actorCard == null)
+                return;
+
+            SkillBadgeText.Text = viewModel.SelectedSkill.DisplayNameUpper;
+            Point top = TopCenter(actorCard);
+            Canvas.SetLeft(SkillBadge, top.X - BadgeWidth / 2);
+            Canvas.SetTop(SkillBadge, top.Y - BadgeHeight - BadgeGap);
+            SkillBadge.Visibility = Visibility.Visible;
         }
 
-        private void CalibrateOnNextLayout(object? sender, EventArgs e)
+        private Point BadgeCenter()
         {
-            _awaitingLayout = false;
-            if (!_calibrated && CalibrateArrowColumns())
-            {
-                _calibrated = true;
-                LayoutUpdated -= CalibrateOnNextLayout;
-            }
+            return new Point(Canvas.GetLeft(SkillBadge) + BadgeWidth / 2, Canvas.GetTop(SkillBadge) + BadgeHeight / 2);
         }
 
-        private bool CalibrateArrowColumns()
+        private Point TopCenter(FrameworkElement element)
         {
-            var ordered = CardsOrderedByPosition();
-            if (ordered.Length != DuelArrowCells.CellCount)
-                return false;
-            if (ordered.Any(card => card.ActualWidth <= 0))
-                return false;
-
-            var columns = ArrowGrid.ColumnDefinitions;
-            columns[0].Width = new GridLength(SlotX(ordered[0]), GridUnitType.Pixel);
-            for (int i = 0; i < DuelArrowCells.CellCount - 1; i++)
-                columns[i + 1].Width = new GridLength(SlotX(ordered[i + 1]) - SlotX(ordered[i]), GridUnitType.Pixel);
-            columns[DuelArrowCells.CellCount].Width = new GridLength(ordered[DuelArrowCells.CellCount - 1].ActualWidth, GridUnitType.Pixel);
-            return true;
+            return element.TransformToVisual(TargetLayer).Transform(new Point(element.RenderSize.Width / 2, 0));
         }
 
-        private DuelUnitCardView[] CardsOrderedByPosition()
+        private Point Center(FrameworkElement element)
         {
-            return FindVisualChildren<DuelUnitCardView>(this).OrderBy(SlotX).ToArray();
+            return element.TransformToVisual(TargetLayer)
+                .Transform(new Point(element.RenderSize.Width / 2, element.RenderSize.Height / 2));
         }
 
-        private double SlotX(Visual visual)
+        private DuelUnitCardView? FindActorCard()
         {
-            return visual.TransformToVisual(ArrowGrid).Transform(new Point(0, 0)).X;
+            return FindVisualChildren<DuelUnitCardView>(this)
+                .FirstOrDefault(card => card.DataContext is DuelUnitViewModel unit && unit.IsCurrent);
+        }
+
+        private DuelUnitCardView? FindCard(int combatId)
+        {
+            return FindVisualChildren<DuelUnitCardView>(this)
+                .FirstOrDefault(card => card.DataContext is DuelUnitViewModel unit && unit.CombatId == combatId);
         }
 
         private static IEnumerable<T> FindVisualChildren<T>(DependencyObject root)

@@ -120,9 +120,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private bool _damagePopupVisible;
 
-        /// <summary>Gets the active status effect ids (buffs and debuffs) shown around the portrait.</summary>
-        /// <remarks>Reserved for battle status effects; empty until the duel exposes them.</remarks>
-        public IReadOnlyList<string> StatusEffects { get; } = new List<string>();
+        /// <summary>Gets or sets the active status effect labels (buffs and debuffs) shown around the portrait.</summary>
+        [ObservableProperty]
+        private List<string> _statusEffects = new List<string>();
 
         /// <summary>Gets the hit point ratio (0-1) for the health bar.</summary>
         public double HpRatio { get { return HpMax <= 0 ? 0 : (double)HpCurrent / HpMax; } }

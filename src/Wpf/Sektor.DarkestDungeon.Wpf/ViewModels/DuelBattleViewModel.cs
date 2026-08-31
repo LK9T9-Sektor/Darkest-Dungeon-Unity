@@ -42,6 +42,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private string? selectedSkillId;
         private DuelSkillViewModel? selectedSkill;
         private bool isMoveMode;
+
+        /// <summary>Gets the currently selected skill (badge source above the acting card), or null.</summary>
+        public DuelSkillViewModel? SelectedSkill { get { return selectedSkill; } }
         private readonly FormationDisplayOrder heroOrder = FormationDisplayOrder.HeroSide();
         private readonly FormationDisplayOrder monsterOrder = FormationDisplayOrder.MonsterSide();
 
@@ -120,6 +123,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         {
             get { return controller.CurrentUnit?.Team ?? Team.Heroes; }
         }
+
+        /// <summary>Gets a value indicating whether it is the local player's turn.</summary>
+        public bool IsLocalTurn { get { return controller.IsLocalTurn; } }
 
         /// <summary>Gets the rank (1-4) of the unit whose turn is being played.</summary>
         public int CurrentActorRank
@@ -315,6 +321,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             Skills.Clear();
             selectedSkill = null;
             selectedSkillId = null;
+            OnPropertyChanged(nameof(SelectedSkill));
 
             if (!controller.IsLocalTurn || controller.CurrentUnit == null)
                 return;
@@ -395,6 +402,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             skill.IsSelected = true;
             selectedSkill = skill;
             selectedSkillId = skill.Id;
+            OnPropertyChanged(nameof(SelectedSkill));
 
             ClearTargets();
             var unit = controller.CurrentUnit;
@@ -421,6 +429,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
             if (isMoveMode)
             {
+                int actorRank = controller.CurrentUnit?.Rank ?? 0;
+                if (Math.Abs(unit.Rank - actorRank) != 1)
+                    return;
+
                 string? actor = controller.CurrentUnit?.Character.Name;
                 var movePayload = controller.ExecuteLocalMove(unit.Rank);
                 isMoveMode = false;
@@ -432,7 +444,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 return;
             }
 
-            if (selectedSkill == null)
+            if (selectedSkill == null || !unit.IsTarget)
                 return;
 
             string? actorName = controller.CurrentUnit?.Character.Name;
@@ -453,6 +465,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             selectedSkill = null;
             selectedSkillId = null;
             isMoveMode = true;
+            OnPropertyChanged(nameof(SelectedSkill));
             foreach (var existing in Skills)
                 existing.IsSelected = false;
             ClearTargets();
@@ -607,6 +620,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 ResistDisease = (int)(character.GetSingleAttribute(AttributeType.Disease).ModifiedValue * 100),
                 ResistDeathBlow = (int)(character.GetSingleAttribute(AttributeType.DeathBlow).ModifiedValue * 100),
                 ResistTrap = (int)(character.GetSingleAttribute(AttributeType.Trap).ModifiedValue * 100),
+                StatusEffects = BuildStatusEffects(character),
                 AllSkills = character is Hero hero
                     ? string.Join(", ", hero.HeroClass.CombatSkills.Select(skill => skill.Id))
                     : string.Empty,
@@ -615,6 +629,25 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                         (QuirkCatalog.Get(quirkId)?.IsPositive == true ? "+" : "-") + quirkId))
                     : "none",
             };
+        }
+
+        private static List<string> BuildStatusEffects(ICharacter character)
+        {
+            var source = character as Character;
+            if (source == null || source.BuffInfos.Count == 0)
+                return new List<string>();
+
+            var labels = new List<string>(source.BuffInfos.Count);
+            foreach (var buffInfo in source.BuffInfos)
+            {
+                string id = buffInfo.Buff.Id;
+                if (string.IsNullOrEmpty(id))
+                    id = buffInfo.Buff.AttributeType.ToString();
+                labels.Add(buffInfo.DurationType == BuffDurationType.Round && buffInfo.Duration > 0
+                    ? id + " x" + buffInfo.Duration
+                    : id);
+            }
+            return labels;
         }
     }
 }

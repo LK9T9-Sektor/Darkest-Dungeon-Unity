@@ -57,15 +57,8 @@
             </ControlTemplate.Triggers>
         </ControlTemplate>
 
-        <!-- Hover arrow cell: one of the 8 pre-built strip rectangles; only the Visibility is
-             toggled at runtime (no recreation, no geometry, no timers). -->
-        <Style x:Key="ArrowCell" TargetType="Rectangle">
-            <Setter Property="Fill" Value="#D9B46A" />
-            <Setter Property="Opacity" Value="0.95" />
-            <Setter Property="Margin" Value="1" />
-            <Setter Property="Stretch" Value="Fill" />
-            <Setter Property="IsHitTestVisible" Value="False" />
-        </Style>
+        <!-- Hover target layer styles are defined inline on the elements themselves (no shared
+             rectangle strip; the arrow is a badge + line + arrowhead positioned by math). -->
     </views:PumpableScreenBase.Resources>
 
     <Grid Background="#100C08">
@@ -108,12 +101,16 @@
             <Viewbox Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Bottom"
                      Margin="24,0,24,12" ClipToBounds="True">
                 <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="54" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <ItemsControl Grid.Column="0" ItemsSource="{Binding Heroes}"
+                    <ItemsControl Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Heroes}"
                                   HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="8,0,8,0">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -128,7 +125,7 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <ItemsControl Grid.Column="1" ItemsSource="{Binding Monsters}"
+                    <ItemsControl Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Monsters}"
                                   HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="8,0,8,0">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -143,38 +140,23 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-<!-- Hover attack-arrow strip: a single fixed-height row (no pseudo-3D taper) centered over
-                     the unit band. Slots 0..7 are the ranks in visual order (hero 4,3,2,1 then
-                     monster 1,2,3,4), so the two rank-1 front units are the neighbours of the field
-                     center. Slot column widths are calibrated once against the measured cards at the
-                     first layout; only the Visibility of the 8 pre-built cells is toggled at runtime. -->
-                    <Grid x:Name="ArrowGrid" Grid.ColumnSpan="2" Panel.ZIndex="10" Height="22"
-                          Visibility="Collapsed" IsHitTestVisible="False"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Center">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Rectangle Grid.Column="1" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Column="2" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Column="3" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Column="4" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Column="5" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Column="6" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Column="7" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Column="8" Style="{StaticResource ArrowCell}" />
-                    </Grid>
+<!-- Target layer: the selected-skill badge floats above the acting card; the hover line
+                     runs from the badge (or the actor card top in move mode) to the hovered target
+                     card and ends in an arrowhead. Positions are computed in code-behind against this
+                     Canvas (pure math), so nothing is recreated at runtime. -->
+                    <Canvas x:Name="TargetLayer" Grid.RowSpan="2" Grid.ColumnSpan="2" Panel.ZIndex="10"
+                            IsHitTestVisible="False">
+                        <Border x:Name="SkillBadge" Width="40" Height="24" Background="#2A2218"
+                                BorderBrush="#D9B46A" BorderThickness="2" CornerRadius="4"
+                                Visibility="Collapsed">
+                            <TextBlock x:Name="SkillBadgeText" Foreground="#E8D9B0" FontSize="11"
+                                       FontWeight="Bold" TextAlignment="Center" TextTrimming="CharacterEllipsis"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <Line x:Name="ArrowLine" Stroke="#D9B46A" StrokeThickness="3"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" Visibility="Collapsed" />
+                        <Polygon x:Name="ArrowHead" Fill="#D9B46A" Visibility="Collapsed" />
+                    </Canvas>
                 </Grid>
             </Viewbox>
 

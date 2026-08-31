@@ -7,6 +7,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         public DuelBattleView()
         {
             InitializeComponent();
+            Loaded += OnLoaded;
         }
     }
 }
