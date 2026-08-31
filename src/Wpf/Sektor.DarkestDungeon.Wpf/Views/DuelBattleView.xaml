@@ -14,13 +14,6 @@
                                 Command="{Binding DataContext.TargetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}">
                             <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseEnter">
-                                    <i:InvokeCommandAction Command="{Binding DataContext.HoverCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                           CommandParameter="{Binding}" />
-                                </i:EventTrigger>
-                                <i:EventTrigger EventName="MouseLeave">
-                                    <i:InvokeCommandAction Command="{Binding DataContext.UnhoverCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                                </i:EventTrigger>
                                 <i:EventTrigger EventName="MouseRightButtonDown">
                                     <i:InvokeCommandAction Command="{Binding DataContext.OpenStatsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                            CommandParameter="{Binding}" />
@@ -144,18 +137,17 @@
                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         </Grid>
 
-        <!-- BOTTOM AREA: left combined container (acting hero strip on top + stats below),
-             centre hover tooltip, right log/inventory/map -->
+        <!-- BOTTOM AREA: split 50/50 — left = acting hero strip + DD stat panels, right =
+             log/inventory/map. No dedicated tooltip column; the right-click stat sheet is centered. -->
         <Border Grid.Row="2" Style="{StaticResource OverlayPanel}" Margin="24,4,24,12">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="1.4*" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
                 <!-- LEFT: the acting hero strip + the DD panels in one container -->
-                <Border Grid.Column="0" Style="{StaticResource OverlayPanel}">
+                <Border Grid.Column="0" Style="{StaticResource OverlayPanel}" Margin="0,0,4,0">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -183,16 +175,17 @@
                                     </StackPanel>
                                 </Grid>
 
-                                <!-- Combat skills (all but Move/Pass), square icon slot with name below -->
+                                <!-- Combat skills (all but Move/Pass), square icon slot with name below; the panel is a single
+                                     horizontal row so Move/Pass always sit at the same height as the skills -->
                                 <ItemsControl ItemsSource="{Binding Skills}" VerticalAlignment="Center">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <WrapPanel />
+                                            <StackPanel Orientation="Horizontal" />
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <StackPanel Width="58" Margin="4">
+                                            <StackPanel Width="58" Height="82" Margin="4">
                                                 <Button Width="50" Height="50" Padding="2"
                                                         ToolTip="{Binding Details}"
                                                         IsEnabled="{Binding IsUsable}"
@@ -205,27 +198,30 @@
                                                                    Visibility="{Binding IsUsable, Converter={StaticResource InverseBoolToVisibility}}" />
                                                     </Grid>
                                                 </Button>
-                                                <TextBlock Text="{Binding DisplayNameUpper}" FontSize="8" Foreground="#C8C0B0"
-                                                           TextAlignment="Center" TextWrapping="Wrap" Margin="0,2,0,0" />
+                                                <TextBlock Text="{Binding DisplayNameUpper}" FontSize="8" Height="20"
+                                                           Foreground="#C8C0B0" TextAlignment="Center" TextWrapping="Wrap"
+                                                           TextTrimming="CharacterEllipsis" Margin="0,2,0,0" />
                                             </StackPanel>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
 
                                 <!-- Move skill -->
-                                <StackPanel Width="58" Margin="4,4,0,4" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                <StackPanel Width="58" Height="82" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Center">
                                     <Button Width="50" Height="50" FontSize="22" Style="{StaticResource HudButton}"
                                             ToolTip="Move to an adjacent rank"
                                             Command="{Binding MoveCommand}">
                                         <TextBlock Text="&#x21C4;" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                     </Button>
-                                    <TextBlock Text="MOVE" FontSize="8" Foreground="#C8C0B0"
-                                               TextAlignment="Center" TextWrapping="Wrap" Margin="0,2,0,0" />
+                                    <TextBlock Text="MOVE" FontSize="8" Height="20" Foreground="#C8C0B0"
+                                               TextAlignment="Center" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
+                                               Margin="0,2,0,0" />
                                 </StackPanel>
 
-                                <!-- Pass skill: vertical (by height) rectangle, red frame and red X -->
-                                <StackPanel Margin="4,0,0,0" VerticalAlignment="Center">
+                                <!-- Pass skill: narrow vertical rectangle, red frame and red X -->
+                                <StackPanel Width="58" Height="82" Margin="4" VerticalAlignment="Center">
                                     <Button Width="28" Height="50" FontSize="17" Padding="0"
+                                            HorizontalAlignment="Center"
                                             Foreground="#C0392B" BorderBrush="#C0392B" BorderThickness="2"
                                             Style="{StaticResource HudButton}" ToolTip="Skip the turn"
                                             Command="{Binding PassCommand}">
@@ -242,23 +238,18 @@
                     </Grid>
                 </Border>
 
-                <!-- CENTER: hover tooltip, collapses when nothing is hovered -->
-                <Grid Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <views:UnitTooltipView DataContext="{Binding TooltipTarget}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Stretch"
-                                           Margin="12,0,12,0" />
-                </Grid>
-
                 <!-- RIGHT: log/inventory/map with the toggle buttons as a vertical glyph strip -->
-                <views:RaidHudView Grid.Column="2" DataContext="{Binding}"
-                                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                <Border Grid.Column="1" Style="{StaticResource OverlayPanel}" Margin="4,0,0,0">
+                    <views:RaidHudView DataContext="{Binding}"
+                                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                </Border>
             </Grid>
         </Border>
 
-        <!-- Stats sheet overlay (right-click a unit): on top of the whole screen -->
-        <Grid Grid.RowSpan="3" HorizontalAlignment="Left" VerticalAlignment="Top" Width="560" Height="520" Margin="40,40,0,0"
+        <!-- Stats sheet overlay (right-click a unit): centered on the whole screen, opaque background -->
+        <Grid x:Name="StatsOverlay" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" Width="640" Height="560"
               Visibility="{Binding IsStatsVisible, Converter={StaticResource BoolToVisibility}}">
-            <Border Style="{StaticResource OverlayPanel}">
+            <Border Background="#FF0C0A08" BorderBrush="#3A2E22" BorderThickness="2" CornerRadius="8">
                 <Grid Margin="{StaticResource SpacingMedium}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />

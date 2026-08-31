@@ -104,10 +104,6 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private bool _isTarget;
 
-        /// <summary>Gets or sets a value indicating whether this unit is hovered.</summary>
-        [ObservableProperty]
-        private bool _isSelected;
-
         /// <summary>Gets or sets the portrait image (null until one is provided).</summary>
         [ObservableProperty]
         private ImageSource? _portrait;

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows.Media;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -87,10 +86,6 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the stat sheet shown when a unit is right-clicked.</summary>
         public HeroStatsViewModel StatsTarget { get; } = new HeroStatsViewModel();
 
-        /// <summary>Gets or sets the unit shown in the hover tooltip.</summary>
-        [ObservableProperty]
-        private DuelUnitViewModel? _tooltipTarget;
-
         /// <summary>Gets or sets a value indicating whether the stats sheet overlay is visible.</summary>
         [ObservableProperty]
         private bool _isStatsVisible;
@@ -114,12 +109,6 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the command that abandons the duel and returns to the main menu.</summary>
         public IRelayCommand LeaveCommand { get; }
 
-        /// <summary>Gets the command that shows a unit in the hover tooltip.</summary>
-        public IRelayCommand<DuelUnitViewModel> HoverCommand { get; }
-
-        /// <summary>Gets the command that hides the hover tooltip.</summary>
-        public IRelayCommand UnhoverCommand { get; }
-
         /// <summary>Gets the command that opens the stats sheet for the given unit.</summary>
         public IRelayCommand<DuelUnitViewModel> OpenStatsCommand { get; }
 
@@ -140,8 +129,6 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             MoveCommand = new RelayCommand(SelectMove);
             PassCommand = new RelayCommand(Pass);
             LeaveCommand = new RelayCommand(Leave);
-            HoverCommand = new RelayCommand<DuelUnitViewModel>(Hover);
-            UnhoverCommand = new RelayCommand(Unhover);
             OpenStatsCommand = new RelayCommand<DuelUnitViewModel>(OpenStats);
             CloseStatsCommand = new RelayCommand(() => IsStatsVisible = false);
             controller.Events.StateChanged += Refresh;
@@ -267,21 +254,31 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             foreach (var unit in controller.HeroParty.Units.Concat(controller.MonsterParty.Units))
                 unitsById[unit.CombatInfo.CombatId] = unit;
 
+            int position = 0;
             foreach (var combatId in _roundStartOrder)
             {
                 if (!unitsById.TryGetValue(combatId, out var unit))
+                {
+                    position++;
                     continue;
+                }
 
-                var entry = new DuelTurnEntryViewModel(
+                // Units that already moved this round or died are dropped from the strip; the
+                // acting unit keeps its white frame until its turn resolves.
+                if (unit.CombatInfo.IsDead || position < currentIndex)
+                {
+                    position++;
+                    continue;
+                }
+
+                TurnOrder.Add(new DuelTurnEntryViewModel(
                     unit.Character.Name,
                     unit.Team == Team.Monsters,
-                    (int)unit.Character.Speed,
-                    unit.CombatInfo.InitiativeRoll)
+                    (int)unit.Character.Speed)
                 {
                     IsCurrent = combatId == currentId,
-                    IsDead = unit.CombatInfo.IsDead,
-                };
-                TurnOrder.Add(entry);
+                });
+                position++;
             }
 
             // Units that already moved this round (ordered before the current one) have no actions
@@ -364,33 +361,6 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 (int)character.Dodge,
                 (int)character.Protection);
             Quest.Goal = QuestText;
-            Torch.ActorName = character.Name;
-            Torch.ActorColor = CreateTeamBrush(unit.Team);
-        }
-
-        private static Brush CreateTeamBrush(Team team)
-        {
-            var brush = new SolidColorBrush(team == Team.Monsters
-                ? Color.FromRgb(0x6A, 0x8A, 0xC9)
-                : Color.FromRgb(0xC9, 0x6A, 0x5A));
-            brush.Freeze();
-            return brush;
-        }
-
-        private void Hover(DuelUnitViewModel? unit)
-        {
-            if (unit == null)
-                return;
-
-            unit.IsSelected = true;
-            TooltipTarget = unit;
-        }
-
-        private void Unhover()
-        {
-            if (TooltipTarget != null)
-                TooltipTarget.IsSelected = false;
-            TooltipTarget = null;
         }
 
         private void OpenStats(DuelUnitViewModel? unit)

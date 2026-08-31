@@ -20,18 +20,13 @@
                         Command="{Binding IncreaseCommand}" Width="44" Height="34" FontSize="18" />
             </StackPanel>
 
-            <!-- Round number in a circle, big yellow text; below it the acting unit's name in its team color -->
+            <!-- Round number in a circle, big yellow text -->
             <Border Width="44" Height="44" CornerRadius="22" Margin="0,6,0,0"
                     Background="#C0000000" BorderBrush="#3A2E22" BorderThickness="2"
                     HorizontalAlignment="Center" ToolTip="Round">
                 <TextBlock Text="{Binding Round}" Foreground="#E8D9B0" FontSize="20" FontWeight="Bold"
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Border>
-
-            <TextBlock Text="{Binding ActorName}" Foreground="{Binding ActorColor}" FontSize="14"
-                       FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center"
-                       TextTrimming="CharacterEllipsis" MaxWidth="150" Margin="0,6,0,0"
-                       ToolTip="Acting now" />
         </StackPanel>
     </Border>
 </UserControl>

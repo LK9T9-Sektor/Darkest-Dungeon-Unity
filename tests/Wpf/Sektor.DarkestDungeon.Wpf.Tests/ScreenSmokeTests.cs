@@ -1,4 +1,5 @@
 using System.Threading;
+using System.Windows;
 
 using NUnit.Framework;
 
@@ -15,8 +16,10 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         [Test]
         public void AllScreens_LoadTheirXaml()
         {
-            var app = new App();
-            app.InitializeComponent();
+            var existing = Application.Current;
+            var app = existing ?? new App();
+            if (existing == null)
+                ((App)app).InitializeComponent();
 
             Assert.DoesNotThrow(() => _ = new MainMenuView());
             Assert.DoesNotThrow(() => _ = new DuelLobbyView());

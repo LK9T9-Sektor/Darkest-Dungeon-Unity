@@ -179,23 +179,6 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         }
 
         [Test]
-        public void Hover_SetsTooltipAndSelection()
-        {
-            var view = CreateView(CreateDuel());
-            var card = view.Heroes[0];
-
-            view.HoverCommand.Execute(card);
-
-            Assert.That(view.TooltipTarget, Is.SameAs(card));
-            Assert.That(card.IsSelected, Is.True);
-
-            view.UnhoverCommand.Execute(null);
-
-            Assert.That(view.TooltipTarget, Is.Null);
-            Assert.That(card.IsSelected, Is.False);
-        }
-
-        [Test]
         public void OpenStats_FillsSheetAndShows()
         {
             var view = CreateView(CreateDuel());
@@ -206,6 +189,8 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(view.IsStatsVisible, Is.True);
             Assert.That(view.StatsTarget.HeroName, Is.EqualTo(card.Name));
             Assert.That(view.StatsTarget.HitPoints, Is.EqualTo(card.HpCurrent + " / " + card.HpMax));
+            Assert.That(view.StatsTarget.ResistStun, Is.EqualTo(card.ResistStun));
+            Assert.That(view.StatsTarget.ResistDeathBlow, Is.EqualTo(card.ResistDeathBlow));
 
             view.CloseStatsCommand.Execute(null);
 
@@ -244,12 +229,15 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             }
 
             var actedId = duel.CurrentUnit!.CombatInfo.CombatId;
+            string actedName = duel.CurrentUnit!.Character.Name;
             view.PassCommand.Execute(null);
 
             var actedCard = view.Heroes.Concat(view.Monsters).Single(card => card.CombatId == actedId);
             Assert.That(actedCard.RemainingActions, Is.EqualTo(0), "The acting unit's pip turns gray once it moved.");
             Assert.That(view.Heroes.Concat(view.Monsters).Single(card => card.IsCurrent).RemainingActions,
                 Is.EqualTo(1), "The new current unit keeps a white pip.");
+            Assert.That(view.TurnOrder.Select(entry => entry.Name), Does.Not.Contain(actedName),
+                "The unit that already moved is dropped from the turn order strip.");
         }
 
         [Test]

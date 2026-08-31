@@ -1513,3 +1513,65 @@ script-reference check — зелёный. Финальную проверку 2
 - [x] `dotnet test` — WPF 25/25 (+1 новый) и все связанные suites green.
 - [x] `tools\check-using-placement.ps1` — OK (прогон после всех правок).
 - [ ] Визуальная проверка по `docs\TESTING.md` (ред. 2026-08-31): обновлённые шаги 4.
+
+---
+
+## Рев. 3 — правки по второму фидбеку визуального прохода (WPF-дуэль, ветка `core/agents-branching-rule`)
+
+### Цель (фидбек)
+
+1. **Карточки всё ещё сплющенные** — дамп визуального дерева подтвердил: рендер 185×166 (aspect
+   1.11). Корень: карта меряется при неограниченной высоте → `*`-строка портрета схлопывается до
+   высоты контента (~54px) → Viewbox Uniform даёт квадрат. Фикс: фиксированная `Height="330"` на
+   корневом `Border` `DuelUnitCardView` (Viewbox масштабирует пропорционально, aspect 185:330≈0.56).
+2. **MOVE и крестик PASS не в один ряд со способностями** — сейчас они ниже. Причина: скиллы в
+   `WrapPanel` переносятся на следующую строку при узком контейнере. Фикс: `ItemsPanel` →
+   горизонтальный `StackPanel` (гарантированный один ряд). Подтверждение ряда — регрессионный
+   рендер-тест при локальном ходе (скиллы пустые на чужом ходу).
+3. **Убрать подсказку при наведении на персонажа** — удаляется центр-колонка `UnitTooltipView`,
+   hover-команды и `TooltipTarget`; выровненная разметка (сетка резистов) переносится в ПКМ-лист.
+   `UnitTooltipView` используется только в `DuelBattleView.xaml:247` — файлы удаляются.
+4. **ПКМ-лист статов — по центру экрана, без прозрачности** — `HorizontalAlignment/VerticalAlignment
+   = Center`, солидный фон (#FF0C0A08), размер ~640×560; сетка резистов треугольной выкладкой
+   (стили `ResistGrid`).
+5. **Нижняя панель делится ровно по центру** — две колонки `*`/`*` (50/50): левая = полоса
+   способностей + `HeroInfoPanelView`, правая = `RaidHudView` (в рамке `OverlayPanel`).
+6. **TURN ORDER: убрать заголовок** — `TurnOrderView` без текста «TURN ORDER».
+7. **Тайл очереди: без инициативы, только Speed** — `InitiativeRoll` убирается из
+   `DuelTurnEntryViewModel` и разметки. Раскрыто: «скорость 90» — неверное прочтение локализованного
+   броска (запятая-разделитель: «9,0»); реальные скорости 1–8 (ролл ≤14.5, замер временным
+   `SpeedProbe`).
+8. **Из панели факела и раунда убрать имя и цвет ходящего** — `TorchViewModel.ActorName`/
+   `ActorColor` + `DuelBattleViewModel.CreateTeamBrush` удаляются, `TorchView` без строки имени.
+9. **Походившие в раунде пропадают из очереди** — `RefreshTurnOrder` берёт `_roundStartOrder`,
+   фильтрует index ≥ currentIndex и живых; ходящий держит белую рамку, мёртвые/сходившие исчезают.
+
+### Изменения
+
+1. `ViewModels\DuelBattleViewModel.cs` — `RefreshTurnOrder` (только оставшиеся в раунде и живые,
+   `IsCurrent` для ходящего); удалены `HoverCommand`/`UnhoverCommand`/`TooltipTarget`/`Hover`/
+   `Unhover`/`CreateTeamBrush` и задание `Torch.ActorName`/`ActorColor`; чистка `using
+   System.Windows.Media;` если не нужен.
+2. `Views\DuelBattleView.xaml` — низ 2×`*` (левая: полоса + `HeroInfoPanelView`; правая:
+   `RaidHudView` в `Border OverlayPanel`); центр-колонка тултипа удалена; скиллы — `StackPanel`
+   Horizontal; из `DuelSlotTemplate` убраны MouseEnter/MouseLeave; ПКМ-оверлей по центру, солидный
+   фон #FF0C0A08, ~640×560.
+3. `Views\DuelUnitCardView.xaml` — корневой `Border` `Width="185" Height="330"`.
+4. `Views\TurnOrderView.xaml` + `ViewModels\DuelTurnEntryViewModel.cs` — убраны заголовок,
+   `InitiativeRoll`, `IsDead`; внизу тайла только скорость.
+5. `Views\TorchView.xaml` + `ViewModels\TorchViewModel.cs` — убраны `ActorName`/`ActorColor`.
+6. `Views\HeroStatsView.xaml` + `ViewModels\HeroStatsViewModel.cs` — выровненная сетка резистов
+   (8 резистов по колонке) вместо `ResistsText`; новые свойства `Resist*` заполняются в `Apply`.
+7. `Views\UnitTooltipView.xaml(.cs)` — удалены (см. п.3 цели).
+8. `ViewModels\DuelUnitViewModel.cs` — удалён `IsSelected` (использовался только для hover).
+9. `tests\Wpf\...\RenderCaptureTests.cs` — из dev-харнесса в регрессию: карты выше чем шире
+   (aspect <0.8), SKILL/MOVEBTN/PASSBTN в одном Y при локальном ходе, turn order = только оставшиеся,
+   оверлей статов по центру. `DuelRenderTests` — при необходимости правки под новую очередь.
+
+### Проверка
+
+- [x] `dotnet build src\Wpf\Sektor.DarkestDungeon.Wpf` — 0 errors.
+- [x] `dotnet test` — WPF и связанные suites green; `tools\check-using-placement.ps1` — OK.
+- [x] Рендер-тест (1600×900, оффскрин + дамп визуального дерева) — ассерты выше зелёные.
+- [x] Unity-compile-check не нужен (правок под `unity/` нет).
+- [ ] Визуальная проверка по `docs\TESTING.md` — за пользователем.

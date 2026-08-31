@@ -4,14 +4,10 @@
              xmlns:ui="clr-namespace:Sektor.DarkestDungeon.Wpf.Ui">
     <Border Style="{StaticResource OverlayPanel}" HorizontalAlignment="Stretch">
         <StackPanel Margin="{StaticResource SpacingSmall}">
-            <!-- Title pinned to the right edge -->
-            <TextBlock Text="TURN ORDER" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="16"
-                       FontWeight="Bold" HorizontalAlignment="Right" />
-
-            <!-- One row, reading right-to-left like the in-game turn order. The strip shows the whole
-                 round sequence captured at the round start, so tiles never collapse or jump; the
-                 acting unit keeps its white frame for the whole turn and dead units just dim in place. -->
-            <ItemsControl ItemsSource="{Binding TurnOrder}" FlowDirection="RightToLeft" Margin="0,6,0,0">
+            <!-- One row, reading right-to-left like the in-game turn order. Only the units that have
+                 not acted yet this round are shown: the acting unit keeps its white frame and units
+                 that already moved (or died) drop off the strip. -->
+            <ItemsControl ItemsSource="{Binding TurnOrder}" FlowDirection="RightToLeft">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal" />
@@ -31,10 +27,6 @@
                                         <DataTrigger Binding="{Binding IsCurrent}" Value="True">
                                             <Setter Property="BorderBrush" Value="White" />
                                             <Setter Property="BorderThickness" Value="3" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsDead}" Value="True">
-                                            <Setter Property="Opacity" Value="0.35" />
-                                            <Setter Property="BorderBrush" Value="#555555" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -68,22 +60,11 @@
                                 <Border Grid.Row="1" Margin="3,4,3,4" BorderBrush="#3A2E22"
                                         BorderThickness="1" CornerRadius="3" />
 
-                                <!-- Bottom values flush to the edges: real speed bottom-left, the
-                                     rolled initiative (speed + roll) bottom-right -->
-                                <Grid Grid.Row="2" Margin="3,0,3,2">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding Speed}" FontSize="11"
-                                               FontWeight="Bold" Foreground="#8A7A5A"
-                                               HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                                               ToolTip="Speed" />
-                                    <TextBlock Grid.Column="1" Text="{Binding InitiativeRoll, StringFormat={}{0:0.0}}"
-                                               FontSize="11" FontWeight="Bold" Foreground="#C8B088"
-                                               HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                                               ToolTip="Round initiative" />
-                                </Grid>
+                                <!-- Real speed centered at the bottom edge -->
+                                <TextBlock Grid.Row="2" Text="{Binding Speed}" FontSize="11" FontWeight="Bold"
+                                           Foreground="#8A7A5A"
+                                           HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                                           Margin="0,0,0,3" ToolTip="Speed" />
                             </Grid>
                         </Border>
                     </DataTemplate>
