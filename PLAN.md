@@ -1575,3 +1575,46 @@ script-reference check — зелёный. Финальную проверку 2
 - [x] Рендер-тест (1600×900, оффскрин + дамп визуального дерева) — ассерты выше зелёные.
 - [x] Unity-compile-check не нужен (правок под `unity/` нет).
 - [ ] Визуальная проверка по `docs\TESTING.md` — за пользователем.
+
+## Стрелка «актор → цель» по ховеру (WPF-дуэль, ветка `core/agents-branching-rule`)
+
+### Цель
+
+Визуальная стрелка из прямоугольников с псевдо-объёмом при наведении на валидную цель:
+у источника — маленькие прямоугольники, к середине растут (максимум в центре), к цели — убывают.
+
+### Решения по фидбеку (подтверждены пользователем)
+
+- **Длина**: фикс. весь пролёт — левая команда col 3 → col 0, правая col 0 → col 3. Концы от рангов
+  не зависят; псевдо-объём задаётся статичным стайзингом Grid, поэтому маска симметрична и для обеих
+  команд одинакова; инверсия зашита в хелпер (`MaskFor(team)`), направление хранится на будущее.
+- **Появление**: только валидные цели — локальный ход и `target.IsTarget == true` (валидность уже
+  вычислена в `SelectSkill`/`SelectMove`) и цель ≠ текущий актор. Источник = `controller.CurrentUnit`.
+
+### Изменения
+
+1. `Views\DuelBattleView.xaml`:
+   - В `Viewbox`-сетке поля боя добавить оверлей `x:Name="ArrowGrid"` (Grid.ColumnSpan=2,
+     `IsHitTestVisible=False`, `Visibility=Collapsed`), `RowDefinitions 1*,2*,2*,1*`,
+     `ColumnDefinitions 1*,2*,2*,1*`, 16 `Rectangle` (стиль `ArrowCell`: Fill `#D9B46A`, Opacity ~0.95,
+     Margin 1). Ячейки предсозданы в разметке, переключается только `Visibility`.
+   - На кнопку `DuelSlotTemplate` вернуть `MouseEnter`/`MouseLeave` (только для стрелки, без тултипа).
+2. `Views\DuelBattleView.xaml.cs` (новый): массив `Rectangle[16]` из `ArrowGrid.Children` (row-major);
+   `ShowArrowFor(unit)`/`ClearArrow()` (внутренние, `InternalsVisibleTo` для тестов) — переключение
+   `Visibility` по маске; обработчики ховера; коллапс при открытии ПКМ-статов.
+3. `Ui\DuelArrowCells.cs` (новый, один public тип): `MaskFor(Team)` → `IReadOnlyList<int>` индексов
+   ячеек (row-major): col0 rows 1-2, col1 rows 0-3, col2 rows 0-3, col3 rows 1-2 (12 из 16).
+4. `ViewModels\DuelBattleViewModel.cs`: `public Team CurrentActorTeam` (getter от
+   `controller.CurrentUnit`) и `public bool CanShowArrow(DuelUnitViewModel target)`.
+5. Тесты: `DuelArrowCellsTests` (NUnit: 12 ячеек, симметрия команд, края vs центр);
+   `RenderCaptureTests` — ховер-тест: локальный ход → выбор скилла → `ShowArrowFor(target)` →
+   видимых по маске, остальные Collapsed; `ClearArrow` → все Collapsed; `IsHitTestVisible == False`.
+6. Документы (тот же коммит): `TESTING.md` строка «Duel hover arrow», `CHANGELOG.md`, `PLAN.md`.
+
+### Проверка
+
+- [x] `dotnet build src\Wpf\Sektor.DarkestDungeon.Wpf` — 0 errors.
+- [x] `dotnet test` — WPF и связанные suites green; `tools\check-using-placement.ps1` — OK.
+- [x] Рендер-тест (1600×900, оффскрин) — прежние ассерты + новый ховер-тест стрелки.
+- [x] Unity-compile-check не нужен (правок под `unity/` нет).
+- [ ] Визуальная проверка по `docs\TESTING.md` — за пользователем.

@@ -12,7 +12,9 @@
                     <ControlTemplate TargetType="ContentControl">
                         <Button Background="Transparent" BorderThickness="0" Padding="0"
                                 Command="{Binding DataContext.TargetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                CommandParameter="{Binding}">
+                                CommandParameter="{Binding}"
+                                MouseEnter="OnUnitMouseEnter" MouseLeave="OnUnitMouseLeave"
+                                MouseRightButtonDown="OnUnitMouseRightButtonDown">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseRightButtonDown">
                                     <i:InvokeCommandAction Command="{Binding DataContext.OpenStatsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -54,6 +56,16 @@
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
+
+        <!-- Hover arrow cell: one of the 16 pre-built 4x4 overlay rectangles; only the
+             Visibility is toggled at runtime (no recreation, no geometry, no timers). -->
+        <Style x:Key="ArrowCell" TargetType="Rectangle">
+            <Setter Property="Fill" Value="#D9B46A" />
+            <Setter Property="Opacity" Value="0.95" />
+            <Setter Property="Margin" Value="1" />
+            <Setter Property="Stretch" Value="Fill" />
+            <Setter Property="IsHitTestVisible" Value="False" />
+        </Style>
     </views:PumpableScreenBase.Resources>
 
     <Grid Background="#100C08">
@@ -130,6 +142,42 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+
+                    <!-- Hover attack-arrow overlay: a pre-built 4x4 cell grid stretched over the
+                         unit band (edge cells thin, middle cells thick => pseudo-3D trail, max in
+                         the center of the field). Only Visibility is toggled, never hits tests. -->
+                    <Grid x:Name="ArrowGrid" Grid.ColumnSpan="2" Panel.ZIndex="10" Visibility="Collapsed"
+                          IsHitTestVisible="False"
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="2*" />
+                            <RowDefinition Height="2*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Rectangle Grid.Row="0" Grid.Column="0" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Row="0" Grid.Column="1" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Row="0" Grid.Column="2" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Row="0" Grid.Column="3" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Row="1" Grid.Column="0" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Row="1" Grid.Column="1" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Row="1" Grid.Column="2" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Row="1" Grid.Column="3" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Row="2" Grid.Column="0" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Row="2" Grid.Column="1" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Row="2" Grid.Column="2" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Row="2" Grid.Column="3" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Row="3" Grid.Column="0" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Row="3" Grid.Column="1" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Row="3" Grid.Column="2" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Row="3" Grid.Column="3" Style="{StaticResource ArrowCell}" />
+                    </Grid>
                 </Grid>
             </Viewbox>
 

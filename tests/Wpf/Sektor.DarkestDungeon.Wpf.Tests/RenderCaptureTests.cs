@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Rectangle = System.Windows.Shapes.Rectangle;
 
 using NUnit.Framework;
 
@@ -13,6 +15,7 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Duel;
 using Sektor.DarkestDungeon.Wpf.Data;
 using Sektor.DarkestDungeon.Wpf.Networking;
+using Sektor.DarkestDungeon.Wpf.Ui;
 using Sektor.DarkestDungeon.Wpf.ViewModels;
 using Sektor.DarkestDungeon.Wpf.Views;
 
@@ -253,6 +256,84 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             thread.Join();
             if (error != null)
                 throw new AssertionException("Render failed: " + error);
+        }
+
+        private static Grid BuildArrowOverlay(out DuelBattleView duelView, out DuelBattleViewModel view, out DuelUnitViewModel validTarget)
+        {
+            var existing = Application.Current;
+            var app = existing ?? new App();
+            if (existing == null)
+                ((App)app).InitializeComponent();
+
+            DuelController duel;
+            view = CreateView(out duel);
+            DriveToLocalTurn(duel, view);
+
+            DuelUnitViewModel? target = null;
+            foreach (var skill in view.Skills)
+            {
+                view.SelectSkillCommand.Execute(skill);
+                target = view.Heroes.Concat(view.Monsters).FirstOrDefault(unit => unit.IsTarget);
+                if (target != null)
+                    break;
+            }
+
+            Assert.That(target, Is.Not.Null, "At least one skill must expose a valid hover target.");
+
+            duelView = new DuelBattleView { DataContext = view };
+            duelView.Measure(new Size(WindowWidth, WindowHeight));
+            duelView.Arrange(new Rect(new Size(WindowWidth, WindowHeight)));
+            duelView.UpdateLayout();
+
+            validTarget = target!;
+            return (Grid)duelView.FindName("ArrowGrid");
+        }
+
+        /// <summary>The hover arrow uses the pre-built 4x4 cells: only visibility is toggled, the
+        /// sheet never hits tests, and an invalid/none hover leaves every cell collapsed.</summary>
+        [Test]
+        public void DuelArrow_HoverShowsBandAndClears()
+        {
+            Exception? error = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    DuelBattleView duelView;
+                    DuelBattleViewModel view;
+                    DuelUnitViewModel target;
+                    var grid = BuildArrowOverlay(out duelView, out view, out target);
+                    Assert.That(grid.IsHitTestVisible, Is.False, "The overlay must never intercept card clicks.");
+
+                    var cells = grid.Children.OfType<Rectangle>().ToArray();
+                    Assert.That(cells.Length, Is.EqualTo(DuelArrowCells.CellCount));
+                    Assert.That(grid.Visibility, Is.EqualTo(Visibility.Collapsed), "The overlay starts collapsed.");
+
+                    duelView.ShowArrowFor(target);
+                    var mask = DuelArrowCells.MaskFor(view.CurrentActorTeam);
+                    Assert.That(grid.Visibility, Is.EqualTo(Visibility.Visible), "Hovering reveals the overlay.");
+                    for (int i = 0; i < cells.Length; i++)
+                    {
+                        bool expected = mask.Contains(i);
+                        Assert.That(cells[i].Visibility == Visibility.Visible, Is.EqualTo(expected),
+                            "Cell " + i + " visibility does not match the band mask.");
+                    }
+
+                    duelView.ClearArrow();
+                    Assert.That(grid.Visibility, Is.EqualTo(Visibility.Collapsed), "Clearing hides the overlay.");
+                    Assert.That(cells.All(cell => cell.Visibility == Visibility.Collapsed), Is.True,
+                        "Clearing the arrow collapses every cell again.");
+                }
+                catch (Exception e)
+                {
+                    error = e;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+            if (error != null)
+                throw new AssertionException("Arrow hover failed: " + error);
         }
     }
 }

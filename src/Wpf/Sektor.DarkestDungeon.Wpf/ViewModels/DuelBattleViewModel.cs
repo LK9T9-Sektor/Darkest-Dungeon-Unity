@@ -115,6 +115,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the command that closes the stats sheet.</summary>
         public IRelayCommand CloseStatsCommand { get; }
 
+        /// <summary>Gets the team of the unit whose turn is being played.</summary>
+        public Team CurrentActorTeam
+        {
+            get { return controller.CurrentUnit?.Team ?? Team.Heroes; }
+        }
+
         /// <summary>Initializes a new instance of the <see cref="DuelBattleViewModel"/> class.</summary>
         /// <param name="controller">The duel controller.</param>
         /// <param name="rivalLink">The rival input channel (network or AI).</param>
@@ -550,6 +556,21 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 hero.IsTarget = false;
             foreach (var monster in Monsters)
                 monster.IsTarget = false;
+        }
+
+        /// <summary>Whether the hovered unit can show the attack arrow (a valid skill/move target
+        /// during the local turn, other than the acting unit itself).</summary>
+        /// <param name="target">The hovered unit card.</param>
+        /// <returns>True when the arrow may be drawn.</returns>
+        public bool CanShowArrow(DuelUnitViewModel target)
+        {
+            var current = controller.CurrentUnit;
+            return controller.IsLocalTurn
+                && current != null
+                && target != null
+                && target.CombatId != current.CombatInfo.CombatId
+                && target.IsTarget
+                && (selectedSkill != null || isMoveMode);
         }
 
         private DuelUnitViewModel ToUnit(ICombatUnit unit, bool isEnemy)
