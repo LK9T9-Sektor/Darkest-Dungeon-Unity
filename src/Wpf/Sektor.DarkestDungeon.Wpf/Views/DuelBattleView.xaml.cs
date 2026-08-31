@@ -25,7 +25,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
                 return;
             }
 
-            var mask = DuelArrowCells.MaskFor(viewModel.CurrentActorTeam);
+            var mask = DuelArrowCells.MaskFor(viewModel.CurrentActorTeam, viewModel.CurrentActorRank, target.Rank);
             for (int i = 0; i < _arrowCells.Length; i++)
             {
                 _arrowCells[i].Visibility = mask.Contains(i) ? Visibility.Visible : Visibility.Collapsed;

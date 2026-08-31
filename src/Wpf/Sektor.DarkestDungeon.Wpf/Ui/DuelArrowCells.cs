@@ -1,63 +1,104 @@
+using System;
 using System.Collections.Generic;
 
 using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 
 namespace Sektor.DarkestDungeon.Wpf.Ui
 {
-    /// <summary>Computes the pre-built 4x4 overlay cells forming the hover attack arrow.</summary>
+    /// <summary>Pre-computes the overlay cells forming the rank-aware hover attack arrow.</summary>
     /// <remarks>
-    /// The battlefield is covered by a fixed 4x4 cell grid (row-major indices, 0..15) whose edge
-    /// cells are narrow and whose middle cells are wide, so lighting the band below yields the
-    /// pseudo-3D effect: small rectangles at both ends, a maximum at the center of the field.
-    /// The band is symmetric, so both teams light the same cells; positions are mirrored only in
-    /// the mapping direction (left team starts at column 3 toward column 0, the right team the
-    /// other way around), which is kept here for future rank-relative modes.
+    /// The battlefield is covered by an 8x4 cell grid (column * 4 + row, indices 0..31). Columns
+    /// 1..4 are the left (hero) ranks 1..4, columns 5..8 the right (monster) ranks 1..4. The arrow
+    /// always starts just past the acting unit's column and ends at the hovered target's column
+    /// (inclusive), so its span depends on both ranks: a left rank-4 actor lights columns 5..N,
+    /// e.g. up to column 5 for a right rank-1 target (indices 16..19, "to 20"), column 6 for a
+    /// rank-2 target ("to 24") and so on. Every (team, source rank, target rank) combination is
+    /// pre-computed once into a lookup table; per column the lit rows form the pseudo-3D taper
+    /// (thin 2-cell edges, full height in the middle of the field).
     /// </remarks>
     public static class DuelArrowCells
     {
-        /// <summary>Gets the number of overlay cells per side (4x4).</summary>
-        public const int GridSize = 4;
+        /// <summary>Gets the number of vertical rows per arrow column.</summary>
+        public const int RowsPerColumn = 4;
+
+        /// <summary>Gets the number of rank columns (4 per team).</summary>
+        public const int RankColumns = 8;
 
         /// <summary>Gets the total number of overlay cells.</summary>
-        public const int CellCount = GridSize * GridSize;
+        public const int CellCount = RankColumns * RowsPerColumn;
 
-        /// <summary>Returns the row-major indices of the lit arrow cells for the given actor team.</summary>
-        /// <param name="actorTeam">The team of the acting unit.</param>
-        /// <returns>The lit cell indices (12 of 16).</returns>
-        public static IReadOnlyList<int> MaskFor(Team actorTeam)
+        private const int Ranks = 4;
+
+        private static readonly int[][][][] Tables = new int[2][][][];
+
+        static DuelArrowCells()
         {
-            var cells = new List<int>(CellCount);
-            for (int row = 0; row < GridSize; row++)
+            for (int team = 0; team < 2; team++)
             {
-                for (int col = 0; col < GridSize; col++)
+                Tables[team] = new int[Ranks][][];
+                for (int source = 1; source <= Ranks; source++)
                 {
-                    if (IsLit(row, col))
-                        cells.Add(Index(row, col));
+                    Tables[team][source - 1] = new int[Ranks][];
+                    for (int target = 1; target <= Ranks; target++)
+                        Tables[team][source - 1][target - 1] = Build(source, target, team == 0);
                 }
             }
-
-            return cells;
         }
 
-        /// <summary>Gets the row-major index of the cell at the given grid coordinates.</summary>
-        /// <param name="row">The row (0-based).</param>
-        /// <param name="col">The column (0-based).</param>
-        /// <returns>The index.</returns>
-        public static int Index(int row, int col)
+        /// <summary>Returns the pre-computed lit cell indices for the actor team and ranks.</summary>
+        /// <param name="sourceTeam">The team of the acting unit (Heroes are the left team).</param>
+        /// <param name="sourceRank">The acting unit's rank (1-4).</param>
+        /// <param name="targetRank">The hovered target's rank on the opposite side (1-4).</param>
+        /// <returns>The lit cell indices for the arrow span.</returns>
+        public static IReadOnlyList<int> MaskFor(Team sourceTeam, int sourceRank, int targetRank)
         {
-            return row * GridSize + col;
+            bool isLeft = sourceTeam == Team.Heroes;
+            return Tables[isLeft ? 0 : 1][sourceRank - 1][targetRank - 1];
         }
 
-        /// <summary>Whether the cell at the given grid coordinates belongs to the arrow band.</summary>
-        /// <param name="row">The row (0-based).</param>
-        /// <param name="col">The column (0-based).</param>
-        /// <returns>True when lit.</returns>
-        private static bool IsLit(int row, int col)
+        /// <summary>Gets the cell index for the given 1-based column and 0-based row.</summary>
+        /// <param name="column">The 1-based rank column (1-8).</param>
+        /// <param name="row">The row (0-3).</param>
+        /// <returns>The cell index.</returns>
+        public static int Index(int column, int row)
         {
-            bool middleRows = row >= 1 && row <= 2;
-            if (col == 0 || col == GridSize - 1)
-                return middleRows;
-            return row >= 0 && row < GridSize;
+            return (column - 1) * RowsPerColumn + row;
+        }
+
+        private static int[] Build(int sourceRank, int targetRank, bool isLeft)
+        {
+            int sourceColumn = isLeft ? sourceRank : Ranks + sourceRank;
+            int targetColumn = isLeft ? Ranks + targetRank : targetRank;
+            int from;
+            int to;
+            if (isLeft)
+            {
+                from = sourceColumn + 1;
+                to = targetColumn;
+            }
+            else
+            {
+                from = targetColumn;
+                to = sourceColumn - 1;
+            }
+
+            var cells = new List<int>();
+            for (int column = Math.Max(1, from); column <= Math.Min(RankColumns, to); column++)
+            {
+                foreach (int row in RowsFor(column))
+                    cells.Add(Index(column, row));
+            }
+
+            return cells.ToArray();
+        }
+
+        private static IEnumerable<int> RowsFor(int column)
+        {
+            if (column == 1 || column == RankColumns)
+                return new[] { 1, 2 };
+            if (column == 2 || column == RankColumns - 1)
+                return new[] { 0, 1, 2 };
+            return new[] { 0, 1, 2, 3 };
         }
     }
 }

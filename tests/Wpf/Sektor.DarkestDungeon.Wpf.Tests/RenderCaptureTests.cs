@@ -310,13 +310,14 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                     Assert.That(grid.Visibility, Is.EqualTo(Visibility.Collapsed), "The overlay starts collapsed.");
 
                     duelView.ShowArrowFor(target);
-                    var mask = DuelArrowCells.MaskFor(view.CurrentActorTeam);
+                    var expected = DuelArrowCells.MaskFor(view.CurrentActorTeam, view.CurrentActorRank, target.Rank);
+                    Assert.That(expected.Count, Is.GreaterThan(0), "A valid hover must light at least one cell.");
                     Assert.That(grid.Visibility, Is.EqualTo(Visibility.Visible), "Hovering reveals the overlay.");
                     for (int i = 0; i < cells.Length; i++)
                     {
-                        bool expected = mask.Contains(i);
-                        Assert.That(cells[i].Visibility == Visibility.Visible, Is.EqualTo(expected),
-                            "Cell " + i + " visibility does not match the band mask.");
+                        bool lit = expected.Contains(i);
+                        Assert.That(cells[i].Visibility == Visibility.Visible, Is.EqualTo(lit),
+                            "Cell " + i + " visibility does not match the rank-aware band mask.");
                     }
 
                     duelView.ClearArrow();

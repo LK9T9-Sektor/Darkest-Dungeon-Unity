@@ -121,6 +121,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             get { return controller.CurrentUnit?.Team ?? Team.Heroes; }
         }
 
+        /// <summary>Gets the rank (1-4) of the unit whose turn is being played.</summary>
+        public int CurrentActorRank
+        {
+            get { return controller.CurrentUnit?.Rank ?? 0; }
+        }
+
         /// <summary>Initializes a new instance of the <see cref="DuelBattleViewModel"/> class.</summary>
         /// <param name="controller">The duel controller.</param>
         /// <param name="rivalLink">The rival input channel (network or AI).</param>
