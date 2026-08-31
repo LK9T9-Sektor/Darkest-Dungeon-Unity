@@ -57,8 +57,8 @@
             </ControlTemplate.Triggers>
         </ControlTemplate>
 
-        <!-- Hover arrow cell: one of the 16 pre-built 4x4 overlay rectangles; only the
-             Visibility is toggled at runtime (no recreation, no geometry, no timers). -->
+        <!-- Hover arrow cell: one of the 8 pre-built strip rectangles; only the Visibility is
+             toggled at runtime (no recreation, no geometry, no timers). -->
         <Style x:Key="ArrowCell" TargetType="Rectangle">
             <Setter Property="Fill" Value="#D9B46A" />
             <Setter Property="Opacity" Value="0.95" />
@@ -143,62 +143,37 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-<!-- Hover attack-arrow overlay: a pre-built 8x4 cell grid stretched over the unit band.
-                         Columns 1..4 = left (hero) ranks 1..4, columns 5..8 = right (monster) ranks
-                         1..4; only the columns between the actor and the hovered target are lit,
-                         edge columns thin and mid-field columns full height (pseudo-3D trail).
-                         Only Visibility is toggled, never hits tests. -->
-                    <Grid x:Name="ArrowGrid" Grid.ColumnSpan="2" Panel.ZIndex="10" Visibility="Collapsed"
-                          IsHitTestVisible="False"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+<!-- Hover attack-arrow strip: a single fixed-height row (no pseudo-3D taper) centered over
+                     the unit band. Slots 0..7 are the ranks in visual order (hero 4,3,2,1 then
+                     monster 1,2,3,4), so the two rank-1 front units are the neighbours of the field
+                     center. Slot column widths are calibrated once against the measured cards at the
+                     first layout; only the Visibility of the 8 pre-built cells is toggled at runtime. -->
+                    <Grid x:Name="ArrowGrid" Grid.ColumnSpan="2" Panel.ZIndex="10" Height="22"
+                          Visibility="Collapsed" IsHitTestVisible="False"
+                          HorizontalAlignment="Stretch" VerticalAlignment="Center">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="2*" />
-                            <RowDefinition Height="2*" />
                             <RowDefinition Height="1*" />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <Rectangle Grid.Row="0" Grid.Column="0" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="0" Grid.Column="1" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="0" Grid.Column="2" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="0" Grid.Column="3" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="0" Grid.Column="4" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="0" Grid.Column="5" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="0" Grid.Column="6" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="0" Grid.Column="7" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="1" Grid.Column="0" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="1" Grid.Column="1" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="1" Grid.Column="2" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="1" Grid.Column="3" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="1" Grid.Column="4" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="1" Grid.Column="5" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="1" Grid.Column="6" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="1" Grid.Column="7" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="2" Grid.Column="0" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="2" Grid.Column="1" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="2" Grid.Column="2" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="2" Grid.Column="3" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="2" Grid.Column="4" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="2" Grid.Column="5" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="2" Grid.Column="6" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="2" Grid.Column="7" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="3" Grid.Column="0" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="3" Grid.Column="1" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="3" Grid.Column="2" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="3" Grid.Column="3" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="3" Grid.Column="4" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="3" Grid.Column="5" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="3" Grid.Column="6" Style="{StaticResource ArrowCell}" />
-                        <Rectangle Grid.Row="3" Grid.Column="7" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Column="1" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Column="2" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Column="3" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Column="4" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Column="5" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Column="6" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Column="7" Style="{StaticResource ArrowCell}" />
+                        <Rectangle Grid.Column="8" Style="{StaticResource ArrowCell}" />
                     </Grid>
                 </Grid>
             </Viewbox>

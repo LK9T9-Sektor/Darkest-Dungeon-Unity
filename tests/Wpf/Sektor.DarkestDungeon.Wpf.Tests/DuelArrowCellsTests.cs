@@ -8,48 +8,64 @@ using Sektor.DarkestDungeon.Wpf.Ui;
 
 namespace Sektor.DarkestDungeon.Wpf.Tests
 {
-    /// <summary>Tests for the pre-computed rank-aware hover-arrow cell table.</summary>
+    /// <summary>Tests for the pre-computed rank-aware hover-arrow slot table.</summary>
     [TestFixture]
     public class DuelArrowCellsTests
     {
-        /// <summary>The user-specified example: a left rank-4 actor never paints the first four
-        /// columns (the arrow starts at column 5, "index 20" boundary) and its last lit column is
-        /// the hovered target's: rank 1 = column 5, rank 2 = column 6, rank 3 = column 7, rank 4 =
-        /// column 8 (the far edge).</summary>
+        /// <summary>Visual slots run 0..7 = hero ranks 4,3,2,1 then monster ranks 1,2,3,4, so the
+        /// two rank-1 front units meet at the field center (slots 3 and 4).</summary>
         [Test]
-        public void MaskFor_LeftRankFourSpansFromFifthColumnToTarget()
+        public void SlotFor_InvertsRanksIntoVisualOrder()
         {
-            Assert.That(DuelArrowCells.MaskFor(Team.Heroes, 4, 1).All(i => i >= DuelArrowCells.Index(5, 0)),
-                Is.True, "The first four columns stay dark for a left rank-4 actor.");
-            Assert.That(Columns(DuelArrowCells.MaskFor(Team.Heroes, 4, 1)), Is.EqualTo(new[] { 5 }), "Right rank 1 ends at column 5.");
-            Assert.That(Columns(DuelArrowCells.MaskFor(Team.Heroes, 4, 2)), Is.EqualTo(new[] { 5, 6 }), "Right rank 2 ends at column 6.");
-            Assert.That(Columns(DuelArrowCells.MaskFor(Team.Heroes, 4, 3)), Is.EqualTo(new[] { 5, 6, 7 }), "Right rank 3 ends at column 7.");
-            Assert.That(Columns(DuelArrowCells.MaskFor(Team.Heroes, 4, 4)), Is.EqualTo(new[] { 5, 6, 7, 8 }), "Right rank 4 ends at column 8.");
+            Assert.That(DuelArrowCells.SlotFor(Team.Heroes, 1), Is.EqualTo(3));
+            Assert.That(DuelArrowCells.SlotFor(Team.Heroes, 2), Is.EqualTo(2));
+            Assert.That(DuelArrowCells.SlotFor(Team.Heroes, 3), Is.EqualTo(1));
+            Assert.That(DuelArrowCells.SlotFor(Team.Heroes, 4), Is.EqualTo(0));
+            Assert.That(DuelArrowCells.SlotFor(Team.Monsters, 1), Is.EqualTo(4));
+            Assert.That(DuelArrowCells.SlotFor(Team.Monsters, 2), Is.EqualTo(5));
+            Assert.That(DuelArrowCells.SlotFor(Team.Monsters, 3), Is.EqualTo(6));
+            Assert.That(DuelArrowCells.SlotFor(Team.Monsters, 4), Is.EqualTo(7));
         }
 
-        /// <summary>Left rank 1 (column 1) lights every column after its own up to the target:
-        /// rank 1 target ends at column 5, rank 4 ends at the far edge.</summary>
+        /// <summary>A left rank-1 actor is one slot away from a right rank-1 target (both front
+        /// ranks), so the arrow lights only the single center slot instead of the whole field.</summary>
         [Test]
-        public void MaskFor_LeftRankOneSpansForwards()
+        public void MaskFor_HeroRankOneToMonsterRankOne_LightsOnlyCenterSlot()
         {
-            Assert.That(Columns(DuelArrowCells.MaskFor(Team.Heroes, 1, 1)), Is.EqualTo(new[] { 2, 3, 4, 5 }));
-            Assert.That(Columns(DuelArrowCells.MaskFor(Team.Heroes, 1, 4)), Is.EqualTo(new[] { 2, 3, 4, 5, 6, 7, 8 }));
+            Assert.That(DuelArrowCells.MaskFor(Team.Heroes, 1, 1), Is.EqualTo(new[] { 4 }));
         }
 
-        /// <summary>The right side mirrors the left: a right rank-4 actor paints the columns
-        /// between the left-ward target and its own column.</summary>
+        /// <summary>The mirror case: a right rank-1 actor aiming at a left rank-1 target lights
+        /// only the single center slot on the hero side.</summary>
         [Test]
-        public void MaskFor_RightRankFourSpansTowardsTarget()
+        public void MaskFor_MonsterRankOneToHeroRankOne_LightsOnlyCenterSlot()
         {
-            Assert.That(Columns(DuelArrowCells.MaskFor(Team.Monsters, 4, 1)), Is.EqualTo(new[] { 1, 2, 3, 4, 5, 6, 7 }));
-            Assert.That(Columns(DuelArrowCells.MaskFor(Team.Monsters, 4, 4)), Is.EqualTo(new[] { 4, 5, 6, 7 }));
-            Assert.That(Columns(DuelArrowCells.MaskFor(Team.Monsters, 1, 1)), Is.EqualTo(new[] { 1, 2, 3, 4 }));
-            Assert.That(DuelArrowCells.MaskFor(Team.Monsters, 4, 1).All(i => i >= DuelArrowCells.Index(1, 0)),
-                Is.True, "No cell beyond the actor's right column is lit.");
+            Assert.That(DuelArrowCells.MaskFor(Team.Monsters, 1, 1), Is.EqualTo(new[] { 3 }));
         }
 
-        /// <summary>Every pre-computed entry is non-empty, uses only valid cell indices once each
-        /// and never lights the acting unit's own columns.</summary>
+        /// <summary>A left rank-4 (rearmost) actor lights every slot past its own — slots 1..4/5/6/7
+        /// depending on the right target's rank.</summary>
+        [Test]
+        public void MaskFor_LeftRankFourSpansFromSecondSlotToTarget()
+        {
+            Assert.That(DuelArrowCells.MaskFor(Team.Heroes, 4, 1), Is.EqualTo(new[] { 1, 2, 3, 4 }));
+            Assert.That(DuelArrowCells.MaskFor(Team.Heroes, 4, 2), Is.EqualTo(new[] { 1, 2, 3, 4, 5 }));
+            Assert.That(DuelArrowCells.MaskFor(Team.Heroes, 4, 3), Is.EqualTo(new[] { 1, 2, 3, 4, 5, 6 }));
+            Assert.That(DuelArrowCells.MaskFor(Team.Heroes, 4, 4), Is.EqualTo(new[] { 1, 2, 3, 4, 5, 6, 7 }));
+        }
+
+        /// <summary>The far corners are a long spoke: hero rank 4 to monster rank 4 covers every
+        /// slot between them, monster rank 4 to hero rank 4 mirrors it on the left side.</summary>
+        [Test]
+        public void MaskFor_FarCornersSpanTheWholeField()
+        {
+            Assert.That(DuelArrowCells.MaskFor(Team.Heroes, 4, 4), Is.EqualTo(new[] { 1, 2, 3, 4, 5, 6, 7 }));
+            Assert.That(DuelArrowCells.MaskFor(Team.Monsters, 4, 4), Is.EqualTo(new[] { 0, 1, 2, 3, 4, 5, 6 }));
+        }
+
+        /// <summary>Every pre-computed entry is a non-empty contiguous run of slots, never lights the
+        /// acting unit's own slot and stays within the 0..7 range; a hero actor only lights the
+        /// right (monster) side and vice versa.</summary>
         [Test]
         public void MaskFor_FullTableIsValid()
         {
@@ -61,36 +77,21 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                     {
                         IReadOnlyList<int> mask = DuelArrowCells.MaskFor(team, source, target);
                         Assert.That(mask, Is.Not.Null);
-                        Assert.That(mask.Count, Is.GreaterThan(0), "The arrow must always light at least one cell.");
-                        Assert.That(mask.Distinct().Count(), Is.EqualTo(mask.Count), "No duplicate cell indices.");
+                        Assert.That(mask.Count, Is.GreaterThan(0), "The arrow must always light at least one slot.");
+                        Assert.That(mask.Distinct().Count(), Is.EqualTo(mask.Count), "No duplicate slot indices.");
                         Assert.That(mask.All(i => i >= 0 && i < DuelArrowCells.CellCount), Is.True, "Indices in range.");
+                        Assert.That(mask.Contains(DuelArrowCells.SlotFor(team, source)), Is.False,
+                            "The actor's own slot is never lit.");
 
-                        int sourceColumn = team == Team.Heroes ? source : 4 + source;
-                        Assert.That(Columns(mask).Contains(sourceColumn), Is.False, "The actor's own column is never lit.");
+                        foreach (int step in mask.Zip(mask.Skip(1), (a, b) => b - a))
+                            Assert.That(step, Is.EqualTo(1), "The mask is a contiguous run of slots.");
+
+                        int sourceSlot = DuelArrowCells.SlotFor(team, source);
+                        Assert.That(team == Team.Heroes ? mask.All(i => i > sourceSlot) : mask.All(i => i < sourceSlot),
+                            Is.True, "The arrow only lights slots towards the target side of the actor.");
                     }
                 }
             }
-        }
-
-        /// <summary>The taper: the far edge column keeps only the middle rows while the mid-field
-        /// columns span the full height, so the band is thin at the ends and max in the center.</summary>
-        [Test]
-        public void MaskFor_TapersEdgesToCenter()
-        {
-            IReadOnlyList<int> fullField = DuelArrowCells.MaskFor(Team.Heroes, 1, 4);
-            Assert.That(LitRows(fullField, 8).Count, Is.EqualTo(2), "The far edge column keeps only the middle rows.");
-            Assert.That(LitRows(fullField, 4).Count, Is.EqualTo(4), "The mid-field column is at full height.");
-        }
-
-        private static IReadOnlyList<int> LitRows(IReadOnlyList<int> mask, int column)
-        {
-            return mask.Where(i => (i / DuelArrowCells.RowsPerColumn) + 1 == column)
-                .Select(i => i % DuelArrowCells.RowsPerColumn).ToArray();
-        }
-
-        private static IReadOnlyList<int> Columns(IReadOnlyList<int> mask)
-        {
-            return mask.Select(i => (i / DuelArrowCells.RowsPerColumn) + 1).Distinct().OrderBy(c => c).ToArray();
         }
     }
 }

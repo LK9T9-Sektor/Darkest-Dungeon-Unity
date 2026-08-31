@@ -289,7 +289,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             return (Grid)duelView.FindName("ArrowGrid");
         }
 
-        /// <summary>The hover arrow uses the pre-built 4x4 cells: only visibility is toggled, the
+        /// <summary>The hover arrow uses the pre-built strip cells: only visibility is toggled, the
         /// sheet never hits tests, and an invalid/none hover leaves every cell collapsed.</summary>
         [Test]
         public void DuelArrow_HoverShowsBandAndClears()
@@ -313,6 +313,10 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                     var expected = DuelArrowCells.MaskFor(view.CurrentActorTeam, view.CurrentActorRank, target.Rank);
                     Assert.That(expected.Count, Is.GreaterThan(0), "A valid hover must light at least one cell.");
                     Assert.That(grid.Visibility, Is.EqualTo(Visibility.Visible), "Hovering reveals the overlay.");
+                    Assert.That(grid.ColumnDefinitions[0].Width.GridUnitType, Is.EqualTo(GridUnitType.Pixel),
+                        "The lead column is calibrated to the measured first card.");
+                    Assert.That(grid.ColumnDefinitions[DuelArrowCells.CellCount].Width.GridUnitType, Is.EqualTo(GridUnitType.Pixel),
+                        "The last slot column is calibrated to the measured last card.");
                     for (int i = 0; i < cells.Length; i++)
                     {
                         bool lit = expected.Contains(i);

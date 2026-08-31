@@ -1580,54 +1580,57 @@ script-reference check — зелёный. Финальную проверку 2
 
 ### Цель
 
-Визуальная стрелка из прямоугольников с псевдо-объёмом при наведении на валидную цель:
-у источника — маленькие прямоугольники, к середине растут (максимум в центре), к цели — убывают.
-Длина и границы стрелки зависят от позиций (рангов) актора и цели: она начинается сразу за
-колонкой актора и заканчивается у колонки цели.
+Плоская полоса-стрелка «актор → цель» при наведении на валидную цель: один ряд по центру поля,
+без псевдо-объёма; начинается сразу за слотом актора и заканчивается на слоте цели. Длина зависит
+от рангов. Полоса выровнена ровно по фактическим карточкам (инверсия рангов учтена; колонки
+калибруются по измеренным карточкам один раз при первом layout).
 
 ### Решения по фидбеку (подтверждены пользователем)
 
-- **Ранкозависимость**: поле = 8 колонок × 4 ряда ячеек (idx = `колонка*4 + ряд`, 0..31).
-  Левая (герои) позиция N → колонка N, правая (монстры) позиция N → колонка 4+N. Стрелка красит
-  колонки строго между актором и целью (за колонкой актора → включительно колонку цели).
-  Пример пользователя: актор слева pos4 → «первая 4 колонки не красятся, начинают с 5»; цель
-  справа pos1 → «до индекса 20» (колонка 5), pos2 → «до 24» (колонка 6), pos3 → «до 28»
-  (колонка 7), pos4 → вся дальняя половина.
-- **Предрасчёт**: для каждой (команда, позиция актора, позиция цели) = 2×4×4 = 32 маски
-  считаются один раз в static-конструкторе `DuelArrowCells` в таблицу
-  `int[][][][] Tables` (team → source-1 → target-1 → `int[]`), на ховер выдача — просто индексация
-  (стартовый индекс/длины = сама маска-массив); никаких вычислений при каждом наведении.
-- **Псевдо-объём**: статичный стайзинг Grid (колонки `1*,2*,2*,2*,2*,2*,2*,1*`, ряды
-  `1*,2*,2*,1*`) + высота колонки в маске: крайние (1 и 8) — 2 ячейки (ряды 1-2), около-крайние
-  (2 и 7) — 3 ячейки, центр (3-6) — полные 4.
+- **Инверсия рангов**: визуальный порядок слева-направо `0..7 = 4,3,2,1 | 1,2,3,4`. Слот героя
+  rank r = `4 - r` (rank1 у центра = слот 3), слот монстра rank r = `3 + r` (rank1 = слот 4).
+  Пример: «1 команда pos1 наводится на 2 команда pos1» = слот 3 → слот 4, короткий сегмент `{4}`
+  (раньше из-за инверсии тянулось на всю ширину).
+- **Один ряд**: псевдо-объём (4 ряда ячеек с нарастанием) убран. Полоса = 1 ряд фикс. высоты
+  ~22px в координатах Viewbox, по вертикали по центру поля.
+- **Точное выравнивание**: колонки полосы один раз при `LayoutUpdated` калибруются по измеренным
+  карточкам (сортировка по X; col0 = X первой карточки, каждая слот-колонка = шаг до следующей
+  карточки → полоса непрерывна по центрам слотов; Viewbox масштабирует всё равномерно, дальше
+  только `Visibility`, без повторных измерений).
+- **Предрасчёт**: 32 маски (команда × позиция актора × позиция цели) считаются один раз в
+  static-конструкторе `DuelArrowCells` в таблицу `int[][][][] Tables` (team → source-1 → target-1
+  → `int[]` индексов слотов 0..7); на ховер — только индексация.
 - **Появление**: только валидные цели — локальный ход и `target.IsTarget == true` (валидность уже
   вычислена в `SelectSkill`/`SelectMove`) и цель ≠ текущий актор. Источник = `controller.CurrentUnit`.
 
 ### Изменения
 
-1. `Views\DuelBattleView.xaml`: оверлей `x:Name="ArrowGrid"` 8×4 (32 `Rectangle`, row-major) внутри
-   `Viewbox`-сетки поля боя (`Grid.ColumnSpan=2`, `IsHitTestVisible=False`, `Visibility=Collapsed`);
-   колонки `1*,2*,2*,2*,2*,2*,2*,1*`. На кнопку `DuelSlotTemplate` — `MouseEnter`/`MouseLeave`
-   (только для стрелки, без тултипа) + `MouseRightButtonDown` (коллапс при ПКМ-статах).
-2. `Ui\DuelArrowCells.cs` (переписан): `MaskFor(Team, int sourceRank, int targetRank)` →
-   `IReadOnlyList<int>` из предрассчитанной таблицы; `Index(column, row)`; константы
-   `RowsPerColumn=4`, `RankColumns=8`, `CellCount=32`.
+1. `Ui\DuelArrowCells.cs` (переписан под один ряд): `CellCount = 8`, `SlotFor(Team, rank)` →
+   0..7 (инверсия в формуле), `MaskFor(sourceTeam, sourceRank, targetRank)` → `IReadOnlyList<int>`
+   из предрассчитанной таблицы: lit = `[srcSlot+1 .. targetSlot]`, правая команда зеркально
+   `[targetSlot .. srcSlot-1]`. Убраны `RowsPerColumn`/`Index`.
+2. `Views\DuelBattleView.xaml`: `ArrowGrid` = полоса: `Height="22"`, `VerticalAlignment="Center"`,
+   одна `RowDefinition` (`1*`), колонки `[0]=lead(по умолч. *), 1..8=слоты, 9=trail(*)`, 8
+   фикс. `Rectangle` (стиль `ArrowCell` — плоский, без taper) в `Grid.Column=1..8`;
+   `IsHitTestVisible=False`, `Visibility=Collapsed`. Ховер-хендлеры на `DuelSlotTemplate` как есть.
 3. `ViewModels\DuelBattleViewModel.cs`: `CurrentActorTeam`, `CurrentActorRank` и
-   `CanShowArrow(DuelUnitViewModel)` — гейт (локальный ход + `IsTarget` + не актор + скилл/MOVE).
-4. `Views\DuelBattleView.xaml.cs`: `ShowArrowFor(target)` берёт маску по
-   `MaskFor(CurrentActorTeam, CurrentActorRank, target.Rank)` и переключает `Visibility` всех 32
-   ячеек; `ClearArrow()` гасит всё; генерация конструктора за маркап-компилятором — у явного
-   конструктора был дубль (CS0111), поэтому ячейки инициализируются лениво в `EnsureCells()`.
-5. Тесты: `DuelArrowCellsTests` (таблица предрасчёта: пример пользователя — актор слева pos4 →
-   колонки 5..(4+цель); зеркальность правой стороны; валидность всех 32 масок; толщина краёв);
-   `RenderCaptureTests.DuelArrow_HoverShowsBandAndClears` (ховер → видимые ровно по маске,
-   `ClearArrow` → всё Collapsed, `IsHitTestVisible == False`).
+   `CanShowArrow(DuelUnitViewModel)` — уже есть, без изменений.
+4. `Views\DuelBattleView.xaml.cs`: `EnsureCells()` один раз при первом `LayoutUpdated` собирает 8
+   `Rectangle` (`ArrowGrid.Children`) и калибрует колонки по измеренным карточкам (`DuelUnitCardView`,
+   сортировка по X); `ShowArrowFor(target)` → `MaskFor(CurrentActorTeam, CurrentActorRank,
+   target.Rank)` → `Visibility` слотов; `ClearArrow()` гасит всё; конструктор за маркап-компилятором,
+   ячейки лениво.
+5. Тесты: `DuelArrowCellsTests` — инверсия (`SlotFor`), примеры масок (герой1→монстр1=`{4}`,
+   герой4→монстр4=`{1..7}`, монстр1→герой1=`{3}`, монстр4→герой4=`{0..6}`), все 32 маски
+   непустые/валидные/уникальные; `RenderCaptureTests.DuelArrow_HoverShowsBandAndClears` —
+   после layout колонки полосы настроены, `ShowArrowFor` подсвечивает ровно слоты маски,
+   `ClearArrow` → всё Collapsed, `IsHitTestVisible == False`.
 6. Документы (тот же коммит): `TESTING.md` строка «Duel hover arrow», `CHANGELOG.md`, `PLAN.md`.
 
 ### Проверка
 
-- [x] `dotnet build src\Wpf\Sektor.DarkestDungeon.Wpf` — 0 errors (предсуществующие nullable-warning'и `InMemoryTransport`/`DuelContent` не трогаем).
+- [x] `dotnet build src\Wpf\Sektor.DarkestDungeon.Wpf` — 0 errors (nullable-warning'и `InMemoryTransport`/`DuelContent` предсуществующие, не трогаем).
 - [x] `dotnet test` — WPF и связанные suites green; `tools\check-using-placement.ps1` — OK.
-- [x] Рендер-тест (1600×900, оффскрин) — прежние ассерты + новый ховер-тест стрелки.
+- [x] Рендер-тест (1600×900, оффскрин) — прежние ассерты + новый ховер-тест полосы.
 - [x] Unity-compile-check не нужен (правок под `unity/` нет).
 - [ ] Визуальная проверка по `docs\TESTING.md` — за пользователем.
