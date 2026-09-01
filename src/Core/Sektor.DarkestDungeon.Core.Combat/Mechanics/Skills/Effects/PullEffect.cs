@@ -13,6 +13,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
 
         private int PullParam { get; set; }
 
+        /// <summary>Gets the pull distance.</summary>
+        public int Param { get { return PullParam; } }
+
         /// <summary>Initializes a new instance of the <see cref="PullEffect"/> class.</summary>
         /// <param name="pullParam">The pull distance.</param>
         public PullEffect(int pullParam)

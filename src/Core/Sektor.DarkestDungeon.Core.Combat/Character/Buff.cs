@@ -1,3 +1,4 @@
+using System;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 
 namespace Sektor.DarkestDungeon.Core.Combat.Character
@@ -84,6 +85,18 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         public bool IsSameBuff(Buff buff)
         {
             return AttributeType == buff.AttributeType && RuleType == buff.RuleType && IsFalseRule == buff.IsFalseRule;
+        }
+
+        /// <summary>Builds a concise description of the modifier for logs and tooltips (e.g. "+6% AttackRating").</summary>
+        /// <returns>The description.</returns>
+        public string Describe()
+        {
+            bool percent = ModifierValue != 0 && Math.Abs(ModifierValue) < 1;
+            string sign = ModifierValue >= 0 ? "+" : string.Empty;
+            string amount = percent
+                ? Math.Round(ModifierValue * 100) + "%"
+                : ((int)Math.Round(ModifierValue)).ToString();
+            return sign + amount + " " + AttributeType;
         }
     }
 }

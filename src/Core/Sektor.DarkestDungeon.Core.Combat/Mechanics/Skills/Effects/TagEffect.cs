@@ -30,7 +30,8 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
         {
             if (ApplyInstant(performer, target, effect, battleContext))
             {
-                battleContext.Events.ShowPopup(target, PopupType.Tagged);
+                int duration = effect.IntegerParams[EffectIntParams.Duration] ?? BattleConstants.DefaultMarkDuration;
+                battleContext.Events.ShowPopup(target, PopupType.Tagged, duration + " rounds");
                 battleContext.Events.UpdateOverlay(target);
                 return true;
             }

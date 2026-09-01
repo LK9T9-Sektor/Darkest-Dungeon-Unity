@@ -120,9 +120,17 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private bool _damagePopupVisible;
 
-        /// <summary>Gets or sets the active status effect labels (buffs and debuffs) shown around the portrait.</summary>
+        /// <summary>Gets or sets the card flash kind ("Damage", "Heal" or "Buff"; empty = none).</summary>
         [ObservableProperty]
-        private List<string> _statusEffects = new List<string>();
+        private string _cardFlash = string.Empty;
+
+        /// <summary>Gets or sets the active positive buffs shown in the status table.</summary>
+        [ObservableProperty]
+        private List<BuffRowViewModel> _buffs = new List<BuffRowViewModel>();
+
+        /// <summary>Gets or sets the active negative debuffs shown in the status table.</summary>
+        [ObservableProperty]
+        private List<BuffRowViewModel> _debuffs = new List<BuffRowViewModel>();
 
         /// <summary>Gets the hit point ratio (0-1) for the health bar.</summary>
         public double HpRatio { get { return HpMax <= 0 ? 0 : (double)HpCurrent / HpMax; } }

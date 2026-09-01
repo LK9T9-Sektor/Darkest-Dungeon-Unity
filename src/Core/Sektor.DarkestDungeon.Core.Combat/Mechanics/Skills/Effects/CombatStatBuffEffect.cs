@@ -178,7 +178,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
                 if (effect.BooleanParams[EffectBoolParams.CurioResult].Value)
                 {
                     ApplyBuff(target, effect);
-                    battleContext.Events.ShowPopup(target, PopupType.Buff);
+                    battleContext.Events.ShowPopup(target, PopupType.Buff, DescribeBuffs());
                     battleContext.Events.UpdateOverlay(target);
                     return true;
                 }
@@ -196,11 +196,11 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
                     if (RandomSolver.CheckSuccess(debuffChance))
                     {
                         ApplyBuff(target, effect);
-                        battleContext.Events.ShowPopup(target, PopupType.Debuff);
+                        battleContext.Events.ShowPopup(target, PopupType.Debuff, DescribeBuffs());
                         battleContext.Events.UpdateOverlay(target);
                         return true;
                     }
-                    battleContext.Events.ShowPopup(target, PopupType.DebuffResist);
+                    battleContext.Events.ShowPopup(target, PopupType.DebuffResist, DescribeBuffs());
                     return false;
                 }
             }
@@ -209,7 +209,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
                 if (IsPositive())
                 {
                     ApplyBuff(target, effect);
-                    battleContext.Events.ShowPopup(target, PopupType.Buff);
+                    battleContext.Events.ShowPopup(target, PopupType.Buff, DescribeBuffs());
                     battleContext.Events.UpdateOverlay(target);
                     return true;
                 }
@@ -227,11 +227,11 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
                     if (RandomSolver.CheckSuccess(debuffChance))
                     {
                         ApplyBuff(target, effect);
-                        battleContext.Events.ShowPopup(target, PopupType.Debuff);
+                        battleContext.Events.ShowPopup(target, PopupType.Debuff, DescribeBuffs());
                         battleContext.Events.UpdateOverlay(target);
                         return true;
                     }
-                    battleContext.Events.ShowPopup(target, PopupType.DebuffResist);
+                    battleContext.Events.ShowPopup(target, PopupType.DebuffResist, DescribeBuffs());
                     return false;
                 }
             }
@@ -288,6 +288,16 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
             foreach (var statInfo in StatMultBuffs)
                 target.Character.AddBuff(new BuffInfo(new Buff(BuffType.StatMultiply, BuffRule.Always, statInfo.Key, statInfo.Value),
                     BuffDurationType.Round, BuffSourceType.Condition));
+        }
+
+        private string DescribeBuffs()
+        {
+            var parts = new List<string>();
+            foreach (var statInfo in StatAddBuffs)
+                parts.Add(new Buff(BuffType.StatAdd, statInfo.Key, statInfo.Value).Describe());
+            foreach (var statInfo in StatMultBuffs)
+                parts.Add(new Buff(BuffType.StatMultiply, statInfo.Key, statInfo.Value).Describe());
+            return string.Join(", ", parts);
         }
     }
 }

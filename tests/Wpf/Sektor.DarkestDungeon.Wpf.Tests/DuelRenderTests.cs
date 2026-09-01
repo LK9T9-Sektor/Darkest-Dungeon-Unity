@@ -20,6 +20,8 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         private sealed class NullRivalLink : IDuelRivalLink
         {
             public event Action<string>? RivalActionReceived;
+            public event Action<string>? SkillPreviewed;
+            public event Action<int>? TargetPreviewed;
 
             public void SendLocalAction(string payload)
             {

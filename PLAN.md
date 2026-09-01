@@ -1725,3 +1725,129 @@ script-reference check — зелёный. Финальную проверку 2
   удалить `DuelArrowCellsTests.cs`.
 - Доки: `BATTLE_PARITY.md`, `docs/mechanics/combat/{01_damage,07_rank_move,09_buffs}.md`,
   `docs/mechanics/presentation/`, `TESTING.md`, `CHANGELOG.md`, `PLAN.md`.
+
+---
+
+# Plan: Buff/debuff table popup on character cards (WPF duel)
+
+## Цель (проверяема)
+
+[x] 1. На карточке персонажа `DuelUnitCardView` в левом нижнем углу центральной (портретной) области
+   добавить кнопку `i`. По нажатию — переключаемый `Popup` с таблицей баффов/дебаффов юнита:
+   слева название, далее время действия/заряды, далее описание.
+[x] 2. Убрать текущую полоску баффов/дебаффов (`StatusEffects`) с карточки.
+[x] 3. Текстовые производные (название/описание/длительность) вынести в переиспользуемый хелпер,
+   чтобы будущие raid-карты могли им пользоваться.
+
+## Изменения
+
+[x] 1. Новый `ViewModels\BuffRowViewModel.cs` — неизменяемая модель строки таблицы (constructor DI,
+   get-only): `Name`, `DurationText`, `Description`, `Tone` ("Buff"/"Debuff").
+[x] 2. Новый `Ui\BuffDetails.cs` — статический хелпер (переиспользуемый):
+   `FormatName(Buff)` (id → заголовок, fallback на AttributeType), `FormatDescription(Buff)`
+   (AttributeType + ModifierValue, знак по `IsPositive`), `FormatDuration(BuffInfo)`
+   (`BuffDurationType` + `Duration` → "x2 rounds"/"Combat"/"Permanent").
+[x] 3. `ViewModels\DuelUnitViewModel.cs` — заменить `StatusEffects` (List<string>) на
+   `Buffs` (List<BuffRowViewModel>) и добавить `IsBuffPopupOpen` (bool).
+[x] 4. `ViewModels\DuelBattleViewModel.cs` — `BuildStatusEffects` → строит `List<BuffRowViewModel>`
+   из `character.BuffInfos` через `BuffDetails`.
+[x] 5. `Views\DuelUnitCardView.xaml` — удалить `StatusEffects` ItemsControl; добавить `ToggleButton`
+   `i` (низ-лево центральной области, TwoWay к `IsBuffPopupOpen`, изоляция клика `e.Handled`);
+   добавить `Popup` с таблицей (3 колонки: Name / Duration / Description, заголовок + строки).
+[x] 6. Новый `tests\Wpf\...\BuffDetailsTests.cs` — юнит-тесты `FormatName`/`FormatDescription`/
+   `FormatDuration`.
+[x] 7. `docs\TESTING.md` — пункт ручной проверки (открыть дуэль, нажать `i`, проверить таблицу и
+   что полоска с карточки ушла; popup закрывается).
+
+## Проверка
+
+[x] 8. `dotnet build` + `dotnet test` (WPF-сьют и соседние зелёные); `check-using-placement` — OK.
+   Правки только `src\Wpf\`/`tests\Wpf\`/`docs\` → `unity-compile-check` не требуется.
+
+---
+
+# Plan: Centered 6-column buff/debuff popup + reusable UnitHeaderView + skill tooltip debuffs (WPF duel)
+
+## Цель (проверяема)
+
+[x] 1. Окно баффов/дебаффов — по центру, как окно информации о персонаже; **6 колонок**:
+   первые 3 — баффы (Название | Время/заряды | Описание), последние 3 — дебаффы; сверху
+   позиция слева, имя с цветом команды и разделительная линия; шрифты как в подсказке персонажа.
+[x] 2. Карточка персонажа: обе команды к одному виду — **позиция слева, далее имя с цветом**;
+   переиспользуемый юзер-контрол `UnitHeaderView`.
+[x] 3. Подсказка персонажа (стат-лист): в верхнем ряду позиция + имя с цветом, кнопка закрытия справа.
+[x] 4. Тулы скиллов показывают, какой бафф/дебафф накладывает способность.
+
+## Изменения
+
+[x] 1. Новый `Views\UnitHeaderView.xaml(.cs)` — переиспользуемый хедер (DependencyProperties):
+   `Rank`, `Name`, `ClassName`, `IsEnemy`, `CloseCommand`. Слева бейдж ранга, имя 16 bold
+   (красный/синий по `IsEnemy`), класс 14, справа кнопка закрытия (если задана команда), тёмный фон
+   + разделительная линия снизу.
+[x] 2. `Views\DuelUnitCardView.xaml` — хедер заменён на `UnitHeaderView` (Rank/Name/IsEnemy);
+   угловой бейдж ранга убран; кнопка `i` → обычная Button на `ToggleBuffTableCommand` (RelativeSource
+   к DuelBattleView), клик изолируется `e.Handled`; старый Popup удалён.
+[x] 3. `ViewModels\DuelUnitViewModel.cs` — убрать `IsBuffPopupOpen`; `Buffs` разделены на
+   `Buffs` (положительные) и `Debuffs` (отрицательные).
+[x] 4. `ViewModels\DuelBattleViewModel.cs` — `BuildBuffs` разбивает по `buff.IsPositive()`;
+   `BuffTarget`, `IsBuffTableVisible`, `ToggleBuffTableCommand`, `CloseBuffTableCommand`;
+   `RefreshUnits` переразрешает `BuffTarget` по `CombatId` (попап живёт между снапшотами).
+[x] 5. `Views\DuelBattleView.xaml` — центрированный оверлей `BuffTableOverlay` (~860x500, непрозрачный):
+   хедер `UnitHeaderView` (BuffTarget) + таблица 6 колонок (BUFFS cols 0-2, DEBUFFS cols 3-5,
+   под-заголовки Name/Duration/Effect, шрифт 14, описание зелёное/красное по тону);
+   стат-оверлей `StatsOverlay` (x:Name сохранён): Row 0 = `UnitHeaderView` (StatsTarget +
+   `CloseStatsCommand`), отдельная кнопка закрытия убрана, `HeroStatsView ShowHeader=False`.
+[x] 6. `ViewModels\HeroStatsViewModel.cs` + `Views\HeroStatsView.xaml` — добавлены `Rank`, `IsEnemy`
+   (заполняются в `Apply(DuelUnitViewModel)`); `ShowHeader` bool DP (default true) прячет внутренний
+   хедер, когда его предоставляет хост. BattleScreenView/HeroSlotsPanel не меняются.
+[x] 7. Core (маленькие геттеры, без изменения поведения): `BleedEffect.DotAmount`,
+   `PoisonEffect.DotAmount`, `StressEffect.StressAmount`, `PullEffect.PullParam`,
+   `PushEffect.PushParam` — для тултипа с количеством.
+[x] 8. `Ui\SkillDetails.cs` — секция эффектов: per `skill.Effects[].SubEffects` строка
+   ("Stun", "Mark", "Immobilize", "Bleed 3 (2 rounds)", "Blight 4 (3 rounds)", "Stress +15",
+   "Pull 1", "Riposte", "Cure", "Shuffle", "Guard", removers); для стат/контент-баффов —
+   "Buff:"/"Debuff:" + `BuffDetails.FormatDescription` (BuffIds через `BuffCatalog`);
+   аннотации `(self)`/`(party)` по `Effect.TargetType`.
+[x] 9. Новый `tests\Wpf\...\SkillDetailsTests.cs` — тултип-строки (стан/кровь/стат-бафф/контент-дебафф).
+[x] 10. `docs\TESTING.md` — строка про центрированную 6-колоночную таблицу, хедер карточки,
+    дебаффы в тултипах скиллов; `PLAN.md` шаги `[x]`.
+
+## Проверка
+
+[x] 11. `dotnet build` + `dotnet test` (WPF-сьют и соседние зелёные); `check-using-placement` — OK.
+    Правки `src\Wpf\`, `src\Core\` (только аддитивные геттеры), `tests\Wpf\`, `docs\` →
+    `unity-compile-check` не требуется.
+
+---
+
+# Plan: Debuff/status visibility + informative log + AI pacing + card flashes + skill badge (WPF duel)
+
+## Цель (проверяема)
+
+1. Статусы (кровь/яд/стан/метка/рипост/guard) видны в таблице баффов/дебаффов — дебаффы реально
+   накладываются и отображаются.
+2. Лог боя информативный: бафф/дебафф применён или резист, DoT/стан/метка/рипост/guard.
+3. Выбранная способность сверху — квадратик скилла с текстом и тултипом.
+4. Ход ИИ с паузами на стороне UI: выбор скилла → выбор цели → ~2 с задержка → действие.
+5. Вспышка карточки: красная (урон, 1.5 с), синяя (бафф), зелёная (хил).
+
+## Изменения
+
+1. [x] Core `Buff.Describe()` — краткое описание модификатора для лога.
+2. [x] Core `DuelBattleEvents`: событие `PopupShown` + читаемые строки лога (`[effect] <имя> <фраза>`);
+   эффекты передают значения (Bleed/Poison/Tag/CombatStatBuff/BuffEffect).
+3. [x] WPF `DuelUnitViewModel`: `CardFlash` ("Damage"/"Heal"/"Buff"); карточка — оверлей-тинт с
+   анимацией 1.5 с (DataTrigger).
+4. [x] WPF `DuelBattleViewModel`: статусы в таблице (AppendStatusRows); очереди вспышек
+   (урон/хил из SkillResult + Buff/Debuff из PopupShown); `AiSkillPreview`.
+5. [x] `IDuelRivalLink` + `NetworkRivalLink` + `AiRivalLink` (фазовый пайсинг: Planning →
+   SkillPreviewed → TargetPreviewed → задержка → действие).
+6. [x] `DuelBattleView`: бейдж-квадратик скилла (текст + тултип), показ preview ИИ, реакция на
+   PropertyChanged (AiSkillPreview/SelectedSkill).
+7. [x] Тесты: `StatusTableTests` (кровь/стан/бафф в таблице), правки фейковых rival-link.
+8. [x] `docs\TESTING.md` — статусы в таблице, лог, вспышки, пайсинг ИИ, бейдж скилла.
+
+## Проверка
+
+9. [x] `dotnet build` + все сьюты зелёные (WPF 50); `check-using-placement` — OK. Правки `src\`/
+   `tests\Wpf\`/`docs\` → `unity-compile-check` не требуется.

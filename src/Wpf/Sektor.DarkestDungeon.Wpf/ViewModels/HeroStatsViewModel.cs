@@ -13,6 +13,14 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private string _heroClass = "Crusader";
 
+        /// <summary>Gets or sets the formation rank.</summary>
+        [ObservableProperty]
+        private int _rank;
+
+        /// <summary>Gets or sets a value indicating whether the unit belongs to the enemy side.</summary>
+        [ObservableProperty]
+        private bool _isEnemy;
+
         /// <summary>Gets or sets the current hit points text.</summary>
         [ObservableProperty]
         private string _hitPoints = "78 / 78";
@@ -109,6 +117,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         {
             HeroName = unit.Name;
             HeroClass = unit.ClassName;
+            Rank = unit.Rank;
+            IsEnemy = unit.IsEnemy;
             HitPoints = unit.HpCurrent + " / " + unit.HpMax;
             Stress = unit.Stress + " / 100";
             Speed = unit.Speed.ToString();

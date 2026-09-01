@@ -15,8 +15,8 @@ namespace Sektor.DarkestDungeon.Wpf.Views
     /// <summary>Battle screen view: hosts the selected-skill badge and the hover target arrow.</summary>
     public partial class DuelBattleView : PumpableScreenBase
     {
-        private const double BadgeWidth = 40;
-        private const double BadgeHeight = 24;
+        private const double BadgeWidth = 44;
+        private const double BadgeHeight = 44;
         private const double BadgeGap = 6;
         private const double ArrowHeadLength = 14;
         private const double ArrowHeadSpread = 7;
@@ -87,7 +87,14 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         private void UpdateBadge()
         {
             var viewModel = DataContext as DuelBattleViewModel;
-            if (viewModel == null || viewModel.SelectedSkill == null || viewModel.IsLocalTurn == false)
+            if (viewModel == null)
+            {
+                SkillBadge.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            var skill = viewModel.IsLocalTurn ? viewModel.SelectedSkill : viewModel.AiSkillPreview;
+            if (skill == null)
             {
                 SkillBadge.Visibility = Visibility.Collapsed;
                 return;
@@ -97,7 +104,8 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             if (actorCard == null)
                 return;
 
-            SkillBadgeText.Text = viewModel.SelectedSkill.DisplayNameUpper;
+            SkillBadgeText.Text = skill.DisplayNameUpper;
+            SkillBadge.ToolTip = skill.Details;
             Point top = TopCenter(actorCard);
             Canvas.SetLeft(SkillBadge, top.X - BadgeWidth / 2);
             Canvas.SetTop(SkillBadge, top.Y - BadgeHeight - BadgeGap);

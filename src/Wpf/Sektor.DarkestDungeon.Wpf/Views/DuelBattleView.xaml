@@ -57,6 +57,34 @@
             </ControlTemplate.Triggers>
         </ControlTemplate>
 
+        <!-- Buff/debuff table row: Name | Duration | Effect, effect text toned by Buff/Debuff -->
+        <DataTemplate x:Key="BuffRowTemplate">
+            <Grid Margin="0,3,0,3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="1.6*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding Name}" Foreground="#E8D9B0" FontSize="14"
+                           TextWrapping="Wrap" Margin="2,0,8,0" />
+                <TextBlock Grid.Column="1" Text="{Binding DurationText}" Foreground="#C8C0B0" FontSize="14"
+                           TextAlignment="Right" Margin="2,0,8,0" />
+                <TextBlock Grid.Column="2" Text="{Binding Description}" FontSize="14" TextWrapping="Wrap"
+                           Margin="2,0,0,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="#9ACA9A" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Tone}" Value="Debuff">
+                                    <Setter Property="Foreground" Value="#CA9A9A" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+        </DataTemplate>
+
         <!-- Hover target layer styles are defined inline on the elements themselves (no shared
              rectangle strip; the arrow is a badge + line + arrowhead positioned by math). -->
     </views:PumpableScreenBase.Resources>
@@ -144,13 +172,14 @@
                      runs from the badge (or the actor card top in move mode) to the hovered target
                      card and ends in an arrowhead. Positions are computed in code-behind against this
                      Canvas (pure math), so nothing is recreated at runtime. -->
-                    <Canvas x:Name="TargetLayer" Grid.RowSpan="2" Grid.ColumnSpan="2" Panel.ZIndex="10"
-                            IsHitTestVisible="False">
-                        <Border x:Name="SkillBadge" Width="40" Height="24" Background="#2A2218"
+<Canvas x:Name="TargetLayer" Grid.RowSpan="2" Grid.ColumnSpan="2" Panel.ZIndex="10"
+                        IsHitTestVisible="False">
+                        <Border x:Name="SkillBadge" Width="44" Height="44" Background="#2A2218"
                                 BorderBrush="#D9B46A" BorderThickness="2" CornerRadius="4"
                                 Visibility="Collapsed">
-                            <TextBlock x:Name="SkillBadgeText" Foreground="#E8D9B0" FontSize="11"
-                                       FontWeight="Bold" TextAlignment="Center" TextTrimming="CharacterEllipsis"
+                            <TextBlock x:Name="SkillBadgeText" Foreground="#E8D9B0" FontSize="9"
+                                       FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap"
+                                       TextTrimming="CharacterEllipsis" Margin="2"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <Line x:Name="ArrowLine" Stroke="#D9B46A" StrokeThickness="3"
@@ -282,11 +311,72 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Button Grid.Row="0" Content="&#x2715;" Command="{Binding CloseStatsCommand}"
-                            HorizontalAlignment="Right" Width="30" Height="30"
-                            Style="{StaticResource HudButton}" FontWeight="Bold" />
+                    <views:UnitHeaderView Grid.Row="0" Rank="{Binding StatsTarget.Rank}"
+                                          DisplayName="{Binding StatsTarget.HeroName}" ClassName="{Binding StatsTarget.HeroClass}"
+                                          IsEnemy="{Binding StatsTarget.IsEnemy}" CloseCommand="{Binding CloseStatsCommand}" />
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
-                        <views:HeroStatsView DataContext="{Binding StatsTarget}" ShowFullDetails="True" />
+                        <views:HeroStatsView DataContext="{Binding StatsTarget}" ShowFullDetails="True" ShowHeader="False" />
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Buff/debuff table overlay ("i" on a card): centered like the character info sheet; the
+             header repeats the unit header, the body is a 6-column table with the buffs on the left
+             three columns and the debuffs on the right three (Name | Duration | Effect each). -->
+        <Grid x:Name="BuffTableOverlay" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center"
+              Width="900" Height="520"
+              Visibility="{Binding IsBuffTableVisible, Converter={StaticResource BoolToVisibility}}">
+            <Border Background="#FF0C0A08" BorderBrush="#3A2E22" BorderThickness="2" CornerRadius="8">
+                <Grid Margin="{StaticResource SpacingMedium}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <views:UnitHeaderView Grid.Row="0" Rank="{Binding BuffTarget.Rank}"
+                                          DisplayName="{Binding BuffTarget.Name}" ClassName="{Binding BuffTarget.ClassName}"
+                                          IsEnemy="{Binding BuffTarget.IsEnemy}" CloseCommand="{Binding CloseBuffTableCommand}" />
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="1.6*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="1.6*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Section headers -->
+                            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="BUFFS"
+                                       Foreground="#E8D9B0" FontSize="15" FontWeight="Bold" Margin="2,0,0,4" />
+                            <TextBlock Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="3" Text="DEBUFFS"
+                                       Foreground="#E8D9B0" FontSize="15" FontWeight="Bold" Margin="2,0,0,4" />
+
+                            <!-- Column sub-headers -->
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" Foreground="#8A7A5A" FontSize="13"
+                                       FontWeight="Bold" Margin="2,0,8,2" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="Duration" Foreground="#8A7A5A" FontSize="13"
+                                       FontWeight="Bold" Margin="2,0,8,2" />
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="Effect" Foreground="#8A7A5A" FontSize="13"
+                                       FontWeight="Bold" Margin="2,0,0,2" />
+                            <TextBlock Grid.Row="1" Grid.Column="3" Text="Name" Foreground="#8A7A5A" FontSize="13"
+                                       FontWeight="Bold" Margin="2,0,8,2" />
+                            <TextBlock Grid.Row="1" Grid.Column="4" Text="Duration" Foreground="#8A7A5A" FontSize="13"
+                                       FontWeight="Bold" Margin="2,0,8,2" />
+                            <TextBlock Grid.Row="1" Grid.Column="5" Text="Effect" Foreground="#8A7A5A" FontSize="13"
+                                       FontWeight="Bold" Margin="2,0,0,2" />
+
+                            <ItemsControl Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" ItemsSource="{Binding BuffTarget.Buffs}"
+                                          ItemTemplate="{StaticResource BuffRowTemplate}" />
+                            <ItemsControl Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="3" ItemsSource="{Binding BuffTarget.Debuffs}"
+                                          ItemTemplate="{StaticResource BuffRowTemplate}" />
+                        </Grid>
                     </ScrollViewer>
                 </Grid>
             </Border>

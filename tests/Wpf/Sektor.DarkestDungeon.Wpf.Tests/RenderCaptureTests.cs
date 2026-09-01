@@ -35,6 +35,8 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         {
 #pragma warning disable CS0067
             public event Action<string>? RivalActionReceived;
+            public event Action<string>? SkillPreviewed;
+            public event Action<int>? TargetPreviewed;
 #pragma warning restore CS0067
 
             public void SendLocalAction(string payload)
