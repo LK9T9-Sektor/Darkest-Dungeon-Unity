@@ -156,7 +156,10 @@ namespace Sektor.DarkestDungeon.Wpf.Ui
             }
         }
 
-        private static string AttributeLabel(AttributeType attributeType)
+        /// <summary>Gets the readable label of an attribute (e.g. "Attack Rating").</summary>
+        /// <param name="attributeType">The attribute type.</param>
+        /// <returns>The label.</returns>
+        public static string AttributeLabel(AttributeType attributeType)
         {
             return AttributeLabels.TryGetValue(attributeType, out string label) ? label : attributeType.ToString();
         }

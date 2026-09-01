@@ -26,11 +26,13 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         {
             public int CombatId { get; }
             public string Text { get; }
+            public int Priority { get; }
 
-            public PendingPopup(int combatId, string text)
+            public PendingPopup(int combatId, string text, int priority = 0)
             {
                 CombatId = combatId;
                 Text = text;
+                Priority = priority;
             }
         }
 
@@ -54,6 +56,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             new System.Collections.Generic.List<PendingPopup>();
         private readonly System.Collections.Generic.List<PendingFlash> pendingFlashes =
             new System.Collections.Generic.List<PendingFlash>();
+        private readonly System.Collections.Generic.Dictionary<int, System.Collections.Generic.Queue<string>> popupQueues =
+            new System.Collections.Generic.Dictionary<int, System.Collections.Generic.Queue<string>>();
         private string? selectedSkillId;
         private DuelSkillViewModel? selectedSkill;
         private bool isMoveMode;
@@ -61,6 +65,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets or sets the rival (AI) skill preview shown in the badge during the AI's turn.</summary>
         [ObservableProperty]
         private DuelSkillViewModel? _aiSkillPreview;
+
+        /// <summary>Gets or sets the rival (AI) target preview card highlighted during the AI's turn.</summary>
+        [ObservableProperty]
+        private DuelUnitViewModel? _aiTargetPreview;
 
         /// <summary>Gets the currently selected skill (badge source above the acting card), or null.</summary>
         public DuelSkillViewModel? SelectedSkill { get { return selectedSkill; } }
@@ -160,6 +168,33 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets a value indicating whether it is the local player's turn.</summary>
         public bool IsLocalTurn { get { return controller.IsLocalTurn; } }
 
+        /// <summary>Gets a value indicating whether the move mode (adjacent rank swap) is active.</summary>
+        public bool IsMoveMode { get { return isMoveMode; } }
+
+        /// <summary>Gets the tone of the selected skill (attack/heal/buff) for the target arrow color.</summary>
+        public Ui.SkillTone SelectedSkillTone
+        {
+            get
+            {
+                var unit = controller.CurrentUnit;
+                var skill = unit?.Character.CurrentCombatSkills?.FirstOrDefault(candidate => candidate.Id == selectedSkillId);
+                return Ui.SkillToneClassifier.Classify(skill);
+            }
+        }
+
+        /// <summary>Gets a value indicating whether the selected skill targets multiple units at once (AOE / party).</summary>
+        public bool SelectedSkillIsMultiTarget
+        {
+            get
+            {
+                var unit = controller.CurrentUnit;
+                var skill = unit?.Character.CurrentCombatSkills?.FirstOrDefault(candidate => candidate.Id == selectedSkillId);
+                return skill != null
+                    && (skill.TargetRanks != null
+                        && (skill.TargetRanks.IsSelfFormation || skill.TargetRanks.Ranks.Count > 1));
+            }
+        }
+
         /// <summary>Gets the rank (1-4) of the unit whose turn is being played.</summary>
         public int CurrentActorRank
         {
@@ -191,8 +226,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             rivalLink.TargetPreviewed += OnAiTargetPreviewed;
             rivalLink.Attach(controller);
             Quest.Title = "Duel";
-            popupTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-            popupTimer.Tick += (s, e) => ClearPopups();
+            popupTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2.4) };
+            popupTimer.Tick += (s, e) => AdvancePopups();
             popupTimer.Start();
             Refresh();
         }
@@ -236,15 +271,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             RefreshActor();
             ApplyPopups();
             AiSkillPreview = null;
-        }
-
-        private void ClearPopups()
-        {
-            foreach (var card in Heroes.Concat(Monsters))
-            {
-                card.DamagePopupVisible = false;
-                card.DamagePopupText = string.Empty;
-            }
+            AiTargetPreview = null;
         }
 
         private void ApplyPopups()
@@ -252,14 +279,25 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             if (pendingPopups.Count == 0 && pendingFlashes.Count == 0)
                 return;
 
-            foreach (var popup in pendingPopups)
+            foreach (var popup in pendingPopups.OrderBy(p => p.Priority))
             {
                 var card = Heroes.FirstOrDefault(h => h.CombatId == popup.CombatId)
                     ?? Monsters.FirstOrDefault(m => m.CombatId == popup.CombatId);
                 if (card == null)
                     continue;
-                card.DamagePopupText = popup.Text;
-                card.DamagePopupVisible = true;
+
+                if (!popupQueues.TryGetValue(popup.CombatId, out var queue))
+                {
+                    queue = new System.Collections.Generic.Queue<string>();
+                    popupQueues[popup.CombatId] = queue;
+                }
+                queue.Enqueue(popup.Text);
+
+                if (queue.Count == 1)
+                {
+                    card.DamagePopupText = popup.Text;
+                    card.DamagePopupVisible = true;
+                }
             }
             pendingPopups.Clear();
 
@@ -271,6 +309,32 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                     card.CardFlash = flash.Kind;
             }
             pendingFlashes.Clear();
+        }
+
+        /// <summary>Advances the per-card popup queues so damage, then bleed/buff/debuff texts play in
+        /// sequence instead of being overwritten; hides a card's popup once its queue is drained.</summary>
+        private void AdvancePopups()
+        {
+            foreach (var entry in popupQueues.ToList())
+            {
+                var queue = entry.Value;
+                var card = Heroes.FirstOrDefault(h => h.CombatId == entry.Key)
+                    ?? Monsters.FirstOrDefault(m => m.CombatId == entry.Key);
+
+                queue.Dequeue();
+                if (queue.Count > 0 && card != null)
+                {
+                    card.DamagePopupText = queue.Peek();
+                    card.DamagePopupVisible = false;
+                    card.DamagePopupVisible = true;
+                }
+                else
+                {
+                    if (card != null)
+                        card.DamagePopupVisible = false;
+                    popupQueues.Remove(entry.Key);
+                }
+            }
         }
 
         private void QueueFlash(ICombatUnit? target, string kind)
@@ -306,6 +370,39 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                     QueueFlash(target, "Damage");
                     break;
             }
+
+            string? label = EffectPopupLabel(type, value);
+            if (label != null)
+                AddPopup(target, label, priority: 1);
+        }
+
+        private static string? EffectPopupLabel(PopupType type, string value)
+        {
+            switch (type)
+            {
+                case PopupType.Buff:
+                    return "BUFF";
+                case PopupType.Debuff:
+                    return "DEBUFF";
+                case PopupType.Bleed:
+                    return "BLEED";
+                case PopupType.Poison:
+                    return "BLIGHT";
+                case PopupType.Stunned:
+                    return "STUN";
+                case PopupType.Tagged:
+                    return "MARK";
+                case PopupType.Riposte:
+                    return "RIPOSTE";
+                case PopupType.Guard:
+                    return "GUARD";
+                case PopupType.Stress:
+                    return value == null ? "STRESS" : "STRESS " + value;
+                case PopupType.StressHeal:
+                    return "STRESS HEAL";
+                default:
+                    return null;
+            }
         }
 
         private void OnAiSkillPreviewed(string skillId)
@@ -319,8 +416,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             if (skill == null)
                 return;
 
-            AiSkillPreview = new DuelSkillViewModel(skill.Id, skill.Id)
+            AiSkillPreview = new DuelSkillViewModel(skill.Id, skill.Id, Ui.SkillToneClassifier.Classify(skill))
             {
+                Level = skill.Level,
+                BaseInfo = Ui.SkillDetails.BuildBaseInfo(skill),
+                EffectRows = Ui.SkillDetails.BuildEffectRows(skill),
                 Details = Ui.SkillDetails.Build(skill),
             };
         }
@@ -330,7 +430,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             var card = Heroes.FirstOrDefault(c => c.CombatId == combatId)
                 ?? Monsters.FirstOrDefault(c => c.CombatId == combatId);
             if (card != null)
+            {
                 card.IsTarget = true;
+                AiTargetPreview = card;
+            }
         }
 
         private void OnRivalActionReceived(string payload)
@@ -437,14 +540,20 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             selectedSkillId = null;
             OnPropertyChanged(nameof(SelectedSkill));
 
-            if (!controller.IsLocalTurn || controller.CurrentUnit == null)
+            if (controller.CurrentUnit == null)
                 return;
 
+            // Show the current unit's skills on every turn (local and opponent), so the bottom-left
+            // strip stays consistent; they are only usable on the local turn.
             var unit = controller.CurrentUnit;
+            bool localTurn = controller.IsLocalTurn;
             foreach (var skill in unit.Character.CurrentCombatSkills ?? Enumerable.Empty<CombatSkill>())
-                Skills.Add(new DuelSkillViewModel(skill.Id, skill.Id)
+                Skills.Add(new DuelSkillViewModel(skill.Id, skill.Id, Ui.SkillToneClassifier.Classify(skill))
                 {
-                    IsUsable = controller.IsSkillUsable(unit, skill),
+                    IsUsable = localTurn && controller.IsSkillUsable(unit, skill),
+                    Level = skill.Level,
+                    BaseInfo = Ui.SkillDetails.BuildBaseInfo(skill),
+                    EffectRows = Ui.SkillDetails.BuildEffectRows(skill),
                     Details = Ui.SkillDetails.Build(skill),
                 });
         }
@@ -694,11 +803,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             }
         }
 
-        private void AddPopup(ICombatUnit? target, string text)
+        private void AddPopup(ICombatUnit? target, string text, int priority = 0)
         {
             if (target == null)
                 return;
-            pendingPopups.Add(new PendingPopup(target.CombatInfo.CombatId, text));
+            pendingPopups.Add(new PendingPopup(target.CombatInfo.CombatId, text, priority));
         }
 
         private void ClearTargets()

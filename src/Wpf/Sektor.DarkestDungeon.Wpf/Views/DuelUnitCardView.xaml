@@ -77,7 +77,8 @@
                                 CommandParameter="{Binding}"
                                 Click="OnInfoButtonClick" />
 
-                        <!-- Floating damage popup over the central area -->
+                        <!-- Floating popup over the central area: damage/heal numbers and effect texts (Bleed, Buff...)
+                         rise slowly from the card center to its top edge and fade out -->
                         <TextBlock Text="{Binding DamagePopupText}" FontSize="22" FontWeight="Bold"
                                    Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
                                    TextAlignment="Center" TextWrapping="Wrap" Margin="6"
@@ -91,9 +92,9 @@
                                                 <BeginStoryboard>
                                                     <Storyboard>
                                                         <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                                         From="1" To="0" Duration="0:0:0.9" />
+                                                                         From="1" To="0" Duration="0:0:2.2" />
                                                         <ThicknessAnimation Storyboard.TargetProperty="Margin"
-                                                                            From="0,40,0,0" To="0,6,0,0" Duration="0:0:0.9" />
+                                                                            From="0,0,0,0" To="0,-85,0,0" Duration="0:0:2.2" />
                                                     </Storyboard>
                                                 </BeginStoryboard>
                                             </DataTrigger.EnterActions>

@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Line = System.Windows.Shapes.Line;
+using ShapePath = System.Windows.Shapes.Path;
 using Polygon = System.Windows.Shapes.Polygon;
 using Rectangle = System.Windows.Shapes.Rectangle;
 
@@ -294,9 +295,10 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             return (Canvas)duelView.FindName("TargetLayer");
         }
 
-        /// <summary>The hover arrow is a badge + line + arrowhead computed by math: the badge floats
-        /// above the acting card while a skill is selected, the sheet never hits tests, a valid hover
-        /// reveals the line with a 3-point arrowhead, and clearing hides the line but keeps the badge.</summary>
+        /// <summary>The hover arrow is a badge + elbow path + arrowhead computed by math: the badge
+        /// floats above the acting card while a skill is selected, the sheet never hits tests, a valid
+        /// hover reveals the elbow arrow to every target with a 3-point arrowhead colored by the skill
+        /// tone, and clearing hides the arrows but keeps the badge.</summary>
         [Test]
         public void DuelArrow_HoverShowsLineAndClears()
         {
@@ -311,33 +313,43 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                     var layer = BuildArrowOverlay(out duelView, out view, out target);
                     Assert.That(layer.IsHitTestVisible, Is.False, "The overlay must never intercept card clicks.");
 
-                    var line = (Line)duelView.FindName("ArrowLine");
-                    var head = (Polygon)duelView.FindName("ArrowHead");
+                    var path = (ShapePath)duelView.FindName("SkillArrow1");
+                    var head = (Polygon)duelView.FindName("SkillArrowHead1");
                     var badge = (Border)duelView.FindName("SkillBadge");
-                    Assert.That(line, Is.Not.Null);
+                    Assert.That(path, Is.Not.Null);
                     Assert.That(head, Is.Not.Null);
                     Assert.That(badge, Is.Not.Null);
 
-                    Assert.That(line.Visibility, Is.EqualTo(Visibility.Collapsed), "The line starts hidden.");
-                    Assert.That(head.Visibility, Is.EqualTo(Visibility.Collapsed), "The arrowhead starts hidden.");
+                    Assert.That(path.Visibility, Is.EqualTo(Visibility.Collapsed), "The skill arrows start hidden.");
+                    Assert.That(head.Visibility, Is.EqualTo(Visibility.Collapsed), "The skill arrowheads start hidden.");
 
                     duelView.ShowArrowFor(target);
 
                     Assert.That(badge.Visibility, Is.EqualTo(Visibility.Visible),
                         "The selected-skill badge floats above the acting card while a skill is selected.");
-                    Assert.That(line.Visibility, Is.EqualTo(Visibility.Visible), "Hovering a valid target reveals the line.");
+                    Assert.That(path.Visibility, Is.EqualTo(Visibility.Visible), "Hovering a valid target reveals the skill arrow.");
                     Assert.That(head.Visibility, Is.EqualTo(Visibility.Visible), "Hovering reveals the arrowhead.");
                     Assert.That(head.Points.Count, Is.EqualTo(3));
-                    Assert.That(line.X1, Is.GreaterThan(0), "The line starts at the badge above the acting card.");
-                    Assert.That(line.Y1, Is.GreaterThan(0));
-                    Assert.That(line.X2, Is.GreaterThan(0));
-                    Assert.That(line.Y2, Is.GreaterThan(0));
-                    Assert.That(Math.Abs(line.X2 - line.X1) + Math.Abs(line.Y2 - line.Y1), Is.GreaterThan(0),
-                        "The line must span from the badge to the hovered card.");
+
+                    var geometry = path.Data as PathGeometry;
+                    Assert.That(geometry, Is.Not.Null);
+                    Assert.That(geometry.Figures.Count, Is.EqualTo(1));
+                    Assert.That(geometry.Figures[0].Segments.Count, Is.EqualTo(2),
+                        "The elbow arrow has two segments: horizontal out of the badge side, then down to the target.");
+                    Assert.That(path.Stroke, Is.EqualTo(SkillToneClassifier.ArrowBrush(view.SelectedSkillTone)),
+                        "The arrow color follows the selected skill tone.");
+
+                    int validTargets = view.Heroes.Concat(view.Monsters).Count(card => card.IsTarget && !card.IsCurrent);
+                    int visibleArrows = 0;
+                    for (int i = 1; i <= 4; i++)
+                        if (((ShapePath)duelView.FindName("SkillArrow" + i)).Visibility == Visibility.Visible)
+                            visibleArrows++;
+                    Assert.That(visibleArrows, Is.EqualTo(view.SelectedSkillIsMultiTarget ? validTargets : 1),
+                        "AOE/party skills draw one elbow arrow to every valid target; single-target skills only to the hovered one.");
 
                     duelView.ClearArrow();
-                    Assert.That(line.Visibility, Is.EqualTo(Visibility.Collapsed), "Clearing hides the line.");
-                    Assert.That(head.Visibility, Is.EqualTo(Visibility.Collapsed), "Clearing hides the arrowhead.");
+                    Assert.That(path.Visibility, Is.EqualTo(Visibility.Collapsed), "Clearing hides the skill arrows.");
+                    Assert.That(head.Visibility, Is.EqualTo(Visibility.Collapsed), "Clearing hides the arrowheads.");
                     Assert.That(badge.Visibility, Is.EqualTo(Visibility.Visible),
                         "The badge stays visible while the skill is still selected.");
                 }

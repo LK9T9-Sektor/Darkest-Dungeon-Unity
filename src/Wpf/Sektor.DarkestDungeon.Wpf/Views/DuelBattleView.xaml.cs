@@ -18,20 +18,12 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         private const double BadgeWidth = 44;
         private const double BadgeHeight = 44;
         private const double BadgeGap = 6;
+        private const double BadgeLift = 22;
         private const double ArrowHeadLength = 14;
         private const double ArrowHeadSpread = 7;
+        private const int MaxSkillArrows = 4;
 
-        private void OnLoaded(object? sender, RoutedEventArgs e)
-        {
-            LayoutUpdated += OnLayoutUpdated;
-        }
-
-        private void OnLayoutUpdated(object? sender, EventArgs e)
-        {
-            UpdateBadge();
-        }
-
-        /// <summary>Shows the target arrow for the hovered card, or hides it when invalid.</summary>
+        /// <summary>Shows the target arrows for the hovered card, or hides them when invalid.</summary>
         /// <param name="target">The hovered unit card.</param>
         internal void ShowArrowFor(DuelUnitViewModel target)
         {
@@ -42,13 +34,74 @@ namespace Sektor.DarkestDungeon.Wpf.Views
                 return;
             }
 
+            // On the opponent's turn the player's hover must not touch the rival's preview arrow.
+            if (!viewModel.IsLocalTurn)
+                return;
+
             UpdateBadge();
             if (!viewModel.CanShowArrow(target))
             {
                 HideLine();
+                HideSkillArrows();
                 return;
             }
 
+            if (viewModel.IsMoveMode)
+            {
+                HideSkillArrows();
+                DrawMoveArrow(target);
+                return;
+            }
+
+            HideLine();
+            DrawSkillArrows(viewModel, target);
+        }
+
+        /// <summary>Collapses all hover lines and arrowheads; the selected-skill badge stays visible.</summary>
+        internal void ClearArrow()
+        {
+            var viewModel = DataContext as DuelBattleViewModel;
+            if (viewModel != null && !viewModel.IsLocalTurn)
+                return;
+
+            HideLine();
+            HideSkillArrows();
+            UpdateBadge();
+        }
+
+        /// <summary>Draws the rival (AI) target arrow during the AI's turn, when the AI previewed its skill.</summary>
+        /// <param name="viewModel">The battle view model.</param>
+        internal void RedrawAiArrow(DuelBattleViewModel viewModel)
+        {
+            if (viewModel.IsLocalTurn || viewModel.AiTargetPreview == null)
+            {
+                HideSkillArrows();
+                return;
+            }
+
+            HideLine();
+            DrawElbowArrows(viewModel, new List<DuelUnitViewModel> { viewModel.AiTargetPreview });
+        }
+
+        private void HideLine()
+        {
+            ArrowLine.Visibility = Visibility.Collapsed;
+            ArrowHead.Visibility = Visibility.Collapsed;
+        }
+
+        private void HideSkillArrows()
+        {
+            for (int i = 0; i < MaxSkillArrows; i++)
+            {
+                SkillArrowPaths[i].Visibility = Visibility.Collapsed;
+                SkillArrowHeads[i].Visibility = Visibility.Collapsed;
+            }
+        }
+
+        /// <summary>Draws the legacy straight arrow for the move mode: actor card top to the target center.</summary>
+        /// <param name="target">The hovered target.</param>
+        private void DrawMoveArrow(DuelUnitViewModel target)
+        {
             var actorCard = FindActorCard();
             var targetCard = FindCard(target.CombatId);
             if (actorCard == null || targetCard == null)
@@ -57,7 +110,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
                 return;
             }
 
-            Point start = SkillBadge.Visibility == Visibility.Visible ? BadgeCenter() : TopCenter(actorCard);
+            Point start = TopCenter(actorCard);
             Point end = Center(targetCard);
 
             ArrowLine.X1 = start.X;
@@ -71,20 +124,121 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             ArrowHead.Visibility = Visibility.Visible;
         }
 
-        /// <summary>Collapses the hover line and arrowhead; the selected-skill badge stays visible.</summary>
-        internal void ClearArrow()
+        /// <summary>Draws elbow arrows to the valid targets of the selected skill: the badge sits above a
+        /// horizontal spine, and each target gets a vertical drop from the spine down into its top edge
+        /// with an arrowhead. For AOE/party skills one arrow is drawn to every valid target; for a
+        /// single-target skill only the hovered target is highlighted. The color follows the skill tone.</summary>
+        /// <param name="viewModel">The battle view model.</param>
+        /// <param name="hoveredTarget">The currently hovered card.</param>
+        private void DrawSkillArrows(DuelBattleViewModel viewModel, DuelUnitViewModel hoveredTarget)
         {
-            HideLine();
+            var actorCard = FindActorCard();
+            if (actorCard == null || !(actorCard.DataContext is DuelUnitViewModel actor))
+            {
+                HideSkillArrows();
+                return;
+            }
+
+            List<DuelUnitViewModel> targets;
+            if (viewModel.SelectedSkillIsMultiTarget)
+            {
+                targets = viewModel.Heroes.Concat(viewModel.Monsters)
+                    .Where(card => card.IsTarget && card.CombatId != actor.CombatId)
+                    .ToList();
+            }
+            else
+            {
+                targets = new List<DuelUnitViewModel> { hoveredTarget };
+            }
+
+            DrawElbowArrows(viewModel, targets);
+        }
+
+        /// <summary>Draws one elbow arrow per target using the current badge position and skill tone.</summary>
+        /// <param name="viewModel">The battle view model.</param>
+        /// <param name="targets">The target cards.</param>
+        private void DrawElbowArrows(DuelBattleViewModel viewModel, List<DuelUnitViewModel> targets)
+        {
+            if (targets.Count == 0)
+            {
+                HideSkillArrows();
+                return;
+            }
+
+            var actorCard = FindActorCard();
+            if (actorCard == null)
+            {
+                HideSkillArrows();
+                return;
+            }
+
+            Brush brush = Ui.SkillToneClassifier.ArrowBrush(
+                viewModel.IsLocalTurn ? viewModel.SelectedSkillTone : ActiveBadgeTone(viewModel));
+
+            Point badgeCenter = BadgeCenter();
+            double exitY = badgeCenter.Y;
+
+            int count = Math.Min(targets.Count, MaxSkillArrows);
+            for (int i = 0; i < MaxSkillArrows; i++)
+            {
+                if (i >= count)
+                {
+                    SkillArrowPaths[i].Visibility = Visibility.Collapsed;
+                    SkillArrowHeads[i].Visibility = Visibility.Collapsed;
+                    continue;
+                }
+
+                var targetCard = FindCard(targets[i].CombatId);
+                if (targetCard == null)
+                {
+                    SkillArrowPaths[i].Visibility = Visibility.Collapsed;
+                    SkillArrowHeads[i].Visibility = Visibility.Collapsed;
+                    continue;
+                }
+
+                Point targetTop = TopCenter(targetCard);
+                bool targetOnLeft = targetTop.X < badgeCenter.X;
+                double exitX = targetOnLeft ? badgeCenter.X - BadgeWidth / 2 : badgeCenter.X + BadgeWidth / 2;
+
+                // The line exits the skill badge from its left/right edge at the badge's vertical
+                // center, runs horizontally above the cards, then drops into the target top edge.
+                var figure = new PathFigure { StartPoint = new Point(exitX, exitY), IsClosed = false, IsFilled = false };
+                figure.Segments.Add(new LineSegment(new Point(targetTop.X, exitY), true));
+                figure.Segments.Add(new LineSegment(targetTop, true));
+
+                var geometry = new PathGeometry();
+                geometry.Figures.Add(figure);
+
+                var path = SkillArrowPaths[i];
+                path.Data = geometry;
+                path.Stroke = brush;
+                path.Visibility = Visibility.Visible;
+
+                var head = SkillArrowHeads[i];
+                head.Points = new PointCollection(TargetArrowMath.ArrowHead(
+                    targetTop, new Point(targetTop.X, exitY), ArrowHeadLength, ArrowHeadSpread));
+                head.Fill = brush;
+                head.Visibility = Visibility.Visible;
+            }
+        }
+
+        private static Ui.SkillTone ActiveBadgeTone(DuelBattleViewModel viewModel)
+        {
+            var badgeSkill = viewModel.IsLocalTurn ? viewModel.SelectedSkill : viewModel.AiSkillPreview;
+            return badgeSkill != null ? badgeSkill.Tone : Ui.SkillTone.Attack;
+        }
+
+        private void OnLoaded(object? sender, RoutedEventArgs e)
+        {
+            LayoutUpdated += OnLayoutUpdated;
+        }
+
+        private void OnLayoutUpdated(object? sender, EventArgs e)
+        {
             UpdateBadge();
         }
 
-        private void HideLine()
-        {
-            ArrowLine.Visibility = Visibility.Collapsed;
-            ArrowHead.Visibility = Visibility.Collapsed;
-        }
-
-        private void UpdateBadge()
+                private void UpdateBadge()
         {
             var viewModel = DataContext as DuelBattleViewModel;
             if (viewModel == null)
@@ -105,10 +259,10 @@ namespace Sektor.DarkestDungeon.Wpf.Views
                 return;
 
             SkillBadgeText.Text = skill.DisplayNameUpper;
-            SkillBadge.ToolTip = skill.Details;
+            SkillBadge.ToolTip = new SkillTooltipView { DataContext = skill };
             Point top = TopCenter(actorCard);
             Canvas.SetLeft(SkillBadge, top.X - BadgeWidth / 2);
-            Canvas.SetTop(SkillBadge, top.Y - BadgeHeight - BadgeGap);
+            Canvas.SetTop(SkillBadge, top.Y - BadgeHeight - BadgeGap - BadgeLift);
             SkillBadge.Visibility = Visibility.Visible;
         }
 

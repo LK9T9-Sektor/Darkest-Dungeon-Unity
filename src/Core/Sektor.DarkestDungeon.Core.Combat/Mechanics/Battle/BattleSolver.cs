@@ -500,8 +500,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
         /// <param name="skill">The skill.</param>
         public void ApplyEffects(ICombatUnit performerUnit, ICombatUnit targetUnit, CombatSkill skill)
         {
-            if (skill.ValidModes.Count > 1 && performerUnit.Character.CurrentMode != null)
-                foreach (var effect in skill.ModeEffects[performerUnit.Character.CurrentMode.Id])
+            if (skill.ValidModes.Count > 1 && performerUnit.Character.CurrentMode != null
+                && skill.ModeEffects.TryGetValue(performerUnit.Character.CurrentMode.Id, out var modeEffects))
+                foreach (var effect in modeEffects)
                     effect.Apply(performerUnit, targetUnit, SkillResult, BattleContext);
 
             foreach (var effect in skill.Effects)

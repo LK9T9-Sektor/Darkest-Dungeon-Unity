@@ -182,9 +182,28 @@
                                        TextTrimming="CharacterEllipsis" Margin="2"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
+
+                        <!-- Legacy straight arrow (kept for the move mode): actor card top to the
+                             hovered target center -->
                         <Line x:Name="ArrowLine" Stroke="#D9B46A" StrokeThickness="3"
                               StrokeStartLineCap="Round" StrokeEndLineCap="Round" Visibility="Collapsed" />
                         <Polygon x:Name="ArrowHead" Fill="#D9B46A" Visibility="Collapsed" />
+
+                        <!-- Skill elbow arrows: from the actor card top edge up to the skill badge,
+                             out of its left/right edge horizontally, then down into the target top
+                             edge. One arrow per target (up to four), colored by the skill tone. -->
+                        <Path x:Name="SkillArrow1" StrokeLineJoin="Round" StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed" />
+                        <Polygon x:Name="SkillArrowHead1" Visibility="Collapsed" />
+                        <Path x:Name="SkillArrow2" StrokeLineJoin="Round" StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed" />
+                        <Polygon x:Name="SkillArrowHead2" Visibility="Collapsed" />
+                        <Path x:Name="SkillArrow3" StrokeLineJoin="Round" StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed" />
+                        <Polygon x:Name="SkillArrowHead3" Visibility="Collapsed" />
+                        <Path x:Name="SkillArrow4" StrokeLineJoin="Round" StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed" />
+                        <Polygon x:Name="SkillArrowHead4" Visibility="Collapsed" />
                     </Canvas>
                 </Grid>
             </Viewbox>
@@ -243,11 +262,14 @@
                                         <DataTemplate>
                                             <StackPanel Width="58" Height="82" Margin="4">
                                                 <Button Width="50" Height="50" Padding="2"
-                                                        ToolTip="{Binding Details}"
+                                                        ToolTipService.Placement="Top"
                                                         IsEnabled="{Binding IsUsable}"
                                                         Command="{Binding DataContext.SelectSkillCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}"
                                                         Template="{StaticResource SkillButtonTemplate}">
+                                                    <Button.ToolTip>
+                                                        <views:SkillTooltipView DataContext="{Binding}" />
+                                                    </Button.ToolTip>
                                                     <Grid>
                                                         <Image Source="{Binding Icon}" Stretch="UniformToFill" />
                                                         <Rectangle Fill="#404040"

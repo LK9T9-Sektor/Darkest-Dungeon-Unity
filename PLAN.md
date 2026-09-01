@@ -1851,3 +1851,102 @@ script-reference check — зелёный. Финальную проверку 2
 
 9. [x] `dotnet build` + все сьюты зелёные (WPF 50); `check-using-placement` — OK. Правки `src\`/
    `tests\Wpf\`/`docs\` → `unity-compile-check` не требуется.
+
+---
+
+# Plan: New elbow target arrow (skill mode) with tone colors (WPF duel)
+
+## Цель (проверяема)
+
+1. Новая стрелка цели для способностей (старую оставляем в move-режиме): из центра верхней грани
+   карточки ходящего вверх к бейджу способности, из его левой/правой грани горизонтально, затем
+   вниз со стрелкой-указателем в верхнюю грань цели.
+2. Мультитаргет: для каждой валидной цели (2-4) — своя линия.
+3. Цвет линии/стрелки по типу скилла: красный — атака, синий — бафф, зелёный — хил
+   (классификация вынесена в `Ui/SkillTone` + `Ui/SkillToneClassifier`).
+
+## Изменения
+
+1. [x] `Ui\SkillTone.cs` + `Ui\SkillToneClassifier.cs` — классификация скилла (Attack/Heal/Buff) и
+   кисти стрелки (красный/зелёный/синий).
+2. [x] `DuelBattleView.xaml` — 4 слота локтевых стрелок (`SkillArrow1..4` + `SkillArrowHead1..4`);
+   старая `ArrowLine`/`ArrowHead` оставлены для move-режима.
+3. [x] `DuelBattleView.xaml.cs` — `DrawSkillArrows` (Path-геометрия из 4 сегментов на цель,
+   стрелка-указатель в верхнюю грань), `DrawMoveArrow` (старая прямая), скрытие слотов.
+4. [x] `DuelBattleView.cs` — массивы слотов стрелок.
+5. [x] `DuelBattleViewModel` — `IsMoveMode`, `SelectedSkillTone`.
+6. [x] `RenderCaptureTests` — проверка новой локтевой стрелки (4 сегмента, цвет по тону,
+   число стрелок = числу валидных целей).
+7. [x] `docs\TESTING.md` — обновлена строка hover arrow.
+
+## Проверка
+
+8. [x] `dotnet build` + WPF-сьют зелёный (50); `check-using-placement` — OK. Правки `src\Wpf\`,
+   `tests\Wpf\`, `docs\` → `unity-compile-check` не требуется.
+
+---
+
+# Plan: Rework target arrow (top spine, AOE vs single), AI-turn consistency, slower sequential popups
+
+## Цель (проверяема)
+
+1. Стрелка цели: бейдж выше, над линиями; «спина»-линия вверху (спуск от бейджа к горизонтали,
+   влево/вправо, вниз стрелкой в верхнюю грань цели); линия не исходит из карточки ходящего.
+2. АОЕ/партийные способности — стрелка в каждую валидную цель; одиночные — только в наведённую.
+3. Ход ИИ: в нижней левой панели видны способности соперника (не только MOVE/PASS); стрелка цели
+   рисуется и для ИИ (его выбранный скилл и цель).
+4. Попапы: медленнее (~2 с), поднимаются из центра к верхней грани; при одной атаке тексты по
+   очереди (урон → BLEED/BUFF/DEBUFF и т.д.).
+
+## Изменения
+
+1. [x] `DuelSkillViewModel.Tone`; `DuelBattleViewModel.RefreshSkills` — скиллы текущего юнита на
+   любом ходу (IsUsable только на локальном); `SelectedSkillIsMultiTarget` (по TargetRanks).
+2. [x] `DuelBattleView`: бейдж поднят (`BadgeLift`), новая геометрия `DrawElbowArrows` (спина +
+   спуск к цели, 3 сегмента), `DrawSkillArrows` — AOE→все/одиночная→наведённая, `RedrawAiArrow`
+   для хода ИИ (AiTargetPreview).
+3. [x] `DuelBattleViewModel`: `AiTargetPreview`, очередь попапов `popupQueues`, приоритеты
+   (урон/хил → эффекты), `EffectPopupLabel` (BLEED/BLIGHT/STUN/MARK/BUFF/DEBUFF/RIPOSTE/GUARD/STRESS),
+   таймер 2.4 с → `AdvancePopups`.
+4. [x] `DuelUnitCardView.xaml` — анимация попапа 2.2 с, подъём из центра к верхней грани.
+5. [x] `RenderCaptureTests` — 3 сегмента, цвет по тону, число стрелок (AOE→все, иначе 1).
+6. [x] `docs\TESTING.md` — стрелка, скиллы/стрелка ИИ, попапы.
+
+## Проверка
+
+7. [x] `dotnet build` + WPF-сьют (50) зелёный; `check-using-placement` — OK. Правки `src\Wpf\`,
+   `tests\Wpf\`, `docs\` → `unity-compile-check` не требуется.
+
+---
+
+# Plan: Fix Abomination transform crash + structured skill tooltip + arrow from badge side + AI-arrow hover guard
+
+## Цель (проверяема)
+
+1. Transform Абоминации не падает с `KeyNotFoundException 'human'`; эффекты скиллов реально
+   применяются в WPF-дуэли.
+2. Тултип способности — крупный контрол над кнопкой: бейдж уровня + имя, разделитель, инфа,
+   таблица баффов/дебаффов.
+3. Стрелка цели: горизонтальная линия выходит из вертикального центра бейджа (левая/правая грань),
+   затем вниз в верхнюю грань цели.
+4. Наведение в ход соперника не стирает стрелку ИИ.
+
+## Изменения
+
+1. [x] `DuelClasses` — порядок статической инициализации (`Effects` раньше `Catalog`): парсер
+   получал `null`-каталог эффектов → `ModeEffects`/эффекты скиллов не заполнялись (корень краша и
+   «неналожения» эффектов). `BattleSolver.ApplyEffects` — `ModeEffects.TryGetValue` (защита).
+2. [x] `SkillDetails` — `BuildBaseInfo`/`BuildEffectRows` (+ `SkillEffectRowViewModel`);
+   `Build` сохранён. `DuelSkillViewModel` — `Level`, `BaseInfo`, `EffectRows`.
+3. [x] Новый `Views\SkillTooltipView`; кнопки скиллов — `ToolTipService.Placement="Top"` +
+   тултип-контрол; бейдж скилла — тот же тултип.
+4. [x] `DrawElbowArrows` — 2 сегмента: из боковой грани бейджа на уровне его вертикального центра
+   горизонтально, затем вниз в цель (без «спины»/низа). `ShowArrowFor`/`ClearArrow` — no-op на
+   нелокальном ходу (не трогают стрелку ИИ).
+5. [x] Тесты: `AbominationTransformTests` (transform без краша, режим human→beast), `SkillDetailsTests`
+   (rows/base info), `RenderCaptureTests` (2 сегмента). `docs\TESTING.md` обновлён.
+
+## Проверка
+
+6. [x] `dotnet build` + все сьюты (WPF 54); `check-using-placement` — OK. Правки `src\Core\` (защита),
+   `src\Wpf\`, `tests\Wpf\`, `docs\` → `unity-compile-check` не требуется.
