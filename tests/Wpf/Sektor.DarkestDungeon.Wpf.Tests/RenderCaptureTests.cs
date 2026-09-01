@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using Line = System.Windows.Shapes.Line;
 using ShapePath = System.Windows.Shapes.Path;
 using Polygon = System.Windows.Shapes.Polygon;
@@ -363,6 +364,64 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             thread.Join();
             if (error != null)
                 throw new AssertionException("Arrow hover failed: " + error);
+        }
+
+        /// <summary>The skill-button tooltip must not bind DataContext on its detached content (no
+        /// visual tree -> binding-source errors in the trace). It resolves through the ToolTip's own
+        /// PlacementTarget, exactly like ToolTipService wires it when the popup opens.</summary>
+        [Test]
+        public void SkillTooltip_ResolvesDataContext_FromPlacementTarget()
+        {
+            Exception? error = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var existing = Application.Current;
+                    var app = existing ?? new App();
+                    if (existing == null)
+                        ((App)app).InitializeComponent();
+
+                    DuelController duel;
+                    var view = CreateView(out duel);
+                    DriveToLocalTurn(duel, view);
+                    view.OpenStatsCommand.Execute(view.Heroes[0]);
+
+                    var duelView = new DuelBattleView { DataContext = view };
+                    duelView.Measure(new Size(WindowWidth, WindowHeight));
+                    duelView.Arrange(new Rect(new Size(WindowWidth, WindowHeight)));
+                    duelView.UpdateLayout();
+
+                    var skillButton = FindVisualChildren<Button>(duelView)
+                        .FirstOrDefault(button => button.DataContext is DuelSkillViewModel);
+                    Assert.That(skillButton, Is.Not.Null);
+                    var skill = (DuelSkillViewModel)skillButton!.DataContext;
+
+                    var tooltip = skillButton.ToolTip as ToolTip;
+                    Assert.That(tooltip, Is.Not.Null, "The skill button hosts an explicit ToolTip.");
+
+                    Assert.That(tooltip.DataContext, Is.Null,
+                        "While closed and detached the tooltip has no DataContext yet (no binding error).");
+
+                    tooltip.PlacementTarget = skillButton;
+                    tooltip.Dispatcher.Invoke(DispatcherPriority.DataBind, new Action(() => { }));
+
+                    Assert.That(tooltip.DataContext, Is.SameAs(skill),
+                        "ToolTip.DataContext follows the placement target's DataContext at open time.");
+                    Assert.That(tooltip.Content, Is.TypeOf<SkillTooltipView>());
+                    Assert.That(((SkillTooltipView)tooltip.Content).DataContext, Is.SameAs(skill),
+                        "The tooltip content inherits the DataContext for its bindings.");
+                }
+                catch (Exception e)
+                {
+                    error = e;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+            if (error != null)
+                throw new AssertionException("Skill tooltip DataContext failed: " + error);
         }
     }
 }

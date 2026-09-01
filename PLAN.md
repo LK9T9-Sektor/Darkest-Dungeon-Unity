@@ -2015,3 +2015,36 @@ script-reference check — зелёный. Финальную проверку 2
   `ViewModels\HeroViewModel.cs`, `ViewModels\RaidHudViewModel.cs`, `ViewModels\DuelBattleViewModel.cs`
   (TrinketsText), `Views\HeroSlotsPanel.xaml`, `Views\HeroTrinketsView.xaml`, `Wpf.csproj` (link).
 - Тесты: `DuelTrinketTests.cs`, правки `LobbySlotTests.cs`, `TestDuelContent.cs`; доки.
+
+# Plan: Фикс биндинга DataContext тултипа у скиллов (SkillTooltipView)
+
+## Цель (проверяема)
+
+Убрать 22 binding-ошибки `Cannot find element that provides DataContext` для `SkillTooltipView`.
+Контент тултипа (`Button.ToolTip`) не находится в дереве с DataContext до открытия, поэтому
+`DataContext="{Binding}"` (no-path) вычисляется в откреплённом состоянии и падает на каждой кнопке-скилле.
+Контент тултипа при этом работает — ошибки это диагностический шум; поведение не меняется.
+
+## Шаги
+
+1. [x] `Views\DuelBattleView.xaml:271` — тултип кнопки-скилла заменён на явный `<ToolTip>` с
+      `DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}"` и
+      `<views:SkillTooltipView />` без биндинга. Self-источник всегда резолвится, `PlacementTarget`
+      в закрытом состоянии null (резолвится молча), при открытии ToolTipService ставит
+      `PlacementTarget` = кнопка → DataContext = `DuelSkillViewModel` → контент наследует.
+      (Первый вариант — `AncestorType={x:Type ToolTip}` на вьюхе — давал свой лог `Cannot find
+      source: FindAncestor ... ToolTip`, т.к. FindAncestor вычисляется на откреплённом контенте.)
+2. [x] `dotnet build` WPF-проекта: 0 ошибок; WPF-тесты зелёные (включая новый
+      `SkillTooltip_ResolvesDataContext_FromPlacementTarget` в `RenderCaptureTests`, который
+      симулирует open-time `PlacementTarget` и проверяет DataContext тултипа и контента).
+3. [x] Доки не меняются (поведение не изменилось; `TESTING.md:242` уже покрывает ручную проверку);
+      правки только в `src\Wpf\`/`tests\Wpf\` → `unity-compile-check` не требуется.
+
+## Критерии приёмки
+
+- В отладке/trace боёвого экрана нет `Cannot find element that provides DataContext` на `SkillTooltipView`.
+- Тултип над кнопкой способности открывается, как раньше (бейдж уровня, имя, `BaseInfo`, таблица эффектов).
+
+## Затронутые файлы
+
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\DuelBattleView.xaml` (1 строка).
