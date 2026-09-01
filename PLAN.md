@@ -1949,4 +1949,69 @@ script-reference check — зелёный. Финальную проверку 2
 ## Проверка
 
 6. [x] `dotnet build` + все сьюты (WPF 54); `check-using-placement` — OK. Правки `src\Core\` (защита),
-   `src\Wpf\`, `tests\Wpf\`, `docs\` → `unity-compile-check` не требуется.
+    `src\Wpf\`, `tests\Wpf\`, `docs\` → `unity-compile-check` не требуется.
+
+---
+
+# Plan: Тринкеты/экипировка в WPF-дуэли (P1.4)
+
+## Цель (проверяема)
+
+Тринкеты в дуэли: 2 слота на героя, парсинг `JsonTrinkets`/`JsonBuffs`, баффы тринкетов влияют на
+статы (permanent, `BuffSourceType.Trinket`), выбор в лобби, показ в боевом HUD. Оркестрация — в ядре
+(как `ApplyQuirks`), WPF — тонкий выбор слотов. Оружие/броня остаются «Lv. 1» (нет имения в дуэли).
+
+## Фаза T1 — Core: тринкеты на `Hero` + контент
+
+1. [x] `Hero`: `Trinkets` (List<string>, как `Quirks`) + `AddTrinket(string)`; `EquippedTrinketIds`.
+2. [x] `IDuelContent.GetTrinket(string)` → `Trinket`; `DuelController.ApplyTrinkets(hero, trinketIds)`
+      (resolve `content.GetTrinket` → `GetBuff` → `AddBuff(Permanent, Trinket)` + refresh HP).
+
+## Фаза T2 — Core: wire-пики
+
+3. [x] `DuelHeroPick` + `HeroFightUnitSpec`: необязательный `TrinketIds`; `AddHero`/`AddPlayerUnit`
+      применяют тринкеты.
+
+## Фаза T3 — WPF контент + сеть
+
+4. [x] `DuelContent`: `TrinketCatalog` из `JsonTrinkets.json` (link в csproj) + `GetTrinket`;
+      `TextFightContent` + `TestDuelContent` — `GetTrinket`.
+5. [x] `DuelPartyConfig`: `TrinketIds` per slot, сериализация `|`-полем №5 (обратная совместимость);
+      `DuelLobbyViewModel`/`SinglePlayerLobbyViewModel` `ToPicks` передают тринкеты.
+
+## Фаза T4 — WPF лобби
+
+6. [x] `HeroSlotViewModel`: `TrinketSlots` (2 × `LobbyTrinketViewModel`), фильтр по
+      `HeroClassRequirements` (пусто = любой класс), cycle + reroll; `SelectedTrinketIds`.
+7. [x] `HeroSlotsPanel.xaml`: 2 слота тринкетов (стрелки + имя + тултип) + reroll.
+
+## Фаза T5 — WPF боевой HUD
+
+8. [x] `HeroStatsViewModel` + `HeroViewModel`/`RaidHudViewModel.ApplyActor` — `Trinket1Text`/
+      `Trinket2Text` из `Hero.Trinkets`; `HeroInfoPanelView`/`HeroTrinketsView` биндятся.
+
+## Фаза T6 — Тесты
+
+9. [x] Core: `DuelTrinketTests` — бафф тринкета меняет стат (TRINKET_ACC_B1 → ACC +4), id на герое,
+      неизвестный id игнорируется, lockstep не ломается. WPF: `LobbySlotTests` — слоты тринкетов,
+      фильтр класса, `SelectedTrinketIds`; `DuelPartyConfig` round-trip + старая строка (4 поля).
+
+## Фаза T7 — Доки
+
+10. [x] `docs/mechanics/combat/09_buffs.md` (тринкеты = permanent source), `TESTING.md`,
+      `CHANGELOG.md`, `PLAN.md` шаги `[x]`.
+
+## Проверка
+
+11. [x] `dotnet test Darkest-Dungeon-Unity.slnx` все сьюты зелёные; `check-using-placement` — OK;
+      правки `src\`/`tests\`/`docs\` → `unity-compile-check` не требуется.
+
+## Затронутые файлы
+
+- Core: `Hero.cs`, `IDuelContent.cs`, `DuelController.cs`, `DuelHeroPick.cs`,
+  `Fight\HeroFightUnitSpec.cs`, `Fight\TextFightContent.cs`.
+- WPF: `Data\DuelContent.cs`, `Combat\DuelClasses.cs` (не трогаем), `Networking\DuelPartyConfig.cs`,
+  `ViewModels\HeroSlotViewModel.cs`, новый `LobbyTrinketViewModel.cs`, `ViewModels\HeroStatsViewModel.cs`,
+  `ViewModels\HeroViewModel.cs`, `ViewModels\RaidHudViewModel.cs`, `ViewModels\DuelBattleViewModel.cs`
+  (TrinketsText), `Views\HeroSlotsPanel.xaml`, `Views\HeroTrinketsView.xaml`, `Wpf.csproj` (link).
+- Тесты: `DuelTrinketTests.cs`, правки `LobbySlotTests.cs`, `TestDuelContent.cs`; доки.

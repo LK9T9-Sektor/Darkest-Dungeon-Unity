@@ -59,5 +59,41 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(slot.QuirkSummary, Is.Not.Empty);
             Assert.That(slot.QuirkSummary, Is.EqualTo(before).Or.Not.EqualTo(before));
         }
+
+        [Test]
+        public void Slot_LoadsTwoTrinketSlots()
+        {
+            var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds);
+
+            Assert.That(slot.TrinketSlots.Count, Is.EqualTo(2));
+            Assert.That(slot.SelectedTrinketIds, Is.Empty);
+        }
+
+        [Test]
+        public void Slot_RerollTrinkets_AssignsValidTrinkets()
+        {
+            var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds);
+
+            slot.RerollTrinketsCommand.Execute(null);
+
+            Assert.That(slot.SelectedTrinketIds.Count, Is.EqualTo(2));
+            Assert.That(slot.SelectedTrinketIds[0], Is.Not.EqualTo(slot.SelectedTrinketIds[1]));
+        }
+
+        [Test]
+        public void Slot_TrinketPool_FiltersByClassRequirement()
+        {
+            var crusader = new HeroSlotViewModel(1, DuelClasses.AllClassIds);
+            crusader.AssignClass("crusader");
+
+            crusader.TrinketSlots[0].Select("sacred_scroll");
+            Assert.That(crusader.SelectedTrinketIds, Is.Empty,
+                "sacred_scroll requires a vestal and must not be selectable on a crusader.");
+
+            var vestal = new HeroSlotViewModel(2, DuelClasses.AllClassIds);
+            vestal.AssignClass("vestal");
+            vestal.TrinketSlots[0].Select("sacred_scroll");
+            Assert.That(vestal.SelectedTrinketIds, Contains.Item("sacred_scroll"));
+        }
     }
 }

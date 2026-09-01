@@ -435,5 +435,34 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             CollectionAssert.AreEquivalent(new[] { "tough" }, parsed.QuirkIds[0]);
             CollectionAssert.AreEquivalent(new[] { "fragile" }, parsed.QuirkIds[1]);
         }
+
+        [Test]
+        public void PartyConfig_RoundTripsTrinkets()
+        {
+            var config = new Networking.DuelPartyConfig(
+                new[] { "crusader", "highwayman" },
+                new[] { 1, 2 },
+                new[] { new[] { "smite" }, Array.Empty<string>() },
+                new[] { new[] { "tough" }, Array.Empty<string>() },
+                new[] { new[] { "accuracy_stone" }, new[] { "lucky_dice", "focus_ring" } });
+
+            var parsed = Networking.DuelPartyConfig.Deserialize(config.Serialize());
+
+            CollectionAssert.AreEquivalent(new[] { "accuracy_stone" }, parsed.TrinketIds[0]);
+            CollectionAssert.AreEquivalent(new[] { "lucky_dice", "focus_ring" }, parsed.TrinketIds[1]);
+        }
+
+        [Test]
+        public void PartyConfig_DeserializesLegacyRowWithoutTrinkets()
+        {
+            const string legacyRow = "crusader|1|smite,stunning_blow|tough";
+
+            var parsed = Networking.DuelPartyConfig.Deserialize(legacyRow);
+
+            Assert.That(parsed.ClassIds[0], Is.EqualTo("crusader"));
+            CollectionAssert.AreEquivalent(new[] { "smite", "stunning_blow" }, parsed.SelectedSkillIds[0]);
+            CollectionAssert.AreEquivalent(new[] { "tough" }, parsed.QuirkIds[0]);
+            Assert.That(parsed.TrinketIds[0], Is.Empty);
+        }
     }
 }

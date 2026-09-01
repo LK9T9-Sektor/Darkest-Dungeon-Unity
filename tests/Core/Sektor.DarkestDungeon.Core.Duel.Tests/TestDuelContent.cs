@@ -10,6 +10,7 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Content.Character;
 using Sektor.DarkestDungeon.Core.Content.Database;
+using Sektor.DarkestDungeon.Core.Content.Trinket;
 
 namespace Sektor.DarkestDungeon.Core.Duel.Tests
 {
@@ -19,6 +20,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
         private readonly Dictionary<string, HeroClass> classes;
         private readonly Dictionary<string, Quirk> quirks;
         private readonly Dictionary<string, Buff> buffs;
+        private readonly TrinketCatalog trinkets;
         private readonly EffectCatalog effects;
         private readonly List<Trait> afflictions;
         private readonly List<Trait> virtues;
@@ -30,6 +32,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
             classes = LoadHeroClasses(effects);
             quirks = LoadQuirks();
             buffs = LoadBuffs();
+            trinkets = LoadTrinkets();
             var traits = TraitMapper.Parse(LoadTraitsData()?.traits);
             afflictions = traits.Where(trait => trait.IsAffliction).ToList();
             virtues = traits.Where(trait => trait.IsVirtue).ToList();
@@ -54,6 +57,12 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
         {
             Buff buff;
             return buffs.TryGetValue(buffId, out buff) ? buff : null;
+        }
+
+        /// <inheritdoc/>
+        public Trinket GetTrinket(string trinketId)
+        {
+            return trinkets.Get(trinketId);
         }
 
         /// <inheritdoc/>
@@ -157,6 +166,13 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
                 result[content.Id] = buff;
             }
             return result;
+        }
+
+        private static TrinketCatalog LoadTrinkets()
+        {
+            string path = Path.Combine(AppContext.BaseDirectory, "Content", "Trinkets", "JsonTrinkets.json");
+            var data = File.Exists(path) ? JsonConvert.DeserializeObject<JsonTrinkets>(File.ReadAllText(path)) : null;
+            return TrinketCatalog.Load(data);
         }
 
         private static EffectCatalog LoadEffects()

@@ -17,6 +17,10 @@
   `BuffSourceType.Condition`), `ApplyBuffRule` (`:432`, диспетчер `BuffRule`).
 - `Buff`/`BuffInfo` — определение/инстанс (`ModifierValue`, `DurationType`, `SourceType`, `IsApplied`).
 - `BuffCatalog` (`Character/BuffCatalog.cs`) — контент-баффы из `JsonBuffs.json`.
+- **Тринкеты** (`Core.Content\Trinket\Trinket.cs`): `BuffIds` → permanent-баффы
+  (`DuelController.ApplyTrinkets`, `DuelController.cs:585-608`). При надевании каждый бафф тринкета
+  накладывается как `BuffDurationType.Permanent` с `BuffSourceType.Trinket`, HP приводится к полному.
+  На герое записываются `Hero.EquippedTrinketIds` (до 2, `Hero.AddTrinket`).
 
 ## 3. Парсинг контента
 

@@ -178,6 +178,7 @@ namespace Sektor.DarkestDungeon.Core.Duel
                 var hero = HeroGeneration.GenerateHero(heroClass, heroSpec.Seed);
                 hero.SelectCombatSkills(heroSpec.SkillIds);
                 ApplyQuirks(hero, heroSpec.QuirkIds);
+                ApplyTrinkets(hero, heroSpec.TrinketIds);
                 var unit = new FormationUnit(hero, team);
                 unit.PrepareForBattle(combatId++);
                 if (team == Team.Heroes)
@@ -549,6 +550,7 @@ namespace Sektor.DarkestDungeon.Core.Duel
             var hero = HeroGeneration.GenerateHero(heroClass, pick.Seed);
             hero.SelectCombatSkills(pick.SelectedSkillIds);
             ApplyQuirks(hero, pick.QuirkIds);
+            ApplyTrinkets(hero, pick.TrinketIds);
             var unit = new FormationUnit(hero, team);
             unit.PrepareForBattle(combatId++);
             if (team == Team.Heroes)
@@ -573,6 +575,29 @@ namespace Sektor.DarkestDungeon.Core.Duel
                     var buff = content.GetBuff(buffId);
                     if (buff != null && hero.GetAttribute(buff.AttributeType) != null)
                         hero.AddBuff(new BuffInfo(buff, BuffDurationType.Permanent, BuffSourceType.Quirk));
+                }
+            }
+
+            var hp = hero.GetPairedAttribute(AttributeType.HitPoints);
+            hp.CurrentValue = hp.ModifiedValue;
+        }
+
+        private void ApplyTrinkets(Hero hero, IReadOnlyList<string> trinketIds)
+        {
+            if (trinketIds == null)
+                return;
+
+            foreach (var trinketId in trinketIds)
+            {
+                var trinket = content.GetTrinket(trinketId);
+                if (trinket == null)
+                    continue;
+                hero.AddTrinket(trinket.Id);
+                foreach (var buffId in trinket.BuffIds)
+                {
+                    var buff = content.GetBuff(buffId);
+                    if (buff != null && hero.GetAttribute(buff.AttributeType) != null)
+                        hero.AddBuff(new BuffInfo(buff, BuffDurationType.Permanent, BuffSourceType.Trinket));
                 }
             }
 

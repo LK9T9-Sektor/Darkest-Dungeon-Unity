@@ -601,7 +601,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 (int)character.Accuracy,
                 (int)(character.Crit * 100),
                 (int)character.Dodge,
-                (int)character.Protection);
+                (int)character.Protection,
+                character is Hero hero ? hero.EquippedTrinketIds : null);
             Quest.Goal = QuestText;
         }
 

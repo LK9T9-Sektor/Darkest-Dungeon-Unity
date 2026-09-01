@@ -112,6 +112,17 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
                 Quirks.Add(quirkId);
         }
 
+        /// <summary>Gets the equipped trinket ids (up to two: left then right slot).</summary>
+        public List<string> EquippedTrinketIds { get; } = new List<string>();
+
+        /// <summary>Records a trinket id as equipped on the hero.</summary>
+        /// <param name="trinketId">The trinket id.</param>
+        public void AddTrinket(string trinketId)
+        {
+            if (!EquippedTrinketIds.Contains(trinketId) && EquippedTrinketIds.Count < 2)
+                EquippedTrinketIds.Add(trinketId);
+        }
+
         /// <summary>Sets the active combat skills from the given ids (only skills known to the class).</summary>
         /// <param name="skillIds">The selected skill ids.</param>
         public void SelectCombatSkills(IEnumerable<string> skillIds)

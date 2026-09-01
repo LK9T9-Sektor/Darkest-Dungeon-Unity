@@ -61,6 +61,14 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private string _armorLevel = "Lv. 1";
 
+        /// <summary>Gets or sets the label of the equipped trinket in the left slot.</summary>
+        [ObservableProperty]
+        private string _trinket1Text = "-";
+
+        /// <summary>Gets or sets the label of the equipped trinket in the right slot.</summary>
+        [ObservableProperty]
+        private string _trinket2Text = "-";
+
         /// <summary>Gets or sets the all combat skills text.</summary>
         [ObservableProperty]
         private string _skillsText = string.Empty;

@@ -10,12 +10,14 @@ namespace Sektor.DarkestDungeon.Core.Duel.Fight
         /// <param name="seed">The deterministic generation seed.</param>
         /// <param name="skillIds">The selected combat skill ids.</param>
         /// <param name="quirkIds">The quirk or disease ids.</param>
-        public HeroFightUnitSpec(string classId, int seed, IReadOnlyList<string> skillIds, IReadOnlyList<string> quirkIds)
+        /// <param name="trinketIds">The equipped trinket ids.</param>
+        public HeroFightUnitSpec(string classId, int seed, IReadOnlyList<string> skillIds, IReadOnlyList<string> quirkIds, IReadOnlyList<string> trinketIds = null)
         {
             ClassId = classId;
             Seed = seed;
             SkillIds = skillIds;
             QuirkIds = quirkIds;
+            TrinketIds = trinketIds ?? new List<string>();
         }
 
         /// <summary>Gets the hero class id.</summary>
@@ -29,5 +31,8 @@ namespace Sektor.DarkestDungeon.Core.Duel.Fight
 
         /// <summary>Gets the quirk or disease ids.</summary>
         public IReadOnlyList<string> QuirkIds { get; }
+
+        /// <summary>Gets the equipped trinket ids.</summary>
+        public IReadOnlyList<string> TrinketIds { get; }
     }
 }
