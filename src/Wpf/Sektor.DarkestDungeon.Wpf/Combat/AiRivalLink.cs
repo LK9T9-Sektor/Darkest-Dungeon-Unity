@@ -5,33 +5,17 @@ using Sektor.DarkestDungeon.Wpf.Networking;
 
 namespace Sektor.DarkestDungeon.Wpf.Combat
 {
-    /// <summary>Automatically plays the rival side for local duels against AI via the core <see cref="DuelAi"/>,
-    /// paced on the UI side: the AI "selects" a skill, then a target, then waits before acting.</summary>
+    /// <summary>Automatically plays the rival side for local duels against AI via the core <see cref="DuelAi"/>.
+    /// Acting is immediate: the duel view model owns the reveal/swap timing, so this link just emits the
+    /// chosen action once per rival turn instead of pacing it itself.</summary>
     public sealed class AiRivalLink : IDuelRivalLink
     {
-        private const int TickMilliseconds = 400;
-        private const int PlanningTicks = 1;
-        private const int SkillRevealTicks = 2;
-        private const int TargetRevealTicks = 3;
-        private const int ExecuteDelayTicks = 5;
-
-        private enum Phase
-        {
-            Idle,
-            Planning,
-            SkillReveal,
-            TargetReveal,
-            Delay,
-        }
+        private const int TickMilliseconds = 100;
 
         private readonly DispatcherTimer timer;
         private readonly DuelAi ai = new DuelAi();
         private DuelController? controller;
-        private Phase phase = Phase.Idle;
-        private int phaseTicks;
-        private string? pendingPayload;
-        private string? pendingSkillId;
-        private int pendingTargetId;
+        private int lastActedCombatId;
 
         /// <inheritdoc/>
         public event Action<string>? RivalActionReceived;
@@ -58,8 +42,7 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
         public void Attach(DuelController duel)
         {
             controller = duel;
-            phase = Phase.Idle;
-            phaseTicks = 0;
+            lastActedCombatId = 0;
             timer.Start();
         }
 
@@ -68,8 +51,6 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
         {
             timer.Stop();
             controller = null;
-            pendingPayload = null;
-            phase = Phase.Idle;
         }
 
         /// <inheritdoc/>
@@ -87,63 +68,15 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
         {
             var duel = controller;
             if (duel == null || !duel.IsStarted || duel.IsFinished || duel.IsLocalTurn || duel.CurrentUnit == null)
-            {
-                phase = Phase.Idle;
-                pendingPayload = null;
                 return;
-            }
 
-            switch (phase)
-            {
-                case Phase.Idle:
-                    pendingPayload = ai.ChooseAction(duel);
-                    ParsePayload(pendingPayload);
-                    phase = Phase.Planning;
-                    phaseTicks = 0;
-                    break;
+            int id = duel.CurrentUnit.CombatInfo.CombatId;
+            if (id == lastActedCombatId)
+                return;
+            lastActedCombatId = id;
 
-                case Phase.Planning:
-                    if (++phaseTicks >= PlanningTicks)
-                    {
-                        SkillPreviewed?.Invoke(pendingSkillId ?? string.Empty);
-                        phase = Phase.SkillReveal;
-                        phaseTicks = 0;
-                    }
-                    break;
-
-                case Phase.SkillReveal:
-                    if (++phaseTicks >= SkillRevealTicks)
-                    {
-                        TargetPreviewed?.Invoke(pendingTargetId);
-                        phase = Phase.TargetReveal;
-                        phaseTicks = 0;
-                    }
-                    break;
-
-                case Phase.TargetReveal:
-                    if (++phaseTicks >= TargetRevealTicks)
-                    {
-                        phase = Phase.Delay;
-                        phaseTicks = 0;
-                    }
-                    break;
-
-                case Phase.Delay:
-                    if (++phaseTicks >= ExecuteDelayTicks)
-                    {
-                        RivalActionReceived?.Invoke(pendingPayload ?? DuelPayload.PassAction());
-                        pendingPayload = null;
-                        phase = Phase.Idle;
-                    }
-                    break;
-            }
-        }
-
-        private void ParsePayload(string payload)
-        {
-            var parts = (payload ?? string.Empty).Split('|');
-            pendingSkillId = parts.Length > 0 ? parts[0] : DuelPayload.Pass;
-            int.TryParse(parts.Length > 1 ? parts[1] : "0", out pendingTargetId);
+            string payload = ai.ChooseAction(duel) ?? DuelPayload.PassAction();
+            RivalActionReceived?.Invoke(payload);
         }
     }
 }

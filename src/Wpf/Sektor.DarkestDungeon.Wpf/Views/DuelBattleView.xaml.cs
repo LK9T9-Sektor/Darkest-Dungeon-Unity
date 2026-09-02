@@ -69,13 +69,22 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             UpdateBadge();
         }
 
-        /// <summary>Draws the rival (AI) target arrow during the AI's turn, when the AI previewed its skill.</summary>
+        /// <summary>Draws the rival (AI/network) reveal arrow during the rival's reveal: a skill elbow
+        /// arrow to the target, or the ⇄ move line for a move, matching what the actor is about to do.</summary>
         /// <param name="viewModel">The battle view model.</param>
         internal void RedrawAiArrow(DuelBattleViewModel viewModel)
         {
             if (viewModel.IsLocalTurn || viewModel.AiTargetPreview == null)
             {
                 HideSkillArrows();
+                HideLine();
+                return;
+            }
+
+            if (viewModel.IsMovePreview)
+            {
+                HideSkillArrows();
+                DrawMoveArrow(viewModel.AiTargetPreview);
                 return;
             }
 

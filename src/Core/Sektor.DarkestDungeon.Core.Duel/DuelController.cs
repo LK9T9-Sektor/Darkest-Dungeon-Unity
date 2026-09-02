@@ -617,6 +617,24 @@ namespace Sektor.DarkestDungeon.Core.Duel
         private void CheckDeaths()
         {
             deathCheck.Check();
+            RemoveDeadNonMonsters(HeroParty);
+            RemoveDeadNonMonsters(MonsterParty);
+        }
+
+        /// <summary>Removes dead non-monster units from a party so they leave no corpse and the
+        /// survivors behind them shift forward one rank (matching the Unity hero-death reflow).</summary>
+        /// <param name="party">The party to prune.</param>
+        private static void RemoveDeadNonMonsters(FormationParty party)
+        {
+            for (int i = party.Units.Count - 1; i >= 0; i--)
+            {
+                var unit = (FormationUnit)party.Units[i];
+                if (!((FormationUnitInfo)unit.CombatInfo).IsDead)
+                    continue;
+                if (unit.Character.IsMonster)
+                    continue;
+                party.RemoveUnit(unit);
+            }
         }
 
         private static CombatSkill FindSkill(ICombatUnit unit, string skillId)

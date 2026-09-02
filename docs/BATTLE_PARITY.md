@@ -48,6 +48,7 @@
 | Стресс отряду при смерти героя («Stress 2»/«Stress 3») | `RaidSceneMultiplayerManager.cs:1955` | `DuelController.CheckDeaths`/`StressParty` (`DuelController.cs:594-631`) | ✅ |
 | **Heart attack** (сердечный приступ при перегрузке) | очередь `StressEffect` | `DuelBattleEvents.AddHeartAttackCheck` → `HeartAttackHandler`: на death's door → смерть, иначе → 100% HP + стресс 75% + death's door | ✅ |
 | **Death's door** (DeathResist + `DeathsDoorSurvivalDebuff`) | `RaidSceneMultiplayerManager.cs:112-120, 2020-2031` | `DeathCheck`: вход в death's door при 0 HP (баффы + `BarkStress` 6), ролл `DeathResist − resistIgnoreBonus(0.3)`, `DeathsDoorSurvivalDebuff`, хил снимает | ✅ |
+| **Смерть героя: трупа нет, сдвиг рангов** (мёртвый не-монстр удаляется из партии, сзади сдвигаются вперёд; corpse-монстры остаются) | `FormationParty.RemoveUnit` (`RaidSceneMultiplayerManager` hero branch) | `DuelController.CheckDeaths` → `RemoveDeadNonMonsters` (`DuelController.cs:617`) | ✅ |
 
 ### 2.3 DoT (bleed / poison)
 
@@ -166,6 +167,9 @@ WPF-дуэль использует другую (lockstep) модель — с�
 > 13. ✅ **`ProcessEventQueues` на снапшоте `Units`** (`DuelController.cs:529`) — квеянные
 >     pull/push/shuffle (перестановка `Units.RemoveAt/Insert`) больше не роняют перечисление
 >     «коллекция изменена»: корень «притяжки/отталкивания врага не работают» закрыт.
+> 14. ✅ **Смерть героя: сдвиг рангов** — `DuelController.CheckDeaths` после `DeathCheck.Check()`
+>     удаляет мёртвых не-монстров из партии (`FormationParty.RemoveUnit`), сзади сдвигаются вперёд;
+>     corpse-монстры остаются на ранге (паритет Unity hero-death reflow).
 
 Остаётся отдельной задачей (кампанийные механики, больше объём):
 

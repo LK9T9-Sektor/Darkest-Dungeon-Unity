@@ -42,6 +42,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
                     UpdateBadge();
                     break;
                 case nameof(DuelBattleViewModel.AiTargetPreview):
+                case nameof(DuelBattleViewModel.IsMovePreview):
                     if (DataContext is DuelBattleViewModel viewModel)
                         RedrawAiArrow(viewModel);
                     break;

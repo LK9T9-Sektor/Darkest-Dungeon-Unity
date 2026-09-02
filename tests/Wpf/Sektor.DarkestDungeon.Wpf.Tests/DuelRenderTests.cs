@@ -44,6 +44,40 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             }
         }
 
+        /// <summary>Mimics the network/AI link by letting the test raise <see cref="RivalActionReceived"/>
+        /// just as the wire does when a rival action arrives.</summary>
+        private sealed class FiringRivalLink : IDuelRivalLink
+        {
+            public event Action<string>? RivalActionReceived;
+            public event Action<string>? SkillPreviewed;
+            public event Action<int>? TargetPreviewed;
+
+            public void Fire(string payload)
+            {
+                RivalActionReceived?.Invoke(payload);
+            }
+
+            public void SendLocalAction(string payload)
+            {
+            }
+
+            public void Attach(DuelController controller)
+            {
+            }
+
+            public void Detach()
+            {
+            }
+
+            public void Pump()
+            {
+            }
+
+            public void Dispose()
+            {
+            }
+        }
+
         private static DuelHeroPick[] Picks(string classId)
         {
             return new[]
@@ -463,6 +497,21 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             CollectionAssert.AreEquivalent(new[] { "smite", "stunning_blow" }, parsed.SelectedSkillIds[0]);
             CollectionAssert.AreEquivalent(new[] { "tough" }, parsed.QuirkIds[0]);
             Assert.That(parsed.TrinketIds[0], Is.Empty);
+        }
+        [Test]
+        public void RivalAction_IsStagedAndPreviewed_NotAppliedImmediately()
+        {
+            var duel = CreateDuel();
+            var link = new FiringRivalLink();
+            var view = new DuelBattleViewModel(duel, link, () => { });
+
+            string statusBefore = view.Status;
+            link.Fire(DuelPayload.MoveAction(1));
+
+            Assert.That(view.IsMovePreview, Is.True,
+                "A rival MOVE must enter move-preview mode for the reveal beat");
+            Assert.That(view.Status, Is.EqualTo(statusBefore),
+                "The rival action must be held by the 1s reveal and not applied synchronously");
         }
     }
 }

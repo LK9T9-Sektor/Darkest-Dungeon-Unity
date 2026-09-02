@@ -58,17 +58,51 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             new System.Collections.Generic.List<PendingFlash>();
         private readonly System.Collections.Generic.Dictionary<int, System.Collections.Generic.Queue<string>> popupQueues =
             new System.Collections.Generic.Dictionary<int, System.Collections.Generic.Queue<string>>();
+
+        // Pacing: a single 50ms timer drives the turn-swap beat (0.5s) and the action-reveal beat
+        // (1s) for every side (local, AI, network), so both opponents see the same cadence.
+        private enum PaceState
+        {
+            Idle,
+            TurnSwap,
+            Reveal,
+        }
+
+        private const int PaceTickMs = 50;
+        private const int TurnSwapMs = 500;
+        private const int RevealMs = 1000;
+
+        private readonly DispatcherTimer paceTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(PaceTickMs) };
+        private PaceState paceState = PaceState.Idle;
+        private int paceElapsedMs;
+
+        /// <summary>The combat id of the unit that was acting at the last snapshot (turn-swap detection).</summary>
+        private int previousActorCombatId;
+
+        /// <summary>Whether <see cref="previousActorCombatId"/> has been initialized (skips the first beat).</summary>
+        private bool actorInitialized;
+
+        /// <summary>The raw rival payload to inject when a rival reveal finishes, or null.</summary>
+        private string? stagedRivalPayload;
+
+        /// <summary>A rival payload buffered while a turn-swap beat is in progress, or null.</summary>
+        private string? bufferedRivalPayload;
+
         private string? selectedSkillId;
         private DuelSkillViewModel? selectedSkill;
         private bool isMoveMode;
 
-        /// <summary>Gets or sets the rival (AI) skill preview shown in the badge during the AI's turn.</summary>
+        /// <summary>Gets or sets the rival (AI/network) skill preview shown in the badge during a rival reveal.</summary>
         [ObservableProperty]
         private DuelSkillViewModel? _aiSkillPreview;
 
-        /// <summary>Gets or sets the rival (AI) target preview card highlighted during the AI's turn.</summary>
+        /// <summary>Gets or sets the rival (AI/network) target preview card highlighted during a rival reveal.</summary>
         [ObservableProperty]
         private DuelUnitViewModel? _aiTargetPreview;
+
+        /// <summary>Gets or sets a value indicating whether the rival preview is a move (⇄) rather than a skill arrow.</summary>
+        [ObservableProperty]
+        private bool _isMovePreview;
 
         /// <summary>Gets the currently selected skill (badge source above the acting card), or null.</summary>
         public DuelSkillViewModel? SelectedSkill { get { return selectedSkill; } }
@@ -229,6 +263,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             popupTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2.4) };
             popupTimer.Tick += (s, e) => AdvancePopups();
             popupTimer.Start();
+            paceTimer.Tick += (s, e) => PaceTick();
+            paceTimer.Start();
             Refresh();
         }
 
@@ -247,6 +283,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             rivalLink.SkillPreviewed -= OnAiSkillPreviewed;
             rivalLink.TargetPreviewed -= OnAiTargetPreviewed;
             rivalLink.Dispose();
+            paceTimer.Stop();
             onLeave();
         }
 
@@ -272,6 +309,75 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             ApplyPopups();
             AiSkillPreview = null;
             AiTargetPreview = null;
+            IsMovePreview = false;
+            DetectTurnTransition();
+        }
+
+        /// <summary>Detects when the acting unit changed since the last snapshot and starts the 0.5s
+        /// turn-swap beat (holding input) plus a one-shot "ТВОЙ ХОД" popup on the new actor.</summary>
+        private void DetectTurnTransition()
+        {
+            var current = controller.CurrentUnit;
+            int id = current?.CombatInfo.CombatId ?? 0;
+
+            if (!actorInitialized)
+            {
+                previousActorCombatId = id;
+                actorInitialized = true;
+                return;
+            }
+
+            if (id == previousActorCombatId || id == 0)
+                return;
+
+            previousActorCombatId = id;
+            if (current == null || paceState != PaceState.Idle)
+                return;
+
+            var card = Heroes.FirstOrDefault(c => c.CombatId == id)
+                ?? Monsters.FirstOrDefault(c => c.CombatId == id);
+            card?.TriggerTurnPopup();
+            pendingFlashes.Add(new PendingFlash(id, "Turn"));
+            paceState = PaceState.TurnSwap;
+            paceElapsedMs = 0;
+        }
+
+        /// <summary>Advances the turn-swap (0.5s) and action-reveal (1s) beats on the 50ms pace timer.</summary>
+        private void PaceTick()
+        {
+            paceElapsedMs += PaceTickMs;
+
+            if (paceState == PaceState.TurnSwap && paceElapsedMs >= TurnSwapMs)
+            {
+                paceState = PaceState.Idle;
+                paceElapsedMs = 0;
+                if (bufferedRivalPayload != null)
+                {
+                    string payload = bufferedRivalPayload;
+                    bufferedRivalPayload = null;
+                    StartRivalReveal(payload);
+                }
+            }
+            else if (paceState == PaceState.Reveal && paceElapsedMs >= RevealMs)
+            {
+                ApplyStaged();
+            }
+        }
+
+        /// <summary>Applies the staged rival action once its reveal beat finishes.</summary>
+        private void ApplyStaged()
+        {
+            string payload = stagedRivalPayload ?? string.Empty;
+            stagedRivalPayload = null;
+            paceState = PaceState.Idle;
+            paceElapsedMs = 0;
+            ApplyRivalActionPayload(payload);
+        }
+
+        /// <summary>Injects a rival action payload: applies the remote skill and refreshes the snapshot.</summary>
+        private void ApplyRivalActionPayload(string payload)
+        {
+            ApplyRivalInput(payload);
         }
 
         private void ApplyPopups()
@@ -438,7 +544,60 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         private void OnRivalActionReceived(string payload)
         {
-            ApplyRivalInput(payload);
+            if (paceState == PaceState.TurnSwap)
+            {
+                bufferedRivalPayload = payload;
+                return;
+            }
+            if (paceState == PaceState.Reveal)
+                return;
+
+            StartRivalReveal(payload);
+        }
+
+        /// <summary>Begins the 1s reveal beat for a rival action: builds the skill/MOVE preview and
+        /// holds the payload until the beat finishes, then injects it (same cadence for AI and network).</summary>
+        private void StartRivalReveal(string payload)
+        {
+            if (!string.IsNullOrEmpty(payload))
+            {
+                var parts = payload.Split('|');
+                if (parts.Length > 0 && parts[0] == DuelPayload.Move)
+                {
+                    int rank;
+                    if (parts.Length == 2 && int.TryParse(parts[1], out rank))
+                    {
+                        var team = controller.CurrentUnit?.Team ?? Team.Heroes;
+                        var destination = (team == Team.Heroes ? Heroes : Monsters)
+                            .FirstOrDefault(c => c.Rank == rank);
+                        if (destination != null)
+                        {
+                            destination.IsTarget = true;
+                            AiTargetPreview = destination;
+                        }
+                    }
+
+                    IsMovePreview = true;
+                }
+                else if (parts.Length == 2)
+                {
+                    OnAiSkillPreviewed(parts[0]);
+                    int.TryParse(parts[1], out int targetId);
+                    OnAiTargetPreviewed(targetId);
+                    IsMovePreview = false;
+                }
+            }
+
+            stagedRivalPayload = payload;
+            BeginReveal();
+        }
+
+        /// <summary>Sets the shared reveal state so the staged rival action applies after the beat.</summary>
+        private void BeginReveal()
+        {
+            paceState = PaceState.Reveal;
+            paceElapsedMs = 0;
+            bufferedRivalPayload = null;
         }
 
         private void RefreshUnits()
@@ -858,6 +1017,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 Ui.DisplayNames.Class(character.Class))
             {
                 IsEnemy = isEnemy,
+                IsOnDeathsDoor = character.AtDeathsDoor,
                 HpCurrent = (int)hp.CurrentValue,
                 HpMax = (int)hp.ModifiedValue,
                 Stress = (int)character.Stress.CurrentValue,

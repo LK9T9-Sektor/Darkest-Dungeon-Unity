@@ -118,6 +118,30 @@
             <!-- STATUS BARS: standalone control with the HP/stress bars + values and the action pips -->
             <views:UnitStatusBarsView Grid.Row="1" Margin="6,3,6,6" />
 
+            <!-- DEATH'S DOOR BLINK: a continuous full-card red pulse that runs while the unit is at
+                 death's door (mirrors the Unity skeleton G/B oscillation, ~1.5s cycle: 0.75s to red,
+                 0.75s back to normal). R is always held, so only a red tint appears. -->
+            <Border Grid.RowSpan="2" IsHitTestVisible="False" CornerRadius="8">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="#00000000" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsOnDeathsDoor}" Value="True">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard RepeatBehavior="Forever">
+                                            <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                            From="#B3E83333" To="#00E83333" Duration="0:0:0.75"
+                                                            AutoReverse="True" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+            </Border>
+
             <!-- DAMAGE/BUFF/HEAL FLASH: a full-card tint that fades to transparent over 1.5s when a
                  card takes damage (red), gets buffed (blue) or is healed (green) -->
             <Border Grid.RowSpan="2" IsHitTestVisible="False" CornerRadius="8">
@@ -155,10 +179,46 @@
                                     </BeginStoryboard>
                                 </DataTrigger.EnterActions>
                             </DataTrigger>
+                            <DataTrigger Binding="{Binding CardFlash}" Value="Turn">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                            From="#B3D9B46A" To="#00D9B46A" Duration="0:0:1.2" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
             </Border>
+
+            <!-- TURN POPUP: a one-shot golden "ТВОЙ ХОД" label that rises and fades over the card while
+                 a unit's turn begins (fires once per actor, then auto-hides). -->
+            <TextBlock Text="ТВОЙ ХОД" FontSize="20" FontWeight="Bold" Foreground="#D9B46A"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"
+                       TextAlignment="Center">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Opacity" Value="0" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding TurnPopupVisible}" Value="True">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                             From="1" To="0" Duration="0:0:1.1" />
+                                            <ThicknessAnimation Storyboard.TargetProperty="Margin"
+                                                                From="0,0,0,0" To="0,-60,0,0" Duration="0:0:1.1" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
         </Grid>
     </Border>
 </UserControl>
