@@ -106,3 +106,18 @@ are mandatory — they exist to keep agents from re-discovering behavior by tria
 Read only what the task relates to. Legacy edits stay minimal; `src\External\` is read-only.
 
 **Maintenance rule:** if a code change affects a documented fact (paths/structure, god-classes, version, public APIs, new modules, dependencies), update the corresponding document in the same commit. If a code change affects game behavior, add/update the relevant section in `TESTING.md` (what to verify) in the same commit. Do not document internals or cosmetics; `CHANGELOG.md` only for user-visible changes.
+
+## 🔤 Encoding & how to read the documents
+
+- **All files under `docs\` and the repo root are valid UTF-8 without BOM** (every `.md` was checked).
+  The content itself is never "broken" — the files are fine, Cyrillic included.
+- **The confusing output comes from the console, not the files.** In this environment the shell uses
+  code page **CP866 (OEM)**: Cyrillic read out of UTF-8 files by console commands — `Get-Content`,
+  `Select-String`, `git diff`, `dotnet test`, `chcp`, plain `cat` — renders as garbled text
+  (`�?`, `���`). This is a display artifact, not corruption.
+- **Always read document/code files with the dedicated tools** (`read` / `Glob` / `Grep`), which decode
+  UTF-8 directly and show Cyrillic correctly. Never judge content (or "fix" it) from a raw console dump.
+- **Editing:** `edit`/`write` preserve UTF-8 — keep the same encoding and do NOT add a BOM. Never
+  re-encode existing documents to "repair" what looks garbled in the console.
+- **Console commands on documents** are only for checking structure (headings, table rows) — for the
+  actual meaning use `read`.
