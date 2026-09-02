@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
@@ -91,6 +92,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets or sets the comma-separated ids of all class combat skills.</summary>
         [ObservableProperty]
         private string _allSkills = string.Empty;
+
+        /// <summary>Gets or sets the structured combat skills of the unit (used to render the skill
+        /// squares in the character-info sheet).</summary>
+        public List<CombatSkill> CombatSkills { get; set; } = new List<CombatSkill>();
 
         /// <summary>Gets or sets the formatted quirk list ("+tough, -fragile").</summary>
         [ObservableProperty]

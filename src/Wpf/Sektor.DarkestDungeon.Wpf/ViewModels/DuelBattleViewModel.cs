@@ -416,7 +416,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             if (skill == null)
                 return;
 
-            AiSkillPreview = new DuelSkillViewModel(skill.Id, skill.Id, Ui.SkillToneClassifier.Classify(skill))
+            AiSkillPreview = new DuelSkillViewModel(skill.Id, Ui.DisplayNames.Title(skill.Id), Ui.SkillToneClassifier.Classify(skill))
             {
                 Level = skill.Level,
                 BaseInfo = Ui.SkillDetails.BuildBaseInfo(skill),
@@ -548,7 +548,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             var unit = controller.CurrentUnit;
             bool localTurn = controller.IsLocalTurn;
             foreach (var skill in unit.Character.CurrentCombatSkills ?? Enumerable.Empty<CombatSkill>())
-                Skills.Add(new DuelSkillViewModel(skill.Id, skill.Id, Ui.SkillToneClassifier.Classify(skill))
+                Skills.Add(new DuelSkillViewModel(skill.Id, Ui.DisplayNames.Title(skill.Id), Ui.SkillToneClassifier.Classify(skill))
                 {
                     IsUsable = localTurn && controller.IsSkillUsable(unit, skill),
                     Level = skill.Level,
@@ -611,7 +611,20 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             if (unit == null)
                 return;
 
-            StatsTarget.Apply(unit);
+            var skills = new List<DuelSkillViewModel>();
+            foreach (var skill in unit.CombatSkills)
+            {
+                skills.Add(new DuelSkillViewModel(skill.Id, Ui.DisplayNames.Title(skill.Id), Ui.SkillToneClassifier.Classify(skill))
+                {
+                    IsUsable = true,
+                    Level = skill.Level,
+                    BaseInfo = Ui.SkillDetails.BuildBaseInfo(skill),
+                    EffectRows = Ui.SkillDetails.BuildEffectRows(skill),
+                    Details = Ui.SkillDetails.Build(skill),
+                });
+            }
+
+            StatsTarget.Apply(unit, skills);
             IsStatsVisible = true;
         }
 
@@ -867,6 +880,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 AllSkills = character is Hero hero
                     ? string.Join(", ", hero.HeroClass.CombatSkills.Select(skill => skill.Id))
                     : string.Empty,
+                CombatSkills = (character.CurrentCombatSkills ?? Enumerable.Empty<CombatSkill>()).ToList(),
                 QuirksText = character is Hero heroWithQuirks && heroWithQuirks.Quirks.Count > 0
                     ? string.Join(", ", heroWithQuirks.Quirks.Select(quirkId =>
                         (QuirkCatalog.Get(quirkId)?.IsPositive == true ? "+" : "-") + quirkId))

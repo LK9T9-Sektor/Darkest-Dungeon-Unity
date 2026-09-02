@@ -1,7 +1,8 @@
 <UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.HeroStatsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:ui="clr-namespace:Sektor.DarkestDungeon.Wpf.Ui">
+             xmlns:ui="clr-namespace:Sektor.DarkestDungeon.Wpf.Ui"
+             xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views">
     <UserControl.Resources>
         <Style x:Key="StatLabel" TargetType="TextBlock">
             <Setter Property="Foreground" Value="#C8C0B0" />
@@ -155,11 +156,21 @@
                     VerticalAlignment="Center" />
         </Grid>
 
-        <!-- All combat skills -->
+        <!-- All combat skills, each a reusable skill square with a structured tooltip -->
         <TextBlock Grid.Row="3" Text="SKILLS" Style="{StaticResource DetailSection}" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="14"
                    FontWeight="Bold" Margin="0,10,0,0" />
-        <TextBlock Grid.Row="4" Text="{Binding SkillsText}" Style="{StaticResource DetailSection}" Foreground="#C8C0B0" FontSize="13"
-                   TextWrapping="Wrap" />
+        <ItemsControl Grid.Row="4" ItemsSource="{Binding Skills}" Style="{StaticResource DetailSection}" Margin="0,2,0,0">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <views:SkillSquareView Margin="2" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
 
         <!-- All resistances, aligned in two column-pairs (label right-aligned value) -->
         <TextBlock Grid.Row="5" Text="RESISTANCES" Style="{StaticResource DetailSection}" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="14"

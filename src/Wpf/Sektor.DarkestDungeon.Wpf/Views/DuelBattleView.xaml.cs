@@ -15,10 +15,10 @@ namespace Sektor.DarkestDungeon.Wpf.Views
     /// <summary>Battle screen view: hosts the selected-skill badge and the hover target arrow.</summary>
     public partial class DuelBattleView : PumpableScreenBase
     {
-        private const double BadgeWidth = 44;
-        private const double BadgeHeight = 44;
+        private const double BadgeWidth = 50;
+        private const double BadgeHeight = 50;
         private const double BadgeGap = 6;
-        private const double BadgeLift = 22;
+        private const double BadgeLift = 0;
         private const double ArrowHeadLength = 14;
         private const double ArrowHeadSpread = 7;
         private const int MaxSkillArrows = 4;
@@ -87,6 +87,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             ArrowLine.Visibility = Visibility.Collapsed;
             ArrowHead.Visibility = Visibility.Collapsed;
+            ArrowHeadReverse.Visibility = Visibility.Collapsed;
         }
 
         private void HideSkillArrows()
@@ -98,7 +99,9 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             }
         }
 
-        /// <summary>Draws the legacy straight arrow for the move mode: actor card top to the target center.</summary>
+        /// <summary>Draws the move swap line: a straight line between the two card centers with an
+        /// arrowhead at each end (⇄), since a move exchanges the ranks of the actor and an adjacent
+        /// ally.</summary>
         /// <param name="target">The hovered target.</param>
         private void DrawMoveArrow(DuelUnitViewModel target)
         {
@@ -110,7 +113,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
                 return;
             }
 
-            Point start = TopCenter(actorCard);
+            Point start = Center(actorCard);
             Point end = Center(targetCard);
 
             ArrowLine.X1 = start.X;
@@ -122,6 +125,10 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             ArrowHead.Points = new PointCollection(
                 TargetArrowMath.ArrowHead(end, start, ArrowHeadLength, ArrowHeadSpread));
             ArrowHead.Visibility = Visibility.Visible;
+
+            ArrowHeadReverse.Points = new PointCollection(
+                TargetArrowMath.ArrowHead(start, end, ArrowHeadLength, ArrowHeadSpread));
+            ArrowHeadReverse.Visibility = Visibility.Visible;
         }
 
         /// <summary>Draws elbow arrows to the valid targets of the selected skill: the badge sits above a
@@ -258,11 +265,12 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             if (actorCard == null)
                 return;
 
-            SkillBadgeText.Text = skill.DisplayNameUpper;
-            SkillBadge.ToolTip = new SkillTooltipView { DataContext = skill };
+            SkillBadge.DataContext = skill;
             Point top = TopCenter(actorCard);
             Canvas.SetLeft(SkillBadge, top.X - BadgeWidth / 2);
-            Canvas.SetTop(SkillBadge, top.Y - BadgeHeight - BadgeGap - BadgeLift);
+            double badgeTop = top.Y - BadgeHeight - BadgeGap - BadgeLift;
+            badgeTop = Math.Max(0, Math.Min(badgeTop, Math.Max(0, TargetLayer.ActualHeight - BadgeHeight)));
+            Canvas.SetTop(SkillBadge, badgeTop);
             SkillBadge.Visibility = Visibility.Visible;
         }
 

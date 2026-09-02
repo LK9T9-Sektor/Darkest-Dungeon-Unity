@@ -2048,3 +2048,220 @@ script-reference check — зелёный. Финальную проверку 2
 ## Затронутые файлы
 
 - `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\DuelBattleView.xaml` (1 строка).
+
+---
+
+## Задача: тултип способности «почти пустой/очень маленький» (WPF-дуэль, ховер кнопки скилла)
+
+### Контекст
+
+Пользователь: тултип способности при наведении «почти пустой/очень маленький, не показывает
+информацию». Предыдущая задача (`1127b29`) уже чинила DataContext контента
+(`<ToolTip DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">`),
+есть проходящий тест `SkillTooltip_ResolvesDataContext_FromPlacementTarget`, дерево чистое.
+Значит биндинг DataContext, скорее всего, на месте; живой симптом «пусто/маленький» —
+либо layout (ширина/`TextWrapping` внутри `ToolTip`), либо пустые `BaseInfo`/`EffectRows`,
+либо живой open-time DataContext всё же не резолвится. Плюс имя = сырой `skill.Id`.
+
+Целевое поведение — `TESTING.md:242`: крупный контрол над кнопкой (бейдж уровня + имя по центру,
+разделитель, базовая инфа, таблица буффов/дебаффов), тот же тултип у бейджа выбранной способности.
+
+### Шаги
+
+1. [x] **Диагностика живого ховера**: запустить WPF-клиент в дуэли, навести на кнопку скилла,
+      зафиксировать фактический тултип (размер, видимый текст) и значения `DuelSkillViewModel`
+      (DataContext резолвится? `BaseInfo`/`EffectRows` непустые?). По результату — выбрать причину:
+      layout / пустые данные / биндинг. (README/Wpf запуск — см. `docs/TESTING.md`/`docs/ARCHITECTURE.md`.)
+      → Оффскрин-репродукция (тест `SkillTooltip_Open_RendersFully`): DataContext резолвится,
+      `BaseInfo`/`EffectRows` непустые, контрол рендерится 173×183 — не «щель». Реальный дефект — сырой
+      `skill.Id` в имени; биндинг работает (пред. фикс `1127b29`).
+2. [x] **Layout-фикс `SkillTooltipView`**: на корневом `Border` задать `MaxWidth` (≈380) и
+      `HorizontalAlignment="Stretch"`, чтобы `TextBlock`s с `TextWrapping="Wrap"` внутри
+      вертикального `StackPanel` корректно переносились и таблица эффектов не схлопывалась/не
+      обрезалась в попапе `ToolTip` (глобальный стиль `Hud.xaml:35` уже даёт `MaxWidth=420`).
+      → `MaxWidth="400"` на корне.
+3. [x] **Хардненить живой биндинг** (если диагностика покажет, что DataContext в живом открытии
+      null): связать DataContext контента напрямую с `PlacementTarget.DataContext` на анцесторе
+      `ToolTip` или через код-бихайнд, как у бейджа (`DuelBattleView.xaml.cs:262`,
+      `SkillTooltipView { DataContext = skill }`), не полагаясь на индirection.
+      → Не понадобилось: диагностика подтвердила, что биндинг работает.
+4. [x] **Читаемое имя**: `DuelSkillViewModel` использовать `Ui.DisplayNames.Title(skill.Id)` для
+      `DisplayName` (оба места: `DuelBattleViewModel.cs:419` (AI-preview) и `551` (текущий юнит)),
+      вместо сырого `skill.Id`; тултип и бейдж показывают «Smite», «Zealous Accusation» и т.п.
+5. [x] **Регресс-тест рендера**: в `RenderCaptureTests` — тест, который реально открывает `ToolTip`
+      (симулирует open-time `PlacementTarget` + `IsOpen`), проверяет `DataContext` контента,
+      непустые `BaseInfo`/`EffectRows` и ненулевой/разумный `ActualWidth/ActualHeight` тултипа
+      (не «щель»). Guard против пустого/«маленького» тултипа.
+6. [x] **Доки/проверка**: при изменении поведения — `TESTING.md:242/248` (что проверять), при
+      публичном изменении — `CHANGELOG.md`. `dotnet build` + WPF-тесты (включая регресс) зелёные
+      (61/61). Правки только в `src\Wpf\`/`tests\Wpf\` → `unity-compile-check` не требуется.
+
+### Критерии приёмки
+
+- Тултип над кнопкой способности — крупный, не «щель»: бейдж уровня, читаемое имя, `BaseInfo`,
+  таблица эффектов (если есть). Тот же тултип у бейджа выбранной способности.
+- Новый регресс-тест открытия тултипа зелёный; весь WPF-набор зелёный; `dotnet build` 0 ошибок.
+
+### Затронутые файлы
+
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\SkillTooltipView.xaml` (ширина).
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\DuelBattleViewModel.cs` (имя через `DisplayNames.Title`).
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\DuelBattleView.xaml` (при необходимости — биндинг).
+- `tests\Wpf\...\RenderCaptureTests.cs` (регресс-тест открытия тултипа).
+- Доки при необходимости: `docs/TESTING.md`, `docs/CHANGELOG.md`.
+
+---
+
+# Plan: Move-arrow rework (two-headed swap), badge clip fix, reusable skill-square control
+
+## Цель (проверяема)
+
+Три независимые правки в WPF-дуэли (ветка `core/<slice>`), только `src\Wpf\`/`tests\Wpf\`/`docs\`/`PLAN.md`:
+
+1. **Move-стрелка** — переделать: исходит из **центра** карточки действующего героя и рисуется
+   **двуглавой** (две стрелки в противоположные стороны ⇄), т.к. move = обмен рангов с соседним
+   союзником (оба перемещаются). Заменяет текущую прямую «верх карточки → центр цели» с одной стрелкой.
+2. **Бейдж выбранного скилла** — не обрезается сверху (clipping), полностью виден над карточкой.
+3. **Переиспользуемый контрол «квадратик скилла + текст снизу»** — применяется в нижнем левом трэе
+   скиллов и в подсказке персонажа (правая кнопка, стат-лист) вместо голого текста; у каждого
+   квадратика — попап-тултип `SkillTooltipView`.
+
+> Решение пользователя: бейдж над карточкой остаётся компактным квадратиком **без текста снизу**;
+> контрол «квадратик+текст» используется в 2 из 3 мест (трэй + подсказка персонажа).
+
+## Контекст / факты
+
+- Move — обмен: `SelectMove` (DuelBattleViewModel:698) ставит `IsTarget` на союзников `rank ± 1`;
+  `SelectTarget` (в move-режиме, :668) проверяет смежность и исполняет `ExecuteLocalMove(unit.Rank)`.
+- Текущая стрелка move: `DrawMoveArrow` (DuelBattleView.xaml.cs:103) — линия `TopCenter(actorCard)` →
+  `Center(targetCard)` + одна `ArrowHead` на конце цели.
+- Бейдж: `UpdateBadge` (:241) позиционирует `top.Y - BadgeHeight - BadgeGap - BadgeLift` =
+  `top.Y - 44 - 6 - 22 = top.Y - 72`. Поле в `Viewbox` с `ClipToBounds="True"` (DuelBattleView.xaml:130);
+  верхняя строка внутреннего грид = 54px (row 0), карточки в row 1 (низ). `top.Y ≈ 54+`, значит верх бейджа
+  `≈ -18` → уходит за верх канваса → обрезается. Виновник — лишний `BadgeLift=22`.
+- Трэй скиллов: `DuelBattleView.xaml:255-287` — `ItemsControl` (`Skills`) с инлайн-`DataTemplate`
+  (Button 50×50 `{StaticResource SkillButtonTemplate}` + `TextBlock DisplayNameUpper` + тултип).
+- Подсказка персонажа: оверлей `StatsOverlay` (:330) → `HeroStatsView` (`StatsTarget`); скиллы — голый
+  текст `SkillsText` (HeroStatsView.xaml:161). `OpenStats` (DuelBattleViewModel:609) = `StatsTarget.Apply(unit)`.
+  Структурных данных скиллов там нет (`DuelUnitViewModel` несёт только строку `AllSkills`).
+
+## Шаги
+
+1. **Move-стрелка — двуглавая, из центра** (`DuelBattleView.xaml.cs`, `.xaml`):
+   - `DrawMoveArrow`: `start = Center(actorCard)`, `end = Center(targetCard)` (вместо `TopCenter`).
+   - Добавить второй `Polygon` `ArrowHeadReverse` в `TargetLayer` (TargetLayer, после `ArrowHead`).
+   - В конце цели — `ArrowHead` (`TargetArrowMath.ArrowHead(end, start, ...)`), в начале (актор),
+     обратная стрелка — `ArrowHeadReverse` (`TargetArrowMath.ArrowHead(start, end, ...)`) → обе головы
+     «смотрят» друг на друга (⇄).
+   - `HideLine`/`ClearArrow`/`ShowArrowFor`-ветка move гасят обе головы вместе.
+   - Массив голов: `DuelBattleView.cs` — `Polygon[]` (или два поля) для удобства скрытия.
+
+2. **Фикс клиппинга бейджа** (`DuelBattleView.xaml.cs`):
+   - Убрать лишний подъём: `BadgeLift → 0` (или близко к 0), чтобы бейдж был на
+     `top.Y - BadgeHeight - BadgeGap = top.Y - 50` и целиком помещался в 54px-строку (50 < 54).
+   - Защитно клампить `Canvas.GetTop(SkillBadge)` в `[0, canvasHeight - BadgeHeight]`, чтобы верх никогда
+     не уходил за канвас.
+   - Стрелки-lокти используют `BadgeCenter()` (вертикальный центр) — сдвиг бейджа вниз на 22px не ломает
+     геометрию (exit на уровне центра бейджа).
+
+3. **Новый переиспользуемый контрол `Views\SkillSquareView.xaml(.cs)`**:
+   - `UserControl`, DataContext = `DuelSkillViewModel`. Вид: квадрат (Border + `Image` слот для будущей
+     иконки `Icon`, рамка/заливка по `IsUsable`/`IsSelected`/hover — на базе `SkillButtonTemplate`) +
+     `TextBlock` `DisplayNameUpper` снизу (FontSize ~8, wrap, ellipsis).
+   - DependencyProperties: `SelectCommand` (`ICommand`, необязательный — в подсказке персонажа нет
+     кнопки, квадратик readonly), `CommandParameter`.
+   - Внутри тултип `<ToolTip DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">`
+     с `<views:SkillTooltipView />` (тот же паттерн, что в трэе).
+
+4. **Применить контрол в трэе** (`DuelBattleView.xaml:255-287`):
+   - Инлайн-`DataTemplate` заменить на `<views:SkillSquareView SelectCommand="{Binding DataContext.SelectSkillCommand,
+     RelativeSource={RelativeSource AncestorType=UserControl}}" />` (DataContext наследуется от ItemsControl).
+   - Поведение/тултип/стили не меняются — только переиспользование.
+
+5. **Применить контрол в подсказке персонажа** (`HeroStatsViewModel`, `HeroStatsView`, `DuelBattleViewModel`):
+   - `DuelUnitViewModel`: добавить заселённый в `ToUnit` список `CombatSkills` (`IReadOnlyList<CombatSkill>`
+     из `character.CurrentCombatSkills`) — без него `OpenStats` не достанет структурных данных.
+   - `DuelBattleViewModel.OpenStats`: построить `List<DuelSkillViewModel>` из `unit.CombatSkills` тем же
+     способом, что `RefreshSkills` (`DisplayNames.Title` + `SkillToneClassifier` + `SkillDetails`), и
+     передать в `StatsTarget.Apply(...)`/`StatsTarget.Skills`.
+   - `HeroStatsViewModel`: добавить `ObservableCollection<DuelSkillViewModel> Skills`; `Apply` заполняет.
+     Убрать/оставить `SkillsText` (заменяется коллекцией) — `SkillsText` можно удалить.
+   - `HeroStatsView.xaml:158-162`: секция `SKILLS` — вместо `TextBlock SkillsText` — `ItemsControl`
+     `ItemsSource="{Binding Skills}"` (горизонтальный `StackPanel`, wrap) с `ItemTemplate` =
+     `<views:SkillSquareView />` (no `SelectCommand`).
+
+6. **Тесты** (`tests\Wpf\...\RenderCaptureTests.cs`, `HeroStatsViewModelTests` при наличии):
+   - Move: `RenderCaptureTests` — в move-режиме `DrawMoveArrow` задаёт и `ArrowLine` (из центра актора
+     в центр цели) и обе головы `ArrowHead` + `ArrowHeadReverse` видимыми, `IsHitTestVisible=False`,
+     `ClearArrow` гасит всё.
+   - Бейдж: при `ShowArrowFor`/layout `Canvas.GetTop(SkillBadge) >= 0` (не выше канваса) и бейдж видим.
+   - Контрол: `HeroStatsViewModel.Skills` заполняется; `SkillSquareView` для `DuelSkillViewModel` создаёт
+     текст-имя и тултип `SkillTooltipView` (рендер-тест на открытие тултипа как `SkillTooltip_*`).
+   - `dotnet build` WPF — 0 ошибок; WPF-сьют зелёный (без регрессов существующих 61).
+
+7. **Доки (тот же коммит)**: `docs\TESTING.md` — строки ручной проверки (двуглавая move-стрелка;
+   бейдж не обрезан; подсказка персонажа показывает квадратики скиллов с тултипами);
+   `docs\CHANGELOG.md` (пользовательские изменения); `PLAN.md` — шаги `[x]`.
+
+## Проверка
+
+- [x] `dotnet build src\Wpf\Sektor.DarkestDungeon.Wpf` — 0 ошибок; `dotnet test` (WPF-сьют 64 + все suite'ы) зелёные; `tools\check-using-placement.ps1` — OK.
+- [x] Рендер-тесты (1600×900, оффскрин) — move-головы, бейдж-кламп, квадратик скиллов в подсказке.
+- [x] Правки только `src\Wpf\`/`tests\Wpf\`/`docs\`/`PLAN.md` → `unity-compile-check` не требуется.
+- [ ] Визуальная проверка по `docs\TESTING.md` — за пользователем.
+
+## Затронутые файлы
+
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\DuelBattleView.xaml` (+`ArrowHeadReverse`, трэй на `SkillSquareView`, локальный `SkillButtonTemplate` убран за общий).
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\DuelBattleView.xaml.cs` (move-стрелка, `BadgeLift`/кламп, hide-голов).
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Styles\Hud.xaml` (`SkillButtonTemplate` вынесен в общие ресурсы).
+- Новый `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\SkillSquareView.xaml(.cs)`.
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\DuelUnitViewModel.cs` (+`CombatSkills`).
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\DuelBattleViewModel.cs` (`OpenStats` строит skill VM).
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\ViewModels\HeroStatsViewModel.cs` (+`Skills`).
+- `src\Wpf\Sektor.DarkestDungeon.Wpf\Views\HeroStatsView.xaml` (секция `SKILLS` → ItemsControl).
+- Тесты: `tests\Wpf\...\RenderCaptureTests.cs` (+ 3 новых теста, правка регрессии трэя).
+- Доки: `docs\TESTING.md`, `docs\CHANGELOG.md`, `PLAN.md`.
+
+---
+
+## ПЛАН 3: Тултипы скиллов во всех местах + единый контрол (бейдж иконко-без-текста)
+
+**Проблемы (корни):**
+- Подсказка не появляется на квадратиках в подсказке персонажа: `SkillSquareView.xaml.cs:72` —
+  `SkillButton.IsHitTestVisible = clickable`; в read-only (нет `SelectCommand`) = false → не висит ховер.
+- Подсказка не появляется на бейдже выбранной способности: `DuelBattleView.xaml:147` — весь
+  `TargetLayer` имеет `IsHitTestVisible="False"`, дочерний `SkillBadge` неходит-тестируется.
+- Требование: убрать текст внутри бейджа, использовать 1 переиспользуемый контрол во всех местах.
+- Решение пользователя: бейдж — иконка без текста, некликабельный (подсказка даёт имя).
+
+**Шаги:**
+1. `SkillSquareView`:
+   - `WireButton`: в read-only (`SelectCommand == null`) → `IsHitTestVisible = true` + `IsEnabled = true`
+     (Command null → клик ниче не делает, ховер показывает тултип); кликабельный трэй не меняется.
+   - Добавить DP `ShowName` (по умолч. true) → скрывает `TextBlock` имени внизу (для иконко-бейджа).
+2. Бейдж → переиспользуемый `SkillSquareView`:
+   - `DuelBattleView.xaml`: `<Border x:Name="SkillBadge">`+`<TextBlock x:Name="SkillBadgeText">` →
+     `<views:SkillSquareView x:Name="SkillBadge" ShowName="False" IsHitTestVisible="True"/>`
+     (явный `IsHitTestVisible=True` выключает наследование от не-хит-тестируемого `TargetLayer`,
+     стрелки/линии остаются инертными).
+   - `DuelBattleView.xaml.cs`: `UpdateBadge` ставит `SkillBadge.DataContext = skill`
+     (иконка/тултип берутся из контрола; убрать `SkillBadgeText.Text` и ручной `SkillBadge.ToolTip`);
+     `Canvas.SetLeft/Top` + кламп по фактическому размеру; `BadgeCenter()` по 50px.
+3. Тесты `RenderCaptureTests.cs`: сменa кастов `FindName("SkillBadge")` с `Border` → `FrameworkElement`
+   (строки 322, 621; кламп `top + ActualHeight` остаётся); + проверка, что read-only квадратик
+   ховится (`IsHitTestVisible == true`) — тултип работает.
+4. Проверка: `dotnet build` WPF (0 ошибок) + `dotnet test` WPF (зелёный) + `check-using-placement`.
+5. Доки (тот же коммит): `docs\TESTING.md` (тултипы на квадратиках и бейдже; бейдж иконко-без-текста,
+   единый контрол), `docs\CHANGELOG.md`.
+
+**Затронутые файлы:** `SkillSquareView.xaml(.cs)`, `DuelBattleView.xaml(.cs)`, `RenderCaptureTests.cs`,
+`docs\TESTING.md`, `docs\CHANGELOG.md`, `PLAN.md`. Только `src\Wpf\`/`tests\Wpf\`/`docs\` → `unity-compile-check`
+не требуется.
+
+**Проверка:**
+- [x] `dotnet build` WPF — 0 ошибок; `dotnet test` (WPF 64 + все suite'ы) зелёные; `tools\check-using-placement.ps1` — OK.
+- [x] Read-only квадратики (подсказка персонажа) и бейдж ховерятся: `SkillButton.IsHitTestVisible=true` (стат-шит),
+      бейдж — отдельные фигуры `IsHitTestVisible=False` вместо не-хит-тестируемого `TargetLayer`; тест-ассерты обновлены.
+- [x] Бейдж — единый `SkillSquareView`, иконка без текста (`ShowName=False`), некликабельный; имя в тултипе.
+- [ ] Визуальная проверка по `docs\TESTING.md` — за пользователем.

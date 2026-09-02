@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
@@ -73,6 +75,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private string _skillsText = string.Empty;
 
+        /// <summary>Gets the structured combat skills shown as skill squares in the sheet.</summary>
+        public ObservableCollection<DuelSkillViewModel> Skills { get; } = new ObservableCollection<DuelSkillViewModel>();
+
         /// <summary>Gets or sets the stun resistance percentage.</summary>
         [ObservableProperty]
         private int _resistStun;
@@ -121,7 +126,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Fills the sheet from a duel unit.</summary>
         /// <param name="unit">The inspected unit.</param>
-        public void Apply(DuelUnitViewModel unit)
+        /// <param name="skills">The structured combat skills to show as skill squares.</param>
+        public void Apply(DuelUnitViewModel unit, IReadOnlyList<DuelSkillViewModel>? skills)
         {
             HeroName = unit.Name;
             HeroClass = unit.ClassName;
@@ -135,7 +141,6 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             Crit = unit.Crit + "%";
             Dodge = unit.Dodge.ToString();
             Protection = unit.Protection + "%";
-            SkillsText = unit.AllSkills;
             QuirksText = unit.QuirksText;
             ResistStun = unit.ResistStun;
             ResistBlight = unit.ResistBlight;
@@ -145,6 +150,13 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             ResistDisease = unit.ResistDisease;
             ResistDeathBlow = unit.ResistDeathBlow;
             ResistTrap = unit.ResistTrap;
+
+            Skills.Clear();
+            if (skills != null)
+            {
+                foreach (var skill in skills)
+                    Skills.Add(skill);
+            }
         }
     }
 }

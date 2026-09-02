@@ -4,7 +4,8 @@
     <!-- Structured skill tooltip: a level badge + centered name on top, a separator, the base info
          (damage/heal, accuracy, crit, ranks) and, when the skill applies buffs/debuffs, an aligned
          table of those effects below. -->
-    <Border Background="#E6000000" BorderBrush="#3A2E22" BorderThickness="1" CornerRadius="6" Padding="12,10">
+    <Border Background="#E6000000" BorderBrush="#3A2E22" BorderThickness="1" CornerRadius="6" Padding="12,10"
+            MaxWidth="400">
         <StackPanel>
             <!-- HEADER: level badge (left), centered name (the right spacer mirrors the badge) -->
             <Grid>

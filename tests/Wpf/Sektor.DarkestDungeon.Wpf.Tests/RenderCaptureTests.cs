@@ -206,15 +206,18 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             // the WrapPanel wrapping the skills onto a second row).
             List<Button> buttons = new List<Button>(FindVisualChildren<Button>(duelView));
             List<Button> skillButtons = buttons.FindAll(button => button.DataContext is DuelSkillViewModel);
+            // Tray skill squares are clickable (SelectCommand wired); the stat-sheet inspect squares
+            // (visible because OpenStats ran) render read-only and must not be counted as tray buttons.
+            List<Button> traySkillButtons = skillButtons.FindAll(button => button.Command != null);
             Button? moveButton = buttons.Find(button => button.ToolTip?.ToString() == "Move to an adjacent rank");
             Button? passButton = buttons.Find(button => button.ToolTip?.ToString() == "Skip the turn");
 
             Assert.That(view.Skills.Count, Is.GreaterThan(0), "The local turn should populate skill buttons.");
-            Assert.That(skillButtons.Count, Is.EqualTo(view.Skills.Count));
+            Assert.That(traySkillButtons.Count, Is.EqualTo(view.Skills.Count));
             Assert.That(moveButton, Is.Not.Null);
             Assert.That(passButton, Is.Not.Null);
 
-            double skillsCenterY = CenterY(duelView, skillButtons[0]);
+            double skillsCenterY = CenterY(duelView, traySkillButtons[0]);
             double moveCenterY = CenterY(duelView, moveButton!);
             double passCenterY = CenterY(duelView, passButton!);
             Assert.That(moveCenterY, Is.EqualTo(skillsCenterY).Within(12), "MOVE is on the skills row.");
@@ -311,15 +314,20 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                     DuelBattleView duelView;
                     DuelBattleViewModel view;
                     DuelUnitViewModel target;
-                    var layer = BuildArrowOverlay(out duelView, out view, out target);
-                    Assert.That(layer.IsHitTestVisible, Is.False, "The overlay must never intercept card clicks.");
+                    BuildArrowOverlay(out duelView, out view, out target);
 
                     var path = (ShapePath)duelView.FindName("SkillArrow1");
                     var head = (Polygon)duelView.FindName("SkillArrowHead1");
-                    var badge = (Border)duelView.FindName("SkillBadge");
+                    var badge = (FrameworkElement)duelView.FindName("SkillBadge");
                     Assert.That(path, Is.Not.Null);
                     Assert.That(head, Is.Not.Null);
                     Assert.That(badge, Is.Not.Null);
+                    Assert.That(path.IsHitTestVisible, Is.False,
+                        "The drawn skill arrows must never intercept card clicks.");
+                    Assert.That(head.IsHitTestVisible, Is.False,
+                        "The drawn arrowheads must never intercept card clicks.");
+                    Assert.That(((System.Windows.Shapes.Line)duelView.FindName("ArrowLine")).IsHitTestVisible, Is.False,
+                        "The drawn move line must never intercept card clicks.");
 
                     Assert.That(path.Visibility, Is.EqualTo(Visibility.Collapsed), "The skill arrows start hidden.");
                     Assert.That(head.Visibility, Is.EqualTo(Visibility.Collapsed), "The skill arrowheads start hidden.");
@@ -422,6 +430,289 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             thread.Join();
             if (error != null)
                 throw new AssertionException("Skill tooltip DataContext failed: " + error);
+        }
+
+        /// <summary>Fully opens a skill-button ToolTip the way ToolTipService would, then asserts the
+        /// structured tooltip is not empty/tiny: the content DataContext resolves, the readable name
+        /// is shown (not the raw skill id), the base info and the effect rows are populated, and the
+        /// rendered control has a real size (not a collapsed sliver).</summary>
+        [Test]
+        public void SkillTooltip_Open_RendersFully()
+        {
+            Exception? error = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var existing = Application.Current;
+                    var app = existing ?? new App();
+                    if (existing == null)
+                        ((App)app).InitializeComponent();
+
+                    DuelController duel;
+                    var view = CreateView(out duel);
+                    DriveToLocalTurn(duel, view);
+                    view.OpenStatsCommand.Execute(view.Heroes[0]);
+
+                    var duelView = new DuelBattleView { DataContext = view };
+                    duelView.Measure(new Size(WindowWidth, WindowHeight));
+                    duelView.Arrange(new Rect(new Size(WindowWidth, WindowHeight)));
+                    duelView.UpdateLayout();
+
+                    var skillButton = FindVisualChildren<Button>(duelView)
+                        .FirstOrDefault(button => button.DataContext is DuelSkillViewModel);
+                    Assert.That(skillButton, Is.Not.Null);
+                    var skill = (DuelSkillViewModel)skillButton!.DataContext!;
+
+                    var tooltip = (ToolTip)skillButton.ToolTip!;
+                    tooltip.PlacementTarget = skillButton;
+                    tooltip.IsOpen = true;
+                    tooltip.Dispatcher.Invoke(DispatcherPriority.Loaded, new Action(() => { }));
+                    tooltip.Dispatcher.Invoke(DispatcherPriority.Render, new Action(() => { }));
+                    tooltip.UpdateLayout();
+
+                    var content = (SkillTooltipView)tooltip.Content;
+                    Assert.That(content.DataContext, Is.SameAs(skill),
+                        "The opened tooltip content must inherit the skill DataContext.");
+
+                    content.Measure(new Size(420, double.PositiveInfinity));
+                    content.Arrange(new Rect(content.DesiredSize));
+                    content.UpdateLayout();
+
+                    Assert.That(content.ActualHeight, Is.GreaterThan(40),
+                        "The tooltip must render content much taller than a bare header line / sliver.");
+                    Assert.That(content.ActualWidth, Is.GreaterThan(80),
+                        "The tooltip must render a usable width, not a collapsed sliver.");
+
+                    TestContext.WriteLine(
+                        $"DIAG id={skill.Id} name={skill.DisplayName} level={skill.Level} " +
+                        $"baseInfo=[{skill.BaseInfo}] effectRows={skill.EffectRows.Count} " +
+                        $"w={content.ActualWidth:0} h={content.ActualHeight:0}");
+
+                    tooltip.IsOpen = false;
+                }
+                catch (Exception e)
+                {
+                    error = e;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+            if (error != null)
+                throw new AssertionException("Open skill tooltip failed: " + error);
+        }
+
+        /// <summary>The move arrow is a swap line between the two card centers with an arrowhead at
+        /// each end (⇄) because a move exchanges ranks; clearing hides line and both heads.</summary>
+        [Test]
+        public void MoveArrow_SwapLine_SpansCentersWithTwoHeads()
+        {
+            Exception? error = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var existing = Application.Current;
+                    var app = existing ?? new App();
+                    if (existing == null)
+                        ((App)app).InitializeComponent();
+
+                    DuelController duel;
+                    var view = CreateView(out duel);
+                    DriveToLocalTurn(duel, view);
+
+                    view.MoveCommand.Execute(null);
+                    DuelUnitViewModel? target = null;
+                    foreach (var unit in view.Heroes.Concat(view.Monsters))
+                    {
+                        if (unit.IsTarget && !unit.IsCurrent)
+                        {
+                            target = unit;
+                            break;
+                        }
+                    }
+
+                    Assert.That(target, Is.Not.Null, "Move mode must mark an adjacent ally as a target.");
+                    Assert.That(view.IsMoveMode, Is.True, "MoveCommand must enter move mode.");
+
+                    var duelView = new DuelBattleView { DataContext = view };
+                    duelView.Measure(new Size(WindowWidth, WindowHeight));
+                    duelView.Arrange(new Rect(new Size(WindowWidth, WindowHeight)));
+                    duelView.UpdateLayout();
+
+                    var line = (Line)duelView.FindName("ArrowLine");
+                    var head = (Polygon)duelView.FindName("ArrowHead");
+                    var reverse = (Polygon)duelView.FindName("ArrowHeadReverse");
+                    Assert.That(line, Is.Not.Null);
+                    Assert.That(head, Is.Not.Null);
+                    Assert.That(reverse, Is.Not.Null);
+
+                    duelView.ShowArrowFor(target!);
+
+                    Assert.That(line.Visibility, Is.EqualTo(Visibility.Visible), "The swap line is drawn.");
+                    Assert.That(head.Visibility, Is.EqualTo(Visibility.Visible), "The target-end arrowhead is drawn.");
+                    Assert.That(reverse.Visibility, Is.EqualTo(Visibility.Visible),
+                        "The reverse (actor-end) arrowhead is drawn, signaling the rank exchange.");
+                    Assert.That(head.Points.Count, Is.EqualTo(3));
+                    Assert.That(reverse.Points.Count, Is.EqualTo(3));
+
+                    var actorCard = FindVisualChildren<DuelUnitCardView>(duelView)
+                        .First(card => card.DataContext is DuelUnitViewModel unit && unit.IsCurrent);
+                    var layer = (Canvas)duelView.FindName("TargetLayer");
+                    Point actorCenter = actorCard.TransformToVisual(layer)
+                        .Transform(new Point(actorCard.RenderSize.Width / 2, actorCard.RenderSize.Height / 2));
+
+                    Assert.That(line.X1, Is.EqualTo(actorCenter.X).Within(1),
+                        "The move arrow must start at the acting card's horizontal center.");
+                    Assert.That(line.Y1, Is.EqualTo(actorCenter.Y).Within(1),
+                        "The move arrow must start at the acting card's vertical center (not its top edge).");
+                    Assert.That(Math.Abs(line.X2 - line.X1), Is.GreaterThan(1),
+                        "The move arrow spans toward the adjacent target card.");
+
+                    duelView.ClearArrow();
+                    Assert.That(line.Visibility, Is.EqualTo(Visibility.Collapsed), "Clearing hides the swap line.");
+                    Assert.That(head.Visibility, Is.EqualTo(Visibility.Collapsed), "Clearing hides the target head.");
+                    Assert.That(reverse.Visibility, Is.EqualTo(Visibility.Collapsed), "Clearing hides the reverse head.");
+                }
+                catch (Exception e)
+                {
+                    error = e;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+            if (error != null)
+                throw new AssertionException("Move arrow failed: " + error);
+        }
+
+        /// <summary>The selected-skill badge must never be pushed above the top of the target canvas
+        /// (the previous BadgeLift clipped it against the Viewbox); its top coordinate stays in-bounds
+        /// and the badge remains visible while a skill is selected.</summary>
+        [Test]
+        public void Badge_StaysWithinCanvasTop()
+        {
+            Exception? error = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var existing = Application.Current;
+                    var app = existing ?? new App();
+                    if (existing == null)
+                        ((App)app).InitializeComponent();
+
+                    DuelController duel;
+                    var view = CreateView(out duel);
+                    DriveToLocalTurn(duel, view);
+
+                    DuelUnitViewModel? target = null;
+                    foreach (var skill in view.Skills)
+                    {
+                        view.SelectSkillCommand.Execute(skill);
+                        target = view.Heroes.Concat(view.Monsters)
+                            .FirstOrDefault(unit => unit.IsTarget && !unit.IsCurrent);
+                        if (target != null)
+                            break;
+                    }
+                    Assert.That(target, Is.Not.Null);
+
+                    var duelView = new DuelBattleView { DataContext = view };
+                    duelView.Measure(new Size(WindowWidth, WindowHeight));
+                    duelView.Arrange(new Rect(new Size(WindowWidth, WindowHeight)));
+                    duelView.UpdateLayout();
+
+                    var badge = (FrameworkElement)duelView.FindName("SkillBadge");
+                    Assert.That(badge, Is.Not.Null);
+
+                    duelView.ShowArrowFor(target!);
+                    duelView.UpdateLayout();
+
+                    double top = Canvas.GetTop(badge);
+                    Assert.That(badge.Visibility, Is.EqualTo(Visibility.Visible), "The badge is visible while a skill is selected.");
+                    Assert.That(top, Is.GreaterThanOrEqualTo(0),
+                        $"The badge top must not go above the canvas (was {top:0.0}); it would be clipped.");
+                    Assert.That(top + badge.ActualHeight, Is.LessThanOrEqualTo(duelView.FindName("TargetLayer") is Canvas layer
+                        ? layer.ActualHeight + 0.5 : double.MaxValue), "The badge bottom stays within the canvas.");
+                    Assert.That(badge.IsHitTestVisible, Is.True,
+                        "The badge opts back into hit testing so hovering it fires the skill tooltip.");
+                    Button? badgeButton = FindVisualChildren<Button>(badge).FirstOrDefault();
+                    Assert.That(badgeButton, Is.Not.Null);
+                    Assert.That(badgeButton.IsHitTestVisible, Is.True,
+                        "The badge's inner icon button is hoverable, so its tooltip can fire.");
+                    Assert.That(badgeButton.Command, Is.Null,
+                        "The floating badge is a pure indicator (icon-only, non-clickable).");
+                    Assert.That(FindVisualChildren<TextBlock>(badge).Any(tb =>
+                            tb.Visibility == Visibility.Visible && tb.Text == view.SelectedSkill?.DisplayNameUpper),
+                        Is.False, "The compact badge shows no in-square text (name lives in the tooltip).");
+                }
+                catch (Exception e)
+                {
+                    error = e;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+            if (error != null)
+                throw new AssertionException("Badge clamp failed: " + error);
+        }
+
+        /// <summary>The character-info sheet fills its structured skill squares from the inspected unit
+        /// and each rendered SkillSquareView carries a readable name and the structured tooltip.</summary>
+        [Test]
+        public void StatsSheet_ShowsSkillSquares()
+        {
+            Exception? error = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var existing = Application.Current;
+                    var app = existing ?? new App();
+                    if (existing == null)
+                        ((App)app).InitializeComponent();
+
+                    DuelController duel;
+                    var view = CreateView(out duel);
+                    DriveToLocalTurn(duel, view);
+                    view.OpenStatsCommand.Execute(view.Heroes[0]);
+
+                    Assert.That(view.StatsTarget.Skills.Count, Is.GreaterThan(0),
+                        "The stat sheet must expose structured skills, not just a plain text line.");
+                    Assert.That(view.StatsTarget.Skills[0].DisplayName, Does.Not.Contain("_"),
+                        "Skill names in the sheet are readable, not raw ids.");
+
+                    var square = new SkillSquareView { DataContext = view.StatsTarget.Skills[0] };
+                    square.Measure(new Size(60, 100));
+                    square.Arrange(new Rect(square.DesiredSize));
+                    square.UpdateLayout();
+
+                    var label = FindVisualChildren<TextBlock>(square)
+                        .FirstOrDefault(tb => tb.Text == view.StatsTarget.Skills[0].DisplayNameUpper);
+                    Assert.That(label, Is.Not.Null, "The skill square renders the skill name below the icon slot.");
+
+                    Button? button = FindVisualChildren<Button>(square).FirstOrDefault();
+                    Assert.That(button, Is.Not.Null);
+                    Assert.That(button.Command, Is.Null, "In the readonly sheet the square is not a select button.");
+                    Assert.That(button.ToolTip, Is.TypeOf<ToolTip>(),
+                        "The inspect square still hosts the structured skill tooltip.");
+                    Assert.That(button.IsHitTestVisible, Is.True,
+                        "The readonly square must stay hoverable so its tooltip can fire.");
+                    Assert.That(button.IsEnabled, Is.True,
+                        "The readonly square is enabled (unlike the tray it has no usable/turn gate).");
+                }
+                catch (Exception e)
+                {
+                    error = e;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+            if (error != null)
+                throw new AssertionException("Stats sheet skill squares failed: " + error);
         }
     }
 }

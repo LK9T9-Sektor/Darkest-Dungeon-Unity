@@ -28,35 +28,6 @@
             </ContentControl>
         </DataTemplate>
 
-        <!-- Combat skill square: usable = yellow frame, unusable = gray frame + gray shading;
-             the inner area only hosts the future icon image (no text). -->
-        <ControlTemplate x:Key="SkillButtonTemplate" TargetType="Button">
-            <Border x:Name="Chrome" Background="#2A2218" BorderBrush="#D9B46A" BorderThickness="2"
-                    CornerRadius="4" Padding="2">
-                <ContentPresenter />
-            </Border>
-            <ControlTemplate.Triggers>
-                <DataTrigger Binding="{Binding IsUsable}" Value="False">
-                    <Setter TargetName="Chrome" Property="Background" Value="#202020" />
-                    <Setter TargetName="Chrome" Property="BorderBrush" Value="#6A6A6A" />
-                </DataTrigger>
-                <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                    <Setter TargetName="Chrome" Property="Background" Value="#3A3022" />
-                    <Setter TargetName="Chrome" Property="BorderBrush" Value="#E8D9B0" />
-                </DataTrigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter TargetName="Chrome" Property="BorderBrush" Value="#E8D9B0" />
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter TargetName="Chrome" Property="Background" Value="#3A3022" />
-                </Trigger>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter TargetName="Chrome" Property="BorderBrush" Value="#6A6A6A" />
-                    <Setter TargetName="Chrome" Property="Background" Value="#202020" />
-                </Trigger>
-            </ControlTemplate.Triggers>
-        </ControlTemplate>
-
         <!-- Buff/debuff table row: Name | Duration | Effect, effect text toned by Buff/Debuff -->
         <DataTemplate x:Key="BuffRowTemplate">
             <Grid Margin="0,3,0,3">
@@ -171,39 +142,40 @@
 <!-- Target layer: the selected-skill badge floats above the acting card; the hover line
                      runs from the badge (or the actor card top in move mode) to the hovered target
                      card and ends in an arrowhead. Positions are computed in code-behind against this
-                     Canvas (pure math), so nothing is recreated at runtime. -->
-<Canvas x:Name="TargetLayer" Grid.RowSpan="2" Grid.ColumnSpan="2" Panel.ZIndex="10"
-                        IsHitTestVisible="False">
-                        <Border x:Name="SkillBadge" Width="44" Height="44" Background="#2A2218"
-                                BorderBrush="#D9B46A" BorderThickness="2" CornerRadius="4"
-                                Visibility="Collapsed">
-                            <TextBlock x:Name="SkillBadgeText" Foreground="#E8D9B0" FontSize="9"
-                                       FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap"
-                                       TextTrimming="CharacterEllipsis" Margin="2"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
+                     Canvas (pure math), so nothing is recreated at runtime. The drawn lines/arrows are
+                     individually inert (IsHitTestVisible=False) so they never block card clicks, while
+                     the badge stays hoverable to fire its skill tooltip. -->
+<Canvas x:Name="TargetLayer" Grid.RowSpan="2" Grid.ColumnSpan="2" Panel.ZIndex="10">
+                        <views:SkillSquareView x:Name="SkillBadge" ShowName="False"
+                                               Visibility="Collapsed" />
 
-                        <!-- Legacy straight arrow (kept for the move mode): actor card top to the
-                             hovered target center -->
+                        <!-- Move swap arrow: a straight line between the two card centers with an
+                             arrowhead at each end (⇄), because moving exchanges ranks. -->
                         <Line x:Name="ArrowLine" Stroke="#D9B46A" StrokeThickness="3"
-                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" Visibility="Collapsed" />
-                        <Polygon x:Name="ArrowHead" Fill="#D9B46A" Visibility="Collapsed" />
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" Visibility="Collapsed"
+                              IsHitTestVisible="False" />
+                        <Polygon x:Name="ArrowHead" Fill="#D9B46A" Visibility="Collapsed" IsHitTestVisible="False" />
+                        <Polygon x:Name="ArrowHeadReverse" Fill="#D9B46A" Visibility="Collapsed" IsHitTestVisible="False" />
 
                         <!-- Skill elbow arrows: from the actor card top edge up to the skill badge,
                              out of its left/right edge horizontally, then down into the target top
                              edge. One arrow per target (up to four), colored by the skill tone. -->
                         <Path x:Name="SkillArrow1" StrokeLineJoin="Round" StrokeStartLineCap="Round"
-                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed" />
-                        <Polygon x:Name="SkillArrowHead1" Visibility="Collapsed" />
+                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed"
+                              IsHitTestVisible="False" />
+                        <Polygon x:Name="SkillArrowHead1" Visibility="Collapsed" IsHitTestVisible="False" />
                         <Path x:Name="SkillArrow2" StrokeLineJoin="Round" StrokeStartLineCap="Round"
-                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed" />
-                        <Polygon x:Name="SkillArrowHead2" Visibility="Collapsed" />
+                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed"
+                              IsHitTestVisible="False" />
+                        <Polygon x:Name="SkillArrowHead2" Visibility="Collapsed" IsHitTestVisible="False" />
                         <Path x:Name="SkillArrow3" StrokeLineJoin="Round" StrokeStartLineCap="Round"
-                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed" />
-                        <Polygon x:Name="SkillArrowHead3" Visibility="Collapsed" />
+                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed"
+                              IsHitTestVisible="False" />
+                        <Polygon x:Name="SkillArrowHead3" Visibility="Collapsed" IsHitTestVisible="False" />
                         <Path x:Name="SkillArrow4" StrokeLineJoin="Round" StrokeStartLineCap="Round"
-                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed" />
-                        <Polygon x:Name="SkillArrowHead4" Visibility="Collapsed" />
+                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed"
+                              IsHitTestVisible="False" />
+                        <Polygon x:Name="SkillArrowHead4" Visibility="Collapsed" IsHitTestVisible="False" />
                     </Canvas>
                 </Grid>
             </Viewbox>
@@ -260,28 +232,9 @@
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <StackPanel Width="58" Height="82" Margin="4">
-                                                <Button Width="50" Height="50" Padding="2"
-                                                        ToolTipService.Placement="Top"
-                                                        IsEnabled="{Binding IsUsable}"
-                                                        Command="{Binding DataContext.SelectSkillCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding}"
-                                                        Template="{StaticResource SkillButtonTemplate}">
-                                                    <Button.ToolTip>
-                                                        <ToolTip DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                                                            <views:SkillTooltipView />
-                                                        </ToolTip>
-                                                    </Button.ToolTip>
-                                                    <Grid>
-                                                        <Image Source="{Binding Icon}" Stretch="UniformToFill" />
-                                                        <Rectangle Fill="#404040"
-                                                                   Visibility="{Binding IsUsable, Converter={StaticResource InverseBoolToVisibility}}" />
-                                                    </Grid>
-                                                </Button>
-                                                <TextBlock Text="{Binding DisplayNameUpper}" FontSize="8" Height="20"
-                                                           Foreground="#C8C0B0" TextAlignment="Center" TextWrapping="Wrap"
-                                                           TextTrimming="CharacterEllipsis" Margin="0,2,0,0" />
-                                            </StackPanel>
+                                            <views:SkillSquareView Margin="4" VerticalAlignment="Center"
+                                                                   SelectCommand="{Binding DataContext.SelectSkillCommand, RelativeSource={RelativeSource AncestorType={x:Type views:DuelBattleView}}}"
+                                                                   CommandParameter="{Binding}" />
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
