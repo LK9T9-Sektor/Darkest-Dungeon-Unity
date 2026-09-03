@@ -263,7 +263,7 @@ public class BattleTestConfigPanel : MonoBehaviour
         rect.anchorMin = anchor;
         rect.anchorMax = anchor;
         rect.pivot = anchor;
-        rect.anchoredPosition = Vector2.zero;
+        rect.anchoredPosition = position;
         rect.sizeDelta = size;
 
         Image background = buttonObject.AddComponent<Image>();
@@ -273,9 +273,12 @@ public class BattleTestConfigPanel : MonoBehaviour
         button.targetGraphic = background;
         button.onClick.AddListener(onClick);
 
-        RuntimeUiFactory.CreateText("Label", buttonObject.transform, label,
+        Text labelText = RuntimeUiFactory.CreateText("Label", buttonObject.transform, label,
             new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero,
             UiStyle.Body, UiStyle.Label, TextAnchor.MiddleCenter);
+        labelText.rectTransform.anchorMin = Vector2.zero;
+        labelText.rectTransform.anchorMax = Vector2.one;
+        labelText.rectTransform.sizeDelta = Vector2.zero;
 
         return background;
     }

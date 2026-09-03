@@ -232,9 +232,12 @@ public class BattleHud : MonoBehaviour
         button.targetGraphic = background;
         button.onClick.AddListener(onClick);
 
-        RuntimeUiFactory.CreateText("Label", buttonObject.transform, label,
+        Text labelText = RuntimeUiFactory.CreateText("Label", buttonObject.transform, label,
             new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero,
             SkillFontSize, UiStyle.Label, TextAnchor.MiddleCenter);
+        labelText.rectTransform.anchorMin = Vector2.zero;
+        labelText.rectTransform.anchorMax = Vector2.one;
+        labelText.rectTransform.sizeDelta = Vector2.zero;
         return button;
     }
 
