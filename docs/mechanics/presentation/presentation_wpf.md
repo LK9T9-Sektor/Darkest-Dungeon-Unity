@@ -58,6 +58,12 @@ WPF-клиент — тонкий потребитель ядра: экраны 
   скилл → `AiSkillPreview` (бейдж) + стрелка к цели; `move|rank` → `IsMovePreview=true` +
   ⇄-линия `DrawMoveArrow` к карточке нового ранга. Рисуется только когда `!IsLocalTurn`
   (`RedrawAiArrow`, реагирует на `IsMovePreview` в `DuelBattleView.cs`).
+- **Поле привязано к половинам** — `DuelBattleView.xaml`: две `MinWidth=820`-колонки (4 карты × 201px
+  + маржи) с фиксированным зазором 120 между ними; герои `HorizontalAlignment="Right"`, монстры
+  `Left` — фронт (ранг 1) всегда у центра. Смерть не схлопывает `Auto`-колонку и не перецентрирует
+  сетку: выжившие на своей половине рефлоу к центру (ядро `RemoveUnit` пересчитывает ранги),
+  команды не дрейфуют. `TargetLayer` Canvas перекрывает все 3 колонки (`ColumnSpan=3`), стрелки
+  считаются в координатах Viewbox от реальных позиций карточек.
 - **Попап «ТВОЙ ХОД»** (`DuelUnitViewModel.TriggerTurnPopup`, `DetectTurnTransition`): при передаче
   хода новому исполнителю `TurnPopupVisible` на 1.2с + золотая вспышка `"Turn"` в
   `DuelUnitCardView.xaml`.
