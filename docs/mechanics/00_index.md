@@ -39,7 +39,7 @@
 | Clients | `GameDataReader` (Newtonsoft-фасад) | `clients/` | реализовано |
 | Save | `SaveCodec` + версии + `ISaveStorage` (DTO-перенос — с Фазой 4) | `save/` | реализовано |
 | Networking | Contracts/Steam/Photon (src\Lan) | `networking/` | частично |
-| Presentation | WPF-экраны, Unity-оверлеи Тест-боя | `presentation/` | реализовано |
+| Presentation | WPF-экраны, Unity-оверлеи Тест-боя, Unity BattleTest (тонкий вид над ядром боя) | `presentation/` | реализовано |
 | Campaign | имение/здания/апгрейды/квесты/город/ростер/провизия | `campaign/` | данные |
 | Raid | подземелья/энкаунтеры/боссы/curio/loot/пропы | `raid/` | данные (+ генерация: `raid/dungeon_generation.md`) |
 

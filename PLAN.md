@@ -47,38 +47,51 @@ Unity = прототип Фазы 6 (`EXTRACTION_PLAN.md`). Легаси-дви�
 
 ### M2 — Новый Unity-вид-слой (оба дерева, `Assets\Scripts\Testing\BattleTest\`)
 
-1. [ ] Конфиг: `BattleTestConfig` / `BattleTestSideSpec` / `BattleTestSlotSpec` (+ `.meta`).
-2. [ ] `CoreBattleDriver` (MonoBehaviour): владеет `DuelController`, сборка из конфига,
-   маппинг `ICombatUnit`↔вид, поллинг/диффинг, гейт ввода по `IsLocalTurn`, AI-роутинг,
-   пейсинг, сид.
-3. [ ] `BattleEventsAdapter : IBattleEvents` — мост ядро→вид (попапы, гало, анимации, торч,
-   pull/push, звук).
-4. [ ] Вид: `BattleUnitView`, `BattleFormationView` (по `FormationDisplayOrder`),
-   `BattleSkillPanel`, `BattleTargetOverlay`, `BattlePopupLayer`, `BattleRoundIndicator`,
-   `BattleAnnouncement`, `BattleCameraDriver`, `BattleChoreographer` (анимации по `SkillArtInfo`).
-5. [ ] Инфраструктура: `WorldToScreenBridge`, `RulesSource`, `AudioSink` (FMOD-стаб первым).
-6. [ ] Конфиг-панель (паттерн `FightScreen`/`RuntimeUiFactory`).
+1. [x] Конфиг: `BattleTestConfig` / `BattleTestSideSpec` / `BattleTestSlotSpec` (+ `.meta`).
+2. [x] `CoreBattleDriver` (MonoBehaviour): владеет `DuelController`, сборка из конфига
+   (`StartFight` heroes-vs-monsters / `StartDuel` hero-vs-hero), маппинг `ICombatUnit`↔вид,
+   поллинг/диффинг, гейт ввода по `IsPlayerControlled` + `IsLocalTurn`, AI-роутинг
+   (`UseMonsterBrain`/`DuelAi`), пейсинг, сид, торч.
+3. [x] `BattleEventsAdapter` — подписчик `DuelBattleEvents.PopupShown` → попап-слой (паттерн WPF;
+   отдельная реализация `IBattleEvents` не нужна — ядро уже шлёт события).
+4. [x] Вид Stage-1: `BattleUnitView` (префаб + HP/stress бары + выделение + смерть),
+   `BattleFormationView` (по `FormationDisplayOrder`), `BattleHud` (раунд/аннонс/скиллы/цели/лог/
+   победитель), `BattlePopupLayer` (урон/статусы), `BattleTestConfigPanel` (2×4 слота, режим,
+   seed, torch, FIGHT). Stage-2 (анимации скиллов, слайдинг, гало, move-хендлинг) — позже.
+5. [x] Инфраструктура: вместо `WorldToScreenBridge`/`RulesSource` — новый чистый код без проекции
+   (бары/попапы в мире, UI в ScreenSpaceOverlay); FMOD-стаб не нужен (вид не вызывает звук).
+6. [x] Оба дерева компилируются: `unity-compile-check.ps1` (6000 и 2017.4) зелёные.
+   Примечание: legacy-твины (`CombatSkill`, `SkillResult`, `Team`, …) в глобальном неймспейсе
+   перекрывают core-типы из `using` — конфликт решён полной квалификацией.
 
 ### M3 — Editor-тула + сцена (оба дерева, `Assets\Editor\`)
 
-1. [ ] `BattleTestSceneBuilder.cs` (MenuItem + batch): собирает `BattleTest.unity` — чистая камера,
-   `EventSystem`, живой инстанс `DarkestDungeonManager.prefab` (контент/спрайты/локализация), поле
-   боя (бэкдроп + формации), оверлей-канвас, конфиг-панель.
-2. [ ] `tools\unity-generate-battle-test-scene.ps1` (batch в обоих проектах).
-3. [ ] Сгенерировать сцену в обоих деревьях; закоммитить сцену + `.meta`.
+1. [x] `BattleTestSceneBuilder.cs` (MenuItem + batch `Generate`): собирает `BattleTest.unity` —
+   чистая ортокамера, `Battlefield` (WorldSpace-канвас + 2 формации), `BattleHud`, драйвер +
+   конфиг-панель, без EventSystem в сцене (создаётся рантаймом `RuntimeUiFactory.EnsureEventSystem`,
+   чтобы не ссылаться на engine-GUID'ы). Без `DarkestDungeonManager.prefab` (контент грузит
+   `FightContentLoader`, локализация не нужна).
+2. [x] `tools\unity-generate-battle-test-scene.ps1` (batch в обоих проектах).
+3. [x] Сцены сгенерированы в обоих деревьях и закоммичены (+ `.meta`). Script-reference check
+   обоих деревьев зелёный.
 
 ### M4 — Интеграция и верификация
 
-1. [ ] `unity-compile-check.ps1` (оба дерева) — компиляция + script-reference check.
+1. [x] `unity-compile-check.ps1` (оба дерева) — компиляция + script-reference check.
 2. [ ] Ручной чеклист `TESTING.md`: конфиг → запуск → контроль игроком (skill/target/pass/move)
-   → AI → попапы/анимации → победа → сид-детерминизм.
-3. [ ] Кросс-деревные отличия (Spine/uGUI 2017.4 vs 6000).
+   → AI → попапы/анимации → победа → сид-детерминизм. **(требует открытия сцены в редакторе —
+   автоматически не проверяется; Stage-1 вид ни разу не запускался в Play Mode — вероятны
+   runtime-нюансы компоновки.)**
+3. [x] Кросс-деревные отличия (Spine/uGUI 2017.4 vs 6000) — скомпилировано в обоих; вёрстка
+   проверяется при ручном прогоне.
 
 ### M5 — Документация (в тех же коммитах)
 
 1. [ ] `docs\mechanics\presentation\presentation_unity_battle_view.md` — порядок срабатывания +
-   gotchas (событий нет → poll/diff; `StartFight` инвертирует local/remote; FMOD-стаб).
-2. [ ] `TESTING.md` (раздел), `INDEX.md`, `docs\mechanics\00_index.md`, `CHANGELOG.md`.
+   gotchas (событий нет → poll/diff; `StartFight` инвертирует local/remote; legacy-твины в глобальном
+   неймспейсе).
+2. [ ] `TESTING.md` (раздел), `INDEX.md`, `docs\mechanics\00_index.md` (уже — `15_disease.md`),
+   `CHANGELOG.md`.
 
 ## Affected files
 
