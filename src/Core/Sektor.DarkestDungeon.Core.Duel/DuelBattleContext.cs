@@ -136,6 +136,13 @@ namespace Sektor.DarkestDungeon.Core.Duel
             return content.GetBuff(buffId);
         }
 
+        /// <inheritdoc/>
+        public IQuirk GetQuirk(string quirkId)
+        {
+            var quirk = content.GetQuirk(quirkId);
+            return quirk != null ? new QuirkReference(quirk.Id) : null;
+        }
+
         /// <summary>
         /// Rolls the resolve check for an overstressed hero: a virtue or an affliction is applied
         /// (matching the campaign rule), afflictions stress the allies.
@@ -196,6 +203,16 @@ namespace Sektor.DarkestDungeon.Core.Duel
                 foreach (var subEffect in allyStress.SubEffects)
                     subEffect.ApplyInstant(null, ally, allyStress, this);
             }
+        }
+
+        private sealed class QuirkReference : IQuirk
+        {
+            public QuirkReference(string id)
+            {
+                Id = id;
+            }
+
+            public string Id { get; }
         }
     }
 }

@@ -1,81 +1,110 @@
-# PLAN: Unified skill/MOVE reveal-then-resolve + pacing for the Duel (WPF)
+# PLAN: BattleTest — тест-сцена боёв как первый Unity-потребитель ядра (прототип Фазы 6)
 
 ## Goal
 
-Match the duel AI mode's skill previews in the multiplayer (network) duel, via a **unified
-reveal-then-resolve** path in `DuelBattleViewModel` shared by AI and MP. Also:
-
-1. Unified pacing: 0.5s delay + "ТВОЙ ХОД" popup when the turn passes to a new character; 1s skill/MOVE
-   reveal after the rival's action is received (AI and MP alike).
-2. High-performance turn popup ("ТВОЙ ХОД" + gold flash on the card that receives the turn).
-3. Reduce the AI "thinking" time in the skill preview.
+Новая сцена `BattleTest` в обоих деревьях (`unity\` активное, `unity-2017\` легаси): гибкий
+настраиваемый бой (герои/монстры по слотам, скиллы/квирки/тринкеты, контроль сторон, seed, torch)
+на **чистом ядре боя** (`Core.Combat`/`Core.Duel`) с полной детализацией визуала и **нулевой
+связанностью** — Unity = тонкий вид-слой. Это первый реальный потребитель вынесенного ядра боя в
+Unity = прототип Фазы 6 (`EXTRACTION_PLAN.md`). Легаси-движок и игра не трогаются (read-only).
 
 ## Design decisions (user-confirmed)
 
-- Single `reveal-then-resolve` for both AI + MP previews.
-- Pacing logic lives in `DuelBattleViewModel` (not the links).
-- Turn popup = flash + "ТВОЙ ХОД" badge on the receiving actor card.
-- **Pacing applies to the rival side only** (decision shifted after tests): local actions stay
-  immediate so the WPF test suite (which does not pump the Dispatcher) stays green. The 1s beat
-  covers the rival reveal for both AI + MP uniformly; the 0.5s turn-swap is a rival-side beat +
-  popup, not a local input block.
+- **Движок:** `DuelController` напрямую (паттерн WPF), НЕ `FightSession` (у `FightSession` только
+  skill+target и инвертированный local/remote). `StartFight` (heroes-vs-monsters) / `StartDuel`+`isHost`
+  (hero-vs-hero). AI: монстры — `Solver.UseMonsterBrain`, AI-герои — `DuelAi`.
+- **Вид — путь 2 (чистый новый слой):** переиспользуем только активы: Spine-префабы юнитов
+  (`Resources/Prefabs/Heroes|Monsters`), спрайты/портреты, `UnitAnimator`, `AnimatedEffect`,
+  `RaidPartyCamera` (с фиксом 1 ссылки на `RaidSceneManager.RoomView...`), чистые виджеты
+  (`RoundIndicator`, `RaidAnnouncment`, `Backdrop`, `RankPlaceholders`, `HealthBar`,
+  `StressOverlayPanel`, `TrayPanel`, `PopupDialog`). **НЕ переиспользуем:** `RaidSceneManager`,
+  `BattleGround`, `PartyFormationManager`, `RaidPanel`-семейство, `RaidEvents` (слой C).
+- **Событий в ядре нет** → вид поллит/диффит состояние после каждого действия: `CurrentUnit`
+  → ход, `RoundNumber` → раунд, `IsDead` → смерть, `Rank`/`Party.Units` → движение,
+  `Solver.SkillResult.SkillEntries` → урон/крит/хил/мисс, `Events.PopupShown` → статусы,
+  `Events.Log` → лог. Паттерн — `DuelBattleViewModel`.
+- **Сцену собирает editor-тула** (`Assets\Editor\BattleTestSceneBuilder.cs`, batch `-executeMethod`)
+  в обоих деревьях; компоновка камеры/UI — чистая, без dungeon/raid-блота.
+- Оба дерева; легаси не правим; новые `.cs` — с `.meta`; доки — в том же коммите.
+- Ветка: `core/battle-test-scene` (создана).
 
 ## Steps / status
 
-1. [x] **State machine in `DuelBattleViewModel`.**
-   - `PaceState` enum (`Idle`/`TurnSwap`/`Reveal`), 50ms `DispatcherTimer`, `TurnSwapMs=500`,
-     `RevealMs=1000`, `bufferedRivalPayload`, `previousActorCombatId`, `actorInitialized`.
-   - `DetectTurnTransition()` (called from `Refresh()`): fires a one-shot "ТВОЙ ХОД" popup + `Turn`
-     flash on the new actor and enters `TurnSwap`.
-   - `PaceTick()` advances the beats; a rival payload buffered during `TurnSwap` is released to
-     `StartRivalReveal` after 0.5s; `Reveal` completes → `ApplyStaged()`.
-   - `OnRivalActionReceived` buffers during `TurnSwap`; otherwise `StartRivalReveal(payload)`.
-   - `StartRivalReveal(payload)`: parses `move|rank` → sets `AiTargetPreview` to destination card +
-     `IsMovePreview=true`; else calls `OnAiSkillPreviewed`/`OnAiTargetPreviewed`; stages the payload.
-   - `ApplyStaged()` injects the staged rival payload via `ApplyRivalActionPayload`.
+### M1 — Core PvE-сверка (ядро, тесты)
 
-2. [x] **AI mode — simplify `AiRivalLink` to immediate action emission.**
-   - Removed the old multi-phase `SkillPreviewed`/`TargetPreviewed` pacing; single 100ms timer with a
-     `lastActedCombatId` guard emits the rival action once per turn. Events still declared (interface).
+1. [x] `tests\Clients\Sektor.DarkestDungeon.Clients.Content.Tests\FightPveSweepTests.cs` —
+   hero-vs-monster sweep по всем монстрам (225 из 230; 5 босс-пропов исключены с причиной:
+   cauldron_empty_* — captor-сосуд хагги `prot 1`/initiative 0, ancestor_nebula/small_D —
+   стадии босса), детерминизм по сиду, чистое завершение, без исключений.
+2. [x] Закрыты в ядре дыры, всплывшие в sweep: **NRE в `DiseaseEffect.ApplyQueued`**
+   (`AddRandomDisease()` == null); конкретные id `.disease` (`the_worries`, `rabies`) теперь
+   парсятся и резолвятся (`IBattleContext.GetQuirk` → `Hero.AddQuirk(IQuirk)`). Рандомный пул
+   болезней — стаб (документировано). `.summon/.control/.capture` — осознанно не парсятся
+   (не всплыли); idle-DoT ×1.5 и корпус-подстановка `.kill` — остаются задокументированными
+   разрывами (sweep их не воспроизводит).
+3. [x] `dotnet test` зелёный (все 10 тест-проектов). `BATTLE_PARITY.md` + `00_index.md` +
+   `docs\mechanics\combat\15_disease.md` обновлены в коммите.
 
-3. [x] **Local actions reverted to immediate execution** (kept tests green):
-   - `SelectSkill`/`SelectTarget`/`SelectMove`/`Pass` execute immediately, gated only on
-     `controller.IsLocalTurn`.
-   - Removed `IsInputEnabled`, `LocalStageKind`, `stagedLocal*` fields, `ExecuteStagedLocal`;
-     simplified `ApplyStaged`/`BeginReveal` to rival-only.
+### M2 — Новый Unity-вид-слой (оба дерева, `Assets\Scripts\Testing\BattleTest\`)
 
-4. [x] **Turn popup visual.**
-   - `DuelUnitViewModel`: `_cardFlash`, `_turnPopupVisible`, `TriggerTurnPopup()` (auto-hide via a
-     1200ms `DispatcherTimer`).
-   - `DuelUnitCardView.xaml`: `"Turn"` flash `DataTrigger` (gold pulse) + "ТВОЙ ХОД" `TextBlock`
-     (rise + fade) bound to `TurnPopupVisible`.
+1. [ ] Конфиг: `BattleTestConfig` / `BattleTestSideSpec` / `BattleTestSlotSpec` (+ `.meta`).
+2. [ ] `CoreBattleDriver` (MonoBehaviour): владеет `DuelController`, сборка из конфига,
+   маппинг `ICombatUnit`↔вид, поллинг/диффинг, гейт ввода по `IsLocalTurn`, AI-роутинг,
+   пейсинг, сид.
+3. [ ] `BattleEventsAdapter : IBattleEvents` — мост ядро→вид (попапы, гало, анимации, торч,
+   pull/push, звук).
+4. [ ] Вид: `BattleUnitView`, `BattleFormationView` (по `FormationDisplayOrder`),
+   `BattleSkillPanel`, `BattleTargetOverlay`, `BattlePopupLayer`, `BattleRoundIndicator`,
+   `BattleAnnouncement`, `BattleCameraDriver`, `BattleChoreographer` (анимации по `SkillArtInfo`).
+5. [ ] Инфраструктура: `WorldToScreenBridge`, `RulesSource`, `AudioSink` (FMOD-стаб первым).
+6. [ ] Конфиг-панель (паттерн `FightScreen`/`RuntimeUiFactory`).
 
-5. [x] **Skill/MOVE arrow preview.**
-   - `DuelBattleView.xaml.cs` `RedrawAiArrow`: branches on `IsMovePreview` → `DrawMoveArrow`
-     (`AiTargetPreview`); else elbow arrows. `DuelBattleView.cs` reacts to `IsMovePreview`.
+### M3 — Editor-тула + сцена (оба дерева, `Assets\Editor\`)
 
-6. [x] **Tests + docs.**
-   - Added `RivalAction_IsStagedAndPreviewed_NotAppliedImmediately` (`DuelRenderTests.cs`) proving the
-     1s reveal holds the rival payload (preview shown, controller not advanced synchronously).
-   - Verified: WPF tests 65/65, duel tests 43/43, combat tests 61/61, `check-using-placement.ps1` OK,
-     WPF build 0 errors / 0 warnings.
-   - Update `docs\mechanics\duel\duel_01_lockstep.md`, `docs\mechanics\presentation\presentation_wpf.md`,
-     `docs\TESTING.md` (still to do).
+1. [ ] `BattleTestSceneBuilder.cs` (MenuItem + batch): собирает `BattleTest.unity` — чистая камера,
+   `EventSystem`, живой инстанс `DarkestDungeonManager.prefab` (контент/спрайты/локализация), поле
+   боя (бэкдроп + формации), оверлей-канвас, конфиг-панель.
+2. [ ] `tools\unity-generate-battle-test-scene.ps1` (batch в обоих проектах).
+3. [ ] Сгенерировать сцену в обоих деревьях; закоммитить сцену + `.meta`.
+
+### M4 — Интеграция и верификация
+
+1. [ ] `unity-compile-check.ps1` (оба дерева) — компиляция + script-reference check.
+2. [ ] Ручной чеклист `TESTING.md`: конфиг → запуск → контроль игроком (skill/target/pass/move)
+   → AI → попапы/анимации → победа → сид-детерминизм.
+3. [ ] Кросс-деревные отличия (Spine/uGUI 2017.4 vs 6000).
+
+### M5 — Документация (в тех же коммитах)
+
+1. [ ] `docs\mechanics\presentation\presentation_unity_battle_view.md` — порядок срабатывания +
+   gotchas (событий нет → poll/diff; `StartFight` инвертирует local/remote; FMOD-стаб).
+2. [ ] `TESTING.md` (раздел), `INDEX.md`, `docs\mechanics\00_index.md`, `CHANGELOG.md`.
 
 ## Affected files
 
-- `src/Wpf/Sektor.DarkestDungeon.Wpf/ViewModels/DuelBattleViewModel.cs`
-- `src/Wpf/Sektor.DarkestDungeon.Wpf/Combat/AiRivalLink.cs`
-- `src/Wpf/Sektor.DarkestDungeon.Wpf/ViewModels/DuelUnitViewModel.cs`
-- `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/DuelUnitCardView.xaml`
-- `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/DuelBattleView.xaml.cs`, `DuelBattleView.cs`
-- `tests/Wpf/Sektor.DarkestDungeon.Wpf.Tests/DuelRenderTests.cs`
-- `docs/mechanics/duel/*`, `docs/mechanics/presentation/presentation_wpf.md`, `docs/TESTING.md`
+- `src\Core\Sektor.DarkestDungeon.Core.Combat\...`, `src\Core\Sektor.DarkestDungeon.Core.Duel\...`
+  (только M1-фиксы).
+- `tests\Core\Sektor.DarkestDungeon.Core.Duel.Tests\FightPveSweepTests.cs`.
+- `unity\Assets\Scripts\Testing\BattleTest\*.cs` (+ `.meta`) — 15–20 файлов.
+- `unity-2017\Assets\Scripts\Testing\BattleTest\*.cs` (+ `.meta`) — зеркально.
+- `unity\Assets\Editor\BattleTestSceneBuilder.cs`, `unity-2017\Assets\Editor\...` (+ `.meta`).
+- `unity\{,-2017}\Assets\Scenes\BattleTest.unity` (+ `.meta`).
+- `tools\unity-generate-battle-test-scene.ps1`.
+- Доки: `docs\BATTLE_PARITY.md`, `docs\EXTRACTION_STATUS.md`, `docs\TESTING.md`,
+  `docs\INDEX.md`, `docs\mechanics\00_index.md`, `docs\mechanics\presentation\presentation_unity_battle_view.md`,
+  `docs\CHANGELOG.md`.
 
 ## Acceptance criteria
 
-- In MP duel, the rival's skill/MOVE shows a 1s preview (badge + arrow/move-line) before resolving,
-  matching AI mode.
-- A 0.5s turn-swap beat + "ТВОЙ ХОД" popup + gold flash plays when the turn passes to a new character.
-- AI acts faster (100ms decision tick) than before.
-- Local actions remain immediate; all WPF tests pass without pumping the Dispatcher.
+- `dotnet test` зелёный (включая новые PvE-sweep тесты).
+- `unity-compile-check.ps1` зелёный в обоих деревьях.
+- Ручной чеклист боя проходит (TESTING.md): конфиг → бой → контроль игроком → AI → попапы/анимации
+  → победа → сид-детерминизм.
+- Легаси-файлы не изменены (только чтение).
+
+## Out of scope
+
+- Полный cutover игры (Campaign/Networking/остальное) — позже, отдельные фазы.
+- «Игрок управляет настоящими монстрами» — требует расширения ядра; сначала Player-heroes-vs-AI,
+  AI-vs-AI, hotseat hero-vs-hero.
+- `Difficulty` — если в ядре нет уровней монстров, маппим на resolve-уровень героев или откладываем.

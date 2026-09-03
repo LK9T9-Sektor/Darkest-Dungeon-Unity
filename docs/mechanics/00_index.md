@@ -27,6 +27,7 @@
 | 12 | Surprise 1-го раунда: шанс, -100 инициативы, shuffle | `12_surprise.md` | реализовано |
 | 13 | Инициатива / порядок хода / per-turn обновления | `13_turn_order.md` | реализовано |
 | 14 | Смерть, death's door, стресс отряда, resolve, heart attack | `14_death_stress.md` | реализовано |
+| 15 | Disease: `.disease any|<id>`, резист, применение квирка | `15_disease.md` | частично |
 
 ## Домены вне боя
 

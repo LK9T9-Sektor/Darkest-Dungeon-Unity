@@ -156,10 +156,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
 
             string disease = GetValue(tokens, "disease");
             if (disease != null)
-            {
-                if (disease == "any")
-                    effect.SubEffects.Add(new DiseaseEffect(null, true));
-            }
+                effect.SubEffects.Add(new DiseaseEffect(disease == "any" ? null : disease));
 
             string firstBuffId = GetValue(tokens, "buff_ids");
             if (firstBuffId != null)

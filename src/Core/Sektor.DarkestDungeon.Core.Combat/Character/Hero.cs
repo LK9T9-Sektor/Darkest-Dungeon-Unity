@@ -112,6 +112,16 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
                 Quirks.Add(quirkId);
         }
 
+        /// <inheritdoc/>
+        public override bool AddQuirk(IQuirk quirk)
+        {
+            if (quirk == null || Quirks.Contains(quirk.Id))
+                return false;
+
+            Quirks.Add(quirk.Id);
+            return true;
+        }
+
         /// <summary>Gets the equipped trinket ids (up to two: left then right slot).</summary>
         public List<string> EquippedTrinketIds { get; } = new List<string>();
 

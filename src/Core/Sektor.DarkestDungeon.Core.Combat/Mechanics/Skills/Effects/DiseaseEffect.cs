@@ -11,16 +11,16 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
         /// <inheritdoc/>
         public override EffectSubType Type { get { return EffectSubType.Disease; } }
 
-        private bool IsRandom { get; set; }
-        private IQuirk Disease { get; set; }
+        private readonly string diseaseId;
+
+        /// <summary>Gets the disease quirk id, or null when a random disease is applied.</summary>
+        public string DiseaseId { get { return diseaseId; } }
 
         /// <summary>Initializes a new instance of the <see cref="DiseaseEffect"/> class.</summary>
-        /// <param name="disease">The disease to apply.</param>
-        /// <param name="isRandom">Whether a random disease is applied.</param>
-        public DiseaseEffect(IQuirk disease, bool isRandom)
+        /// <param name="diseaseId">The disease quirk id to apply, or null for a random disease.</param>
+        public DiseaseEffect(string diseaseId)
         {
-            Disease = disease;
-            IsRandom = isRandom;
+            this.diseaseId = diseaseId;
         }
 
         /// <inheritdoc/>
@@ -29,27 +29,14 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
             if (target == null || target.Character.IsMonster)
                 return false;
 
-            float diseaseTriggerChance = effect.IntegerParams[EffectIntParams.Chance].HasValue ?
-                (float)effect.IntegerParams[EffectIntParams.Chance].Value / 100 : 1;
-            if (!RandomSolver.CheckSuccess(diseaseTriggerChance))
+            IQuirk disease;
+            if (!TryResolveDisease(target, effect, battleContext, out disease))
                 return false;
 
-            float diseaseChance = 1 - target.Character.GetSingleAttribute(AttributeType.Disease).ModifiedValue;
+            if (!target.Character.AddQuirk(disease))
+                return false;
 
-            if (RandomSolver.CheckSuccess(diseaseChance))
-            {
-                if (IsRandom == false && Disease != null)
-                {
-                    if (target.Character.AddQuirk(Disease))
-                        return true;
-                }
-                else
-                {
-                    target.Character.AddRandomDisease();
-                    return true;
-                }
-            }
-            return false;
+            return true;
         }
 
         /// <inheritdoc/>
@@ -58,38 +45,54 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
             if (target == null || target.Character.IsMonster)
                 return false;
 
+            if (!RollDiseaseChance(target))
+            {
+                battleContext.Events.ShowPopup(target, PopupType.DiseaseResist);
+                return false;
+            }
+
+            IQuirk disease;
+            if (!TryResolveDisease(target, effect, battleContext, out disease))
+                return false;
+
+            if (!target.Character.AddQuirk(disease))
+                return false;
+
+            battleContext.Events.SetHalo(target, "disease");
+            battleContext.Events.ShowPopup(target, PopupType.Disease, disease.Id);
+            return true;
+        }
+
+        private bool TryResolveDisease(ICombatUnit target, Effect effect, IBattleContext battleContext, out IQuirk disease)
+        {
+            disease = null;
+
             float diseaseTriggerChance = effect.IntegerParams[EffectIntParams.Chance].HasValue ?
                 (float)effect.IntegerParams[EffectIntParams.Chance].Value / 100 : 1;
             if (!RandomSolver.CheckSuccess(diseaseTriggerChance))
                 return false;
 
-            float diseaseChance = 1 - target.Character.GetSingleAttribute(AttributeType.Disease).ModifiedValue;
-
-            if (RandomSolver.CheckSuccess(diseaseChance))
-            {
-                if (IsRandom == false && Disease != null)
-                {
-                    if (target.Character.AddQuirk(Disease))
-                    {
-                        battleContext.Events.SetHalo(target, "disease");
-                        battleContext.Events.ShowPopup(target, PopupType.Disease, Disease.Id);
-                        return true;
-                    }
-                    return false;
-                }
-                else
-                {
-                    var disease = target.Character.AddRandomDisease();
-                    battleContext.Events.ShowPopup(target, PopupType.Disease, disease.Id);
-                    battleContext.Events.SetHalo(target, "disease");
-                    return true;
-                }
-            }
-            else
-            {
-                battleContext.Events.ShowPopup(target, PopupType.DiseaseResist);
+            if (!RollDiseaseChance(target))
                 return false;
-            }
+
+            disease = ResolveDisease(target, battleContext);
+            return disease != null;
+        }
+
+        private bool RollDiseaseChance(ICombatUnit target)
+        {
+            float diseaseChance = 1 - target.Character.GetSingleAttribute(AttributeType.Disease).ModifiedValue;
+            return RandomSolver.CheckSuccess(diseaseChance);
+        }
+
+        private IQuirk ResolveDisease(ICombatUnit target, IBattleContext battleContext)
+        {
+            if (diseaseId != null)
+                return battleContext.GetQuirk(diseaseId);
+
+            // The random disease pool is not exposed by the core yet; until then a random disease is
+            // resolved through the character (returns null while no pool is wired).
+            return target.Character.AddRandomDisease();
         }
     }
 }

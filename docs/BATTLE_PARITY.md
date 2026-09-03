@@ -113,7 +113,7 @@
 | Torch (`torch_decrease`/`torch_increase`), клэмп 0–100, сюрприз-бонус | `Effect.cs:69-79`; торч=100 в MP | `Effect.cs:85-92` → `DuelBattleEvents.cs:140-153` → `DuelController.cs:108` | ✅ |
 | `set_mode` + `<mode>_effects` (Абоминация), continue-turn | `SetModeEffect.cs:11-31`, `CombatSkill.cs:340-367` | `EffectCatalog.cs:186-188`, `HeroClassFileParser.cs:340-376`, `DuelController.FinishSkillAction` (`:364-370`) | ✅ |
 | `.kill` / `.kill_enemy_types` | `KillEffect.cs`, `KillEnemyTypeEffect.cs:11-23` | `EffectParser.cs` → `KillEffect`/`KillEnemyTypeEffect`; `MarkedForDeath` потребляется `DeathCheck` (`Duel\Mechanics\DeathCheck.cs:60,75,108`) | ✅ |
-| `.disease` (квирк герою) | `DiseaseEffect.cs:13-40` | парсится только `any` → `DiseaseEffect(null, true)` (случайная болезнь); конкретные id не резолвятся (парсер без каталога квирков) | ⚠️ (частично) |
+| `.disease` (квирк герою) | `DiseaseEffect.cs` | `.disease any` → случайная болезнь через `AddRandomDisease` (пул болезней в ядре не вынесен — **стаб**, возвращает null, эффект не применяется); конкретные id (`the_worries`, `rabies`) парсятся и резолвятся через `IBattleContext.GetQuirk` → `Hero.AddQuirk(IQuirk)`; null-резолв безопасен (без NRE) | ⚠️ (рандомный пул — стаб) |
 | `.summon` / `.control` (сирена) / `.capture` / `.clearguard` | `SummonMonstersEffect.cs`, `ControlEffect.cs:13-36`, `CaptureEffect.cs:9-47`, `ClearGuardEffect.cs` | **осознанно не парсятся** — кампанийные монстры, в дуэли не встречаются | ⚠️ (осознанно) |
 | `.performer_rank_target` / `.clear_rank_target` | `PerformerRankTargetEffect.cs`, `ClearRankTargetEffect.cs` | `EffectParser.cs` → `PerformerRankTargetEffect`/`ClearRankTargetEffect` | ✅ |
 | `.cure` (снять bleed+poison) | `CureEffect.cs:5-40` | `CureEffect.cs:15-51` | ✅ |
@@ -175,7 +175,7 @@ WPF-дуэль использует другую (lockstep) модель — с�
 
 - Idle-юниты (0 ходов за раунд): DoT-тик ×1.5 (`RaidSceneMultiplayerManager.cs:1022-1104`).
 - `.kill` death-class corpse-подстановка (смена класса на corpse-монстра после смерти не реализована).
-- `.disease` с конкретным id квирка (парсится только `any`); `.summon`/`.control`/`.capture` —
-  осознанно не парсятся (кампанийные монстры, в дуэли не встречаются).
+- `.disease` — конкретные id (`the_worries`, `rabies`) реализованы; рандомный пул (`any`) — стаб;
+  `.summon`/`.control`/`.capture` — осознанно не парсятся (кампанийные монстры, в дуэли не встречаются).
 
 Каждый пункт — задача в ядре (`PLAN.md`); в Unity ничего не меняется.
