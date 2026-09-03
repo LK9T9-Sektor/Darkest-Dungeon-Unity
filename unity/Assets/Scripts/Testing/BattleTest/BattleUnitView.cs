@@ -10,8 +10,9 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 /// </summary>
 public class BattleUnitView : MonoBehaviour
 {
-    private static readonly Vector2 SlotSize = new Vector2(1.6f, 2.2f);
-    private static readonly Vector2 BarSize = new Vector2(1.2f, 0.1f);
+    private static readonly Vector2 SlotSize = new Vector2(140f, 180f);
+    private static readonly Vector2 BarSize = new Vector2(110f, 8f);
+    private static readonly Vector2 StressBarSize = new Vector2(110f, 5f);
 
     private RectTransform _rect;
     private Image _healthFill;
@@ -31,7 +32,8 @@ public class BattleUnitView : MonoBehaviour
     /// <param name="isHero">Whether the unit is a hero (affects prefab folder and bar colour).</param>
     /// <param name="parent">The world-space canvas rect to parent under.</param>
     /// <param name="combatId">The core combat id.</param>
-    public static BattleUnitView Create(string classId, bool isHero, Transform parent, int combatId)
+    /// <param name="flipFacing">Whether the unit's visual must face the opposite direction (hero on the right side).</param>
+    public static BattleUnitView Create(string classId, bool isHero, Transform parent, int combatId, bool flipFacing)
     {
         GameObject prefab = Resources.Load<GameObject>(isHero ? "Prefabs/Heroes/" + classId : "Prefabs/Monsters/" + classId);
         GameObject body;
@@ -56,6 +58,9 @@ public class BattleUnitView : MonoBehaviour
 
         body.transform.SetParent(parent, false);
 
+        if (flipFacing)
+            FlipFacing(body);
+
         BattleUnitView view = body.GetComponent<BattleUnitView>();
         if (view == null)
             view = body.AddComponent<BattleUnitView>();
@@ -64,16 +69,27 @@ public class BattleUnitView : MonoBehaviour
         return view;
     }
 
+    private static void FlipFacing(GameObject body)
+    {
+        UnitAnimator animator = body.GetComponentInChildren<UnitAnimator>();
+        if (animator == null)
+            return;
+
+        Vector3 scale = animator.transform.localScale;
+        scale.x = -Mathf.Abs(scale.x);
+        animator.transform.localScale = scale;
+    }
+
     private void BuildWidgets(bool isHero)
     {
         _rect = GetComponent<RectTransform>();
         _rect.sizeDelta = SlotSize;
 
         Color healthColor = isHero ? new Color(0.4f, 0.95f, 0.35f) : new Color(0.95f, 0.35f, 0.3f);
-        _selection = CreateBar("Selection", new Vector2(1.7f, 2.3f), Vector2.zero,
+        _selection = CreateBar("Selection", new Vector2(150f, 200f), Vector2.zero,
             new Color(1f, 0.85f, 0.2f, 0.35f));
-        _healthFill = CreateBar("HealthFill", BarSize, new Vector2(0f, -1.1f), healthColor);
-        _stressFill = CreateBar("StressFill", new Vector2(1.2f, 0.06f), new Vector2(0f, -0.98f),
+        _healthFill = CreateBar("HealthFill", BarSize, new Vector2(0f, -74f), healthColor);
+        _stressFill = CreateBar("StressFill", StressBarSize, new Vector2(0f, -64f),
             new Color(1f, 1f, 1f, 0.9f));
     }
 

@@ -15,6 +15,7 @@ public class BattleFormationView : MonoBehaviour
     private FormationDisplayOrder _order;
     private Vector3 _origin;
     private float _spacing;
+    private bool _isRightSide;
     private bool _initialized;
 
     /// <summary>Initializes the formation for a core party.</summary>
@@ -22,12 +23,14 @@ public class BattleFormationView : MonoBehaviour
     /// <param name="order">The display order rule for this side.</param>
     /// <param name="origin">The world position of the leftmost slot.</param>
     /// <param name="spacing">The horizontal distance between slots.</param>
-    public void Initialize(IFormationParty party, FormationDisplayOrder order, Vector3 origin, float spacing)
+    /// <param name="isRightSide">Whether the formation sits on the right side of the field (faces left).</param>
+    public void Initialize(IFormationParty party, FormationDisplayOrder order, Vector3 origin, float spacing, bool isRightSide)
     {
         _party = party;
         _order = order;
         _origin = origin;
         _spacing = spacing;
+        _isRightSide = isRightSide;
         _initialized = true;
 
         foreach (Transform child in transform)
@@ -103,7 +106,8 @@ public class BattleFormationView : MonoBehaviour
             return view;
 
         bool isHero = !unit.Character.IsMonster;
-        view = BattleUnitView.Create(unit.Character.Class, isHero, transform, combatId);
+        bool flipFacing = isHero == _isRightSide;
+        view = BattleUnitView.Create(unit.Character.Class, isHero, transform, combatId, flipFacing);
         _views[combatId] = view;
         return view;
     }

@@ -10,7 +10,7 @@ using Sektor.DarkestDungeon.Core.Ui;
 /// </summary>
 public class BattlePopupLayer : MonoBehaviour
 {
-    private const float CanvasScale = 0.01f;
+    private const float CanvasScale = 0.125f;
     private const int FontSize = 120;
     private const float FloatSpeed = 0.6f;
     private const float Lifetime = 1.2f;

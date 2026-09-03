@@ -13,8 +13,9 @@ public static class BattleTestSceneBuilder
 {
     private const string ScenePath = "Assets/Scenes/BattleTest.unity";
 
-    private const float CameraX = 0.5f;
-    private const float CameraSize = 4.6f;
+    private const float CameraX = 0f;
+    private const float CameraSize = 32f;
+    private const float WorldCanvasScale = 0.1f;
 
     private static CoreBattleDriver _driver;
     private static BattleTestConfigPanel _configPanel;
@@ -86,7 +87,8 @@ public static class BattleTestSceneBuilder
         canvas.renderMode = RenderMode.WorldSpace;
         canvas.sortingOrder = 0;
         rect.position = Vector3.zero;
-        rect.localScale = Vector3.one;
+        rect.sizeDelta = new Vector2(1920, 1080);
+        rect.localScale = new Vector3(WorldCanvasScale, WorldCanvasScale, WorldCanvasScale);
         return battlefield;
     }
 
