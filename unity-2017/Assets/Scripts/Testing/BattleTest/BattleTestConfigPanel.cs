@@ -37,9 +37,10 @@ public class BattleTestConfigPanel : MonoBehaviour
     private int _torch = 75;
     private int _mode;
 
-    private void Awake()
+    private void Start()
     {
         CreateUi();
+        Show();
     }
 
     private void CreateUi()
