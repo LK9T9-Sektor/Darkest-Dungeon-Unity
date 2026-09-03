@@ -65,7 +65,7 @@ public class BattlePopupLayer : MonoBehaviour
             new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(400, 200),
             FontSize, UiStyleColor(color), TextAnchor.MiddleCenter);
 
-        popup.rectTransform.position = worldPosition + new Vector3(0f, 0.8f / CanvasScale, 0f);
+        popup.rectTransform.position = worldPosition + new Vector3(0f, 0.8f, 0f);
         _popups.Add(new PopupInstance(popup, Time.time));
     }
 
@@ -83,7 +83,7 @@ public class BattlePopupLayer : MonoBehaviour
             }
 
             Vector3 position = popup.Text.rectTransform.position;
-            position.y += FloatSpeed * Time.deltaTime * (1f / CanvasScale);
+            position.y += FloatSpeed * Time.deltaTime;
             popup.Text.rectTransform.position = position;
 
             Color color = popup.Text.color;
