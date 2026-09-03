@@ -44,8 +44,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Mechanics
             var swap = party.Units[fromIndex];
             party.Units[fromIndex] = party.Units[toIndex];
             party.Units[toIndex] = swap;
-            for (int i = 0; i < party.Units.Count; i++)
-                ((FormationUnit)party.Units[i]).Rank = i + 1;
+            party.RecalculateRanks();
             return true;
         }
     }

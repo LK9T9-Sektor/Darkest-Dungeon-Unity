@@ -20,7 +20,7 @@ using Sektor.DarkestDungeon.Wpf.Networking;
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
     /// <summary>Live snapshot of a duel: units, skills, status and click inputs wired to the core controller.</summary>
-    public partial class DuelBattleViewModel : ObservableObject, IPumpable
+    public partial class DuelBattleViewModel : ObservableObject, IPumpable, IDuelBattleViewData
     {
         private sealed class PendingPopup
         {
@@ -125,6 +125,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Gets the rival party unit cards (right ranks).</summary>
         public ObservableCollection<DuelUnitViewModel> Monsters { get; } = new ObservableCollection<DuelUnitViewModel>();
+
+        /// <inheritdoc/>
+        IEnumerable<DuelUnitViewModel> IDuelBattleViewData.Heroes { get { return Heroes; } }
+
+        /// <inheritdoc/>
+        IEnumerable<DuelUnitViewModel> IDuelBattleViewData.Monsters { get { return Monsters; } }
 
         /// <summary>Gets the skill buttons of the acting unit.</summary>
         public ObservableCollection<DuelSkillViewModel> Skills { get; } = new ObservableCollection<DuelSkillViewModel>();
@@ -1013,6 +1019,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             return new DuelUnitViewModel(
                 unit.CombatInfo.CombatId,
                 unit.Rank,
+                unit.Size,
                 character.Name,
                 Ui.DisplayNames.Class(character.Class))
             {

@@ -7,7 +7,7 @@
          area, the info button and floating damage popups, and the class name under it), below the
          standalone status control with the HP bar, HP value, stress bar, stress value and the
          action pips. -->
-    <Border Width="185" Height="330" Background="#14100C" BorderBrush="#3A2E22" BorderThickness="2" CornerRadius="10">
+    <Border Width="{Binding CardWidth}" Height="330" Background="#14100C" BorderBrush="#3A2E22" BorderThickness="2" CornerRadius="10">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />

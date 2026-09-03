@@ -95,6 +95,9 @@ namespace Sektor.DarkestDungeon.Wpf.Data
             return Monsters.TryGet(monsterId, out monster) ? monster : null;
         }
 
+        /// <summary>Gets the loaded monster catalog (used by the PvE lobby to pick monster sides).</summary>
+        public static MonsterCatalog MonsterCatalog { get { return Monsters; } }
+
         /// <inheritdoc/>
         public MonsterBrain GetMonsterBrain(string brainId)
         {

@@ -27,7 +27,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         /// <param name="target">The hovered unit card.</param>
         internal void ShowArrowFor(DuelUnitViewModel target)
         {
-            var viewModel = DataContext as DuelBattleViewModel;
+            var viewModel = DataContext as IDuelBattleViewData;
             if (viewModel == null || target == null)
             {
                 ClearArrow();
@@ -60,7 +60,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         /// <summary>Collapses all hover lines and arrowheads; the selected-skill badge stays visible.</summary>
         internal void ClearArrow()
         {
-            var viewModel = DataContext as DuelBattleViewModel;
+            var viewModel = DataContext as IDuelBattleViewData;
             if (viewModel != null && !viewModel.IsLocalTurn)
                 return;
 
@@ -72,7 +72,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         /// <summary>Draws the rival (AI/network) reveal arrow during the rival's reveal: a skill elbow
         /// arrow to the target, or the ⇄ move line for a move, matching what the actor is about to do.</summary>
         /// <param name="viewModel">The battle view model.</param>
-        internal void RedrawAiArrow(DuelBattleViewModel viewModel)
+        internal void RedrawAiArrow(IDuelBattleViewData viewModel)
         {
             if (viewModel.IsLocalTurn || viewModel.AiTargetPreview == null)
             {
@@ -146,7 +146,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         /// single-target skill only the hovered target is highlighted. The color follows the skill tone.</summary>
         /// <param name="viewModel">The battle view model.</param>
         /// <param name="hoveredTarget">The currently hovered card.</param>
-        private void DrawSkillArrows(DuelBattleViewModel viewModel, DuelUnitViewModel hoveredTarget)
+        private void DrawSkillArrows(IDuelBattleViewData viewModel, DuelUnitViewModel hoveredTarget)
         {
             var actorCard = FindActorCard();
             if (actorCard == null || !(actorCard.DataContext is DuelUnitViewModel actor))
@@ -173,7 +173,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         /// <summary>Draws one elbow arrow per target using the current badge position and skill tone.</summary>
         /// <param name="viewModel">The battle view model.</param>
         /// <param name="targets">The target cards.</param>
-        private void DrawElbowArrows(DuelBattleViewModel viewModel, List<DuelUnitViewModel> targets)
+        private void DrawElbowArrows(IDuelBattleViewData viewModel, List<DuelUnitViewModel> targets)
         {
             if (targets.Count == 0)
             {
@@ -238,7 +238,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             }
         }
 
-        private static Ui.SkillTone ActiveBadgeTone(DuelBattleViewModel viewModel)
+        private static Ui.SkillTone ActiveBadgeTone(IDuelBattleViewData viewModel)
         {
             var badgeSkill = viewModel.IsLocalTurn ? viewModel.SelectedSkill : viewModel.AiSkillPreview;
             return badgeSkill != null ? badgeSkill.Tone : Ui.SkillTone.Attack;
@@ -256,7 +256,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
 
                 private void UpdateBadge()
         {
-            var viewModel = DataContext as DuelBattleViewModel;
+            var viewModel = DataContext as IDuelBattleViewData;
             if (viewModel == null)
             {
                 SkillBadge.Visibility = Visibility.Collapsed;

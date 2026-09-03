@@ -17,6 +17,12 @@
         <DataTemplate DataType="{x:Type vm:SinglePlayerLobbyViewModel}">
             <views:SinglePlayerLobbyView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:PveLobbyViewModel}">
+            <views:PveLobbyView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:PveBattleViewModel}">
+            <views:DuelBattleView />
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:DuelBattleViewModel}">
             <views:DuelBattleView />
         </DataTemplate>

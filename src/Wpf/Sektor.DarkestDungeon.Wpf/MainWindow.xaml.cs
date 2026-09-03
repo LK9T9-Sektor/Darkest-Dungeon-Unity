@@ -27,7 +27,8 @@ namespace Sektor.DarkestDungeon.Wpf
             var menu = new MainMenuViewModel(
                 shell,
                 () => new DuelLobbyViewModel(shell, DuelTransportFactory.CreateSteamTransport(), DuelClasses.AllClassIds, logger),
-                () => new SinglePlayerLobbyViewModel(shell, DuelClasses.AllClassIds, logger));
+                () => new SinglePlayerLobbyViewModel(shell, DuelClasses.AllClassIds, logger),
+                () => new PveLobbyViewModel(shell, DuelClasses.AllClassIds, logger));
             shell.SetHome(menu);
             shell.NavigateTo(menu);
             return shell;

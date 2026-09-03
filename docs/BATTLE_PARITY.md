@@ -95,6 +95,7 @@
 | **Фактическое перемещение** (`FormationUnit.Pull/Push`, уважает immobilize) | `FormationUnit.cs:208-252` | `DuelBattleEvents.Pull/Push` реально двигают юнита в партии (уважает `IsImmobilized`, границы), пересчитывают `Rank` | ✅ |
 | Shuffle (одиночный/отрядный) | `ShuffleTargetEffect.cs` (+`:75-94` роллы) | `ShuffleTargetEffect.cs:25-127` → те же `Events.Pull/Push` — теперь реальное перемещение | ✅ |
 | Self-move скилла (`.move`/`MoveComponent`) | `BattleSolver.cs:312-318` | `BattleSolver.cs:398-404` → `Events.Pull/Push` — реальное перемещение | ✅ |
+| **Размер юнита (size 1–4): кумулятивные ранги** (size-2 монстр на ранге 1 занимает ранги 1–2, следующий юнит — с ранга 3; формация = 4 слота) | `FormationParty.AddUnit`/`CreateFormation(BattleEncounter)` (`summonRank += monster.Size`), `FormationRanksSlot` (`SlotSize × size`) | `FormationParty.AddUnit/RemoveUnit/RecalculateRanks`, `TurnMover`, `SurpriseResolver`, `DuelBattleEvents.MoveUnit` пересчитывают по `Σ size`; WPF `DuelUnitViewModel.Size`/карточка `185 × size` | ✅ |
 
 ### 2.7 Buff-система (стат-баффы/дебаффы, `.buff_ids`)
 
@@ -170,6 +171,11 @@ WPF-дуэль использует другую (lockstep) модель — с�
 > 14. ✅ **Смерть героя: сдвиг рангов** — `DuelController.CheckDeaths` после `DeathCheck.Check()`
 >     удаляет мёртвых не-монстров из партии (`FormationParty.RemoveUnit`), сзади сдвигаются вперёд;
 >     corpse-монстры остаются на ранге (паритет Unity hero-death reflow).
+> 15. ✅ **Размер юнита (size 1–4)** — ранги назначаются кумулятивно по `Size`
+>     (`FormationParty.AddUnit/RemoveUnit/RecalculateRanks`, `TurnMover`, `SurpriseResolver`,
+>     `DuelBattleEvents.MoveUnit`), как в Unity (`summonRank += monster.Size`); таргетинг/запуск уже
+>     учитывали size. WPF: `DuelUnitViewModel.Size`, карточка `185 × size`, PvE-режим `StartFight`
+>     (`PveBattleViewModel`). Спека — `mechanics/combat/16_formation_size.md`.
 
 Остаётся отдельной задачей (кампанийные механики, больше объём):
 

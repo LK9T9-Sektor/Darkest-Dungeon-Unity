@@ -64,6 +64,13 @@ WPF-клиент — тонкий потребитель ядра: экраны 
   сетку: выжившие на своей половине рефлоу к центру (ядро `RemoveUnit` пересчитывает ранги),
   команды не дрейфуют. `TargetLayer` Canvas перекрывает все 3 колонки (`ColumnSpan=3`), стрелки
   считаются в координатах Viewbox от реальных позиций карточек.
+- **Size юнитов (1–4)** — ранг назначается кумулятивно по `size` (ядро, `16_formation_size.md`),
+  карточка `185 × size` (`DuelUnitViewModel.CardWidth`). Монстры без `Stress`/некоторых резистов:
+  `PveBattleViewModel` защищён null-проверками (`?? 0`).
+- **PvE-режим** — `PveBattleViewModel` (по образцу Unity `CoreBattleDriver`) + `PveLobbyViewModel`:
+  `StartFight` инвертирует local/remote (герои — «remote», ввод через `ApplyRemoteSkill`; монстры —
+  «local», AI через `ExecuteLocalSkill`/`UseMonsterBrain`). `DuelBattleView` переиспользуется через
+  интерфейс `IDuelBattleViewData` (без правки `DuelBattleViewModel`).
 - **Попап «ТВОЙ ХОД»** (`DuelUnitViewModel.TriggerTurnPopup`, `DetectTurnTransition`): при передаче
   хода новому исполнителю `TurnPopupVisible` на 1.2с + золотая вспышка `"Turn"` в
   `DuelUnitCardView.xaml`.

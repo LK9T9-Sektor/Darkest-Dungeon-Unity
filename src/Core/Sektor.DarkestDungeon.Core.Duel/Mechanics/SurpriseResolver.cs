@@ -133,8 +133,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Mechanics
                 party.Units[swapIndex] = temp;
             }
 
-            for (int i = 0; i < party.Units.Count; i++)
-                ((FormationUnit)party.Units[i]).Rank = i + 1;
+            party.RecalculateRanks();
         }
     }
 }
