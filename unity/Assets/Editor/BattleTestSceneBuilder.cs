@@ -14,8 +14,8 @@ public static class BattleTestSceneBuilder
     private const string ScenePath = "Assets/Scenes/BattleTest.unity";
 
     private const float CameraX = 0f;
-    private const float CameraSize = 32f;
-    private const float WorldCanvasScale = 0.1f;
+    private const float CameraSize = 24f;
+    private const float WorldCanvasScale = 1f;
 
     private static CoreBattleDriver _driver;
     private static BattleTestConfigPanel _configPanel;

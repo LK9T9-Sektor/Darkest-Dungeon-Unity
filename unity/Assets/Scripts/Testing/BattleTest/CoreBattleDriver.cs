@@ -81,9 +81,9 @@ public class CoreBattleDriver : MonoBehaviour
         hud.Clear();
 
         heroFormation.Initialize(_duel.HeroParty, FormationDisplayOrder.HeroSide(),
-            new Vector3(-52.5f, 0f, 0f), 15f, false);
+            new Vector3(-38f, 0f, 0f), 10f, false);
         monsterFormation.Initialize(_duel.MonsterParty, FormationDisplayOrder.MonsterSide(),
-            new Vector3(7.5f, 0f, 0f), 15f, true);
+            new Vector3(8f, 0f, 0f), 10f, true);
 
         RefreshView();
         _started = true;

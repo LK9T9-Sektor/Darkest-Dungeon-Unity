@@ -5,20 +5,24 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
 
 /// <summary>
 /// A single battle unit visual: the Spine unit prefab (with the legacy <see cref="FormationUnit"/>
-/// facade removed) plus world-space health/stress bars and a target selection frame. Driven by the
-/// core battle state; no battle logic lives here.
+/// facade removed), scaled at runtime to a fixed world height so every unit renders at the same size,
+/// plus world-space health/stress bars and a target selection frame. Driven by the core battle state;
+/// no battle logic lives here.
 /// </summary>
 public class BattleUnitView : MonoBehaviour
 {
-    private static readonly Vector2 SlotSize = new Vector2(140f, 180f);
-    private static readonly Vector2 BarSize = new Vector2(110f, 8f);
-    private static readonly Vector2 StressBarSize = new Vector2(110f, 5f);
+    private const float TargetHeight = 8f;
+    private const int MaxBuildFrames = 10;
 
     private RectTransform _rect;
     private Image _healthFill;
     private Image _stressFill;
     private Image _selection;
     private int _combatId;
+    private bool _isHero;
+    private float _unitScale = 1f;
+    private bool _built;
+    private int _buildFrame;
     private bool _dead;
 
     /// <summary>Gets the unit combat id this view renders.</summary>
@@ -65,8 +69,29 @@ public class BattleUnitView : MonoBehaviour
         if (view == null)
             view = body.AddComponent<BattleUnitView>();
         view._combatId = combatId;
-        view.BuildWidgets(isHero);
+        view._isHero = isHero;
         return view;
+    }
+
+    private void Update()
+    {
+        if (_built)
+            return;
+
+        _buildFrame++;
+        if (TryNormalizeHeight())
+        {
+            BuildWidgets();
+            _built = true;
+            return;
+        }
+
+        if (_buildFrame >= MaxBuildFrames)
+        {
+            _unitScale = 1f;
+            BuildWidgets();
+            _built = true;
+        }
     }
 
     private static void FlipFacing(GameObject body)
@@ -80,16 +105,45 @@ public class BattleUnitView : MonoBehaviour
         animator.transform.localScale = scale;
     }
 
-    private void BuildWidgets(bool isHero)
+    private bool TryNormalizeHeight()
+    {
+        float height = GetVisualHeight();
+        if (height <= 0.001f)
+            return false;
+
+        float factor = TargetHeight / height;
+        transform.localScale = new Vector3(
+            transform.localScale.x * factor,
+            transform.localScale.y * factor,
+            transform.localScale.z * factor);
+        _unitScale = transform.localScale.x;
+        return true;
+    }
+
+    private float GetVisualHeight()
+    {
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        if (renderers.Length == 0)
+            return 0f;
+
+        Bounds bounds = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++)
+            bounds.Encapsulate(renderers[i].bounds);
+        return bounds.size.y;
+    }
+
+    private void BuildWidgets()
     {
         _rect = GetComponent<RectTransform>();
-        _rect.sizeDelta = SlotSize;
+        float s = _unitScale;
 
-        Color healthColor = isHero ? new Color(0.4f, 0.95f, 0.35f) : new Color(0.95f, 0.35f, 0.3f);
-        _selection = CreateBar("Selection", new Vector2(150f, 200f), Vector2.zero,
+        _rect.sizeDelta = new Vector2(6f / s, TargetHeight / s);
+
+        Color healthColor = _isHero ? new Color(0.4f, 0.95f, 0.35f) : new Color(0.95f, 0.35f, 0.3f);
+        _selection = CreateBar("Selection", new Vector2(6.5f / s, 9f / s), Vector2.zero,
             new Color(1f, 0.85f, 0.2f, 0.35f));
-        _healthFill = CreateBar("HealthFill", BarSize, new Vector2(0f, -74f), healthColor);
-        _stressFill = CreateBar("StressFill", StressBarSize, new Vector2(0f, -64f),
+        _healthFill = CreateBar("HealthFill", new Vector2(5f / s, 0.4f / s), new Vector2(0f, -3.6f / s), healthColor);
+        _stressFill = CreateBar("StressFill", new Vector2(5f / s, 0.25f / s), new Vector2(0f, -3.1f / s),
             new Color(1f, 1f, 1f, 0.9f));
     }
 
