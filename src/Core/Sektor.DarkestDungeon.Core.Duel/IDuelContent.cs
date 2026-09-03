@@ -3,6 +3,7 @@ using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Content.Character;
+using Sektor.DarkestDungeon.Core.Content.Trinket;
 
 namespace Sektor.DarkestDungeon.Core.Duel
 {
@@ -17,6 +18,9 @@ namespace Sektor.DarkestDungeon.Core.Duel
 
         /// <summary>Gets a buff by its id, or null when unknown.</summary>
         Buff GetBuff(string buffId);
+
+        /// <summary>Gets a trinket by its id, or null when unknown.</summary>
+        Trinket GetTrinket(string trinketId);
 
         /// <summary>Gets an effect definition by its name, or null when unknown.</summary>
         Effect GetEffect(string effectId);

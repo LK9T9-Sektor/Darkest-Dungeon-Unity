@@ -12,15 +12,10 @@
                     <ControlTemplate TargetType="ContentControl">
                         <Button Background="Transparent" BorderThickness="0" Padding="0"
                                 Command="{Binding DataContext.TargetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                CommandParameter="{Binding}">
+                                CommandParameter="{Binding}"
+                                MouseEnter="OnUnitMouseEnter" MouseLeave="OnUnitMouseLeave"
+                                MouseRightButtonDown="OnUnitMouseRightButtonDown">
                             <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseEnter">
-                                    <i:InvokeCommandAction Command="{Binding DataContext.HoverCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                           CommandParameter="{Binding}" />
-                                </i:EventTrigger>
-                                <i:EventTrigger EventName="MouseLeave">
-                                    <i:InvokeCommandAction Command="{Binding DataContext.UnhoverCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                                </i:EventTrigger>
                                 <i:EventTrigger EventName="MouseRightButtonDown">
                                     <i:InvokeCommandAction Command="{Binding DataContext.OpenStatsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                            CommandParameter="{Binding}" />
@@ -33,34 +28,36 @@
             </ContentControl>
         </DataTemplate>
 
-        <!-- Combat skill square: usable = yellow frame, unusable = gray frame + gray shading;
-             the inner area only hosts the future icon image (no text). -->
-        <ControlTemplate x:Key="SkillButtonTemplate" TargetType="Button">
-            <Border x:Name="Chrome" Background="#2A2218" BorderBrush="#D9B46A" BorderThickness="2"
-                    CornerRadius="4" Padding="2">
-                <ContentPresenter />
-            </Border>
-            <ControlTemplate.Triggers>
-                <DataTrigger Binding="{Binding IsUsable}" Value="False">
-                    <Setter TargetName="Chrome" Property="Background" Value="#202020" />
-                    <Setter TargetName="Chrome" Property="BorderBrush" Value="#6A6A6A" />
-                </DataTrigger>
-                <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                    <Setter TargetName="Chrome" Property="Background" Value="#3A3022" />
-                    <Setter TargetName="Chrome" Property="BorderBrush" Value="#E8D9B0" />
-                </DataTrigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter TargetName="Chrome" Property="BorderBrush" Value="#E8D9B0" />
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter TargetName="Chrome" Property="Background" Value="#3A3022" />
-                </Trigger>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter TargetName="Chrome" Property="BorderBrush" Value="#6A6A6A" />
-                    <Setter TargetName="Chrome" Property="Background" Value="#202020" />
-                </Trigger>
-            </ControlTemplate.Triggers>
-        </ControlTemplate>
+        <!-- Buff/debuff table row: Name | Duration | Effect, effect text toned by Buff/Debuff -->
+        <DataTemplate x:Key="BuffRowTemplate">
+            <Grid Margin="0,3,0,3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="1.6*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding Name}" Foreground="#E8D9B0" FontSize="14"
+                           TextWrapping="Wrap" Margin="2,0,8,0" />
+                <TextBlock Grid.Column="1" Text="{Binding DurationText}" Foreground="#C8C0B0" FontSize="14"
+                           TextAlignment="Right" Margin="2,0,8,0" />
+                <TextBlock Grid.Column="2" Text="{Binding Description}" FontSize="14" TextWrapping="Wrap"
+                           Margin="2,0,0,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="#9ACA9A" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Tone}" Value="Debuff">
+                                    <Setter Property="Foreground" Value="#CA9A9A" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+        </DataTemplate>
+
+        <!-- Hover target layer styles are defined inline on the elements themselves (no shared
+             rectangle strip; the arrow is a badge + line + arrowhead positioned by math). -->
     </views:PumpableScreenBase.Resources>
 
     <Grid Background="#100C08">
@@ -103,12 +100,16 @@
             <Viewbox Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Bottom"
                      Margin="24,0,24,12" ClipToBounds="True">
                 <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="54" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <ItemsControl Grid.Column="0" ItemsSource="{Binding Heroes}"
+                    <ItemsControl Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Heroes}"
                                   HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="8,0,8,0">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -123,7 +124,7 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <ItemsControl Grid.Column="1" ItemsSource="{Binding Monsters}"
+                    <ItemsControl Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Monsters}"
                                   HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="8,0,8,0">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -137,6 +138,45 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+
+<!-- Target layer: the selected-skill badge floats above the acting card; the hover line
+                     runs from the badge (or the actor card top in move mode) to the hovered target
+                     card and ends in an arrowhead. Positions are computed in code-behind against this
+                     Canvas (pure math), so nothing is recreated at runtime. The drawn lines/arrows are
+                     individually inert (IsHitTestVisible=False) so they never block card clicks, while
+                     the badge stays hoverable to fire its skill tooltip. -->
+<Canvas x:Name="TargetLayer" Grid.RowSpan="2" Grid.ColumnSpan="2" Panel.ZIndex="10">
+                        <views:SkillSquareView x:Name="SkillBadge" ShowName="False"
+                                               Visibility="Collapsed" />
+
+                        <!-- Move swap arrow: a straight line between the two card centers with an
+                             arrowhead at each end (⇄), because moving exchanges ranks. -->
+                        <Line x:Name="ArrowLine" Stroke="#D9B46A" StrokeThickness="3"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" Visibility="Collapsed"
+                              IsHitTestVisible="False" />
+                        <Polygon x:Name="ArrowHead" Fill="#D9B46A" Visibility="Collapsed" IsHitTestVisible="False" />
+                        <Polygon x:Name="ArrowHeadReverse" Fill="#D9B46A" Visibility="Collapsed" IsHitTestVisible="False" />
+
+                        <!-- Skill elbow arrows: from the actor card top edge up to the skill badge,
+                             out of its left/right edge horizontally, then down into the target top
+                             edge. One arrow per target (up to four), colored by the skill tone. -->
+                        <Path x:Name="SkillArrow1" StrokeLineJoin="Round" StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed"
+                              IsHitTestVisible="False" />
+                        <Polygon x:Name="SkillArrowHead1" Visibility="Collapsed" IsHitTestVisible="False" />
+                        <Path x:Name="SkillArrow2" StrokeLineJoin="Round" StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed"
+                              IsHitTestVisible="False" />
+                        <Polygon x:Name="SkillArrowHead2" Visibility="Collapsed" IsHitTestVisible="False" />
+                        <Path x:Name="SkillArrow3" StrokeLineJoin="Round" StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed"
+                              IsHitTestVisible="False" />
+                        <Polygon x:Name="SkillArrowHead3" Visibility="Collapsed" IsHitTestVisible="False" />
+                        <Path x:Name="SkillArrow4" StrokeLineJoin="Round" StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed"
+                              IsHitTestVisible="False" />
+                        <Polygon x:Name="SkillArrowHead4" Visibility="Collapsed" IsHitTestVisible="False" />
+                    </Canvas>
                 </Grid>
             </Viewbox>
 
@@ -144,18 +184,17 @@
                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         </Grid>
 
-        <!-- BOTTOM AREA: left combined container (acting hero strip on top + stats below),
-             centre hover tooltip, right log/inventory/map -->
+        <!-- BOTTOM AREA: split 50/50 — left = acting hero strip + DD stat panels, right =
+             log/inventory/map. No dedicated tooltip column; the right-click stat sheet is centered. -->
         <Border Grid.Row="2" Style="{StaticResource OverlayPanel}" Margin="24,4,24,12">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="1.4*" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
                 <!-- LEFT: the acting hero strip + the DD panels in one container -->
-                <Border Grid.Column="0" Style="{StaticResource OverlayPanel}">
+                <Border Grid.Column="0" Style="{StaticResource OverlayPanel}" Margin="0,0,4,0">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -183,49 +222,39 @@
                                     </StackPanel>
                                 </Grid>
 
-                                <!-- Combat skills (all but Move/Pass), square icon slot with name below -->
+                                <!-- Combat skills (all but Move/Pass), square icon slot with name below; the panel is a single
+                                     horizontal row so Move/Pass always sit at the same height as the skills -->
                                 <ItemsControl ItemsSource="{Binding Skills}" VerticalAlignment="Center">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <WrapPanel />
+                                            <StackPanel Orientation="Horizontal" />
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <StackPanel Width="58" Margin="4">
-                                                <Button Width="50" Height="50" Padding="2"
-                                                        ToolTip="{Binding Details}"
-                                                        IsEnabled="{Binding IsUsable}"
-                                                        Command="{Binding DataContext.SelectSkillCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding}"
-                                                        Template="{StaticResource SkillButtonTemplate}">
-                                                    <Grid>
-                                                        <Image Source="{Binding Icon}" Stretch="UniformToFill" />
-                                                        <Rectangle Fill="#404040"
-                                                                   Visibility="{Binding IsUsable, Converter={StaticResource InverseBoolToVisibility}}" />
-                                                    </Grid>
-                                                </Button>
-                                                <TextBlock Text="{Binding DisplayNameUpper}" FontSize="8" Foreground="#C8C0B0"
-                                                           TextAlignment="Center" TextWrapping="Wrap" Margin="0,2,0,0" />
-                                            </StackPanel>
+                                            <views:SkillSquareView Margin="4" VerticalAlignment="Center"
+                                                                   SelectCommand="{Binding DataContext.SelectSkillCommand, RelativeSource={RelativeSource AncestorType={x:Type views:DuelBattleView}}}"
+                                                                   CommandParameter="{Binding}" />
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
 
                                 <!-- Move skill -->
-                                <StackPanel Width="58" Margin="4,4,0,4" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                <StackPanel Width="58" Height="82" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Center">
                                     <Button Width="50" Height="50" FontSize="22" Style="{StaticResource HudButton}"
                                             ToolTip="Move to an adjacent rank"
                                             Command="{Binding MoveCommand}">
                                         <TextBlock Text="&#x21C4;" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                     </Button>
-                                    <TextBlock Text="MOVE" FontSize="8" Foreground="#C8C0B0"
-                                               TextAlignment="Center" TextWrapping="Wrap" Margin="0,2,0,0" />
+                                    <TextBlock Text="MOVE" FontSize="8" Height="20" Foreground="#C8C0B0"
+                                               TextAlignment="Center" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
+                                               Margin="0,2,0,0" />
                                 </StackPanel>
 
-                                <!-- Pass skill: vertical (by height) rectangle, red frame and red X -->
-                                <StackPanel Margin="4,0,0,0" VerticalAlignment="Center">
+                                <!-- Pass skill: narrow vertical rectangle, red frame and red X -->
+                                <StackPanel Width="58" Height="82" Margin="4" VerticalAlignment="Center">
                                     <Button Width="28" Height="50" FontSize="17" Padding="0"
+                                            HorizontalAlignment="Center"
                                             Foreground="#C0392B" BorderBrush="#C0392B" BorderThickness="2"
                                             Style="{StaticResource HudButton}" ToolTip="Skip the turn"
                                             Command="{Binding PassCommand}">
@@ -242,33 +271,89 @@
                     </Grid>
                 </Border>
 
-                <!-- CENTER: hover tooltip, collapses when nothing is hovered -->
-                <Grid Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <views:UnitTooltipView DataContext="{Binding TooltipTarget}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Stretch"
-                                           Margin="12,0,12,0" />
-                </Grid>
-
                 <!-- RIGHT: log/inventory/map with the toggle buttons as a vertical glyph strip -->
-                <views:RaidHudView Grid.Column="2" DataContext="{Binding}"
-                                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                <Border Grid.Column="1" Style="{StaticResource OverlayPanel}" Margin="4,0,0,0">
+                    <views:RaidHudView DataContext="{Binding}"
+                                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                </Border>
             </Grid>
         </Border>
 
-        <!-- Stats sheet overlay (right-click a unit): on top of the whole screen -->
-        <Grid Grid.RowSpan="3" HorizontalAlignment="Left" VerticalAlignment="Top" Width="560" Height="520" Margin="40,40,0,0"
+        <!-- Stats sheet overlay (right-click a unit): centered on the whole screen, opaque background -->
+        <Grid x:Name="StatsOverlay" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" Width="640" Height="560"
               Visibility="{Binding IsStatsVisible, Converter={StaticResource BoolToVisibility}}">
-            <Border Style="{StaticResource OverlayPanel}">
+            <Border Background="#FF0C0A08" BorderBrush="#3A2E22" BorderThickness="2" CornerRadius="8">
                 <Grid Margin="{StaticResource SpacingMedium}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Button Grid.Row="0" Content="&#x2715;" Command="{Binding CloseStatsCommand}"
-                            HorizontalAlignment="Right" Width="30" Height="30"
-                            Style="{StaticResource HudButton}" FontWeight="Bold" />
+                    <views:UnitHeaderView Grid.Row="0" Rank="{Binding StatsTarget.Rank}"
+                                          DisplayName="{Binding StatsTarget.HeroName}" ClassName="{Binding StatsTarget.HeroClass}"
+                                          IsEnemy="{Binding StatsTarget.IsEnemy}" CloseCommand="{Binding CloseStatsCommand}" />
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
-                        <views:HeroStatsView DataContext="{Binding StatsTarget}" ShowFullDetails="True" />
+                        <views:HeroStatsView DataContext="{Binding StatsTarget}" ShowFullDetails="True" ShowHeader="False" />
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Buff/debuff table overlay ("i" on a card): centered like the character info sheet; the
+             header repeats the unit header, the body is a 6-column table with the buffs on the left
+             three columns and the debuffs on the right three (Name | Duration | Effect each). -->
+        <Grid x:Name="BuffTableOverlay" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center"
+              Width="900" Height="520"
+              Visibility="{Binding IsBuffTableVisible, Converter={StaticResource BoolToVisibility}}">
+            <Border Background="#FF0C0A08" BorderBrush="#3A2E22" BorderThickness="2" CornerRadius="8">
+                <Grid Margin="{StaticResource SpacingMedium}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <views:UnitHeaderView Grid.Row="0" Rank="{Binding BuffTarget.Rank}"
+                                          DisplayName="{Binding BuffTarget.Name}" ClassName="{Binding BuffTarget.ClassName}"
+                                          IsEnemy="{Binding BuffTarget.IsEnemy}" CloseCommand="{Binding CloseBuffTableCommand}" />
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="1.6*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="1.6*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Section headers -->
+                            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="BUFFS"
+                                       Foreground="#E8D9B0" FontSize="15" FontWeight="Bold" Margin="2,0,0,4" />
+                            <TextBlock Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="3" Text="DEBUFFS"
+                                       Foreground="#E8D9B0" FontSize="15" FontWeight="Bold" Margin="2,0,0,4" />
+
+                            <!-- Column sub-headers -->
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" Foreground="#8A7A5A" FontSize="13"
+                                       FontWeight="Bold" Margin="2,0,8,2" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="Duration" Foreground="#8A7A5A" FontSize="13"
+                                       FontWeight="Bold" Margin="2,0,8,2" />
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="Effect" Foreground="#8A7A5A" FontSize="13"
+                                       FontWeight="Bold" Margin="2,0,0,2" />
+                            <TextBlock Grid.Row="1" Grid.Column="3" Text="Name" Foreground="#8A7A5A" FontSize="13"
+                                       FontWeight="Bold" Margin="2,0,8,2" />
+                            <TextBlock Grid.Row="1" Grid.Column="4" Text="Duration" Foreground="#8A7A5A" FontSize="13"
+                                       FontWeight="Bold" Margin="2,0,8,2" />
+                            <TextBlock Grid.Row="1" Grid.Column="5" Text="Effect" Foreground="#8A7A5A" FontSize="13"
+                                       FontWeight="Bold" Margin="2,0,0,2" />
+
+                            <ItemsControl Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" ItemsSource="{Binding BuffTarget.Buffs}"
+                                          ItemTemplate="{StaticResource BuffRowTemplate}" />
+                            <ItemsControl Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="3" ItemsSource="{Binding BuffTarget.Debuffs}"
+                                          ItemTemplate="{StaticResource BuffRowTemplate}" />
+                        </Grid>
                     </ScrollViewer>
                 </Grid>
             </Border>

@@ -25,7 +25,9 @@ CritMod, `.is_crit_valid`, `.heal` → HealComponent, `.effect` → `Effects` (�
 
 ## 4. Порядок срабатывания (трассировка)
 
-`DuelController.ExecuteSkill` (`DuelController.cs:443`) →
+`DuelController.ExecuteSkill` (`DuelController.cs:448`) раскрывает кликнутую цель через
+`Solver.SelectSkillTargets` (`:453`) в полный набор (мультитаргет: АОЕ-ранги, партийные
+хилы/баффы) и **исполняет `BattleSolver.ExecuteSkill` по каждой цели** (`:455-458`) →
 `BattleSolver.ExecuteSkill` (`BattleSolver.cs:388`):
 
 1. **Guard-редирект** (`BattleSolver.cs:396-399`): если цель — враг и под `Guarded` → цель заменяется
@@ -53,7 +55,8 @@ CritMod, `.is_crit_valid`, `.heal` → HealComponent, `.effect` → `Effects` (�
    - Обычный удар: `TakeDamage(damage)` (`:500`), entry `Hit` (или `Hit` с `IsZeroed` при `HasZeroHealth`),
      эффекты (`:507`).
 7. Возврат в `DuelController.ExecuteSkill`: `ProcessEventQueues()` (квеянные эффекты) → `CheckDeaths()`
-   → `ExecuteRiposte` (контратака) → `RemoveConditions(performer, target)` (`DuelController.cs:443-490`).
+   → `ExecuteRiposte` по каждой цели (контратака) → `RemoveConditions(performer, все цели)` →
+   `RecoverDeathsDoorIfHealed` (`DuelController.cs:448-478`).
 
 ## 5. Очередь и обновления
 
@@ -74,6 +77,10 @@ CritMod, `.is_crit_valid`, `.heal` → HealComponent, `.effect` → `Effects` (�
 
 ## 7. Нюансы и подводные камни
 
+- **Мультитаргет (АОЕ)**: дуэль раскрывает `SelectSkillTargets` и исполняет скилл по каждой цели —
+  каждая даёт свою запись в `SkillResult.SkillEntries` (лог/UI показывают все). Self-move скилла
+  внутри `BattleSolver.ExecuteSkill` выполняется на каждой итерации и клампится на границе рангов
+  (паритет Unity `ExecuteSkillBase`, итерирующего `targetInfo.Targets`).
 - **Guard-редирект происходит до урона** — защитник принимает урон вместо охраняемого, и крит-стресс
   тоже идёт по защитнику.
 - **Крит-стресс** (`Stress 2`) применяется **только к героям-целям** (`IsMonster == false`, `:496`).

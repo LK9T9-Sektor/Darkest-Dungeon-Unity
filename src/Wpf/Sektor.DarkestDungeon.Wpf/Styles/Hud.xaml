@@ -42,4 +42,33 @@
         <Setter Property="MaxWidth" Value="420" />
     </Style>
 
+    <!-- Combat skill square chrome: usable = golden frame, unusable = gray frame + gray shading;
+         the inner area only hosts the icon image. Bound to a DuelSkillViewModel (IsUsable/IsSelected). -->
+    <ControlTemplate x:Key="SkillButtonTemplate" TargetType="Button">
+        <Border x:Name="Chrome" Background="#2A2218" BorderBrush="#D9B46A" BorderThickness="2"
+                CornerRadius="4" Padding="2">
+            <ContentPresenter />
+        </Border>
+        <ControlTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsUsable}" Value="False">
+                <Setter TargetName="Chrome" Property="Background" Value="#202020" />
+                <Setter TargetName="Chrome" Property="BorderBrush" Value="#6A6A6A" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                <Setter TargetName="Chrome" Property="Background" Value="#3A3022" />
+                <Setter TargetName="Chrome" Property="BorderBrush" Value="#E8D9B0" />
+            </DataTrigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Chrome" Property="BorderBrush" Value="#E8D9B0" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="Chrome" Property="Background" Value="#3A3022" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Chrome" Property="BorderBrush" Value="#6A6A6A" />
+                <Setter TargetName="Chrome" Property="Background" Value="#202020" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
 </ResourceDictionary>

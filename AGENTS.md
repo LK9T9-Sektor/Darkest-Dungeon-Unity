@@ -33,7 +33,7 @@
 - **Unity Compile Check (for AI agents)** — after changing code in the presentation layer (`Assets\Scripts`) or editor scripts (`Assets\Editor`), agents must verify that the scripts compile in the target Unity editor: run `pwsh tools\unity-compile-check.ps1` (batch-mode import + compilation, parses the log; no player build). A full standalone build is `pwsh tools\unity-build-game.ps1`, launching the built game is `pwsh tools\unity-run-game.ps1` / `pwsh tools\unity-dev-run.ps1`. `unity-compile-check.ps1` needs the project closed in the editor (checks `Temp\UnityLockfile`); use `-Provision` to deliver the Lan transport plugins first when they are absent from `Assets\Plugins\Internal` (they are gitignored). `unity-compile-check.ps1` also runs `tools\unity-check-script-references.ps1`, which fails when scenes/prefabs reference script GUIDs that do not resolve to a committed `.meta`.
 - **Never let Unity regenerate `.meta` files** — scene/prefab components bind to scripts by GUID. If a script's `.meta` is deleted, missing, or regenerated (Unity assigns a new guid), every scene/prefab reference breaks silently (components dropped, NullReferenceExceptions, black screens). Preserve metas byte-for-byte on moves/restructures (`git mv`, never delete+recreate); if Unity reports "Imported GUID ... new" for an existing script, restore the original `.meta`. Keep `!**/[Aa]ssets/**/*.meta` in `.gitignore`; every new `.cs` must be committed with its `.meta`. Before committing after a Unity version migration or large restructure, run `pwsh tools\unity-check-script-references.ps1` on `unity` and `unity-2017`. The pre-commit hook (`.githooks\pre-commit`) runs this check automatically on both projects **in parallel** (scan uses ripgrep when available) and **skips it entirely when the commit touches no files under `unity/` or `unity-2017/`** — so commits limited to `src\`, `tests\`, `docs\` (e.g. WPF client work) complete almost instantly without triggering the Unity scan.
 - **Commit Messages** — commit messages must be in English, start with a capital letter, and end with a period (for example: "Add lobby timeout handling.").
-- **Branching & `main`** — `main` is the default branch and is **protected** (force-push and deletion are blocked; mandatory PRs are disabled, direct commits are allowed). `master` is legacy from the upstream fork and is not used or referenced. Work is committed directly to `main`; use a per-task branch (`core/<slice>`) only when the user explicitly asks for a review via a PR.
+- **Branching & `main`** — `main` is the default branch and is **protected** (force-push and deletion are blocked; mandatory PRs are disabled, direct commits are allowed). `master` is legacy from the upstream fork and is not used or referenced. Work is committed and pushed to a per-task branch **`core/<slice>`**; **never commit or push to `main` directly**. The user merges to `main` themselves, typically via a PR they create.
 
 ---
 
@@ -106,3 +106,18 @@ are mandatory — they exist to keep agents from re-discovering behavior by tria
 Read only what the task relates to. Legacy edits stay minimal; `src\External\` is read-only.
 
 **Maintenance rule:** if a code change affects a documented fact (paths/structure, god-classes, version, public APIs, new modules, dependencies), update the corresponding document in the same commit. If a code change affects game behavior, add/update the relevant section in `TESTING.md` (what to verify) in the same commit. Do not document internals or cosmetics; `CHANGELOG.md` only for user-visible changes.
+
+## 🔤 Encoding & how to read the documents
+
+- **All files under `docs\` and the repo root are valid UTF-8 without BOM** (every `.md` was checked).
+  The content itself is never "broken" — the files are fine, Cyrillic included.
+- **The confusing output comes from the console, not the files.** In this environment the shell uses
+  code page **CP866 (OEM)**: Cyrillic read out of UTF-8 files by console commands — `Get-Content`,
+  `Select-String`, `git diff`, `dotnet test`, `chcp`, plain `cat` — renders as garbled text
+  (`�?`, `���`). This is a display artifact, not corruption.
+- **Always read document/code files with the dedicated tools** (`read` / `Glob` / `Grep`), which decode
+  UTF-8 directly and show Cyrillic correctly. Never judge content (or "fix" it) from a raw console dump.
+- **Editing:** `edit`/`write` preserve UTF-8 — keep the same encoding and do NOT add a BOM. Never
+  re-encode existing documents to "repair" what looks garbled in the console.
+- **Console commands on documents** are only for checking structure (headings, table rows) — for the
+  actual meaning use `read`.

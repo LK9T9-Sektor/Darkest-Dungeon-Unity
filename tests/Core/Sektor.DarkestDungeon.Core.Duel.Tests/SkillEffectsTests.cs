@@ -85,7 +85,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
             Assert.That(target, Is.Not.Null, "flashing_daggers should have a valid target from rank 3.");
 
             ((SingleAttribute)hero.Character.GetSingleAttribute(AttributeType.AttackRating)).RawValue = 1.0f;
-            ((SingleAttribute)target.Character.GetSingleAttribute(AttributeType.Debuff)).RawValue = 0f;
+            ((SingleAttribute)target.Character.GetSingleAttribute(AttributeType.Move)).RawValue = 0f;
             float bleedBefore = ((SingleAttribute)target.Character.GetSingleAttribute(AttributeType.Bleed)).ModifiedValue;
 
             duel.ExecuteSkill(hero, target, daggers);

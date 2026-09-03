@@ -19,11 +19,19 @@
                   HorizontalAlignment="Center" Fill="#C8A060" ToolTip="Trinkets"
                   Data="M3,3 C3,1 8,0 10,0 C12,0 17,1 17,3 L16,13 C16,16 13,18 10,18 C7,18 4,16 4,13 Z" />
 
-            <!-- Trinket slots (future images) -->
+            <!-- Trinket slots (trinket labels) -->
             <Border Grid.Row="1" Grid.Column="0" Height="40" Margin="0,8,3,0" Background="#2A2218"
-                    BorderBrush="#3A2E22" BorderThickness="1" CornerRadius="4" VerticalAlignment="Bottom" />
+                    BorderBrush="#3A2E22" BorderThickness="1" CornerRadius="4" VerticalAlignment="Bottom">
+                <TextBlock Text="{Binding Trinket1Text}" Foreground="#E8D9B0" FontSize="10"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis" Margin="2" />
+            </Border>
             <Border Grid.Row="1" Grid.Column="1" Height="40" Margin="3,8,0,0" Background="#2A2218"
-                    BorderBrush="#3A2E22" BorderThickness="1" CornerRadius="4" VerticalAlignment="Bottom" />
+                    BorderBrush="#3A2E22" BorderThickness="1" CornerRadius="4" VerticalAlignment="Bottom">
+                <TextBlock Text="{Binding Trinket2Text}" Foreground="#E8D9B0" FontSize="10"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis" Margin="2" />
+            </Border>
         </Grid>
     </Border>
 </UserControl>

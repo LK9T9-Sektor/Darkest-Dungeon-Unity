@@ -4,6 +4,8 @@ using System.Linq;
 using NUnit.Framework;
 
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 using Sektor.DarkestDungeon.Core.Duel;
 using Sektor.DarkestDungeon.Wpf.Data;
@@ -18,6 +20,42 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         private sealed class NullRivalLink : IDuelRivalLink
         {
             public event Action<string>? RivalActionReceived;
+            public event Action<string>? SkillPreviewed;
+            public event Action<int>? TargetPreviewed;
+
+            public void SendLocalAction(string payload)
+            {
+            }
+
+            public void Attach(DuelController controller)
+            {
+            }
+
+            public void Detach()
+            {
+            }
+
+            public void Pump()
+            {
+            }
+
+            public void Dispose()
+            {
+            }
+        }
+
+        /// <summary>Mimics the network/AI link by letting the test raise <see cref="RivalActionReceived"/>
+        /// just as the wire does when a rival action arrives.</summary>
+        private sealed class FiringRivalLink : IDuelRivalLink
+        {
+            public event Action<string>? RivalActionReceived;
+            public event Action<string>? SkillPreviewed;
+            public event Action<int>? TargetPreviewed;
+
+            public void Fire(string payload)
+            {
+                RivalActionReceived?.Invoke(payload);
+            }
 
             public void SendLocalAction(string payload)
             {
@@ -179,23 +217,6 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         }
 
         [Test]
-        public void Hover_SetsTooltipAndSelection()
-        {
-            var view = CreateView(CreateDuel());
-            var card = view.Heroes[0];
-
-            view.HoverCommand.Execute(card);
-
-            Assert.That(view.TooltipTarget, Is.SameAs(card));
-            Assert.That(card.IsSelected, Is.True);
-
-            view.UnhoverCommand.Execute(null);
-
-            Assert.That(view.TooltipTarget, Is.Null);
-            Assert.That(card.IsSelected, Is.False);
-        }
-
-        [Test]
         public void OpenStats_FillsSheetAndShows()
         {
             var view = CreateView(CreateDuel());
@@ -206,6 +227,8 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(view.IsStatsVisible, Is.True);
             Assert.That(view.StatsTarget.HeroName, Is.EqualTo(card.Name));
             Assert.That(view.StatsTarget.HitPoints, Is.EqualTo(card.HpCurrent + " / " + card.HpMax));
+            Assert.That(view.StatsTarget.ResistStun, Is.EqualTo(card.ResistStun));
+            Assert.That(view.StatsTarget.ResistDeathBlow, Is.EqualTo(card.ResistDeathBlow));
 
             view.CloseStatsCommand.Execute(null);
 
@@ -244,12 +267,15 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             }
 
             var actedId = duel.CurrentUnit!.CombatInfo.CombatId;
+            string actedName = duel.CurrentUnit!.Character.Name;
             view.PassCommand.Execute(null);
 
             var actedCard = view.Heroes.Concat(view.Monsters).Single(card => card.CombatId == actedId);
             Assert.That(actedCard.RemainingActions, Is.EqualTo(0), "The acting unit's pip turns gray once it moved.");
             Assert.That(view.Heroes.Concat(view.Monsters).Single(card => card.IsCurrent).RemainingActions,
                 Is.EqualTo(1), "The new current unit keeps a white pip.");
+            Assert.That(view.TurnOrder.Select(entry => entry.Name), Does.Not.Contain(actedName),
+                "The unit that already moved is dropped from the turn order strip.");
         }
 
         [Test]
@@ -322,6 +348,98 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         }
 
         [Test]
+        public void SelectTarget_InvalidTarget_IsIgnored()
+        {
+            var duel = CreateDuel();
+            var view = CreateView(duel);
+
+            if (!duel.IsLocalTurn || view.Skills.Count == 0)
+            {
+                Assert.Pass("Rival starts first; the invalid-target path is covered on the local side.");
+                return;
+            }
+
+            view.SelectSkillCommand.Execute(view.Skills[0]);
+            var invalid = view.Heroes.Concat(view.Monsters).FirstOrDefault(card => !card.IsTarget);
+            Assert.That(invalid, Is.Not.Null, "There should be at least one card outside the selected skill's targets.");
+
+            var targetCard = view.Heroes.Concat(view.Monsters).FirstOrDefault(card => card.IsTarget);
+            if (targetCard == null)
+                Assert.Pass("Selected skill has no valid targets; nothing can be executed.");
+
+            int hpBefore = targetCard.HpCurrent;
+            int logCount = view.Log.Count;
+
+            view.TargetCommand.Execute(invalid);
+
+            Assert.That(view.Log.Count, Is.EqualTo(logCount), "Clicking an invalid target must not trigger a skill action.");
+            Assert.That(targetCard.HpCurrent, Is.EqualTo(hpBefore),
+                "No damage or heal should be applied through an invalid target.");
+        }
+
+        [Test]
+        public void HealSkill_SelectsOnlyAlliesAndHealsTheClickedAlly()
+        {
+            var duel = CreateDuel();
+            var view = CreateView(duel);
+
+            ICombatUnit? unit = null;
+            CombatSkill? healSkill = null;
+            int guard = 0;
+            while (!duel.IsFinished && guard++ < 100)
+            {
+                if (duel.IsLocalTurn)
+                {
+                    var heal = duel.CurrentUnit?.Character.CurrentCombatSkills?.FirstOrDefault(
+                        s => s.Category == SkillCategory.Heal && duel.IsSkillUsable(duel.CurrentUnit!, s));
+                    if (heal != null)
+                    {
+                        unit = duel.CurrentUnit;
+                        healSkill = heal;
+                        break;
+                    }
+                    duel.ExecuteLocalPass();
+                    view.Refresh();
+                }
+                else
+                {
+                    duel.ApplyRemoteSkill(DuelPayload.PassAction());
+                    view.Refresh();
+                }
+            }
+
+            if (unit == null || healSkill == null)
+                Assert.Pass("No hero reached a turn with a usable heal skill.");
+
+            var woundedAlly = duel.HeroParty.Units.FirstOrDefault(u => u != unit);
+            Assert.That(woundedAlly, Is.Not.Null);
+            woundedAlly.Character.TakeDamage(4);
+            view.Refresh();
+
+            var healButton = view.Skills.FirstOrDefault(s => s.Id == healSkill.Id);
+            Assert.That(healButton, Is.Not.Null);
+            view.SelectSkillCommand.Execute(healButton);
+
+            Assert.That(view.Heroes.Count(card => card.IsTarget), Is.GreaterThan(0),
+                "A heal skill highlights the friendly cards.");
+            Assert.That(view.Monsters.All(card => !card.IsTarget), Is.True,
+                "Enemies are never valid targets of a heal.");
+
+            int logCount = view.Log.Count;
+            view.TargetCommand.Execute(view.Monsters.First());
+            Assert.That(view.Log.Count, Is.EqualTo(logCount),
+                "Clicking an enemy with a heal selected must not trigger an action.");
+
+            var woundedCard = view.Heroes.First(card => card.CombatId == woundedAlly.CombatInfo.CombatId);
+            int hpBefore = woundedCard.HpCurrent;
+            view.TargetCommand.Execute(woundedCard);
+
+            var healedCard = view.Heroes.First(card => card.CombatId == woundedAlly.CombatInfo.CombatId);
+            Assert.That(healedCard.HpCurrent, Is.GreaterThan(hpBefore),
+                "Clicking a wounded ally with a heal must raise its hit points.");
+        }
+
+        [Test]
         public void Quirk_Buff_ModifiesMaxHealth()
         {
             var withQuirk = new DuelController(new DuelContent());
@@ -350,6 +468,50 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             CollectionAssert.AreEquivalent(new[] { "smite" }, parsed.SelectedSkillIds[0]);
             CollectionAssert.AreEquivalent(new[] { "tough" }, parsed.QuirkIds[0]);
             CollectionAssert.AreEquivalent(new[] { "fragile" }, parsed.QuirkIds[1]);
+        }
+
+        [Test]
+        public void PartyConfig_RoundTripsTrinkets()
+        {
+            var config = new Networking.DuelPartyConfig(
+                new[] { "crusader", "highwayman" },
+                new[] { 1, 2 },
+                new[] { new[] { "smite" }, Array.Empty<string>() },
+                new[] { new[] { "tough" }, Array.Empty<string>() },
+                new[] { new[] { "accuracy_stone" }, new[] { "lucky_dice", "focus_ring" } });
+
+            var parsed = Networking.DuelPartyConfig.Deserialize(config.Serialize());
+
+            CollectionAssert.AreEquivalent(new[] { "accuracy_stone" }, parsed.TrinketIds[0]);
+            CollectionAssert.AreEquivalent(new[] { "lucky_dice", "focus_ring" }, parsed.TrinketIds[1]);
+        }
+
+        [Test]
+        public void PartyConfig_DeserializesLegacyRowWithoutTrinkets()
+        {
+            const string legacyRow = "crusader|1|smite,stunning_blow|tough";
+
+            var parsed = Networking.DuelPartyConfig.Deserialize(legacyRow);
+
+            Assert.That(parsed.ClassIds[0], Is.EqualTo("crusader"));
+            CollectionAssert.AreEquivalent(new[] { "smite", "stunning_blow" }, parsed.SelectedSkillIds[0]);
+            CollectionAssert.AreEquivalent(new[] { "tough" }, parsed.QuirkIds[0]);
+            Assert.That(parsed.TrinketIds[0], Is.Empty);
+        }
+        [Test]
+        public void RivalAction_IsStagedAndPreviewed_NotAppliedImmediately()
+        {
+            var duel = CreateDuel();
+            var link = new FiringRivalLink();
+            var view = new DuelBattleViewModel(duel, link, () => { });
+
+            string statusBefore = view.Status;
+            link.Fire(DuelPayload.MoveAction(1));
+
+            Assert.That(view.IsMovePreview, Is.True,
+                "A rival MOVE must enter move-preview mode for the reveal beat");
+            Assert.That(view.Status, Is.EqualTo(statusBefore),
+                "The rival action must be held by the 1s reveal and not applied synchronously");
         }
     }
 }

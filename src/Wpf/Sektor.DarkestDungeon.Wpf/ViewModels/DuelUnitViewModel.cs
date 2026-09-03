@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Media;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
@@ -92,6 +94,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private string _allSkills = string.Empty;
 
+        /// <summary>Gets or sets the structured combat skills of the unit (used to render the skill
+        /// squares in the character-info sheet).</summary>
+        public List<CombatSkill> CombatSkills { get; set; } = new List<CombatSkill>();
+
         /// <summary>Gets or sets the formatted quirk list ("+tough, -fragile").</summary>
         [ObservableProperty]
         private string _quirksText = string.Empty;
@@ -104,9 +110,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private bool _isTarget;
 
-        /// <summary>Gets or sets a value indicating whether this unit is hovered.</summary>
+        /// <summary>Gets or sets a value indicating whether the unit is at death's door (blinks red).</summary>
         [ObservableProperty]
-        private bool _isSelected;
+        private bool _isOnDeathsDoor;
 
         /// <summary>Gets or sets the portrait image (null until one is provided).</summary>
         [ObservableProperty]
@@ -124,9 +130,21 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private bool _damagePopupVisible;
 
-        /// <summary>Gets the active status effect ids (buffs and debuffs) shown around the portrait.</summary>
-        /// <remarks>Reserved for battle status effects; empty until the duel exposes them.</remarks>
-        public IReadOnlyList<string> StatusEffects { get; } = new List<string>();
+        /// <summary>Gets or sets the card flash kind ("Damage", "Heal", "Buff" or "Turn"; empty = none).</summary>
+        [ObservableProperty]
+        private string _cardFlash = string.Empty;
+
+        /// <summary>Gets or sets a value indicating whether the one-shot "ТВОЙ ХОД" label is visible.</summary>
+        [ObservableProperty]
+        private bool _turnPopupVisible;
+
+        /// <summary>Gets or sets the active positive buffs shown in the status table.</summary>
+        [ObservableProperty]
+        private List<BuffRowViewModel> _buffs = new List<BuffRowViewModel>();
+
+        /// <summary>Gets or sets the active negative debuffs shown in the status table.</summary>
+        [ObservableProperty]
+        private List<BuffRowViewModel> _debuffs = new List<BuffRowViewModel>();
 
         /// <summary>Gets the hit point ratio (0-1) for the health bar.</summary>
         public double HpRatio { get { return HpMax <= 0 ? 0 : (double)HpCurrent / HpMax; } }
@@ -168,9 +186,24 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             UpdateBars();
         }
 
-        /// <summary>Rebuilds the segmented hp bar and the 10 stress pips from the current values.</summary>
-        public void UpdateBars()
+        /// <summary>Triggers the one-shot "ТВОЙ ХОД" label and a gold flash on the card; the label
+        /// auto-hides after a short beat. Called once when this unit's turn begins.</summary>
+        public void TriggerTurnPopup()
         {
+            TurnPopupVisible = true;
+            CardFlash = "Turn";
+            var hideTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1200) };
+            hideTimer.Tick += (s, e) =>
+            {
+                hideTimer.Stop();
+                TurnPopupVisible = false;
+                CardFlash = string.Empty;
+            };
+            hideTimer.Start();
+        }
+
+        /// <summary>Rebuilds the segmented hp bar and the 10 stress pips from the current values.</summary>
+        public void UpdateBars()        {
             HpSegments.Clear();
             int hpFilled = HpMax <= 0 ? 0 : (int)Math.Round(HpRatio * 12);
             for (int i = 0; i < 12; i++)

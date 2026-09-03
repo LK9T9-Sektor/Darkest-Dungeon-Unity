@@ -13,6 +13,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
 
         private int PushParam { get; set; }
 
+        /// <summary>Gets the push distance.</summary>
+        public int Param { get { return PushParam; } }
+
         /// <summary>Initializes a new instance of the <see cref="PushEffect"/> class.</summary>
         /// <param name="pushParam">The push distance.</param>
         public PushEffect(int pushParam)

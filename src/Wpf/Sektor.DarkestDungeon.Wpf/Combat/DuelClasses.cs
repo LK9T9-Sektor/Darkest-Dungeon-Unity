@@ -10,10 +10,10 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
     /// <summary>Hero class source for duels, loaded from the bundled content files.</summary>
     public static class DuelClasses
     {
-        private static readonly HeroCatalog Catalog = LoadCatalog();
-
-        /// <summary>Gets the effects catalog loaded from the bundled effects file.</summary>
+        /// <summary>Gets the effects catalog loaded from the bundled effects file (must precede the catalog).</summary>
         public static EffectCatalog Effects { get; } = LoadEffects();
+
+        private static readonly HeroCatalog Catalog = LoadCatalog();
 
         /// <summary>Gets all known class ids in stable order.</summary>
         public static IReadOnlyList<string> AllClassIds { get { return Catalog.ClassIds; } }

@@ -3,10 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views">
     <!-- Solid rectangular CCG card split into two blocks: on top the vertical character card
-         (header with the centred name + corner rank badge, fully tiled portrait area, status
-         effects, damage popups and the class name under it), below the standalone status control
-         with the HP bar, HP value, stress bar, stress value and the action pips. -->
-    <Border Width="185" Background="#14100C" BorderBrush="#3A2E22" BorderThickness="2" CornerRadius="10">
+         (reusable unit header with the rank on the left and the colored name, fully tiled portrait
+         area, the info button and floating damage popups, and the class name under it), below the
+         standalone status control with the HP bar, HP value, stress bar, stress value and the
+         action pips. -->
+    <Border Width="185" Height="330" Background="#14100C" BorderBrush="#3A2E22" BorderThickness="2" CornerRadius="10">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
@@ -21,27 +22,13 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <!-- HEADER: hero name centred (space reserved on both sides so the corner rank badge
-                     never overlaps the name) -->
-                <Border Grid.Row="0" Background="#1A1410" BorderBrush="#3A2E22" BorderThickness="0,0,0,2"
-                        Padding="6,4,5,4">
-                    <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"
-                               TextAlignment="Center" TextTrimming="CharacterEllipsis" Margin="36,0,36,0">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="#C96A5A" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsEnemy}" Value="True">
-                                        <Setter Property="Foreground" Value="#6A8AC9" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </Border>
+                <!-- HEADER: reusable unit header with the rank badge on the left and the colored name
+                     (the same layout for both teams and for the character popup) -->
+                <views:UnitHeaderView Grid.Row="0" Rank="{Binding Rank}" DisplayName="{Binding Name}"
+                                      IsEnemy="{Binding IsEnemy}" />
 
                 <!-- CENTRAL AREA: full-tile portrait region (future art) with team/target/current
-                     highlight, the status effects strip and floating damage popups -->
+                     highlight, the info button and floating damage popups -->
                 <Border Grid.Row="1" BorderThickness="3" ClipToBounds="True">
                     <Border.Style>
                         <Style TargetType="Border">
@@ -80,26 +67,18 @@
                         <TextBlock Text="?" Foreground="#E8D9B0" FontSize="36"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
 
-                        <!-- Status effects: buffs/debuffs flow left-to-right, top-to-bottom for every team -->
-                        <ItemsControl ItemsSource="{Binding StatusEffects}" HorizontalAlignment="Stretch"
-                                      VerticalAlignment="Top" Margin="4,4,4,0">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel FlowDirection="LeftToRight" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Width="16" Height="16" Background="#2A2218" BorderBrush="#4A3E2C"
-                                            BorderThickness="1" CornerRadius="2" Margin="2" ToolTip="{Binding}">
-                                        <TextBlock Text="{Binding}" FontSize="7" Foreground="#E8D9B0"
-                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        <!-- Info button pinned to the bottom-left corner: opens the centered
+                             buff/debuff table overlay -->
+                        <Button x:Name="InfoButton" Content="i" Width="20" Height="20" FontSize="11"
+                                FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                                Margin="4" Background="#2A2218" Foreground="#E8D9B0" BorderBrush="#4A3E2C"
+                                BorderThickness="1" ToolTip="Buffs and debuffs"
+                                Command="{Binding DataContext.ToggleBuffTableCommand, RelativeSource={RelativeSource AncestorType=views:DuelBattleView}}"
+                                CommandParameter="{Binding}"
+                                Click="OnInfoButtonClick" />
 
-                        <!-- Floating damage popup over the central area -->
+                        <!-- Floating popup over the central area: damage/heal numbers and effect texts (Bleed, Buff...)
+                         rise slowly from the card center to its top edge and fade out -->
                         <TextBlock Text="{Binding DamagePopupText}" FontSize="22" FontWeight="Bold"
                                    Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
                                    TextAlignment="Center" TextWrapping="Wrap" Margin="6"
@@ -113,9 +92,9 @@
                                                 <BeginStoryboard>
                                                     <Storyboard>
                                                         <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                                         From="1" To="0" Duration="0:0:0.9" />
+                                                                         From="1" To="0" Duration="0:0:2.2" />
                                                         <ThicknessAnimation Storyboard.TargetProperty="Margin"
-                                                                            From="0,40,0,0" To="0,6,0,0" Duration="0:0:0.9" />
+                                                                            From="0,0,0,0" To="0,-85,0,0" Duration="0:0:2.2" />
                                                     </Storyboard>
                                                 </BeginStoryboard>
                                             </DataTrigger.EnterActions>
@@ -139,25 +118,107 @@
             <!-- STATUS BARS: standalone control with the HP/stress bars + values and the action pips -->
             <views:UnitStatusBarsView Grid.Row="1" Margin="6,3,6,6" />
 
-            <!-- RANK BADGE pinned to the corner: heroes top-right, enemies top-left, flush, a bit larger -->
-            <Border Grid.RowSpan="2" Background="#3A3022" BorderBrush="#6A5A3A" BorderThickness="2"
-                    Padding="7,2" VerticalAlignment="Top"
-                    ToolTip="Position (rank)">
-                <TextBlock Text="{Binding Rank}" Foreground="#E8D9B0" FontSize="15" FontWeight="Bold"
-                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <!-- DEATH'S DOOR BLINK: a continuous full-card red pulse that runs while the unit is at
+                 death's door (mirrors the Unity skeleton G/B oscillation, ~1.5s cycle: 0.75s to red,
+                 0.75s back to normal). R is always held, so only a red tint appears. -->
+            <Border Grid.RowSpan="2" IsHitTestVisible="False" CornerRadius="8">
                 <Border.Style>
                     <Style TargetType="Border">
-                        <Setter Property="HorizontalAlignment" Value="Right" />
-                        <Setter Property="CornerRadius" Value="0,8,0,8" />
+                        <Setter Property="Background" Value="#00000000" />
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsEnemy}" Value="True">
-                                <Setter Property="HorizontalAlignment" Value="Left" />
-                                <Setter Property="CornerRadius" Value="8,0,8,0" />
+                            <DataTrigger Binding="{Binding IsOnDeathsDoor}" Value="True">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard RepeatBehavior="Forever">
+                                            <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                            From="#B3E83333" To="#00E83333" Duration="0:0:0.75"
+                                                            AutoReverse="True" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
             </Border>
+
+            <!-- DAMAGE/BUFF/HEAL FLASH: a full-card tint that fades to transparent over 1.5s when a
+                 card takes damage (red), gets buffed (blue) or is healed (green) -->
+            <Border Grid.RowSpan="2" IsHitTestVisible="False" CornerRadius="8">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="#00000000" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CardFlash}" Value="Damage">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                            From="#B38A2E2E" To="#008A2E2E" Duration="0:0:1.5" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding CardFlash}" Value="Heal">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                            From="#B32E8A4A" To="#002E8A4A" Duration="0:0:1.5" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding CardFlash}" Value="Buff">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                            From="#B32E4A8A" To="#002E4A8A" Duration="0:0:1.5" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding CardFlash}" Value="Turn">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                            From="#B3D9B46A" To="#00D9B46A" Duration="0:0:1.2" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+            </Border>
+
+            <!-- TURN POPUP: a one-shot golden "ТВОЙ ХОД" label that rises and fades over the card while
+                 a unit's turn begins (fires once per actor, then auto-hides). -->
+            <TextBlock Text="ТВОЙ ХОД" FontSize="20" FontWeight="Bold" Foreground="#D9B46A"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"
+                       TextAlignment="Center">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Opacity" Value="0" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding TurnPopupVisible}" Value="True">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                             From="1" To="0" Duration="0:0:1.1" />
+                                            <ThicknessAnimation Storyboard.TargetProperty="Margin"
+                                                                From="0,0,0,0" To="0,-60,0,0" Duration="0:0:1.1" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
         </Grid>
     </Border>
 </UserControl>

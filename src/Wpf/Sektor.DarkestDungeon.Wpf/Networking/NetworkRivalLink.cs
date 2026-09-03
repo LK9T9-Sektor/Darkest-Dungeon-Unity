@@ -12,6 +12,12 @@ namespace Sektor.DarkestDungeon.Wpf.Networking
         /// <inheritdoc/>
         public event Action<string>? RivalActionReceived;
 
+        /// <inheritdoc/>
+        public event Action<string>? SkillPreviewed;
+
+        /// <inheritdoc/>
+        public event Action<int>? TargetPreviewed;
+
         /// <summary>Initializes a new instance of the <see cref="NetworkRivalLink"/> class.</summary>
         /// <param name="session">The session manager owning the transport.</param>
         public NetworkRivalLink(DuelSessionManager session)

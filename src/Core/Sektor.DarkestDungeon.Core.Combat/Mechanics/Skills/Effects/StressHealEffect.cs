@@ -17,6 +17,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
 
         private int StressHealAmount { get; set; }
 
+        /// <summary>Gets the base stress heal amount.</summary>
+        public int Amount { get { return StressHealAmount; } }
+
         /// <summary>Initializes a new instance of the <see cref="StressHealEffect"/> class.</summary>
         /// <param name="amount">The base stress heal amount.</param>
         public StressHealEffect(int amount)

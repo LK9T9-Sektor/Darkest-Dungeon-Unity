@@ -73,6 +73,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <param name="crit">The critical chance percentage.</param>
         /// <param name="dodge">The dodge value.</param>
         /// <param name="protection">The protection percentage.</param>
+        /// <param name="trinketIds">The equipped trinket ids.</param>
         public void Apply(
             string name,
             string className,
@@ -86,7 +87,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             int accuracy,
             int crit,
             int dodge,
-            int protection)
+            int protection,
+            IEnumerable<string>? trinketIds = null)
         {
             Name = name;
             ClassName = className;
@@ -100,6 +102,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             Stats.Crit = crit + "%";
             Stats.Dodge = dodge.ToString();
             Stats.Protection = protection + "%";
+
+            var trinkets = trinketIds == null ? new List<string>() : trinketIds.ToList();
+            Stats.Trinket1Text = trinkets.Count > 0 ? trinkets[0] : "-";
+            Stats.Trinket2Text = trinkets.Count > 1 ? trinkets[1] : "-";
 
             CombatSkills.Clear();
             foreach (var skill in combatSkills)

@@ -199,7 +199,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             var seeds = Slots.Select(s => s.Seed).ToList();
             var skillIds = Slots.Select(s => s.SelectedSkillIds).ToList();
             var quirkIds = Slots.Select(s => s.SelectedQuirkIds).ToList();
-            return new DuelPartyConfig(classIds, seeds, skillIds, quirkIds);
+            var trinketIds = Slots.Select(s => s.SelectedTrinketIds).ToList();
+            return new DuelPartyConfig(classIds, seeds, skillIds, quirkIds, trinketIds);
         }
 
         private static DuelHeroPick[] ToPicks(DuelPartyConfig config)
@@ -210,7 +211,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                     config.ClassIds[i],
                     config.Seeds[i],
                     i < config.SelectedSkillIds.Count ? config.SelectedSkillIds[i] : null,
-                    i < config.QuirkIds.Count ? config.QuirkIds[i] : null));
+                    i < config.QuirkIds.Count ? config.QuirkIds[i] : null,
+                    i < config.TrinketIds.Count ? config.TrinketIds[i] : null));
             return picks.ToArray();
         }
 

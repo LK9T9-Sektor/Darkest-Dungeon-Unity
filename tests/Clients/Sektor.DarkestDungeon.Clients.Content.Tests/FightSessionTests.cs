@@ -7,6 +7,7 @@ using Sektor.DarkestDungeon.Clients.Content;
 using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Content.Character;
+using Sektor.DarkestDungeon.Core.Content.Trinket;
 using Sektor.DarkestDungeon.Core.Duel;
 using Sektor.DarkestDungeon.Core.Duel.Fight;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
@@ -169,6 +170,7 @@ namespace Sektor.DarkestDungeon.Clients.Content.Tests
             MonsterBrainCatalog brains = GameDataReader.ReadBrains(File.ReadAllText(Path.Combine(resourcesDir, "Data", "JsonAI.json")));
             BuffCatalog buffs = GameDataReader.ReadBuffs(File.ReadAllText(Path.Combine(resourcesDir, "Data", "JsonBuffs.json")));
             QuirkCatalog quirks = GameDataReader.ReadQuirks(File.ReadAllText(Path.Combine(resourcesDir, "Data", "JsonQuirks.json")));
+            TrinketCatalog trinkets = GameDataReader.ReadTrinketCatalog(File.ReadAllText(Path.Combine(resourcesDir, "Data", "JsonTrinkets.json")));
 
             var traits = GameDataReader.ReadTraits(File.ReadAllText(Path.Combine(resourcesDir, "Data", "JsonTraits.json")));
             return new TextFightContent(
@@ -179,7 +181,8 @@ namespace Sektor.DarkestDungeon.Clients.Content.Tests
                 quirks,
                 effects,
                 traits.Where(trait => trait.IsAffliction).ToList(),
-                traits.Where(trait => trait.IsVirtue).ToList());
+                traits.Where(trait => trait.IsVirtue).ToList(),
+                trinkets);
         }
 
         private static string FindUnityResourcesDir()

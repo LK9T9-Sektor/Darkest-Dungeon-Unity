@@ -72,6 +72,11 @@
 - Shuffle party проходит по всем юнитам (включая исполнителя), каждый двигается к случайному партнёру.
 - Порядок `RemoveAt`+`Insert` критичен: после `Insert` юнит уже на новой позиции — пересчёт рангов
   по всему списку обязателен.
+- **Дуэльный путь скилла**: `DuelController.ExecuteSkill` раскрывает мультитаргет и исполняет
+  `BattleSolver.ExecuteSkill` по каждой цели; квеянные Pull/Push попадают в `EventQueue` и
+  исполняются в `ProcessEventQueues`. **`ProcessEventQueues` итерирует по снапшоту `Units`**
+  (`DuelController.cs:529-543`) — иначе `MoveUnit` (перестановка `Units.RemoveAt/Insert`) роняет
+  перечисление «коллекция изменена» (это и был корень «притяжки/отталкивания не работают»).
 
 ## 8. Взаимодействия
 
@@ -86,4 +91,5 @@
   `PushEffect.cs`, `ShuffleTargetEffect.cs`
 - `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/Battle/BattleSolver.cs`
 - `src/Core/Sektor.DarkestDungeon.Core.Duel/DuelBattleEvents.cs`
-- `tests/Core/Sektor.DarkestDungeon.Core.Duel.Tests/ParityMechanicsTests.cs` (`Pull_...`, `Push_...`)
+- `tests/Core/Sektor.DarkestDungeon.Core.Duel.Tests/ParityMechanicsTests.cs` (`Pull_...`, `Push_...`),
+  `DuelSkillExecutionTests.cs` (`ExecuteSkill_PullSkill_MovesTheEnemyForward`)

@@ -159,6 +159,42 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
                 "A heart attack off death's door should bring the hero to death's door.");
         }
 
+        [Test]
+        public void HeroDeath_RemovesUnitAndShiftsRanks()
+        {
+            var content = new TestDuelContent();
+            var duel = new DuelController(content);
+            duel.StartDuel(Picks("crusader"), Picks("highwayman"), 42, isHost: true);
+            RandomSolver.SetRandomSeed(42);
+            duel.StartBattle();
+
+            Assert.That(duel.HeroParty.Units.Count, Is.EqualTo(4));
+
+            var hero = duel.HeroParty.Units[0];
+            hero.Character.GetPairedAttribute(AttributeType.HitPoints).CurrentValue = 1;
+            ((SingleAttribute)hero.Character.GetSingleAttribute(AttributeType.DefenseRating)).RawValue = 0f;
+            ((SingleAttribute)hero.Character.GetSingleAttribute(AttributeType.DeathBlow)).RawValue = 0f;
+
+            var attacker = duel.MonsterParty.Units[0];
+            ((SingleAttribute)attacker.Character.GetSingleAttribute(AttributeType.AttackRating)).RawValue = 1.0f;
+            var skill = FirstDamageSkill(duel, attacker, hero);
+
+            duel.ExecuteSkill(attacker, hero, skill);
+            Assert.That(hero.Character.AtDeathsDoor, Is.True);
+
+            duel.ExecuteSkill(attacker, hero, skill);
+            Assert.That(hero.CombatInfo.IsDead, Is.True);
+
+            Assert.That(duel.HeroParty.Units.Count, Is.EqualTo(3),
+                "A dead hero should be removed from the party (no corpse).");
+            Assert.That(duel.HeroParty.Units.Any(u => u.CombatInfo.CombatId == hero.CombatInfo.CombatId), Is.False,
+                "The dead hero should no longer occupy a slot.");
+
+            for (int i = 0; i < duel.HeroParty.Units.Count; i++)
+                Assert.That(duel.HeroParty.Units[i].Rank, Is.EqualTo(i + 1),
+                    "The survivors behind the dead hero should shift forward one rank.");
+        }
+
         private static CombatSkill FirstDamageSkill(DuelController duel, ICombatUnit attacker, ICombatUnit target)
         {
             return attacker.Character.CurrentCombatSkills.FirstOrDefault(

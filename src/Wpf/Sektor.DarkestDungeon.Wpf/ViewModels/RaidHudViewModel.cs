@@ -60,6 +60,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <param name="crit">The critical chance percentage.</param>
         /// <param name="dodge">The dodge value.</param>
         /// <param name="protection">The protection percentage.</param>
+        /// <param name="trinketIds">The equipped trinket ids.</param>
         public void ApplyActor(
             string name,
             string className,
@@ -73,9 +74,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             int accuracy,
             int crit,
             int dodge,
-            int protection)
+            int protection,
+            IEnumerable<string>? trinketIds = null)
         {
-            Hero.Apply(name, className, combatSkills, hpCurrent, hpMax, stress, speed, minDamage, maxDamage, accuracy, crit, dodge, protection);
+            Hero.Apply(name, className, combatSkills, hpCurrent, hpMax, stress, speed, minDamage, maxDamage, accuracy, crit, dodge, protection, trinketIds);
         }
 
         private void SetPanel(bool log, bool inventory, bool map)

@@ -95,7 +95,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         private static DuelHeroPick[] ToPicks(IEnumerable<HeroSlotViewModel> slots)
         {
-            return slots.Select(slot => new DuelHeroPick(slot.ClassId, slot.Seed, slot.SelectedSkillIds, slot.SelectedQuirkIds)).ToArray();
+            return slots.Select(slot => new DuelHeroPick(slot.ClassId, slot.Seed, slot.SelectedSkillIds, slot.SelectedQuirkIds, slot.SelectedTrinketIds)).ToArray();
         }
     }
 }

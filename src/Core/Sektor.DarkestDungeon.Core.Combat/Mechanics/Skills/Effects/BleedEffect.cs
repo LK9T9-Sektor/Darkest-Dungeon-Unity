@@ -13,6 +13,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
 
         private int DotBleed { get; set; }
 
+        /// <summary>Gets the damage per tick.</summary>
+        public int DotAmount { get { return DotBleed; } }
+
         /// <summary>Initializes a new instance of the <see cref="BleedEffect"/> class.</summary>
         /// <param name="dotAmount">The damage per tick.</param>
         public BleedEffect(int dotAmount)
@@ -51,7 +54,8 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
 
             if (ApplyInstant(performer, target, effect, battleContext))
             {
-                battleContext.Events.ShowPopup(target, PopupType.Bleed);
+                int duration = effect.IntegerParams[EffectIntParams.Duration] ?? BattleConstants.DefaultDotDuration;
+                battleContext.Events.ShowPopup(target, PopupType.Bleed, DotBleed + " dmg x " + duration + " rounds");
                 battleContext.Events.UpdateOverlay(target);
                 return true;
             }

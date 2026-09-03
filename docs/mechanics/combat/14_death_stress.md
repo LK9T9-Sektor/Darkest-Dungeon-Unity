@@ -50,6 +50,11 @@ Heart attack (стресс 200) — смерть на death's door или вхо
    успех → survival-бафф + попап `DeathBlow` (выжил); провал → `IsDead = true`.
 4. Для каждого умершего героя → `StressParty` (`:StressParty`): `Stress 2` (15) живым героям отряда +
    `ResolveOverstress`.
+5. `DuelController.CheckDeaths` (`DuelController.cs:617`) → после `DeathCheck.Check()` вызывает
+   `RemoveDeadNonMonsters(HeroParty)`/`RemoveDeadNonMonsters(MonsterParty)`: любой мёртвый не-монстр
+   (герой) удаляется из партии (`FormationParty.RemoveUnit`), и оставшиеся сзади сдвигаются вперёд
+   на один ранг. **Герои не оставляют труп**; corpse-монстры (`IsCorpse`) не удаляются и остаются
+   на ранге.
 
 **Хил снимает death's door** — `DuelController.RecoverDeathsDoorIfHealed` (после скилла): герой
 `AtDeathsDoor` и `CurrentHealth > 0` → `RevertDeathsDoor(recovery-баффы)` + mortality-баффы.
@@ -91,6 +96,12 @@ Heart attack (стресс 200) — смерть на death's door или вхо
 - **Бой может затянуться**, если герой на death's door выживает роллы, а ИИ не добивает
   (`FightSessionTests` с боссом-свинкой) — канон, не баг.
 - `MarkedForDeath` (от `.kill`/heart attack) — `RollSurvival` всегда смерть для помеченного.
+- **Мёртвый герой удаляется из партии** (`DuelController.RemoveDeadNonMonsters`) — сдвиг рангов
+  (пересчёт `Rank` в `FormationParty.RemoveUnit`) влияет на таргетинг/позицию; корпус-монстры
+  исключены (не монстр → пропуск по `IsMonster`). WPF-карточки строятся из отряда, поэтому после
+  удаления слот героя исчезает и линия перестраивается автоматически.
+- **Обход удаления с конца** — `RemoveDeadNonMonsters` итерирует `party.Units` с конца, чтобы
+  `RemoveUnit` (переиндексирует список) не сдвинул ещё непросмотренные элементы.
 
 ## 8. Взаимодействия
 
@@ -103,7 +114,8 @@ Heart attack (стресс 200) — смерть на death's door или вхо
 
 - `src/Core/Sektor.DarkestDungeon.Core.Duel/Mechanics/DeathCheck.cs`, `HeartAttackHandler.cs`
 - `src/Core/Sektor.DarkestDungeon.Core.Duel/DuelController.cs` (`CheckDeaths`,
-  `RecoverDeathsDoorIfHealed`), `DuelBattleEvents.cs` (`HeartAttackHandler`)
+  `RemoveDeadNonMonsters`, `RecoverDeathsDoorIfHealed`), `DuelBattleEvents.cs` (`HeartAttackHandler`)
+- `src/Core/Sektor.DarkestDungeon.Core.Combat/Raid/Party/FormationParty.cs` (`RemoveUnit` — сдвиг рангов)
 - `src/Core/Sektor.DarkestDungeon.Core.Combat/Character/Hero.cs`, `DeathDoor.cs`, `HeroClass.cs`,
   `Monster.cs`, `MonsterClass.cs`
 - `src/Core/Sektor.DarkestDungeon.Core.Combat/Mechanics/Skills/Effects/StressEffect.cs`

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
@@ -12,6 +14,14 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets or sets the hero class.</summary>
         [ObservableProperty]
         private string _heroClass = "Crusader";
+
+        /// <summary>Gets or sets the formation rank.</summary>
+        [ObservableProperty]
+        private int _rank;
+
+        /// <summary>Gets or sets a value indicating whether the unit belongs to the enemy side.</summary>
+        [ObservableProperty]
+        private bool _isEnemy;
 
         /// <summary>Gets or sets the current hit points text.</summary>
         [ObservableProperty]
@@ -53,13 +63,52 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private string _armorLevel = "Lv. 1";
 
+        /// <summary>Gets or sets the label of the equipped trinket in the left slot.</summary>
+        [ObservableProperty]
+        private string _trinket1Text = "-";
+
+        /// <summary>Gets or sets the label of the equipped trinket in the right slot.</summary>
+        [ObservableProperty]
+        private string _trinket2Text = "-";
+
         /// <summary>Gets or sets the all combat skills text.</summary>
         [ObservableProperty]
         private string _skillsText = string.Empty;
 
-        /// <summary>Gets or sets the resistances text.</summary>
+        /// <summary>Gets the structured combat skills shown as skill squares in the sheet.</summary>
+        public ObservableCollection<DuelSkillViewModel> Skills { get; } = new ObservableCollection<DuelSkillViewModel>();
+
+        /// <summary>Gets or sets the stun resistance percentage.</summary>
         [ObservableProperty]
-        private string _resistsText = string.Empty;
+        private int _resistStun;
+
+        /// <summary>Gets or sets the blight resistance percentage.</summary>
+        [ObservableProperty]
+        private int _resistBlight;
+
+        /// <summary>Gets or sets the bleed resistance percentage.</summary>
+        [ObservableProperty]
+        private int _resistBleed;
+
+        /// <summary>Gets or sets the debuff resistance percentage.</summary>
+        [ObservableProperty]
+        private int _resistDebuff;
+
+        /// <summary>Gets or sets the move resistance percentage.</summary>
+        [ObservableProperty]
+        private int _resistMove;
+
+        /// <summary>Gets or sets the disease resistance percentage.</summary>
+        [ObservableProperty]
+        private int _resistDisease;
+
+        /// <summary>Gets or sets the death blow resistance percentage.</summary>
+        [ObservableProperty]
+        private int _resistDeathBlow;
+
+        /// <summary>Gets or sets the trap resistance percentage.</summary>
+        [ObservableProperty]
+        private int _resistTrap;
 
         /// <summary>Gets or sets the quirks text.</summary>
         [ObservableProperty]
@@ -77,10 +126,13 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Fills the sheet from a duel unit.</summary>
         /// <param name="unit">The inspected unit.</param>
-        public void Apply(DuelUnitViewModel unit)
+        /// <param name="skills">The structured combat skills to show as skill squares.</param>
+        public void Apply(DuelUnitViewModel unit, IReadOnlyList<DuelSkillViewModel>? skills)
         {
             HeroName = unit.Name;
             HeroClass = unit.ClassName;
+            Rank = unit.Rank;
+            IsEnemy = unit.IsEnemy;
             HitPoints = unit.HpCurrent + " / " + unit.HpMax;
             Stress = unit.Stress + " / 100";
             Speed = unit.Speed.ToString();
@@ -89,11 +141,22 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             Crit = unit.Crit + "%";
             Dodge = unit.Dodge.ToString();
             Protection = unit.Protection + "%";
-            SkillsText = unit.AllSkills;
             QuirksText = unit.QuirksText;
-            ResistsText = "Stun " + unit.ResistStun + "%   Blight " + unit.ResistBlight + "%   Bleed " + unit.ResistBleed + "%\n"
-                + "Debuff " + unit.ResistDebuff + "%   Move " + unit.ResistMove + "%   Disease " + unit.ResistDisease + "%\n"
-                + "Death Blow " + unit.ResistDeathBlow + "%   Trap " + unit.ResistTrap + "%";
+            ResistStun = unit.ResistStun;
+            ResistBlight = unit.ResistBlight;
+            ResistBleed = unit.ResistBleed;
+            ResistDebuff = unit.ResistDebuff;
+            ResistMove = unit.ResistMove;
+            ResistDisease = unit.ResistDisease;
+            ResistDeathBlow = unit.ResistDeathBlow;
+            ResistTrap = unit.ResistTrap;
+
+            Skills.Clear();
+            if (skills != null)
+            {
+                foreach (var skill in skills)
+                    Skills.Add(skill);
+            }
         }
     }
 }

@@ -10,14 +10,17 @@ using Sektor.DarkestDungeon.Core.Content.Character;
 using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
+using Sektor.DarkestDungeon.Core.Content.Trinket;
 using Sektor.DarkestDungeon.Wpf.Combat;
 using Sektor.DarkestDungeon.Wpf.Data;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
-    /// <summary>A single hero slot in a lobby: class cycling, active skill selection and trait reroll.</summary>
+    /// <summary>A single hero slot in a lobby: class cycling, active skill selection, trait reroll and trinket slots.</summary>
     public partial class HeroSlotViewModel : ObservableObject
     {
+        private const int TrinketSlotCount = 2;
+
         private readonly IReadOnlyList<string> availableClasses;
         private readonly Random rng = new Random();
 
@@ -54,6 +57,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the rolled quirks.</summary>
         public ObservableCollection<Quirk> Quirks { get; } = new ObservableCollection<Quirk>();
 
+        /// <summary>Gets the two trinket slots (left then right).</summary>
+        public ObservableCollection<LobbyTrinketViewModel> TrinketSlots { get; } = new ObservableCollection<LobbyTrinketViewModel>();
+
         /// <summary>Gets the stat sheet preview of the selected class.</summary>
         public HeroStatsViewModel Stats { get; } = new HeroStatsViewModel();
 
@@ -69,6 +75,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the command that rerolls the hero's quirks.</summary>
         public IRelayCommand RerollQuirksCommand { get; }
 
+        /// <summary>Gets the command that assigns two random trinkets valid for the hero class.</summary>
+        public IRelayCommand RerollTrinketsCommand { get; }
+
         /// <summary>Gets the ids of the active combat skills.</summary>
         public IReadOnlyList<string> SelectedSkillIds
         {
@@ -79,6 +88,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         public IReadOnlyList<string> SelectedQuirkIds
         {
             get { return Quirks.Select(quirk => quirk.Id).ToList(); }
+        }
+
+        /// <summary>Gets the ids of the equipped trinkets.</summary>
+        public IReadOnlyList<string> SelectedTrinketIds
+        {
+            get { return TrinketSlots.Where(slot => slot.TrinketId.Length > 0).Select(slot => slot.TrinketId).ToList(); }
         }
 
         /// <summary>Initializes a new instance of the <see cref="HeroSlotViewModel"/> class.</summary>
@@ -93,6 +108,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             NextClassCommand = new RelayCommand(NextClass);
             ToggleSkillCommand = new RelayCommand<LobbySkillViewModel>(ToggleSkill);
             RerollQuirksCommand = new RelayCommand(RerollQuirks);
+            RerollTrinketsCommand = new RelayCommand(RerollTrinkets);
             LoadClass();
         }
 
@@ -158,6 +174,24 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             Quirks.Add(candidates[rng.Next(candidates.Count)]);
         }
 
+        private void RerollTrinkets()
+        {
+            var pool = TrinketPool();
+            var ids = new HashSet<string>();
+            foreach (var slot in TrinketSlots)
+            {
+                var candidates = pool.Where(trinket => !ids.Contains(trinket.Id)).ToList();
+                if (candidates.Count == 0)
+                {
+                    slot.Select(string.Empty);
+                    continue;
+                }
+                var chosen = candidates[rng.Next(candidates.Count)];
+                ids.Add(chosen.Id);
+                slot.Select(chosen.Id);
+            }
+        }
+
         private void LoadClass()
         {
             var heroClass = DuelClasses.Get(ClassId);
@@ -175,9 +209,35 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 });
             }
 
+            ReloadTrinkets();
             Details = BuildDetails(heroClass);
             ApplyStats(heroClass);
             RerollQuirks();
+        }
+
+        private void ReloadTrinkets()
+        {
+            var pool = TrinketPool();
+            if (TrinketSlots.Count == 0)
+            {
+                for (int i = 0; i < TrinketSlotCount; i++)
+                    TrinketSlots.Add(new LobbyTrinketViewModel(pool));
+                return;
+            }
+
+            foreach (var slot in TrinketSlots)
+                slot.SetPool(pool);
+        }
+
+        private List<Trinket> TrinketPool()
+        {
+            var result = new List<Trinket>();
+            foreach (var trinket in Data.TrinketCatalog.All)
+            {
+                if (trinket.HeroClassRequirements.Count == 0 || trinket.HeroClassRequirements.Contains(ClassId))
+                    result.Add(trinket);
+            }
+            return result;
         }
 
         private void ApplyStats(HeroClass? heroClass)

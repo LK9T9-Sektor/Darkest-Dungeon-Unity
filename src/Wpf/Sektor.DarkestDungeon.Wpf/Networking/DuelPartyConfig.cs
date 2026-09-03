@@ -19,20 +19,25 @@ namespace Sektor.DarkestDungeon.Wpf.Networking
         /// <summary>Gets the per-hero quirk ids.</summary>
         public IReadOnlyList<IReadOnlyList<string>> QuirkIds { get; }
 
+        /// <summary>Gets the per-hero equipped trinket ids (up to two per slot).</summary>
+        public IReadOnlyList<IReadOnlyList<string>> TrinketIds { get; }
+
         /// <summary>Initializes a new instance of the <see cref="DuelPartyConfig"/> class.</summary>
         /// <param name="classIds">The class ids.</param>
         /// <param name="seeds">The seeds.</param>
         /// <param name="selectedSkillIds">The per-slot active combat skill ids.</param>
         /// <param name="quirkIds">The per-slot quirk ids.</param>
-        public DuelPartyConfig(IReadOnlyList<string> classIds, IReadOnlyList<int> seeds, IReadOnlyList<IReadOnlyList<string>>? selectedSkillIds = null, IReadOnlyList<IReadOnlyList<string>>? quirkIds = null)
+        /// <param name="trinketIds">The per-slot equipped trinket ids.</param>
+        public DuelPartyConfig(IReadOnlyList<string> classIds, IReadOnlyList<int> seeds, IReadOnlyList<IReadOnlyList<string>>? selectedSkillIds = null, IReadOnlyList<IReadOnlyList<string>>? quirkIds = null, IReadOnlyList<IReadOnlyList<string>>? trinketIds = null)
         {
             ClassIds = classIds;
             Seeds = seeds;
             SelectedSkillIds = selectedSkillIds ?? classIds.Select(_ => Array.Empty<string>() as IReadOnlyList<string>).ToList();
             QuirkIds = quirkIds ?? classIds.Select(_ => Array.Empty<string>() as IReadOnlyList<string>).ToList();
+            TrinketIds = trinketIds ?? classIds.Select(_ => Array.Empty<string>() as IReadOnlyList<string>).ToList();
         }
 
-        /// <summary>Serializes the config into the wire text format ("class|seed|skills|quirks").</summary>
+        /// <summary>Serializes the config into the wire text format ("class|seed|skills|quirks|trinkets").</summary>
         /// <returns>The wire text.</returns>
         public string Serialize()
         {
@@ -41,7 +46,8 @@ namespace Sektor.DarkestDungeon.Wpf.Networking
             {
                 string skills = i < SelectedSkillIds.Count ? string.Join(",", SelectedSkillIds[i]) : string.Empty;
                 string quirks = i < QuirkIds.Count ? string.Join(",", QuirkIds[i]) : string.Empty;
-                slots.Add(ClassIds[i] + "|" + Seeds[i] + "|" + skills + "|" + quirks);
+                string trinkets = i < TrinketIds.Count ? string.Join(",", TrinketIds[i]) : string.Empty;
+                slots.Add(ClassIds[i] + "|" + Seeds[i] + "|" + skills + "|" + quirks + "|" + trinkets);
             }
             return string.Join(";", slots);
         }
@@ -56,6 +62,7 @@ namespace Sektor.DarkestDungeon.Wpf.Networking
             var seeds = new List<int>();
             var skillIds = new List<IReadOnlyList<string>>();
             var quirkIds = new List<IReadOnlyList<string>>();
+            var trinketIds = new List<IReadOnlyList<string>>();
             foreach (var slot in slots)
             {
                 var parts = slot.Split('|');
@@ -65,8 +72,9 @@ namespace Sektor.DarkestDungeon.Wpf.Networking
                 seeds.Add(int.Parse(parts[1]));
                 skillIds.Add(parts.Length >= 3 && parts[2].Length > 0 ? parts[2].Split(',') : Array.Empty<string>());
                 quirkIds.Add(parts.Length >= 4 && parts[3].Length > 0 ? parts[3].Split(',') : Array.Empty<string>());
+                trinketIds.Add(parts.Length >= 5 && parts[4].Length > 0 ? parts[4].Split(',') : Array.Empty<string>());
             }
-            return new DuelPartyConfig(classIds, seeds, skillIds, quirkIds);
+            return new DuelPartyConfig(classIds, seeds, skillIds, quirkIds, trinketIds);
         }
     }
 }

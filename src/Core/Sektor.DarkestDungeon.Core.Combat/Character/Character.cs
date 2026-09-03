@@ -108,6 +108,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
         /// <summary>Gets the list of applied buffs.</summary>
         protected readonly List<BuffInfo> BuffInfo;
 
+        /// <summary>Gets the list of applied buffs (read-only view for clients).</summary>
+        public IReadOnlyList<BuffInfo> BuffInfos { get { return BuffInfo; } }
+
         /// <summary>Gets the status effects dictionary.</summary>
         protected readonly Dictionary<StatusType, StatusEffect> StatusEffects;
 

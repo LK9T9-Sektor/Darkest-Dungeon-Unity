@@ -18,29 +18,19 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the unit's real speed.</summary>
         public int Speed { get; }
 
-        /// <summary>Gets the rolled initiative (speed + roll) that ordered this round's turns.</summary>
-        public double InitiativeRoll { get; }
-
-        /// <summary>Gets a value indicating whether this entry is the currently acting unit.</summary>
+        /// <summary>Gets or sets a value indicating whether this entry is the currently acting unit.</summary>
         [ObservableProperty]
         private bool _isCurrent;
-
-        /// <summary>Gets a value indicating whether the unit is dead (the tile is dimmed in place,
-        /// keeping the turn order strip free of layout jumps).</summary>
-        [ObservableProperty]
-        private bool _isDead;
 
         /// <summary>Initializes a new instance of the <see cref="DuelTurnEntryViewModel"/> class.</summary>
         /// <param name="name">The unit display name.</param>
         /// <param name="isEnemy">Whether the unit belongs to the enemy side.</param>
         /// <param name="speed">The unit's real speed.</param>
-        /// <param name="initiativeRoll">The rolled initiative for this round.</param>
-        public DuelTurnEntryViewModel(string name, bool isEnemy, int speed, double initiativeRoll)
+        public DuelTurnEntryViewModel(string name, bool isEnemy, int speed)
         {
             Name = name;
             IsEnemy = isEnemy;
             Speed = speed;
-            InitiativeRoll = initiativeRoll;
         }
     }
 }

@@ -13,6 +13,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
 
         private int DotPoison { get; set; }
 
+        /// <summary>Gets the damage per tick.</summary>
+        public int DotAmount { get { return DotPoison; } }
+
         /// <summary>Initializes a new instance of the <see cref="PoisonEffect"/> class.</summary>
         /// <param name="dotAmount">The damage per tick.</param>
         public PoisonEffect(int dotAmount)
@@ -51,7 +54,8 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills.Effects
 
             if (ApplyInstant(performer, target, effect, battleContext))
             {
-                battleContext.Events.ShowPopup(target, PopupType.Poison);
+                int duration = effect.IntegerParams[EffectIntParams.Duration] ?? BattleConstants.DefaultDotDuration;
+                battleContext.Events.ShowPopup(target, PopupType.Poison, DotPoison + " dmg x " + duration + " rounds");
                 battleContext.Events.UpdateOverlay(target);
                 return true;
             }

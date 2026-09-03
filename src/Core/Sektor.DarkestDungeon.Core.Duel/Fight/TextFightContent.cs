@@ -4,6 +4,7 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 using Sektor.DarkestDungeon.Core.Content.Character;
+using Sektor.DarkestDungeon.Core.Content.Trinket;
 using Sektor.DarkestDungeon.Core.Duel;
 
 namespace Sektor.DarkestDungeon.Core.Duel.Fight
@@ -21,6 +22,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Fight
         private readonly BuffCatalog buffs;
         private readonly QuirkCatalog quirks;
         private readonly EffectCatalog effects;
+        private readonly TrinketCatalog trinkets;
         private readonly IReadOnlyList<Trait> afflictions;
         private readonly IReadOnlyList<Trait> virtues;
 
@@ -33,6 +35,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Fight
         /// <param name="effects">The effect catalog.</param>
         /// <param name="afflictions">The affliction traits.</param>
         /// <param name="virtues">The virtue traits.</param>
+        /// <param name="trinkets">The trinket catalog (optional).</param>
         public TextFightContent(
             HeroCatalog heroes,
             MonsterCatalog monsters,
@@ -41,7 +44,8 @@ namespace Sektor.DarkestDungeon.Core.Duel.Fight
             QuirkCatalog quirks,
             EffectCatalog effects,
             IReadOnlyList<Trait> afflictions,
-            IReadOnlyList<Trait> virtues)
+            IReadOnlyList<Trait> virtues,
+            TrinketCatalog trinkets = null)
         {
             this.heroes = heroes;
             this.monsters = monsters;
@@ -51,6 +55,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Fight
             this.effects = effects;
             this.afflictions = afflictions;
             this.virtues = virtues;
+            this.trinkets = trinkets;
         }
 
         /// <inheritdoc/>
@@ -93,6 +98,12 @@ namespace Sektor.DarkestDungeon.Core.Duel.Fight
         public Buff GetBuff(string buffId)
         {
             return buffs.Get(buffId);
+        }
+
+        /// <inheritdoc/>
+        public Trinket GetTrinket(string trinketId)
+        {
+            return trinkets == null ? null : trinkets.Get(trinketId);
         }
 
         /// <inheritdoc/>

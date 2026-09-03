@@ -65,6 +65,12 @@ namespace Sektor.DarkestDungeon.Wpf.Data
         }
 
         /// <inheritdoc/>
+        public Sektor.DarkestDungeon.Core.Content.Trinket.Trinket GetTrinket(string trinketId)
+        {
+            return TrinketCatalog.Get(trinketId);
+        }
+
+        /// <inheritdoc/>
         public Effect GetEffect(string effectId)
         {
             return Effects.Get(effectId);

@@ -16,14 +16,6 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private int _round = 1;
 
-        /// <summary>Gets or sets the display name of the acting unit, shown under the round circle.</summary>
-        [ObservableProperty]
-        private string? _actorName;
-
-        /// <summary>Gets or sets the acting unit's team color (red local party, blue rival).</summary>
-        [ObservableProperty]
-        private Brush? _actorColor;
-
         /// <summary>Gets or sets the flame brush derived from the torch value (darker at 0, brighter and yellower toward 100).</summary>
         [ObservableProperty]
         private Brush? _torchLevelBrush = CreateLevelBrush(75);

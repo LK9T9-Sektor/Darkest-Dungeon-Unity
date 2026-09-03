@@ -77,6 +77,42 @@
                                     Style="{StaticResource HudButton}" ToolTip="Reroll quirks"
                                     Command="{Binding RerollQuirksCommand}" />
                         </StackPanel>
+
+                        <!-- Trinket slots (2) + reroll -->
+                        <StackPanel Margin="0,8,0,0">
+                            <TextBlock Text="Trinkets" FontSize="10" Foreground="#8A7A5A" />
+                            <ItemsControl ItemsSource="{Binding TrinketSlots}" Margin="0,4,0,0">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="1" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,2,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <Button Content="&#x25C0;" Width="22" Height="22" FontSize="10"
+                                                    Style="{StaticResource HudButton}" ToolTip="Previous trinket"
+                                                    Command="{Binding PrevCommand}" />
+                                            <TextBlock Grid.Column="1" Text="{Binding Label}" FontSize="10"
+                                                       Foreground="#E8D9B0" HorizontalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding Details}"
+                                                       Margin="4,0" />
+                                            <Button Grid.Column="2" Content="&#x25B6;" Width="22" Height="22"
+                                                    FontSize="10" Style="{StaticResource HudButton}"
+                                                    ToolTip="Next trinket" Command="{Binding NextCommand}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Button Content="&#x21BB; Trinkets" Height="24" FontSize="11" Margin="0,4,0,0"
+                                    HorizontalAlignment="Center" Style="{StaticResource HudButton}"
+                                    ToolTip="Assign random trinkets" Command="{Binding RerollTrinketsCommand}" />
+                        </StackPanel>
                     </StackPanel>
                 </Border>
             </DataTemplate>
