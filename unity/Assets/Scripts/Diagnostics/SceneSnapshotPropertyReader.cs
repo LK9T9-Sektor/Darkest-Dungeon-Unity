@@ -195,6 +195,15 @@ public class SceneSnapshotPropertyReader
         Add(target, "alpha", FormatFloat(canvasRenderer.GetAlpha()));
         Add(target, "cull", FormatBool(canvasRenderer.cull));
         Add(target, "materialCount", canvasRenderer.materialCount.ToString(CultureInfo.InvariantCulture));
+        Material renderMaterial = canvasRenderer.GetMaterial();
+        Add(target, "renderMaterial", ObjectName(renderMaterial));
+        Add(target, "renderShader", ShaderName(renderMaterial));
+        Texture renderTexture = renderMaterial != null ? renderMaterial.mainTexture : null;
+        Add(target, "renderTexture", renderTexture != null ? renderTexture.name : "<null>");
+        if (renderTexture != null)
+        {
+            Add(target, "renderTextureSize", renderTexture.width + "x" + renderTexture.height);
+        }
     }
 
     private static void ReadGraphic(Graphic graphic, ComponentSnapshot target)
@@ -213,5 +222,22 @@ public class SceneSnapshotPropertyReader
         Add(target, "imageType", image.type.ToString());
         Add(target, "fillAmount", FormatFloat(image.fillAmount));
         Add(target, "preserveAspect", FormatBool(image.preserveAspect));
+        if (image.sprite != null)
+        {
+            Add(target, "spriteRect", FormatRect(image.sprite.rect));
+            Add(target, "spriteTextureRect", FormatRect(image.sprite.textureRect));
+            Add(target, "spritePixelsPerUnit", FormatFloat(image.sprite.pixelsPerUnit));
+        }
+
+        Texture2D texture = image.sprite != null ? image.sprite.texture : null;
+        if (texture != null)
+        {
+            Add(target, "textureSize", texture.width + "x" + texture.height);
+            Add(target, "textureFormat", texture.format.ToString());
+            Add(target, "textureMipCount", texture.mipmapCount.ToString(CultureInfo.InvariantCulture));
+            Add(target, "textureIsReadable", FormatBool(texture.isReadable));
+            Add(target, "textureFilterMode", texture.filterMode.ToString());
+            Add(target, "textureWrapMode", texture.wrapMode.ToString());
+        }
     }
 }

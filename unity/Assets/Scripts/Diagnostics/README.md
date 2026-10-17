@@ -10,6 +10,8 @@
   `SceneSnapshotDumper`, `DontDestroyOnLoad`).
 - Для каждой загруженной сцены — авто-снимки через **0 / 5 / 15 c** после загрузки.
 - **F9** — ручной снимок текущей активной сцены в любой момент (момент визуального бага).
+- Снимок сохраняет и **скриншот** (`.png` рядом с `.json`, `ScreenCapture.CaptureScreenshot`) — для
+  пиксельного разбора (например, версии «жёлтая заливка»).
 - Сбор DTO на главном потоке игры чанками (yield каждые `NodesPerYield` узлов — кадр не
   блокируется), запись файла — в фоновом потоке.
 - Сборка JSON — `JsonUtility` (Newtonsoft в проекте нет — зависимостей не требует).
@@ -19,7 +21,7 @@
 - Папка: `%USERPROFILE%\AppData\LocalLow\RedHooks\Darkest Dungeon\SceneDumps\`
   (`Application.persistentDataPath`).
 - Имя файла: `<сцена>-<триггер>-<yyyyMMdd-HHmmss-fff>.json`, например
-  `Dungeon-manual-20261017-213005-123.json`.
+  `Dungeon-manual-20261017-213005-123.json`; рядом — скриншот `<то же имя>.png`.
 - Путь к папке и каждому файлу логируется в консоль Unity с префиксом `[SceneDump]`.
 
 ## Формат
@@ -32,11 +34,15 @@
   `Properties[]` (`Name`/`Value`, значения — строки в invariant-формате).
 - Извлекаемые свойства (реестр `SceneSnapshotPropertyReader`): Transform/RectTransform (позиции,
   масштаб, rect), Renderer/SpriteRenderer (материал, шейдер, спрайт, цвет, bounds, `isVisible`),
-  Camera, Canvas/CanvasGroup/CanvasRenderer, Graphic/Image (цвет, материал, шейдер, спрайт,
-  alpha), `enabled` у Behaviour. Свойства базовых типов идут раньше частных.
+  Camera (включая `clearFlags`, `backgroundColor`, `cullingMask`, `depth`), Canvas/CanvasGroup,
+  CanvasRenderer (рендер-материал `GetMaterial()`: имя/shader/mainTexture/размер), Graphic/Image
+  (цвет, материал, шейдер, спрайт + `spriteRect`/`textureRect`/`pixelsPerUnit` и размер/формат/
+  mip/readable фильтр текстуры), `enabled` у Behaviour. Свойства базовых типов идут раньше частных.
 
-Разбор «жёлтой» стены: узел `.../RoomView/RoomWall/Wall` → `Image` (sprite/shader/color/alpha) +
-`ActiveSelf/ActiveInHierarchy` по цепочке + `SpriteRenderer`, если по пути есть.
+Разбор «жёлтой» стены (итог): причина оказалась не в стене, а в камерах — `BlurCamera`/
+`UI_Dangeon/Camera` были Base-камерами с `Clear Flags = Nothing`, и URP Render Graph чистил фон в
+`Color.yellow` (мир скрыт). Инструмент снял подозрения с ассетов (спрайт/материал/текстура/тексты
+не содержали жёлтого). Детали — `docs\mechanics\presentation\presentation_unity_urp_cameras.md`.
 
 ## Зависимости и запуск
 

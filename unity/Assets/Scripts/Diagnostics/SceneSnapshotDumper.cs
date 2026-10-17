@@ -208,6 +208,8 @@ public class SceneSnapshotDumper : MonoBehaviour
         string fileName = SanitizeFileName(sceneName) + "-" + SanitizeFileName(trigger) + "-"
             + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff", CultureInfo.InvariantCulture) + ".json";
         string path = Path.Combine(folder, fileName);
+        string screenshotPath = Path.ChangeExtension(path, ".png");
+        ScreenCapture.CaptureScreenshot(screenshotPath);
 
         Task.Run(() =>
         {
