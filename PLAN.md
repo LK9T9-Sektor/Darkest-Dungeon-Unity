@@ -20,11 +20,15 @@ Spine-шейдеров на URP-совместимые (иначе герои/м
 ## Steps / status
 
 1. [x] PLAN.md зафиксирован.
-2. [ ] Пользователь: Player Settings > Other Settings → снять Dynamic Batching (уходит LogError
+2. [x] Dynamic Batching → 0: галка в UI серая (настройка помечена legacy в Unity 7) — агент поправил
+   `ProjectSettings.asset` при закрытом редакторе (коммит `29e7288`; уходит LogError
    `PlayerSettingsBatchingWarning`).
-3. [ ] Пользователь: Package Manager → Unity Registry → Universal Render Pipeline → Install.
-4. [ ] Пользователь: Assets > Create > Rendering > URP Asset (with Universal Renderer); Project
-   Settings > Graphics → Default Render Pipeline = этот asset.
+3. [x] Пользователь: Package Manager → Unity Registry → Universal Render Pipeline → Install
+   (`manifest.json`: URP 17.7.0).
+4. [x] URP Asset создан пользователем (`Assets\Settings\DarkestDungeonURP[,_Renderer].asset`); Default
+   Render Pipeline прописан агентом в `GraphicsSettings.asset` (guid `3c6b23f4...`, коммит `29e7288`).
+4b. [x] Агент: удалены 127 устаревших .NET-фасадов (gitignored) из `Assets\Plugins\Internal` —
+   дублировали `unity-4.8-api\Facades` Unity 7 и давали `error CS1703`; остались только `Sektor.*`.
 5. [ ] Пользователь: Window > Rendering > Render Pipeline Converter → Source: Built-in, Target:
    URP (Universal Renderer) → Rendering Settings + Material Reference Converter + Material Shader
    Converter → Initialize and Convert.
@@ -35,13 +39,16 @@ Spine-шейдеров на URP-совместимые (иначе герои/м
    `unity-build-game.ps1`, `unity-provision-plugins.ps1`, `unity-generate-battle-test-scene.ps1`.
 8. [ ] Пользователь: прогон Intro → CampaignSelection → EstateManagement → Dungeon (герои/монстры
    видимы, Death's Door пульс, грейскейл, торч-флейм, UI, карта).
-9. [ ] Агент: `unity-compile-check.ps1` при закрытом редакторе; доки — `UNITY_MIGRATION.md` §6
-   (миграция 6.5 → 7.0, URP), `ARCHITECTURE.md` (Unity 7), `KNOWN_ISSUES.md` (BlurOptimized мёртв
-   под URP; SkeletonLit unlit), `TESTING.md` (URP-чеклист), `COMPABILITY.md`.
+9. [x] Агент: `unity-compile-check.ps1` при закрытом редакторе — зелёный (компиляция +
+   script-reference check, уже после правок шага 4 и чистки фасадов).
+10. [ ] Агент: доки — `UNITY_MIGRATION.md` §6 (миграция 6.5 → 7.0, URP), `ARCHITECTURE.md` (Unity 7),
+   `KNOWN_ISSUES.md` (BlurOptimized мёртв под URP; SkeletonLit unlit; фасады 2017 удалены),
+   `TESTING.md` (URP-чеклист), `COMPABILITY.md`.
 
 ## Affected files
 
-- `unity\ProjectSettings\ProjectSettings.asset` (m_DynamicBatching → 0, через UI редактора).
+- `unity\ProjectSettings\ProjectSettings.asset` (m_DynamicBatching → 0 — файловая правка: галка в UI
+  серая).
 - `unity\Packages\manifest.json` + `packages-lock.json` (URP, через Package Manager).
 - Новые: `unity\Assets\Settings\*.asset` (URP Asset + Renderer), `.meta` обязательны.
 - `unity\Assets\Spine\SpineUnity\Shaders\Skeleton.shader`, `SkeletonLit.shader`.

@@ -56,9 +56,10 @@
   (78 файлов); cutover (реализация `ICharacter`/`ICombatUnit`/`IBattleGround` и удаление дублей)
   отложен до востребованности (кооп через ядро, см. `EXTRACTION_PLAN.md` Фаза 3).
 - Доставка в `Assets\Plugins\Internal` пост-билдом копирует собранные DLL/PDB (см. `EXTRACTION_PLAN.md` §5).
-  .NET Standard facade-шимы (`COMPABILITY.md` §1) требовались старому Mono Unity 2017.4; после перехода на
-  Unity 6000.5.8f1 фасады не нужны (нативный type-forwarding) — `tools\unity-provision-plugins.ps1` их
-  пропускает. Доставка идёт автоматически: `-UnityEditorPath` → `UNITY_EDITOR_PATH` → `editors.json` Unity Hub
+  .NET Standard facade-шимы (`COMPABILITY.md` §1) требовались старому Mono Unity 2017.4; начиная с Unity 6
+  (сейчас 7000.0.0a10) фасады не нужны (нативный type-forwarding) — `tools\unity-provision-plugins.ps1` их
+  пропускает. Старые копии фасадов, оставшиеся в `Assets\Plugins\Internal` от 2017-провиженинга, под Unity 7
+  дают `error CS1703` (дубли `unity-4.8-api\Facades`) — удалить все DLL, кроме `Sektor.*` (см. §15). Доставка идёт автоматически: `-UnityEditorPath` → `UNITY_EDITOR_PATH` → `editors.json` Unity Hub
   → типовые каталоги установки; собранные DLL и `steam_appid.txt` остаются gitignored.
 - **Дуэль (WPF) вынесена в ядро**: `src\Core\Sektor.DarkestDungeon.Core.Duel` (`DuelController`, `DuelPhase`,
   `DuelSeed`, `DuelPayload`, `IDuelContent`, `DuelAi`) — WPF-клиент стал тонким (Фазы A/B). Unity-мультиплеерный
@@ -135,3 +136,18 @@
 - **Защита:** `tools\unity-check-script-references.ps1` (в `unity-compile-check.ps1` и pre-commit hook) — падает,
   если `m_Script`-GUID в `.unity`/`.prefab` не резолвится в закоммиченную `.meta`. Правило в `AGENTS.md`:
   не давать Unity перегенерировать `.meta`, восстанавливать оригинал при «Imported GUID … new».
+
+## 15. Unity 7 + URP: рендер-долг (материалы, блюр, освещение)
+
+- **Активная версия — Unity 7000.0.0a10 (URP 17.7.0)**; Built-in RP в Unity 7 отключён
+  (см. `UNITY_MIGRATION.md` §6).
+- **Render Pipeline Converter не прогонялся** (отложено решением пользователя): материалы на built-in
+  Standard-шейдере (стены `CoridorWall*.mat`, `Text-Title-Standard.mat` и др.) не конвертированы —
+  под URP ожидаемо рисуются некорректно (маджента/пустой проход); визуально не проверялось. После
+  прогона конвертера — отдельный коммит.
+- **`BlurOptimized` мёртв под URP**: эффект на `OnRenderImage` в SRP не вызывается — блюр экрана
+  (шоу-офф и т.п.) не работает; URP-аналог (Renderer Feature) — отдельная задача.
+- **`SkeletonLit` — временно unlit**: `Assets\Spine\SpineUnity\Shaders\SkeletonLit.shader` переписан на
+  CG unlit (fixed-function пасс не работает в SRP) — подсветка/свечение героев отключены до порта
+  lit-варианта (URP Lit / Simple Lit). `Skeleton.shader` — тот же unlit-порт, визуально эквивалентен.
+- Мёртвый `CharacterSprite.shader` («Spine/DungeonSprite», 0 ссылок) не трогается.
