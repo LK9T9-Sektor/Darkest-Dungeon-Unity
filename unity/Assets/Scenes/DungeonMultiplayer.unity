@@ -306,7 +306,6 @@ GameObject:
   m_Component:
   - component: {fileID: 9263986}
   - component: {fileID: 9263987}
-  - component: {fileID: 9263989}
   - component: {fileID: 9263988}
   - component: {fileID: 9263990}
   m_Layer: 0
@@ -369,14 +368,6 @@ Camera:
 Behaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 12443396, guid: 64d1151f1e67840479309582b7534cfd,
-    type: 2}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 9263985}
-  m_Enabled: 1
---- !u!92 &9263989
-Behaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 9291318, guid: 64d1151f1e67840479309582b7534cfd,
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 9263985}
@@ -14497,7 +14488,6 @@ GameObject:
   m_Component:
   - component: {fileID: 447450557}
   - component: {fileID: 447450562}
-  - component: {fileID: 447450561}
   - component: {fileID: 447450560}
   - component: {fileID: 447450559}
   - component: {fileID: 447450564}
@@ -14555,14 +14545,6 @@ AudioListener:
 Behaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 12478336, guid: 64d1151f1e67840479309582b7534cfd,
-    type: 2}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 447450556}
-  m_Enabled: 1
---- !u!92 &447450561
-Behaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 9233986, guid: 64d1151f1e67840479309582b7534cfd,
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 447450556}

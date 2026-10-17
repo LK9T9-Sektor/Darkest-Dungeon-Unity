@@ -123,13 +123,6 @@ Behaviour:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 126383206}
   m_Enabled: 1
---- !u!92 &126383209
-Behaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 126383206}
-  m_Enabled: 1
 --- !u!20 &126383210
 Camera:
   m_ObjectHideFlags: 0
