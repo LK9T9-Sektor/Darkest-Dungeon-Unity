@@ -19,6 +19,7 @@ public class SceneSnapshotDumper : MonoBehaviour
     private const string DumpFolderName = "SceneDumps";
     private const string LogPrefix = "[SceneDump]";
     private const int NodesPerYield = 300;
+    private const string DestroyedNodeName = "<destroyed>";
 
     private static readonly float[] AutoCaptureDelaysSeconds = { 0f, 5f, 15f };
 
@@ -108,6 +109,11 @@ public class SceneSnapshotDumper : MonoBehaviour
         GameObject[] roots = scene.GetRootGameObjects();
         for (int i = 0; i < roots.Length; i++)
         {
+            if (roots[i] == null)
+            {
+                continue;
+            }
+
             SceneNodeSnapshot node = new SceneNodeSnapshot();
             yield return BuildNodeRoutine(roots[i], string.Empty, node);
             snapshot.Roots.Add(node);
@@ -121,6 +127,12 @@ public class SceneSnapshotDumper : MonoBehaviour
 
     private IEnumerator BuildNodeRoutine(GameObject gameObject, string parentPath, SceneNodeSnapshot target)
     {
+        if (gameObject == null)
+        {
+            target.Name = DestroyedNodeName;
+            yield break;
+        }
+
         Transform transform = gameObject.transform;
         target.Name = gameObject.name;
         target.Path = parentPath + "/" + gameObject.name;
@@ -143,10 +155,18 @@ public class SceneSnapshotDumper : MonoBehaviour
             yield return null;
         }
 
-        for (int i = 0; i < transform.childCount; i++)
+        int childIndex = 0;
+        while (transform != null && childIndex < transform.childCount)
         {
+            Transform childTransform = transform.GetChild(childIndex);
+            childIndex++;
+            if (childTransform == null)
+            {
+                continue;
+            }
+
             SceneNodeSnapshot child = new SceneNodeSnapshot();
-            yield return BuildNodeRoutine(transform.GetChild(i).gameObject, target.Path, child);
+            yield return BuildNodeRoutine(childTransform.gameObject, target.Path, child);
             target.Children.Add(child);
         }
     }

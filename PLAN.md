@@ -50,6 +50,17 @@ baseline. Затем — установить причину «жёлтой» с
    available» (стек `UnityEditor.GUIView.ProcessEvent`, показан пользователем после прогона).
 8. [ ] Повторный прогон пользователем: задник комнаты/стен коридоров без жёлтой заливки,
    предупреждения GUI Layer в консоли нет.
+9. [x] Пост-прогон фиксы по логам: (a) дампер переживает уничтожение объектов во время снимка
+   (`BuildNodeRoutine`/`DumpRoutine` — null-guard'ы; `MissingReferenceException` на переходе
+   комната↔коридор больше не роняет авто-снимок); (b) из `LoadingScreen.unity`, `Main Camera.prefab`,
+   `UIDungeonCamera.prefab` убраны оставшиеся ссылки старого формата `- 92: {fileID: …}`
+   («Broken text PPtr» — хвост от снятия `GUILayer`).
+10. [ ] По запросу сверены lighting/камеры: `DungeonSettings.lighting` — новый placeholder конвертера
+   (`m_EnableBakedLightmaps: 0`); ambient/fog, камеры (clearFlags/depth/culling mask 1056/ALL/512) и
+   Light-блоки (point 7/150 белый, directional 4.65) — идентичны `unity-2017`; `m_RenderPostProcessing: 0`.
+   Причиной «жёлтого» они быть не могут (unlit-спрайты свет игнорируют). Ожидает повторного прогона
+   с F9 **в комнате** (прошлый manual-снимок был снят в коридоре — RoomView был неактивен, 27 SimpleLit
+   в тот момент уже ушли на `Sprites/Default`).
 
 ## Affected files
 
