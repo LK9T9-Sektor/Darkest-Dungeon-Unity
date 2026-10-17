@@ -99,7 +99,6 @@ GameObject:
   m_Component:
   - 4: {fileID: 126383211}
   - 20: {fileID: 126383210}
-  - 92: {fileID: 126383209}
   - 124: {fileID: 126383208}
   - 81: {fileID: 126383207}
   m_Layer: 0

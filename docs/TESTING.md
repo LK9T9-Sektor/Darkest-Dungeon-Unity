@@ -65,9 +65,10 @@
 ### URP и рендеринг (Unity 7)
 
 1. В консоли на старте нет `PlayerSettingsBatchingWarning` («Dynamic Batching has been removed…»),
-   баннера «Your project has no render pipeline asset» и предупреждения «Component GUI Layer …
-   is no longer available» (компонент `GUILayer`, не существующий в Unity 7, удалён из сцен и
-   префабов); Game view не чёрный.
+   баннера «Your project has no render pipeline asset», предупреждения «Component GUI Layer …
+   is no longer available» (компонент `GUILayer` удалён из сцен и префабов) и ошибок
+   «Broken text PPtr» (их оставляли невычищенные ссылки старого формата `- 92: {fileID: …}`);
+   Game view не чёрный.
 2. Герои/монстры рисуются в рейде (Spine-шейдеры перенесены на CG unlit); у `SkeletonLit` сейчас нет
    освещения/подсветки — это ожидаемо (`KNOWN_ISSUES.md` §15).
 3. Стены `Dungeon` — задник комнаты (`DungeonView/RoomView/RoomWall/Wall`, спрайт
