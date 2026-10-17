@@ -102,3 +102,9 @@ Path 'traits[0].reaction_act_outs[0].chance'
   `KNOWN_ISSUES.md` §15 и чек-лист в `TESTING.md`.
 - Проверка: `pwsh tools\unity-compile-check.ps1` (редактор закрыт) → `Compilation succeeded` +
   script-reference check зелёные; оба предупреждения в консоли исчезли.
+- **«Жёлтый экран» рейда (исправлено):** в `Dungeon`/`DungeonMultiplayer` `BlurCamera` и
+  `UI_Dangeon/Camera` имели `Clear Flags = Nothing`, но оставались Base-камерами — Render Graph путь
+  URP (`UniversalRendererRenderGraph.cs:478-485`) при `Nothing` чистит фон в `Color.yellow` (верхние
+  2/3 экрана, мир скрыт). Исправлено переходом на камерный стек: `DungeonCamera` — Base со стеком
+  `[BlurCamera, UI Camera]`, обе лишние — Overlay (`m_CameraType: 1`, `m_ClearDepth: 0`). Детали —
+  `docs\mechanics\presentation\presentation_unity_urp_cameras.md`.

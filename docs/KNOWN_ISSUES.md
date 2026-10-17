@@ -147,6 +147,10 @@
   прогона конвертера — отдельный коммит.
 - **`BlurOptimized` мёртв под URP**: эффект на `OnRenderImage` в SRP не вызывается — блюр экрана
   (шоу-офф и т.п.) не работает; URP-аналог (Renderer Feature) — отдельная задача.
+- **«Жёлтый экран» рейда — исправлено**: `BlurCamera`/`UI_Dangeon/Camera` были Base-камерами с
+  `Clear Flags = Nothing`, а Render Graph путь URP чистит фон такой камеры в `Color.yellow`
+  (`UniversalRendererRenderGraph.cs:478-485`) — верхние 2/3 экрана, мир скрыт. Переведены в
+  Overlay-стек `DungeonCamera` (см. `mechanics\presentation\presentation_unity_urp_cameras.md`).
 - **`SkeletonLit` — временно unlit**: `Assets\Spine\SpineUnity\Shaders\SkeletonLit.shader` переписан на
   CG unlit (fixed-function пасс не работает в SRP) — подсветка/свечение героев отключены до порта
   lit-варианта (URP Lit / Simple Lit). `Skeleton.shader` — тот же unlit-порт, визуально эквивалентен.

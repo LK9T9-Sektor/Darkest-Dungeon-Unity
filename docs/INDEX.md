@@ -18,6 +18,7 @@
 | **Unity BattleTest: тонкий вид-слой над ядром боя** (сцена, драйвер, gotchas) | `docs\mechanics\presentation\presentation_unity_battle_view.md` |
 | **Размер юнита (size 1–4): кумулятивные ранги, ёмкость формации, рендер** | `docs\mechanics\combat\16_formation_size.md` |
 | **Легаси Unity-рейд: камеры, фоны, торч, юниты, UI** (рендер кадра, координаты, упрощения) | `docs\mechanics\presentation\presentation_unity_raid_visuals.md` |
+| **URP: очистка камер и стек — «жёлтый экран» Dungeon** (первопричина, фикс, нюансы) | `docs\mechanics\presentation\presentation_unity_urp_cameras.md` |
 | **Продакшн-риг боевой сцены: дизайн-решение** (3 камеры, «островки», единая плоскость, showoff) | `docs\mechanics\presentation\presentation_unity_battle_rig.md` |
 | Игровая логика: потоки/процессы (генерация подземелий, рейд-флоу, curio, кампания, сейвы) | `GAME_LOGIC.md` |
 | ИИ противника (DD): брейны/desires/кулдауны, данные `JsonAI.json`, зеркало в дуэли | `AI_BEHAVIOR.md` |

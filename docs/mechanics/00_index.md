@@ -49,3 +49,4 @@
 - `GAME_RULES.md` — сводная таблица «как в репо vs оригинал DD» (ссылки на детали здесь).
 - `BATTLE_PARITY.md` — разрывы Unity MP vs ядро (статусы согласованы с навигатором).
 - `INDEX.md` — карта всех документов.
+- `presentation\presentation_unity_urp_cameras.md` — URP: очистка камер и стек («жёлтый экран» рейда).

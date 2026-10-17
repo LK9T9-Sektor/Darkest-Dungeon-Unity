@@ -48,19 +48,72 @@ baseline. Затем — установить причину «жёлтой» с
    (Intro, LoadingScreen, EstateManagement, DungeonMultiplayer ×2, CampaignSelection) и префабов
    (`Main Camera`, `UIDungeonCamera`) — снимает предупреждение «Component GUI Layer … is no longer
    available» (стек `UnityEditor.GUIView.ProcessEvent`, показан пользователем после прогона).
-8. [ ] Повторный прогон пользователем: задник комнаты/стен коридоров без жёлтой заливки,
-   предупреждения GUI Layer в консоли нет.
+8. [x] Повторный прогон пользователем (00:37): предупреждение GUI Layer ушло, но «жёлтое» осталось —
+   то есть материал стен не был причиной (см. шаг 10).
 9. [x] Пост-прогон фиксы по логам: (a) дампер переживает уничтожение объектов во время снимка
    (`BuildNodeRoutine`/`DumpRoutine` — null-guard'ы; `MissingReferenceException` на переходе
    комната↔коридор больше не роняет авто-снимок); (b) из `LoadingScreen.unity`, `Main Camera.prefab`,
    `UIDungeonCamera.prefab` убраны оставшиеся ссылки старого формата `- 92: {fileID: …}`
    («Broken text PPtr» — хвост от снятия `GUILayer`).
-10. [ ] По запросу сверены lighting/камеры: `DungeonSettings.lighting` — новый placeholder конвертера
-   (`m_EnableBakedLightmaps: 0`); ambient/fog, камеры (clearFlags/depth/culling mask 1056/ALL/512) и
-   Light-блоки (point 7/150 белый, directional 4.65) — идентичны `unity-2017`; `m_RenderPostProcessing: 0`.
-   Причиной «жёлтого» они быть не могут (unlit-спрайты свет игнорируют). Ожидает повторного прогона
-   с F9 **в комнате** (прошлый manual-снимок был снят в коридоре — RoomView был неактивен, 27 SimpleLit
-   в тот момент уже ушли на `Sprites/Default`).
+ 10. [x] Сверка lighting/камер (по запросу): `DungeonSettings.lighting` — placeholder конвертера
+    (`m_EnableBakedLightmaps: 0`); ambient/fog, камеры (depth 0 / 0.3 / 1; masks −1/512/1056) и
+    Light-блоки (point 7/150, directional 4.65) — идентичны `unity-2017`; `m_RenderPostProcessing: 0`;
+    color space — Gamma в обоих деревьях. Повторный прогон в комнате (00:37: manual t=2.17 c + auto t0):
+    стены уже на `Sprites/Default`, герои активны и геометрически **ближе** к камере, чем стена
+    (z −210.7 vs −200; камера −300) — перекрыть героев стена не может, но «жёлтое» сохранилось →
+    материал/свет/камеры исключены. `ScreenFader` исключён (чёрный RawImage без текстуры; в сцене
+    Dungeon отсутствует). Сканы дампов (все UI Image, не-Default материалы, узлы fade/overlay/light,
+    крупные размеры) не находят жёлтого объекта ни в Dungeon, ни в Intro/CampaignSelection.
+ 11. [x] Пиксельная диагностика (прогон 00:54–00:55, 6 дампов + PNG). Факты скриншота (757×426):
+     жёлтый = однородный (255,235,4) ровно по прямоугольнику `Wall` (0..284 px; ниже — тёмная полоса
+     1..17, владелец не установлен). В исходных PNG жёлтого нет (`weald.room_wall.effigy_0` —
+     1920×720, 24bpp, MD5 8B87A1C32CA448CA840682B104224935 идентичен в обоих деревьях, максимум
+     (255,120,67) — оранжевый закат; effigy_1/corridor — тоже) → цвет НЕ тексель текстуры, теория
+     «UV схлопнулись в один тексель» убита. Камеры/clear, цвета Image, `CoridorWall` — чисты. В сцене
+     guid спрайта стены (`a5f81c4f…`) в метах отсутствует (висячая ссылка) — в Edit mode стена без
+     спрайта, жёлтый только в Play (пользователь) → корреляция с рантайм-назначением (`RaidRoom.cs:117`
+     из `Resources/Dungeons/<dungeon>`). Импорт-диф подозрителен: effigy_0 crunched=1/textureFormat
+     −5/quality −1 vs рабочий rank_target_enemy (0/−1/50); в папке Dungeons 153 из 228 мет crunched=1.
+     Ложная «ошибка» в логе опознана: `Failed to capture screen shot` 00:54:57 — 4 быстрых F9, один
+     PNG не успел записаться (безвредно).
+ 12. [x] Прогон с локализацией (01:22–01:23, авто-дампы Dungeon t0/t5/t15 + PNG; пользователь:
+     отключение `Wall`/`Room`/`RoomView` жёлтое НЕ убирает, превью Source Image и миниатюры PNG —
+     нормальный арт). Факты: жёлтый = идеально однородный (255,235,4) в верхних 2/3 экрана (0..283 px;
+     8847/8850 сэмплов) = ровно Unity `Color.yellow` (1, 0.9216, 0.0157). Wall в рантайме: sprite
+     `weald.room_wall.effigy_0`, mat `CoridorWall` (Sprites/Default), color white, текстура 1920×720
+     `DXT1Crunched` — как у рабочих UI-панелей (`PanelBanner`/`PanelMap`: UI/Default + DXT1Crunched,
+     рисуются нормально → crunch не виноват). В дампе НЕТ ни одного компонента/материала/шейдера с
+     жёлтым цветом; шейдеров всего 3 (Spine/Skeleton Lit, Sprites/Default, UI/Default); слоёв только
+     Default/UI (слои 9/10 для Blur/UI-камер пусты); активных MeshRenderer — 3 (факелы); backdrop
+     (`starfield`) неактивен; камеры все full-screen (rect 0,0,1,1), clear не жёлтый. Расширенный
+     дампер работает (`renderMaterial` читается). Стена/материал/текстура — исключены как источник.
+ 13. [x] ПРИЧИНА НАЙДЕНА (рендеринг URP, подтверждено кодом пакета): `UniversalRendererRenderGraph.cs`
+     :478-485 — Render Graph-путь чистит ЦВЕТ у каждой **Base**-камеры, а при
+     `clearFlags == Nothing` (и `targetTexture == null`) цвет очистки = **`Color.yellow`**
+     (= (1, 0.9216, 0.0157) = измеренные (255,235,4)). В `Dungeon.unity` и `DungeonMultiplayer.unity`
+     по 2 Base-камеры с clear=Nothing — `…/DungeonCamera/BlurCamera` и `DungeonSceneManager/
+     UI_Dangeon/Camera`; обе затирают кадр жёлтым, UI-камера (depth 1, последняя) закрывает мир. В
+     `Intro`/`CampaignSelection` камеры clear=Skybox/Color — потому жёлтого нет (0 сэмплов; в Dungeon
+     12724/20330 ≈ верхние 2/3, низ добит тёмными панелями HUD). Стена/материал/текстуры/crunch —
+     окончательно исключены.
+ 14. [x] Фикс внесён в YAML при закрытом редакторе (`Dungeon.unity`, `DungeonMultiplayer.unity`):
+     `BlurCamera` и `UI_Dangeon/Camera` → `UniversalAdditionalCameraData` с `m_CameraType: 1`
+     (Overlay) + `m_ClearDepth: 0`; `DungeonCamera` получила `UniversalAdditionalCameraData`
+     (`m_CameraType: 0`, Base) со стеком `m_Cameras: [BlurCamera, UI Camera]`. Итог по обеим сценам —
+     ровно 1 Base + 2 Overlay. **Прогон пользователем: жёлтое исчезло.** Новый док
+     `docs\mechanics\presentation\presentation_unity_urp_cameras.md`; ссылки — `INDEX.md`,
+     `mechanics\00_index.md`, `UNITY_MIGRATION.md` §6, `KNOWN_ISSUES.md` §15, `CHANGELOG.md`,
+     `TESTING.md` §«URP и рендеринг».
+ 15. [x] Коммит сцен + доков на `core/unity7-urp`.
+
+## Cleanup (временные артефакты, можно удалять)
+
+- Дампы диагностики: `%LOCALAPPDATA%Low\RedHooks\Darkest Dungeon\SceneDumps\*.json|*.png` (десятки
+  файлов по ~16 МБ) — больше не нужны.
+- Временные скрипты: `C:\Users\lk9t9\AppData\Local\Temp\opencode\` (`scan-yellow2.ps1`,
+  `dump-positions.ps1`, `dump-type-paths.ps1`, `scan2_*.txt`).
+- Диагностический дампер `unity\Assets\Scripts\Diagnostics\` — **оставить** (пока нужен; README
+  описывает его как временный слой, удаляется вместе с папкой, когда перестанет быть нужен).
 
 ## Affected files
 
