@@ -2,6 +2,17 @@
 
 ## Не выпущено (после 1.0.6)
 
+### Unity 7 (URP): стены подземелья снова видны, предупреждение о GUI Layer снято
+
+- **Жёлтая заливка на стенах `Dungeon` исправлена**: материалы `CoridorWall`/`CoridorWall 1`
+  переведены с `Universal Render Pipeline/Simple Lit` на unlit `Sprites/Default`. Конвертер
+  заменил ими исходный `Sprites/Diffuse`; на canvas-изображениях комнаты/коридоров лит-шейдер
+  под URP без действующего света даёт жёлтую заливку — арт `room_wall`/`corridor_wall` снова
+  отображается.
+- **Предупреждение «Component GUI Layer … is no longer available» устранено**: компонент
+  `GUILayer` (не существует в Unity 7) удалён из сцен (Intro, LoadingScreen, EstateManagement,
+  DungeonMultiplayer, CampaignSelection) и префабов камер (`Main Camera`, `UIDungeonCamera`).
+
 ### Unity BattleTest: сцена гибкого боя на чистом ядре (первый потребитель ядра в Unity)
 
 - **Новая сцена `Assets\Scenes\BattleTest.unity`** (в `unity\` и `unity-2017\`): настраиваемый бой

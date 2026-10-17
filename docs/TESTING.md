@@ -64,13 +64,18 @@
 
 ### URP и рендеринг (Unity 7)
 
-1. В консоли на старте нет `PlayerSettingsBatchingWarning` («Dynamic Batching has been removed…»)
-   и баннера «Your project has no render pipeline asset»; Game view не чёрный.
+1. В консоли на старте нет `PlayerSettingsBatchingWarning` («Dynamic Batching has been removed…»),
+   баннера «Your project has no render pipeline asset» и предупреждения «Component GUI Layer …
+   is no longer available» (компонент `GUILayer`, не существующий в Unity 7, удалён из сцен и
+   префабов); Game view не чёрный.
 2. Герои/монстры рисуются в рейде (Spine-шейдеры перенесены на CG unlit); у `SkeletonLit` сейчас нет
    освещения/подсветки — это ожидаемо (`KNOWN_ISSUES.md` §15).
-3. Материалы на built-in Standard (стены в `Dungeon` и т.п.) до прогона Render Pipeline Converter
-   могут быть маджента/чёрные — известное отложенное; после конвертера — проверить стены и
-   Standard-материалы.
+3. Стены `Dungeon` — задник комнаты (`DungeonView/RoomView/RoomWall/Wall`, спрайт
+   `weald.room_wall.*`) и стены коридоров (`corridor_wall.*`): арт виден, без жёлтой заливки и
+   маджента. Материалы `CoridorWall`/`CoridorWall 1` — unlit `Sprites/Default`: лит-шейдер
+   (URP Simple Lit) на canvas-изображении без действующего света даёт жёлтую заливку (в сцене нет
+   активного directional-света, `_ADDITIONAL_LIGHTS` у конвертированного Simple Lit выключен) —
+   лит-шейдеры на UI Image не назначать.
 4. Блюр (`BlurOptimized`, шоу-офф) не работает — ожидаемо (`KNOWN_ISSUES.md` §15).
 
 ### Стартовая загрузка данных (база данных)

@@ -34,15 +34,32 @@ baseline. Затем — установить причину «жёлтой» с
    + `README.md` (все с `.meta`).
 4. [x] Коммит B: дампер (`unity-compile-check.ps1` при закрытом редакторе — зелёный; первая
    попытка поймала удаление `CanvasRenderer.alpha` в Unity 7 → `GetAlpha()`).
-5. [ ] Прогон Интро→Dungeon (пользователь), F9 в момент «жёлтой стены»; разбор JSON (узел RoomView).
-6. [ ] Коммит C: фикс по факту (+ доки в том же коммите).
+5. [x] Прогон (пользователь, редактор → Play), F9 в момент «жёлтой стены»: снят manual-дамп
+   `Dungeon-manual-20261018-000838-926.json` (SceneDumps). Факты: узел
+   `…/DungeonView/RoomView/RoomWall/Wall` — спрайт `weald.room_wall.effigy_0` и alpha 1 корректны,
+   но material `CoridorWall` = `Universal Render Pipeline/Simple Lit` (следствие конвертера).
+   Все 27 UI Image с Simple Lit в сцене — `CoridorWall` (23) + `CoridorWall 1` (4). `Sprites/Default`
+   (built-in fileID 10753) — измеренно проверенный canvas-шейдер проекта (`PipMaterial` стресс-пипов
+   рендерится им). Причина подтверждена данными, не догадкой.
+6. [x] Коммит C: `CoridorWall`/`CoridorWall 1` — unlit `Sprites/Default` (база: до-конвертерный файл
+   из `c4f1cc6^`, заменена одна строка шейдера). Доки в том же коммите: `TESTING.md` (URP-чеклист —
+   стены и GUI Layer), `CHANGELOG.md`.
+7. [x] Коммит D (побочное, как D1/D2): снесён мёртвый `GUILayer` (`!u!92` — нет в Unity 7) из сцен
+   (Intro, LoadingScreen, EstateManagement, DungeonMultiplayer ×2, CampaignSelection) и префабов
+   (`Main Camera`, `UIDungeonCamera`) — снимает предупреждение «Component GUI Layer … is no longer
+   available» (стек `UnityEditor.GUIView.ProcessEvent`, показан пользователем после прогона).
+8. [ ] Повторный прогон пользователем: задник комнаты/стен коридоров без жёлтой заливки,
+   предупреждения GUI Layer в консоли нет.
 
 ## Affected files
 
 - `PLAN.md`; `unity\Assets\Scenes\DungeonSettings.lighting` (+`.meta`).
 - `unity\Assets\Scripts\Diagnostics\*.cs` (+`.meta`), `README.md`.
-- `docs\INDEX.md` (строка про дампер); при фиксе — `docs\mechanics\presentation\*`, `docs\TESTING.md`,
-  `docs\CHANGELOG.md` (только user-visible).
+- Фикс (коммит C): `unity\Assets\Materials\CoridorWall.mat`, `CoridorWall 1.mat`; доки —
+  `docs\TESTING.md` (URP-чеклист), `docs\CHANGELOG.md`.
+- GUI Layer (коммит D): `unity\Assets\Scenes\{Intro,LoadingScreen,EstateManagement,DungeonMultiplayer,CampaignSelection}.unity`,
+  `unity\Assets\Prefabs\{Main Camera,UIDungeonCamera}.prefab`.
+- `docs\INDEX.md` (строка про дампер; уже в коммите B).
 
 ## Acceptance criteria
 
