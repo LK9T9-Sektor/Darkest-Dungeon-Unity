@@ -24,7 +24,7 @@ function Find-UnityEditor {
     }
 
     $knownRoots = @(
-        "C:\Program Files\Unity\Hub\Editor\6000.5.8f1",
+        "C:\Program Files\Unity\Hub\Editor\7000.0.0a10",
         "E:\ProgramFiles\Unity2017.4.40f1",
         "D:\ProgramFiles\Unity2017.4.40f1",
         "D:\Program Files\Unity2017.4.40f1",

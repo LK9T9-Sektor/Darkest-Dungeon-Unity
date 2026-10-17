@@ -1,3 +1,69 @@
+# PLAN: Unity 7 (7000.0.0a10) — URP-миграция после апгрейда
+
+## Goal
+
+Проект апгрейднут на Unity 7000.0.0a10 (альфа), где Built-in RP отключён (рендер чёрный, баннер
+«Your project has no render pipeline asset») и Dynamic Batching удалён. Цель: (1) убрать сообщение о
+Dynamic Batching; (2) перевести активный `unity\` на URP по официальному гайду
+(`docs.unity3d.com/7000.0/.../upgrading-from-birp.html`); (3) заменить fixed-function пассы
+Spine-шейдеров на URP-совместимые (иначе герои/монстры не рисуются); (4) привести инструменты к
+редактору 7000.0.0a10; (5) зафиксировать в доках. `unity-2017\` и `src\External\` не трогаются.
+
+## Design decisions (user-confirmed)
+
+- Откат на 6.x LTS не делаем — остаёмся на Unity 7 + URP.
+- `SkeletonLit` (освещение героев) — порт с освещением отложен; временно unlit (имя и свойства
+  шейдера сохраняются), потеря свечения — в KNOWN_ISSUES.
+- Шаги в редакторе (Dynamic Batching toggle, установка URP, URP asset, Graphics, конвертер)
+  выполняет пользователь; файловую часть (шейдеры, манифест при необходимости, tools, доки) — агент.
+
+## Steps / status
+
+1. [x] PLAN.md зафиксирован.
+2. [ ] Пользователь: Player Settings > Other Settings → снять Dynamic Batching (уходит LogError
+   `PlayerSettingsBatchingWarning`).
+3. [ ] Пользователь: Package Manager → Unity Registry → Universal Render Pipeline → Install.
+4. [ ] Пользователь: Assets > Create > Rendering > URP Asset (with Universal Renderer); Project
+   Settings > Graphics → Default Render Pipeline = этот asset.
+5. [ ] Пользователь: Window > Rendering > Render Pipeline Converter → Source: Built-in, Target:
+   URP (Universal Renderer) → Rendering Settings + Material Reference Converter + Material Shader
+   Converter → Initialize and Convert.
+6. [x] Агент: порт fixed-function Spine-шейдеров на CG unlit v/f (имена/свойства те же):
+   `unity\Assets\Spine\SpineUnity\Shaders\Skeleton.shader`,
+   `unity\Assets\Spine\SpineUnity\Shaders\SkeletonLit.shader`.
+7. [x] Агент: tools — `knownRoots` 6000.5.8f1 → 7000.0.0a10 в `unity-compile-check.ps1`,
+   `unity-build-game.ps1`, `unity-provision-plugins.ps1`, `unity-generate-battle-test-scene.ps1`.
+8. [ ] Пользователь: прогон Intro → CampaignSelection → EstateManagement → Dungeon (герои/монстры
+   видимы, Death's Door пульс, грейскейл, торч-флейм, UI, карта).
+9. [ ] Агент: `unity-compile-check.ps1` при закрытом редакторе; доки — `UNITY_MIGRATION.md` §6
+   (миграция 6.5 → 7.0, URP), `ARCHITECTURE.md` (Unity 7), `KNOWN_ISSUES.md` (BlurOptimized мёртв
+   под URP; SkeletonLit unlit), `TESTING.md` (URP-чеклист), `COMPABILITY.md`.
+
+## Affected files
+
+- `unity\ProjectSettings\ProjectSettings.asset` (m_DynamicBatching → 0, через UI редактора).
+- `unity\Packages\manifest.json` + `packages-lock.json` (URP, через Package Manager).
+- Новые: `unity\Assets\Settings\*.asset` (URP Asset + Renderer), `.meta` обязательны.
+- `unity\Assets\Spine\SpineUnity\Shaders\Skeleton.shader`, `SkeletonLit.shader`.
+- `tools\unity-*.ps1` (4 файла), `PLAN.md`.
+- Доки: `docs\UNITY_MIGRATION.md`, `docs\ARCHITECTURE.md`, `docs\KNOWN_ISSUES.md`,
+  `docs\TESTING.md`, `docs\COMPABILITY.md`.
+
+## Acceptance criteria
+
+- Оба сообщения в консоли исчезли; Game view не чёрный (URP asset назначен).
+- Герои и монстры видимы в бою, Death's Door пульс и грейскейл-материалы работают.
+- `pwsh tools\unity-compile-check.ps1` зелёный на 7000.0.0a10 (редактор закрыт).
+- Легаси (`unity-2017\`, `src\External\`) не изменён.
+
+## Out of scope
+
+- Порт освещения SkeletonLit (URP lit) — отдельная задача.
+- Замена BlurOptimized (showoff-блюр) URP-аналогом — отдельная задача.
+- Мёртвый `CharacterSprite.shader` (Spine/DungeonSprite, 0 ссылок) — не трогаем.
+
+---
+
 # PLAN: BattleTest — тест-сцена боёв как первый Unity-потребитель ядра (прототип Фазы 6)
 
 ---
