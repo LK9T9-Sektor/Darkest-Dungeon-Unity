@@ -24,9 +24,16 @@ baseline. Затем — установить причину «жёлтой» с
 ## Steps / status
 
 1. [x] PLAN.md зафиксирован (эта секция).
-2. [ ] Коммит A: fallout конвертера (61 файл + `DungeonSettings.lighting` + `.meta`; `.opencode/` мимо).
-3. [ ] Дампер: `SceneSnapshotDumper` + DTO + README (+ `.meta`), строка в `docs\INDEX.md`.
-4. [ ] Коммит B: дампер (`unity-compile-check.ps1` при закрытом редакторе — зелёный).
+2. [x] Коммит A: fallout конвертера (61 файл + `DungeonSettings.lighting` + `.meta`; `.opencode/` мимо) —
+   `c4f1cc6`. Побочно вскрылись и закрыты два дефекта после пересериализации: мёртвый
+   `TouchInputModule` (missing script в `Dungeon.unity`) — `6d6725d`; script-reference check не
+   индексировал пакетные meta (`com.unity.ugui`/URP гуиды) — `5da0f5f` (тул + AGENTS.md).
+3. [x] Дампер: `SceneSnapshotDumper` + DTO + README (+ `.meta`), строка в `docs\INDEX.md` —
+   написано: `unity\Assets\Scripts\Diagnostics\{SceneSnapshotDumper, SceneSnapshot,
+   SceneNodeSnapshot, ComponentSnapshot, ComponentPropertySnapshot, SceneSnapshotPropertyReader}.cs`
+   + `README.md` (все с `.meta`).
+4. [x] Коммит B: дампер (`unity-compile-check.ps1` при закрытом редакторе — зелёный; первая
+   попытка поймала удаление `CanvasRenderer.alpha` в Unity 7 → `GetAlpha()`).
 5. [ ] Прогон Интро→Dungeon (пользователь), F9 в момент «жёлтой стены»; разбор JSON (узел RoomView).
 6. [ ] Коммит C: фикс по факту (+ доки в том же коммите).
 
