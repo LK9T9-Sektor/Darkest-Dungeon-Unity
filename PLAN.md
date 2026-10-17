@@ -1,3 +1,51 @@
+# PLAN: URP-диагностика — JSON-дамп сцены + коммит fallout конвертера
+
+## Goal
+
+После шага 5 URP-миграции (Render Pipeline Converter, выполнен пользователем) в рабочем дереве
+скопился большой fallout: 61 изменённый файл (+101 263 / −84 291) — конвертированные материалы,
+пересериализованные префабы/сцена, ProjectSettings. Его нужно закоммитить в `core/unity7-urp` как
+baseline. Затем — установить причину «жёлтой» стены комнаты
+(`Dungeon→DungeonView→RoomView→RoomWall→Wall`) по данным, а не догадкам: отдельный диагностический
+класс снимает полную иерархию сцены с характеристиками компонентов в JSON (на старте и с задержкой,
+без блокирования; F9 — снимок по требованию в момент визуального бага).
+
+## Design decisions (user-confirmed)
+
+- Дампер — отдельный класс-тул в `unity/Assets/Scripts/Diagnostics/` (только активное дерево;
+  `unity-2017\` не трогаем). Авто-старт `[RuntimeInitializeOnLoadMethod(AfterSceneLoad)]`, снимки на
+  задержках 0/5/15 c + F9. JSON через `JsonUtility` (Newtonsoft в манифесте нет — зависимость не
+  добавляем), сбор DTO на main thread корутиной (yield каждые N узлов), запись файла — в фоне.
+- `.opencode/` не коммитим (остаётся неотслеживаемым).
+- Fix стеновых материалов (`CoridorWall.mat`/`CoridorWall 1.mat`: конвертер сменил built-in шейдер
+  `fileID 10800` на URP/SimpleLit — измеренный факт, главный подозреваемый) — только после
+  подтверждения данными снимка, отдельным коммитом.
+
+## Steps / status
+
+1. [x] PLAN.md зафиксирован (эта секция).
+2. [ ] Коммит A: fallout конвертера (61 файл + `DungeonSettings.lighting` + `.meta`; `.opencode/` мимо).
+3. [ ] Дампер: `SceneSnapshotDumper` + DTO + README (+ `.meta`), строка в `docs\INDEX.md`.
+4. [ ] Коммит B: дампер (`unity-compile-check.ps1` при закрытом редакторе — зелёный).
+5. [ ] Прогон Интро→Dungeon (пользователь), F9 в момент «жёлтой стены»; разбор JSON (узел RoomView).
+6. [ ] Коммит C: фикс по факту (+ доки в том же коммите).
+
+## Affected files
+
+- `PLAN.md`; `unity\Assets\Scenes\DungeonSettings.lighting` (+`.meta`).
+- `unity\Assets\Scripts\Diagnostics\*.cs` (+`.meta`), `README.md`.
+- `docs\INDEX.md` (строка про дампер); при фиксе — `docs\mechanics\presentation\*`, `docs\TESTING.md`,
+  `docs\CHANGELOG.md` (только user-visible).
+
+## Acceptance criteria
+
+- Коммиты A/B в `core/unity7-urp`; script-reference check (hook) и компиляция зелёные.
+- JSON-снимки создаются на старте и с задержкой, путь логируется в консоль; F9 снимает снимок.
+- Причина «жёлтой» стены установлена по данным снимка (sprite/shader/alpha/active-цепочка), фикс
+  подтверждён повторным прогоном.
+
+---
+
 # PLAN: Unity 7 (7000.0.0a10) — URP-миграция после апгрейда
 
 ## Goal
@@ -29,9 +77,9 @@ Spine-шейдеров на URP-совместимые (иначе герои/м
    Render Pipeline прописан агентом в `GraphicsSettings.asset` (guid `3c6b23f4...`, коммит `29e7288`).
 4b. [x] Агент: удалены 127 устаревших .NET-фасадов (gitignored) из `Assets\Plugins\Internal` —
    дублировали `unity-4.8-api\Facades` Unity 7 и давали `error CS1703`; остались только `Sektor.*`.
-5. [ ] Пользователь: Window > Rendering > Render Pipeline Converter → Source: Built-in, Target:
+5. [x] Пользователь: Window > Rendering > Render Pipeline Converter → Source: Built-in, Target:
    URP (Universal Renderer) → Rendering Settings + Material Reference Converter + Material Shader
-   Converter → Initialize and Convert.
+   Converter → Initialize and Convert. Fallout закоммичен (коммит A секции URP-диагностики).
 6. [x] Агент: порт fixed-function Spine-шейдеров на CG unlit v/f (имена/свойства те же):
    `unity\Assets\Spine\SpineUnity\Shaders\Skeleton.shader`,
    `unity\Assets\Spine\SpineUnity\Shaders\SkeletonLit.shader`.

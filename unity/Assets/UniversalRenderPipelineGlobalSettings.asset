@@ -109,7 +109,9 @@ MonoBehaviour:
       type: {class: Shadow2DGeometrySettings, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_Version: 0
-        m_Generators: []
+        m_Generators:
+        - rid: 4776442737815453696
+        - rid: 4776442737815453697
         m_GeometryVersion: 0
     - rid: 4776442737063887043
       type: {class: ScreenSpaceReflectionPersistentResources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}
@@ -536,3 +538,9 @@ MonoBehaviour:
       data:
         m_Version: 0
         m_reactiveMaskPS: {fileID: 4800000, guid: a32e79e9a0e86a14894684c864a169a3, type: 3}
+    - rid: 4776442737815453696
+      type: {class: LegacyShadowGeometryGenerator, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
+      data: 
+    - rid: 4776442737815453697
+      type: {class: SoftShadowGeometryGenerator, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
+      data: 
