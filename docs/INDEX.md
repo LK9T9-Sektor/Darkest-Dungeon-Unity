@@ -35,6 +35,7 @@
 | Сетевой трек (переиспользуемые транспорты Steam + Photon) | `NETWORK_LAYER_REUSE.md` |
 | Инфраструктура инструментов/доставки ядра | `EXTRACTION_PLAN.md` §5, `COMPABILITY.md` |
 | Как проверить в игре после изменений | `TESTING.md` |
+| Активный план задачи и архив завершённых планов | `PLAN.md`, `docs\plans\00_index.md` |
 | Диагностика Unity-сцен: JSON-снимок иерархии (авто 0/5/15 c, F9; разбор URP-багов) | `unity\Assets\Scripts\Diagnostics\README.md` |
 | Механики дуэли/боя (порядок хода, скиллы, урон, стресс, резисты, черты) | `FEATURE_DESKTOP_CLIENT.md` § «Механики боя» |
 

@@ -85,6 +85,7 @@ Before planning or editing, read the relevant documents from `docs\`:
 - `INDEX.md` — doc map: which document answers which question (entities, execution, wishlist `FEATURE_*.md`).
 - `docs\mechanics\00_index.md` — detailed per-mechanic specifications by domain (the "how it works" source of truth).
 - `docs\CLEANUP.md` — core-code cleanup catalog (magic strings/numbers, god-classes, switch dispatch, logging).
+- `PLAN.md` — активный план задачи (цель, шаги, статусы); архив завершённых планов — `docs\plans\00_index.md`.
 
 **Clean core rule:** the pure core (`src\Core\`, `src\Clients\`) is owned code and must be kept clean:
 no magic strings/numbers (use named constants — content ids in `Core.Combat\Content\`, clamps/chances as
