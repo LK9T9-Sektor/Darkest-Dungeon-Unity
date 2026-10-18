@@ -1,19 +1,26 @@
 # Diagnostics — JSON-снимок иерархии сцены
 
 Диагностический инструмент для разбора визуальных багов в Unity 7 + URP (первый потребитель —
-«жёлтая» стена комнаты в `Dungeon`). Снимает **полное дерево активной сцены** (включая неактивные
-объекты) со свойствами компонентов в JSON — на старте, с задержкой и вручную.
+«жёлтая» стена комнаты в `Dungeon`) и для снятия карты раскладки сцен: координаты, канвасы,
+спрайты и тексты — чтобы пересобрать расстановку в Unity и повторить её в WPF. Снимает **полное
+дерево сцены** (включая неактивные объекты) со свойствами компонентов в JSON, плюс компактный
+layout-лист (CSV) рядом — авто, по смене разрешения и вручную.
 
 ## Что делает
 
 - Авто-старт в Play Mode (`[RuntimeInitializeOnLoadMethod(AfterSceneLoad)]`, объект
   `SceneSnapshotDumper`, `DontDestroyOnLoad`).
-- Для каждой загруженной сцены — авто-снимки через **0 / 5 / 15 c** после загрузки.
-- **F9** — ручной снимок текущей активной сцены в любой момент (момент визуального бага).
-- Снимок сохраняет и **скриншот** (`.png` рядом с `.json`, `ScreenCapture.CaptureScreenshot`) — для
-  пиксельного разбора (например, версии «жёлтая заливка»).
+- Для каждой загруженной сцены — авто-снимки: `auto-settled` (первый отрисованный кадр с
+  принудительным `Canvas.ForceUpdateCanvases` — раскладка уже финальная), затем через **5 / 15 c**.
+- Смена разрешения Game view — снимок `resize-<WxH>` (после стабилизации раскладки), без F9.
+- Рядом с каждым снимком сцены снимается псевдо-сцена **`DontDestroyOnLoad`** (отдельные файлы
+  `DontDestroyOnLoad-<триггер>-*`; без скриншота).
+- **F9** — ручной снимок активной сцены в любой момент; `SceneSnapshotDumper.Capture("tag")` —
+  программный триггер из кода инициализации (задел для семантических моментов, гейм-код не зовёт).
+- Снимки сцены сохраняют и **скриншот** (`.png` рядом с `.json`,
+  `ScreenCapture.CaptureScreenshot`) — для пиксельного разбора (например, версии «жёлтая заливка»).
 - Сбор DTO на главном потоке игры чанками (yield каждые `NodesPerYield` узлов — кадр не
-  блокируется), запись файла — в фоновом потоке.
+  блокируется), запись файлов — в фоновом потоке.
 - Сборка JSON — `JsonUtility` (Newtonsoft в проекте нет — зависимостей не требует).
 
 ## Куда пишет
@@ -21,23 +28,37 @@
 - Папка: `%USERPROFILE%\AppData\LocalLow\RedHooks\Darkest Dungeon\SceneDumps\`
   (`Application.persistentDataPath`).
 - Имя файла: `<сцена>-<триггер>-<yyyyMMdd-HHmmss-fff>.json`, например
-  `Dungeon-manual-20261017-213005-123.json`; рядом — скриншот `<то же имя>.png`.
+  `Dungeon-manual-20261017-213005-123.json`; рядом — скриншот `<то же имя>.png` (только для
+  снимков сцены) и layout-лист `<то же имя>.csv` (см. ниже).
 - Путь к папке и каждому файлу логируется в консоль Unity с префиксом `[SceneDump]`.
 
 ## Формат
 
-`SceneSnapshot` → `Roots[]` → `SceneNodeSnapshot` → `Children[]`:
+`SceneSnapshot` (шапка: `SceneName`, `Trigger`, `TakenAtUtc`, `FrameCount`, `TimeSinceLevelLoad`,
+`ScreenWidth/Height/Aspect`, `IsDontDestroyOnLoad`, `NodeCount`) → `Roots[]` →
+`SceneNodeSnapshot` → `Children[]`:
 
 - `SceneNodeSnapshot`: `Name`, `Path` (`/Root/Child`), `SiblingIndex`, `ActiveSelf`,
   `ActiveInHierarchy`, `Tag`, `Layer`, `LayerName`, `Components[]`, `Children[]`.
 - `ComponentSnapshot`: `Type` (полное имя; `<MissingScript>` — потерянный скрипт), `Enabled`,
   `Properties[]` (`Name`/`Value`, значения — строки в invariant-формате).
 - Извлекаемые свойства (реестр `SceneSnapshotPropertyReader`): Transform/RectTransform (позиции,
-  масштаб, rect), Renderer/SpriteRenderer (материал, шейдер, спрайт, цвет, bounds, `isVisible`),
-  Camera (включая `clearFlags`, `backgroundColor`, `cullingMask`, `depth`), Canvas/CanvasGroup,
-  CanvasRenderer (рендер-материал `GetMaterial()`: имя/shader/mainTexture/размер), Graphic/Image
-  (цвет, материал, шейдер, спрайт + `spriteRect`/`textureRect`/`pixelsPerUnit` и размер/формат/
-  mip/readable фильтр текстуры), `enabled` у Behaviour. Свойства базовых типов идут раньше частных.
+  масштаб, rect, якоря, `screenRectPx`/`screenRectNorm` — экранный прямоугольник в пикселях и в
+  долях экрана через root-canvas), Renderer/SpriteRenderer (материал, шейдер, спрайт, цвет,
+  bounds, `isVisible`), Camera (включая `clearFlags`, `backgroundColor`, `cullingMask`, `depth`,
+  `pixelRect`, `targetTexture`), Canvas (включая `pixelPerfect`)/CanvasGroup, `CanvasScaler`
+  (`uiScaleMode`/`referenceResolution`/`screenMatchMode`/`matchWidthOrHeight`), CanvasRenderer
+  (рендер-материал `GetMaterial()`: имя/shader/mainTexture/размер), Graphic/Image (цвет,
+  материал, шейдер, спрайт + `spriteRect`/`textureRect`/`pixelsPerUnit`, `imageType`/`fillMethod`,
+  размер/формат/mip/readable фильтр текстуры), Text (`text` — обрезка до 80 символов, `font`,
+  `fontSize`, `alignment`), лейаут-компоненты (LayoutGroup: padding/alignment/spacing/expand,
+  GridLayoutGroup, ContentSizeFitter, LayoutElement, AspectRatioFitter), `enabled` у Behaviour.
+  Свойства базовых типов идут раньше частных.
+- **Layout-лист** (`<то же имя>.csv`, рядом с JSON): по строке на узел, колонка `Kind` —
+  `Canvas` (renderMode/sorting/scale + CanvasScaler), `UI` (якоря, pivot, позиция, sizeDelta,
+  `ScreenRectPx`/`ScreenRectNorm`, спрайт/тип картинки, текст/размер шрифта, путь канваса) или
+  `Camera` (ortho/размер/FOV/clearFlags/depth/pixelRect). Лист — основной артефакт для
+  пересборки раскладки и для WPF; значения — те же строки, что в JSON.
 
 Разбор «жёлтой» стены (итог): причина оказалась не в стене, а в камерах — `BlurCamera`/
 `UI_Dangeon/Camera` были Base-камерами с `Clear Flags = Nothing`, и URP Render Graph чистил фон в
@@ -55,9 +76,14 @@
 
 ## Ограничения
 
-- Снимается только активная сцена (не `DontDestroyOnLoad`, не additive-сцены по отдельности —
-  каждая additive-сцена снимается своим `sceneLoaded`).
+- Активная сцена снимается целиком; `DontDestroyOnLoad` — отдельными файлами на каждое
+  capture-событие; каждая additive-сцена снимается своим `sceneLoaded`.
 - Значения — строки (для diff’а; числа в invariant). `Renderer.material` не читается (только
   `sharedMaterial`), чтобы не создавать копии материалов.
-- Инструмент — временный диагностический слой: удаляется вместе с папкой `Scripts\Diagnostics`,
-  гейм-код его не использует.
+- Экранный прямоугольник (`screenRectPx`/`screenRectNorm`) считается под разрешение на момент
+  снимка; для world-space канваса без камеры пишется `<no-camera>`, у неактивных канвасов, которые
+  ни разу не позиционировались, пиксели могут быть смещены (якоря/позиция при этом верны).
+- Текст в CSV/JSON обрезается до 80 символов; для снимков `DontDestroyOnLoad` скриншот не пишется.
+- Инструмент живёт отдельно от гейм-кода (`Scripts\Diagnostics`) и гейм-код его не вызывает (только
+  `Capture(tag)` — точка входа на будущее); скриншоты и JSON/CSV — диагностический слой, который
+  перестаёт быть нужен после завершения работ по раскладке.

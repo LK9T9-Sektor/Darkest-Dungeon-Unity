@@ -13,6 +13,8 @@ using UnityEngine.UI;
 /// </summary>
 public class SceneSnapshotPropertyReader
 {
+    private const int TextPreviewLength = 80;
+
     private readonly List<Type> _types = new List<Type>();
     private readonly List<Action<Component, ComponentSnapshot>> _extractors =
         new List<Action<Component, ComponentSnapshot>>();
@@ -31,6 +33,14 @@ public class SceneSnapshotPropertyReader
         Register<CanvasRenderer>(ReadCanvasRenderer);
         Register<Graphic>(ReadGraphic);
         Register<Image>(ReadImage);
+        Register<CanvasScaler>(ReadCanvasScaler);
+        Register<Text>(ReadText);
+        Register<LayoutGroup>(ReadLayoutGroup);
+        Register<HorizontalOrVerticalLayoutGroup>(ReadHorizontalOrVerticalLayoutGroup);
+        Register<GridLayoutGroup>(ReadGridLayoutGroup);
+        Register<ContentSizeFitter>(ReadContentSizeFitter);
+        Register<LayoutElement>(ReadLayoutElement);
+        Register<AspectRatioFitter>(ReadAspectRatioFitter);
     }
 
     /// <summary>Applies every matching extractor to the given component.</summary>
@@ -135,6 +145,61 @@ public class SceneSnapshotPropertyReader
         Add(target, "anchorMin", FormatVector2(rectTransform.anchorMin));
         Add(target, "anchorMax", FormatVector2(rectTransform.anchorMax));
         Add(target, "rect", FormatRect(rectTransform.rect));
+        AddScreenRect(rectTransform, target);
+    }
+
+    /// <summary>
+    /// Projects the rect's world corners to screen pixels and screen fractions via the owning
+    /// root canvas (overlay canvases need no camera, camera/world-space canvases use their
+    /// world camera or <see cref="Camera.main"/> as a fallback).
+    /// </summary>
+    private static void AddScreenRect(RectTransform rectTransform, ComponentSnapshot target)
+    {
+        Canvas canvas = rectTransform.GetComponentInParent<Canvas>(true);
+        if (canvas == null)
+        {
+            return;
+        }
+
+        canvas = canvas.rootCanvas;
+        Camera camera = null;
+        if (canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+        {
+            camera = canvas.worldCamera != null ? canvas.worldCamera : Camera.main;
+            if (camera == null)
+            {
+                Add(target, "screenRectPx", "<no-camera>");
+                return;
+            }
+        }
+
+        Vector3[] corners = new Vector3[4];
+        rectTransform.GetWorldCorners(corners);
+        Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
+        Vector2 max = new Vector2(float.MinValue, float.MinValue);
+        for (int i = 0; i < corners.Length; i++)
+        {
+            Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(camera, corners[i]);
+            min = Vector2.Min(min, screenPoint);
+            max = Vector2.Max(max, screenPoint);
+        }
+
+        Add(target, "screenRectPx", FormatRectMinMax(min, max, "0.##"));
+        if (Screen.width > 0 && Screen.height > 0)
+        {
+            Vector2 normalizedMin = new Vector2(min.x / Screen.width, min.y / Screen.height);
+            Vector2 normalizedMax = new Vector2(max.x / Screen.width, max.y / Screen.height);
+            Add(target, "screenRectNorm", FormatRectMinMax(normalizedMin, normalizedMax, "0.####"));
+        }
+    }
+
+    private static string FormatRectMinMax(Vector2 min, Vector2 max, string numberFormat)
+    {
+        return string.Format(CultureInfo.InvariantCulture, "(x={0}, y={1}, w={2}, h={3})",
+            min.x.ToString(numberFormat, CultureInfo.InvariantCulture),
+            min.y.ToString(numberFormat, CultureInfo.InvariantCulture),
+            (max.x - min.x).ToString(numberFormat, CultureInfo.InvariantCulture),
+            (max.y - min.y).ToString(numberFormat, CultureInfo.InvariantCulture));
     }
 
     private static void ReadRenderer(Renderer renderer, ComponentSnapshot target)
@@ -170,6 +235,8 @@ public class SceneSnapshotPropertyReader
         Add(target, "cullingMask", camera.cullingMask.ToString(CultureInfo.InvariantCulture));
         Add(target, "depth", FormatFloat(camera.depth));
         Add(target, "rect", FormatRect(camera.rect));
+        Add(target, "pixelRect", FormatRect(camera.pixelRect));
+        Add(target, "targetTexture", ObjectName(camera.targetTexture));
     }
 
     private static void ReadCanvas(Canvas canvas, ComponentSnapshot target)
@@ -178,6 +245,7 @@ public class SceneSnapshotPropertyReader
         Add(target, "sortingLayerName", canvas.sortingLayerName);
         Add(target, "sortingOrder", canvas.sortingOrder.ToString(CultureInfo.InvariantCulture));
         Add(target, "overrideSorting", FormatBool(canvas.overrideSorting));
+        Add(target, "pixelPerfect", FormatBool(canvas.pixelPerfect));
         Add(target, "scaleFactor", FormatFloat(canvas.scaleFactor));
         Add(target, "worldCamera", ObjectName(canvas.worldCamera));
     }
@@ -220,6 +288,7 @@ public class SceneSnapshotPropertyReader
         Add(target, "sprite", ObjectName(image.sprite));
         Add(target, "spriteTexture", TextureName(image.sprite));
         Add(target, "imageType", image.type.ToString());
+        Add(target, "fillMethod", image.fillMethod.ToString());
         Add(target, "fillAmount", FormatFloat(image.fillAmount));
         Add(target, "preserveAspect", FormatBool(image.preserveAspect));
         if (image.sprite != null)
@@ -239,5 +308,80 @@ public class SceneSnapshotPropertyReader
             Add(target, "textureFilterMode", texture.filterMode.ToString());
             Add(target, "textureWrapMode", texture.wrapMode.ToString());
         }
+    }
+
+    private static void ReadCanvasScaler(CanvasScaler canvasScaler, ComponentSnapshot target)
+    {
+        Add(target, "uiScaleMode", canvasScaler.uiScaleMode.ToString());
+        Add(target, "referenceResolution", FormatVector2(canvasScaler.referenceResolution));
+        Add(target, "screenMatchMode", canvasScaler.screenMatchMode.ToString());
+        Add(target, "matchWidthOrHeight", FormatFloat(canvasScaler.matchWidthOrHeight));
+        Add(target, "referencePixelsPerUnit", FormatFloat(canvasScaler.referencePixelsPerUnit));
+    }
+
+    private static void ReadText(Text text, ComponentSnapshot target)
+    {
+        string value = text.text ?? string.Empty;
+        if (value.Length > TextPreviewLength)
+        {
+            value = value.Substring(0, TextPreviewLength) + "...";
+        }
+
+        Add(target, "text", value);
+        Add(target, "font", ObjectName(text.font));
+        Add(target, "fontSize", text.fontSize.ToString(CultureInfo.InvariantCulture));
+        Add(target, "alignment", text.alignment.ToString());
+    }
+
+    private static void ReadLayoutGroup(LayoutGroup layoutGroup, ComponentSnapshot target)
+    {
+        Add(target, "padding", FormatPadding(layoutGroup.padding));
+        Add(target, "childAlignment", layoutGroup.childAlignment.ToString());
+    }
+
+    private static void ReadHorizontalOrVerticalLayoutGroup(HorizontalOrVerticalLayoutGroup layoutGroup,
+        ComponentSnapshot target)
+    {
+        Add(target, "spacing", FormatFloat(layoutGroup.spacing));
+        Add(target, "childControlWidth", FormatBool(layoutGroup.childControlWidth));
+        Add(target, "childControlHeight", FormatBool(layoutGroup.childControlHeight));
+        Add(target, "childForceExpandWidth", FormatBool(layoutGroup.childForceExpandWidth));
+        Add(target, "childForceExpandHeight", FormatBool(layoutGroup.childForceExpandHeight));
+    }
+
+    private static void ReadGridLayoutGroup(GridLayoutGroup layoutGroup, ComponentSnapshot target)
+    {
+        Add(target, "cellSize", FormatVector2(layoutGroup.cellSize));
+        Add(target, "spacing", FormatVector2(layoutGroup.spacing));
+        Add(target, "constraint", layoutGroup.constraint.ToString());
+        Add(target, "constraintCount", layoutGroup.constraintCount.ToString(CultureInfo.InvariantCulture));
+    }
+
+    private static void ReadContentSizeFitter(ContentSizeFitter fitter, ComponentSnapshot target)
+    {
+        Add(target, "horizontalFit", fitter.horizontalFit.ToString());
+        Add(target, "verticalFit", fitter.verticalFit.ToString());
+    }
+
+    private static void ReadLayoutElement(LayoutElement element, ComponentSnapshot target)
+    {
+        Add(target, "minWidth", FormatFloat(element.minWidth));
+        Add(target, "minHeight", FormatFloat(element.minHeight));
+        Add(target, "preferredWidth", FormatFloat(element.preferredWidth));
+        Add(target, "preferredHeight", FormatFloat(element.preferredHeight));
+        Add(target, "flexibleWidth", FormatFloat(element.flexibleWidth));
+        Add(target, "flexibleHeight", FormatFloat(element.flexibleHeight));
+    }
+
+    private static void ReadAspectRatioFitter(AspectRatioFitter fitter, ComponentSnapshot target)
+    {
+        Add(target, "aspectMode", fitter.aspectMode.ToString());
+        Add(target, "aspectRatio", FormatFloat(fitter.aspectRatio));
+    }
+
+    private static string FormatPadding(RectOffset padding)
+    {
+        return string.Format(CultureInfo.InvariantCulture, "(l={0}, r={1}, t={2}, b={3})",
+            padding.left, padding.right, padding.top, padding.bottom);
     }
 }
