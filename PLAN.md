@@ -36,7 +36,8 @@
    (root-canvas ищется с `includeInactive: true` — иначе неактивные панели молча теряли координаты).
 3. [x] `SceneSnapshotLayoutWriter.cs` (+ `.meta`) — CSV рядом с JSON, та же фоновая запись.
 4. [x] DDOL: псевдо-сцена (`GetSceneByName("DontDestroyOnLoad")`, fallback — обход
-   `Resources.FindObjectsOfTypeAll`), отдельный файл `<...>-ddol-<stamp>` на каждое capture-событие.
+   `Resources.FindObjectsOfTypeAll`), отдельные файлы `DontDestroyOnLoad-<триггер>-<stamp>` на каждое
+   capture-событие.
 5. [x] Триггеры: `auto-settled` вместо t0, resize-триггер, публичный `Capture(tag)`.
 6. [x] README дампера: поля/артефакты/триггеры; убрать ограничение «только активная сцена».
 7. [x] Верификация (агент): `unity-compile-check.ps1` зелёный (дважды); билд + прогон игрока:
@@ -47,7 +48,13 @@
 8. [ ] Пользователь: в редакторе открыть `Dungeon`, Game-вью 16:9 → 21:9 → 4:3 (без F9) —
    ожидаются `Dungeon-auto-settled-*` и `resize-<WxH>-*` файлы; в CSV строка
    `UI_RaidInterface/RaidPanel` при 1080p ≈ (0,720)–(1920,1080) px и (0,0.667)–(1,1).
-9. [ ] Коммит на `core/unity7-urp` (push — по запросу).
+9. [x] Коммит на `core/unity7-urp`: `19ea5aa` (7 файлов, +645/−37, hook зелёный); push — по запросу.
+
+## Cleanup (по завершении плана)
+
+- `unity\Build\` — вывод сборки (gitignored), нужен для быстрых прогонов; удаляем по желанию.
+- `%LOCALAPPDATA%Low\RedHooks\Darkest Dungeon\SceneDumps\` — десятки МБ дампов; старые чистить.
+- Логи сборки/чеков: `%TEMP%\dd-build*.log`, `%TEMP%\unity-build-*.log`, `%TEMP%\unity-compile-*.log` — временные.
 
 ## Affected files
 
@@ -58,8 +65,8 @@
 
 ## Acceptance criteria
 
-- В SceneDumps на каждую загрузку сцены: JSON + CSV + PNG с тегом `auto-settled`; отдельный файл
-  `-ddol-` с содержимым `DontDestroyOnLoad` (менеджеры/хосты из стартовых сцен).
+- В SceneDumps на каждую загрузку сцены: JSON + CSV + PNG с тегом `auto-settled`; отдельные файлы
+  `DontDestroyOnLoad-<триггер>-*` с содержимым `DontDestroyOnLoad` (менеджеры/хосты из стартовых сцен).
 - CSV содержит `RaidPanel` со screen rect в пикселях и долях; `CanvasScaler` присутствует в JSON.
 - Смена разрешения без F9 → файл `resize-<WxH>`; легаси-сцена не меняется; компиляционный чек зелёный.
 
