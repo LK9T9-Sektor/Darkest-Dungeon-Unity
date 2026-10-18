@@ -49,6 +49,7 @@ public static class RuntimeUiFactory
         scaler.matchWidthOrHeight = 1f;
 
         canvasObject.AddComponent<GraphicRaycaster>();
+        SceneSnapshotDumper.RegisterCaptureHiddenCanvas(canvas);
         return canvas;
     }
 

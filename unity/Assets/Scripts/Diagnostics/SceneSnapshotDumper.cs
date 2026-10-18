@@ -29,6 +29,8 @@ public class SceneSnapshotDumper : MonoBehaviour
 
     private static readonly float[] AutoCaptureDelaysSeconds = { 5f, 15f };
 
+    private static readonly List<Canvas> CaptureHiddenCanvases = new List<Canvas>();
+
     private static SceneSnapshotDumper _instance;
 
     private SceneSnapshotPropertyReader _reader;
@@ -36,6 +38,21 @@ public class SceneSnapshotDumper : MonoBehaviour
     private int _lastScreenWidth;
     private int _lastScreenHeight;
     private Coroutine _resizeRoutine;
+    private readonly List<Canvas> _hiddenForScreenshot = new List<Canvas>();
+
+    /// <summary>
+    /// Registers a persistent runtime overlay canvas that is temporarily hidden while screenshot
+    /// PNGs are taken, so diagnostic captures show the scene and not tool windows (settings panel
+    /// and its launcher button). JSON/CSV snapshots are unaffected: they are built before the hide.
+    /// </summary>
+    /// <param name="canvas">The overlay canvas to hide during screenshot captures.</param>
+    public static void RegisterCaptureHiddenCanvas(Canvas canvas)
+    {
+        if (canvas != null && !CaptureHiddenCanvases.Contains(canvas))
+        {
+            CaptureHiddenCanvases.Add(canvas);
+        }
+    }
 
     /// <summary>Creates the non-destroyable dumper host right after the first scene load.</summary>
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -343,7 +360,7 @@ public class SceneSnapshotDumper : MonoBehaviour
         string path = Path.Combine(folder, fileName);
         if (captureScreenshot)
         {
-            ScreenCapture.CaptureScreenshot(Path.ChangeExtension(path, ".png"));
+            CaptureScreenshot(Path.ChangeExtension(path, ".png"));
         }
 
         Task.Run(() =>
@@ -361,6 +378,40 @@ public class SceneSnapshotDumper : MonoBehaviour
         });
 
         Debug.Log(LogPrefix + " snapshot '" + snapshot.SceneName + "' (" + snapshot.Trigger + ") queued: " + path);
+    }
+
+    private void CaptureScreenshot(string path)
+    {
+        for (int i = 0; i < CaptureHiddenCanvases.Count; i++)
+        {
+            Canvas canvas = CaptureHiddenCanvases[i];
+            if (canvas != null && canvas.gameObject.activeSelf)
+            {
+                canvas.gameObject.SetActive(false);
+                _hiddenForScreenshot.Add(canvas);
+            }
+        }
+
+        ScreenCapture.CaptureScreenshot(path);
+        if (_hiddenForScreenshot.Count > 0)
+        {
+            StartCoroutine(RestoreCaptureHiddenCanvasesRoutine());
+        }
+    }
+
+    private IEnumerator RestoreCaptureHiddenCanvasesRoutine()
+    {
+        yield return null;
+        yield return null;
+        for (int i = 0; i < _hiddenForScreenshot.Count; i++)
+        {
+            if (_hiddenForScreenshot[i] != null)
+            {
+                _hiddenForScreenshot[i].gameObject.SetActive(true);
+            }
+        }
+
+        _hiddenForScreenshot.Clear();
     }
 
     private static string SanitizeFileName(string value)
