@@ -1,0 +1,119 @@
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.SpineBattleView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views">
+    <!-- Purely visual 1x1 arena: the left hero plays its attack set once (one .skel = one
+         animation, so the slot swaps ContentDirectory per set), then the right hero flashes
+         damage and shows the popup, and both slots return to their idle sets. -->
+    <Grid Background="#14100C">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header: title + back cross -->
+        <views:ScreenHeaderView Grid.Row="0" Margin="48,24,48,0"
+                                Title="{Binding ScreenTitle}"
+                                CloseCommand="{Binding BackCommand}" />
+
+        <!-- Stage: attacker on the left, target on the right -->
+        <Border Grid.Row="1" Margin="64,16,64,0"
+                Background="#0E0B08" BorderBrush="#3A2E22" BorderThickness="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- ATTACKER: pose underlay + skill-effect overlay (mirrors Unity's base/Abilities
+                     layers; the overlay drives the completion command) -->
+                <Grid Grid.Column="0" Margin="24,16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="{Binding AttackerName}" FontSize="16" FontWeight="Bold"
+                               Foreground="#E8D9B0" HorizontalAlignment="Center" Margin="0,0,0,8" />
+                    <views:SpineHeroControl Grid.Row="1"
+                                             ContentDirectory="{Binding AttackerContentDirectory}"
+                                             Loop="{Binding AttackerLoop}" />
+                    <views:SpineHeroControl Grid.Row="1"
+                                             IsHitTestVisible="False"
+                                             Loop="False"
+                                             ContentDirectory="{Binding AttackerOverlayContentDirectory}"
+                                             AnimationCompletedCommand="{Binding AttackerAnimationCompletedCommand}" />
+                </Grid>
+
+                <TextBlock Grid.Column="1" Text="VS" FontSize="30" FontWeight="Bold" Foreground="#8A7A5A"
+                           VerticalAlignment="Center" Margin="16,0" />
+
+                <!-- TARGET -->
+                <Grid Grid.Column="2" Margin="24,16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="{Binding TargetName}" FontSize="16" FontWeight="Bold"
+                               Foreground="#E8D9B0" HorizontalAlignment="Center" Margin="0,0,0,8" />
+                    <views:SpineHeroControl Grid.Row="1"
+                                             ContentDirectory="{Binding TargetContentDirectory}" />
+
+                    <!-- DAMAGE FLASH: red tint over the target that fades out over 1.5s -->
+                    <Border Grid.Row="1" IsHitTestVisible="False" CornerRadius="8" ClipToBounds="True">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="#00000000" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding TargetCardFlash}" Value="Damage">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                                    From="#B38A2E2E" To="#008A2E2E" Duration="0:0:1.5" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                    </Border>
+
+                    <!-- DAMAGE POPUP: the number rises and fades over the target -->
+                    <TextBlock Grid.Row="1" Text="{Binding TargetPopupText}" FontSize="26" FontWeight="Bold"
+                               Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               TextAlignment="Center" IsHitTestVisible="False" Margin="6">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Opacity" Value="0" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding TargetPopupVisible}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                     From="1" To="0" Duration="0:0:2.2" />
+                                                    <ThicknessAnimation Storyboard.TargetProperty="Margin"
+                                                                        From="0,0,0,0" To="0,-85,0,0" Duration="0:0:2.2" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Controls -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,24">
+            <Button Content="АТАКА" Width="200" Height="58" FontSize="20"
+                    Style="{StaticResource HudButton}" Command="{Binding AttackCommand}"
+                    ToolTip="Plays the attacker's attack set once, then applies the damage feedback" />
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
@@ -33,6 +34,20 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(SpineHeroControl),
             new PropertyMetadata(false));
 
+        /// <summary>Identifies the <see cref="Loop"/> dependency property.</summary>
+        public static readonly DependencyProperty LoopProperty = DependencyProperty.Register(
+            nameof(Loop),
+            typeof(bool),
+            typeof(SpineHeroControl),
+            new PropertyMetadata(true, OnContentPropertyChanged));
+
+        /// <summary>Identifies the <see cref="AnimationCompletedCommand"/> dependency property.</summary>
+        public static readonly DependencyProperty AnimationCompletedCommandProperty = DependencyProperty.Register(
+            nameof(AnimationCompletedCommand),
+            typeof(ICommand),
+            typeof(SpineHeroControl),
+            new PropertyMetadata(null));
+
         /// <summary>Identifies the <see cref="SpeedMultiplier"/> dependency property.</summary>
         public static readonly DependencyProperty SpeedMultiplierProperty = DependencyProperty.Register(
             nameof(SpeedMultiplier),
@@ -51,6 +66,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         private SpineBounds bounds = SpineBounds.Empty;
         private string loadedDirectory = string.Empty;
         private string loadedAnimation = string.Empty;
+        private bool loadedLoop;
         private string? loadError;
         private TimeSpan lastTick;
         private bool ticking;
@@ -81,6 +97,23 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             get => (bool)GetValue(IsPausedProperty);
             set => SetValue(IsPausedProperty, value);
+        }
+
+        /// <summary>Gets or sets a value indicating whether the played animation loops (false plays it once).</summary>
+        public bool Loop
+        {
+            get => (bool)GetValue(LoopProperty);
+            set => SetValue(LoopProperty, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the command executed after a non-looping animation finished; the parameter
+        /// is the name of the completed animation. Raised on the render thread (UI thread).
+        /// </summary>
+        public ICommand? AnimationCompletedCommand
+        {
+            get => (ICommand?)GetValue(AnimationCompletedCommandProperty);
+            set => SetValue(AnimationCompletedCommandProperty, value);
         }
 
         /// <summary>Gets or sets the animation speed multiplier (1 = normal speed, 10 = ten times faster).</summary>
@@ -150,6 +183,16 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             if (!IsLoaded)
                 return;
 
+            // Empty ContentDirectory = the slot is switched off (e.g. the arena attack overlay
+            // between attacks): unload quietly instead of failing on a missing folder.
+            if (string.IsNullOrWhiteSpace(ContentDirectory))
+            {
+                DisposeContent();
+                loadedDirectory = string.Empty;
+                InvalidateVisual();
+                return;
+            }
+
             string resolvedDirectory = ResolveDirectory();
             if (content == null || !string.Equals(resolvedDirectory, loadedDirectory, StringComparison.OrdinalIgnoreCase))
             {
@@ -158,7 +201,8 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             }
 
             string animationName = ResolveAnimationName();
-            if (player != null && !string.Equals(animationName, loadedAnimation, StringComparison.Ordinal))
+            if (player != null
+                && (!string.Equals(animationName, loadedAnimation, StringComparison.Ordinal) || Loop != loadedLoop))
                 PlayAnimation(animationName);
         }
 
@@ -183,6 +227,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
                 content = new SpineSkeletonLoader().Load(skeletonFile, atlasFile);
                 player = content.CreatePlayer();
                 renderer = new SpineFrameRenderer();
+                player.AnimationCompleted += OnPlayerAnimationCompleted;
                 ApplyTimeScale();
                 PlayAnimation(ResolveAnimationName());
             }
@@ -211,10 +256,18 @@ namespace Sektor.DarkestDungeon.Wpf.Views
                 return;
             }
 
-            player.Play(animationName);
+            player.Play(animationName, Loop);
             bounds = renderer.MeasureAnimation(content.SkeletonData, animationName);
             loadedAnimation = animationName;
+            loadedLoop = Loop;
             loadError = null;
+        }
+
+        private void OnPlayerAnimationCompleted(string animationName)
+        {
+            ICommand? command = AnimationCompletedCommand;
+            if (command != null && command.CanExecute(animationName))
+                command.Execute(animationName);
         }
 
         private static string FindSingleFile(string directory, string pattern)
@@ -232,13 +285,18 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             renderer?.Dispose();
             renderer = null;
-            player?.Dispose();
-            player = null;
+            if (player != null)
+            {
+                player.AnimationCompleted -= OnPlayerAnimationCompleted;
+                player.Dispose();
+                player = null;
+            }
             content?.Dispose();
             content = null;
             bounds = SpineBounds.Empty;
             loadError = null;
             loadedAnimation = string.Empty;
+            loadedLoop = false;
         }
 
         private void OnRendering(object? sender, EventArgs e)

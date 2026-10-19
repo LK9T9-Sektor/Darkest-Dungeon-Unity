@@ -10,13 +10,18 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 Отдельный демо-экран `SpineDemoView` («SPINE TEST» в меню) играет скелетную анимацию героя
 (Spine 2.1) — прототип Spine-рендера для карточек дуэли: стрелками листаются все 15 героев,
 наборы анимаций героя (`Skeleton\`, Idle первым) и скорость воспроизведения 100…1000%.
+Экран `SpineBattleView` («АРЕНА 1×1» в меню) — чисто визуальная арена: слева Crusader, справа
+Highwayman, кнопка «АТАКА» проигрывает атаку как в Unity — слоями: base-слот принимает ударную
+позу `AttackSword` (заглушка с нулевой длительностью), поверх временно играет оверлей-скилл
+`Smite` (1.867 с, след меча); по завершению оверлея цель показывает красный флеш и попап урона,
+оба слота возвращаются в Idle. Ядро боя не участвует.
 
 ## 2. Модель данных
 
 - Экраны: `MainMenuView`, `DuelLobbyView`, `SinglePlayerLobbyView`, `PartySelectionView`,
-  `DuelBattleView`, `RaidHudView`, `ScreenHeaderView`, `SpineDemoView`.
+  `DuelBattleView`, `RaidHudView`, `ScreenHeaderView`, `SpineDemoView`, `SpineBattleView`.
 - ViewModels: `MainMenuViewModel`, `SinglePlayerLobbyViewModel`, `DuelBattleViewModel`,
-  `SpineDemoViewModel`, ...
+  `SpineDemoViewModel`, `SpineBattleViewModel`, ...
 - Spine-демо: рендер-контрол `SpineHeroControl` (`SKElement`) поверх библиотек
   `Sektor.Spine` (рантайм 2.1, netstandard2.0) и `Sektor.Spine.Skia`
   (загрузчик, плеер, Skia-рендер).
@@ -40,7 +45,17 @@ WPF-клиент — тонкий потребитель ядра: экраны 
    (перезагрузка сета) и `SpeedMultiplier` → `SpinePlayer.TimeScale` (`AnimationState.TimeScale`,
    float). Кадры считаются в `CompositionTarget.Rendering`. Кнопка «SCREENSHOT» (`EventTrigger` →
    `SaveScreenshotAction`, Microsoft.Xaml.Behaviors) снимает текущее окно в `screenshots/` рядом
-   с exe; имя файла показывает VM (`ScreenshotStatus`).
+    с exe; имя файла показывает VM (`ScreenshotStatus`).
+7. Арена: меню → «АРЕНА 1×1» → `SpineBattleViewModel` (логгер пишет `arena: opened/attack started/
+   attack completed` в `Logs\duel.log`). «АТАКА» (`AttackCommand`) меняет два directory атакующего
+   в одном потоке: base-слот → `Crusader\AttackSword` (поза) и оверлей-слот → `Crusader\Smite`
+   (one-shot). Оверлей-контрол имеет `Loop="False"` и единственный несёт
+   `AnimationCompletedCommand`; base-контрол команду завершения не получает (его поза —
+   duration=0, событие от него никем не потребляется). По концу `Smite` состояние шлёт `Complete`
+   → `SpinePlayer` поднимает `AnimationCompleted` (отложенный до конца `Update`) → команда оверлея
+   → VM: оверлей → `""` (слот выключается), base → `Idle`, цель получает
+   `TargetCardFlash="Damage"` (вход DataTrigger перезапускает флеш) и `TargetPopupVisible=true`
+   с текстом `-6`; `IsAttacking=false` разблокирует кнопку (`NotifyCanExecuteChangedFor`).
 
 ## 4. Очередь и обновления
 
@@ -141,9 +156,34 @@ WPF-клиент — тонкий потребитель ядра: экраны 
   `*.skel`, `.atlas.txt` — как `.atlas` (загрузчик принимает и `.skel`, и `.skel.bytes`; атлас —
   только `.atlas`); имя PNG обязано совпадать с именем страницы атласа (`<hero>.sprite.<anim>.png`),
   иначе текстура не найдётся. Записи генерирует `tools\spine-demo-content.ps1` в
-  `SpineDemoContent.props` (591 запись — руками csproj не правится).
+  `SpineDemoContent.props` (1005 записей / 335 сетов: `<Hero>\Skeleton\<Set>` + `<Hero>\Effects\<Skill>` —
+  руками csproj не правится; Effects-сеты содержат страницу-текстуру рядом со скелетом, базовые — в `Outfits\A`).
 - **Неймспейс `Sektor.Spine.Skia`** — квалифицированные ссылки `Spine.X` запрещены
   (shadowing сегментом `.Spine`): только `using Spine;` и простые имена.
+- **One-shot анимация (арена)** — `SpinePlayer.Play(name, loop: false)` ведёт флаг
+  `completionArmed` (его снимает только `AnimationState.Complete` по треку 0; лупинг-Complete
+  его игнорирует) и поднимает `AnimationCompleted` **после** `state.Update/Apply` внутри
+  `Update` — из обработчика можно синхронно перезагрузить/поменять контент (контроль это и
+  делает: смена `ContentDirectory` в обработчике). `SpineHeroControl`: DP `Loop` (default true)
+  + DP `AnimationCompletedCommand` (команда получает имя анимации). Готча: смена `Loop` или
+  `AnimationName` **перезапускает** текущую анимацию (`PlayAnimation`), поэтому VM меняет
+  «вернулся в idle»   атрибутами в одном потоке выполнения команды — между изменениями нет кадра
+  `CompositionTarget.Rendering`, промежуточный рестарт невидим и безопасен.
+- **Attack\*-сеты героев — заглушки с duration=0** (измерено по всем15 героям: `Skeleton\Attack*`
+  ≈360 байт,4 кости, `Animation.Duration = 0`) — это статичные ударные позы, а не анимации;
+  **настоящие таймовые скилл-анимации лежат в `<Hero>\Effects\<Skill>`** (например
+  `Effects\Smite`, `smite = 1.867 с`, регион `sword_trail`) — так же слоями их играет Unity
+  (base-поза + лист `Abilities` в префабе). Нулевая длительность ломает завершение one-shot:
+  условие рантайма `lastTime < endTime` ложно с самого начала и `Complete` не приходит никогда,
+  а трек чистится по первому тику — поэтому в `SpinePlayer.Update` есть guard: armed-one-shot с
+  `EndTime <= 0` завершается на первом тике (иначе кнопка арены вечно заблокирована;
+  тест `AttackSwordSet_ZeroDurationPose_StillCompletesOneShot`).
+- **Пустой `ContentDirectory` = слот выключен** — `SpineHeroControl` в этом случае молча
+  выгружает контент (без `FileNotFoundException` и оранжевой надписи): так оверлей арены
+  прячется между ударами (`AttackerOverlayContentDirectory = ""`).
+- **Повторный флеш урона** — DataTrigger `TargetCardFlash="Damage"` срабатывает только на
+  входе в значение, поэтому VM перед каждым ударом сбрасывает `TargetCardFlash` в `""` (и
+  `TargetPopupVisible` в false), иначе второй удар флеш не покажет.
 
 ## 7. Взаимодействия
 
@@ -158,6 +198,8 @@ WPF-клиент — тонкий потребитель ядра: экраны 
   `Data/DuelContent.cs`, `Combat/AiRivalLink.cs`, `Networking/NetworkRivalLink.cs`
 - `src/Spine/Sektor.Spine/` (рантайм spine-csharp 2.1), `src/Spine/Sektor.Spine.Skia/` (loader/player/Skia-рендер)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/SpineHeroControl.cs`, `Views/SpineDemoView.xaml(.cs)`, `ViewModels/SpineDemoViewModel.cs`
+- `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/SpineBattleView.xaml(.cs)`, `ViewModels/SpineBattleViewModel.cs` (арена 1×1)
+- `src/Spine/Sektor.Spine.Skia/SpinePlayer.cs` (one-shot `Play` + событие `AnimationCompleted`)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Ui/WindowScreenshot.cs` (кнопка SCREENSHOT)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Behaviors/` (`SaveScreenshotAction`, `MarkEventHandledAction`)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Data/SpineDemoCatalog.cs`, `Data/ISpineDemoCatalog.cs` (герои/анимации демо)
