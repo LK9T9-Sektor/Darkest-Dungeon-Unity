@@ -28,7 +28,8 @@ namespace Sektor.DarkestDungeon.Wpf
                 shell,
                 () => new DuelLobbyViewModel(shell, DuelTransportFactory.CreateSteamTransport(), DuelClasses.AllClassIds, logger),
                 () => new SinglePlayerLobbyViewModel(shell, DuelClasses.AllClassIds, logger),
-                () => new PveLobbyViewModel(shell, DuelClasses.AllClassIds, logger));
+                () => new PveLobbyViewModel(shell, DuelClasses.AllClassIds, logger),
+                () => new SpineDemoViewModel(shell));
             shell.SetHome(menu);
             shell.NavigateTo(menu);
             return shell;

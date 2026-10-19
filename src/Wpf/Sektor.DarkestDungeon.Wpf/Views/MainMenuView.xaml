@@ -39,8 +39,11 @@
                             Margin="0,0,36,0" Style="{StaticResource HudButton}"
                             Command="{Binding PveCommand}" />
                     <Button Content="MULTIPLAYER" Width="230" Height="58" FontSize="20"
-                            Style="{StaticResource HudButton}"
+                            Margin="0,0,36,0" Style="{StaticResource HudButton}"
                             Command="{Binding MultiplayerCommand}" />
+                    <Button Content="SPINE TEST" Width="200" Height="58" FontSize="20"
+                            Style="{StaticResource HudButton}"
+                            Command="{Binding SpineTestCommand}" />
                 </StackPanel>
             </StackPanel>
         </Grid>

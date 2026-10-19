@@ -7,12 +7,18 @@
 
 WPF-клиент — тонкий потребитель ядра: экраны (меню → лобби → бой), вводы, снапшоты. Вся доменная
 логика — в `Core.*`; ViewModel-слой транслирует вводы в `DuelController` и отображает состояние.
+Отдельный демо-экран `SpineDemoView` («SPINE TEST» в меню) играет скелетную анимацию героя
+(`crusader.sprite.idle`, Spine 2.1) — прототип Spine-рендера для карточек дуэли.
 
 ## 2. Модель данных
 
 - Экраны: `MainMenuView`, `DuelLobbyView`, `SinglePlayerLobbyView`, `PartySelectionView`,
-  `DuelBattleView`, `RaidHudView`, `ScreenHeaderView`.
-- ViewModels: `MainMenuViewModel`, `SinglePlayerLobbyViewModel`, `DuelBattleViewModel`, ...
+  `DuelBattleView`, `RaidHudView`, `ScreenHeaderView`, `SpineDemoView`.
+- ViewModels: `MainMenuViewModel`, `SinglePlayerLobbyViewModel`, `DuelBattleViewModel`,
+  `SpineDemoViewModel`, ...
+- Spine-демо: рендер-контрол `SpineHeroControl` (`SKElement`) поверх библиотек
+  `Sektor.DarkestDungeon.Spine` (рантайм 2.1, netstandard2.0) и `Sektor.DarkestDungeon.Spine.Wpf`
+  (загрузчик, плеер, Skia-рендер).
 - Обёртки ИИ/сети: `AiRivalLink`, `NetworkRivalLink`, `IDuelRivalLink`.
 - `Data/DuelContent` — реализация `IDuelContent` поверх каталогов.
 
@@ -24,10 +30,17 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 4. Ход: `DuelBattleViewModel` читает `IsLocalTurn`, применяет вводы (`ExecuteLocalSkill`), ИИ —
    `AiRivalLink` → `DuelAi.ChooseAction` → `ApplyRemoteSkill`; мультиплеер — `NetworkRivalLink`.
 5. Отображение: снапшоты состояния (HP/стресс/ранги), лог (`DuelBattleEvents.Log`), попапы.
+6. Spine-демо: меню → «SPINE TEST» → `SpineDemoView`; `SpineHeroControl` на `Loaded` находит в
+   `Content\Spine\Crusader` первый `*.skel*` и `*.atlas*`, грузит `SpineContent` и играет «idle»;
+   кадры считаются в `CompositionTarget.Rendering`. Кнопка «SCREENSHOT» (`EventTrigger` →
+   `SaveScreenshotAction`, Microsoft.Xaml.Behaviors) снимает текущее окно в `screenshots/` рядом
+   с exe; имя файла показывает VM (`ScreenshotStatus`).
 
 ## 4. Очередь и обновления
 
 - UI-поток (Dispatcher); `StateChanged` события боя → перерисовка.
+- Spine-демо: собственный цикл `CompositionTarget.Rendering` (подписка на `Loaded`, отписка на
+  `Unloaded`), дельта кадра клампится 0.1 c (`MaxFrameSeconds`); пауза — `IsPaused` (без отписки).
 - ИИ-ход с таймером (100мс, `AiRivalLink`: один тик, `lastActedCombatId`-гвардия — действие
   соперника шлётся один раз за ход, дальше паком занимается `DuelBattleViewModel`).
 - **Пак превью** (`DuelBattleViewModel.PaceState` + 50мс `DispatcherTimer`): при смене исполнителя
@@ -80,6 +93,42 @@ WPF-клиент — тонкий потребитель ядра: экраны 
   `DuelBattleViewModel.ToUnit`); карточка (`DuelUnitCardView.xaml`) при `True` проигрывает
   `ColorAnimation`-пульс (#33E83333 ↔ прозрачный, 0.75s AutoReverse) — паритет Unity
   `FormationUnit.Update` (R=1, G/B 1↔0.4, цикл ~1.5s). При хeлье `AtDeathsDoor → false` пульс гаснет.
+- **Spine-рантайм — один физический источник** — `src\Spine\Sektor.DarkestDungeon.Spine`
+  (netstandard2.0) компилирует вендорные сорсы `unity\Assets\Spine\SpineSharp\Source\**\*.cs` по
+  месту (одна копия, байт-в-байт одинакова в обоих Unity-деревьях); `InternalsVisibleTo`
+  (Assembly-CSharp, Assembly-CSharp-Editor) — задел под будущий своп Unity-копий на эту DLL.
+  Unity/WPF/Skia зависимостей нет.
+- **Setup-поза требует world-трансформа** — конструктор `Skeleton(data)` не считает world-позиции
+  костей, поэтому `SpinePlayer` в конструкторе делает `SetToSetupPose()` + `UpdateWorldTransform()`;
+  без этого `Measure`/`Render` на «свежем» скелете дают нули до первого `Play/Update` (аттачи
+  default skin в DD-скелете есть уже в setup-позе).
+- **Fit — по анимации, а не по setup-позе** — `SpineFrameRenderer.MeasureAnimation` (12 равномерных
+  сэмплов анимации на throwaway-скелете) даёт union bounds; в контроле
+  scale = `min(w/W, h/H) × 0.92`, origin — центр bounds.
+- **Тинт — только через ColorFilter, не через vertex colors** — `DrawVertices` с непустым массивом
+  vertex colors в SkiaSharp 2.88.8 превращает прозрачные пиксели атласа в непрозрачный белый
+  (белые прямоугольники вокруг частей персонажа). Полный разбор с минимальным репро —
+  `docs\plans\spine-transparency-vertex-colors.md`. Рендер передаёт `colors: null`, а цвет накладывает
+  `SKColorFilter.CreateBlendMode(color, SKBlendMode.Modulate)` (кэш paint'ов по текстуре/бленду/цвету);
+  тинт = `skeleton × slot × attachment` (формула Unity `SkeletonRenderer`).
+  Шейдер атласа — `SKShader.CreateBitmap(..., Clamp)`; UV — в пикселях текстуры; мапа блендов DD:
+  `normal→SrcOver`, `additive→Plus`, `multiply→Modulate`, `screen→Screen`.
+- **Клики — через Microsoft.Xaml.Behaviors, не code-behind** — SCREENSHOT: `EventTrigger EventName="Click"`
+  → `Behaviors\SaveScreenshotAction` (DP `SavedCommand` получает путь PNG или null, статус — VM);
+  info-кнопка карточки (`DuelUnitCardView.xaml`): `MarkEventHandledAction` гасит `Click`, чтобы он
+  не дошёл до кнопки-слота (эквивалент прежнего `e.Handled = true`). Команды без capture-логики —
+  `InvokeCommandAction` (прецедент — right-click на слоте в `DuelBattleView.xaml`). Mouse-события
+  (стрелки/бейдж) и `Loaded`/`LayoutUpdated` остаются в code-behind: это view-геометрия, а не команды.
+- **Скриншот окна** — `WindowScreenshot.Capture` (`RenderTargetBitmap` + `PngBitmapEncoder`, учёт DPI)
+  пишет PNG (без системного заголовка) в `screenshots/` внутри каталога сборки
+  (`AppContext.BaseDirectory`), имя `screenshot-<yyyy-MM-dd_HH-mm-ss-fff>.png`. Префикс имени — отдельная
+  константа: в строке формата `DateTime.ToString` буквы `s`/`h`/`t` из слова «screenshot» были бы
+  съедены как токены времени. Ошибки записи показываются в строке статуса, приложение не падает.
+- **Контент-линки Spine** — `.skel.bytes` линкуется как `crusader.sprite.idle.skel`, `.atlas.txt` —
+  как `.atlas` (загрузчик принимает и `.skel`, и `.skel.bytes`; атлас — только `.atlas`); имя PNG
+  обязано совпадать с именем страницы атласа (`crusader.sprite.idle.png`), иначе текстура не найдётся.
+- **Неймспейс `Sektor.DarkestDungeon.Spine.Wpf`** — квалифицированные ссылки `Spine.X` запрещены
+  (shadowing сегментом `.Spine`): только `using Spine;` и простые имена.
 
 ## 7. Взаимодействия
 
@@ -92,6 +141,11 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/*`, `ViewModels/*`, `Ui/TargetArrowMath.cs`,
   `Data/DuelContent.cs`, `Combat/AiRivalLink.cs`, `Networking/NetworkRivalLink.cs`
+- `src/Spine/Sektor.DarkestDungeon.Spine/` (рантайм spine-csharp 2.1), `src/Wpf/Sektor.DarkestDungeon.Spine.Wpf/` (loader/player/Skia-рендер)
+- `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/SpineHeroControl.cs`, `Views/SpineDemoView.xaml(.cs)`, `ViewModels/SpineDemoViewModel.cs`
+- `src/Wpf/Sektor.DarkestDungeon.Wpf/Ui/WindowScreenshot.cs` (кнопка SCREENSHOT)
+- `src/Wpf/Sektor.DarkestDungeon.Wpf/Behaviors/` (`SaveScreenshotAction`, `MarkEventHandledAction`)
+- `docs/plans/spine-transparency-vertex-colors.md` (разбор дефекта vertex colors)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/DuelUnitCardView.xaml` (death's door pulse, «ТВОЙ ХОД»)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/DuelBattleView.cs` (превью), `DuelBattleViewModel.cs` (пак)
 - `docs/FEATURE_DESKTOP_CLIENT.md`

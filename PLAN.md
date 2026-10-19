@@ -6,6 +6,138 @@
 
 ---
 
+# PLAN: Spine/SCREENSHOT — Microsoft.Xaml.Behaviors + документ о белых прямоугольниках
+
+## Goal
+
+Убрать code-behind-обработчики кликов в WPF-клиенте, заменив их `Microsoft.Xaml.Behaviors`
+(пакет 1.1.135 уже подключён): SCREENSHOT и info-кнопка карточки дуэли. Mouse/lifecycle-обработчики
+остаются (view-геометрия стрелок/бейджа). Отдельным документом зафиксировать разбор бага «белые
+прямоугольники»: почему возник (vertex colors в SkiaSharp 2.88) и как решён (`SKColorFilter`).
+
+## Design decisions (user-confirmed)
+
+- Объём: переводим только `Click`-обработчики; `DuelBattleView` mouse-события, `PumpableScreenBase`
+  и DP-callbacks кастомных контролов не трогаем — это view-логика, а не команды.
+- Скриншот: `TriggerAction<FrameworkElement>` (`SaveScreenshotAction`) с DP `SavedCommand`;
+  статус — состояние VM (`ScreenshotStatus`), TextBlock биндится, code-behind пустой.
+- Info-кнопка: generic `MarkEventHandledAction` (ставит `RoutedEventArgs.Handled`) — семантика
+  текущего `OnInfoButtonClick` сохраняется.
+- Разбор бага — `docs\plans\spine-transparency-vertex-colors.md` (+ строка в `00_index.md`),
+  минимальное репро вшивается в доку; ссылка из `presentation_wpf.md`.
+
+## Steps / status
+
+1. [x] PLAN.md зафиксирован.
+2. [x] `Behaviors\SaveScreenshotAction.cs`, `Behaviors\MarkEventHandledAction.cs` (XML-доки).
+3. [x] `SpineDemoViewModel`: `ScreenshotStatus` + `ScreenshotSavedCommand`; тест
+   `SpineDemoViewModelTests` (путь → имя файла; null → «Screenshot failed»).
+4. [x] XAML: `SpineDemoView` (EventTrigger → action, TextBlock → VM, убрать `Click=`/`x:Name`);
+   `DuelUnitCardView` (EventTrigger → MarkEventHandled, удалить `OnInfoButtonClick`).
+5. [x] Дока `docs\plans\spine-transparency-vertex-colors.md` (симптом → репро/сэмплы → причина →
+   фикс → регресс-тест → gotcha при апгрейде SkiaSharp) + `00_index.md`; обновить
+   `presentation_wpf.md` (behavior-обвязка, ссылка на разбор).
+6. [x] Проверки: `check-using-placement`, `dotnet test` (76/76), WPF-билд; UIA-клик SCREENSHOT →
+   PNG + статус.
+7. [ ] Ручная проверка info-кнопки в дуэли (пользователь): таблица баффов открывается, цель не
+   выбирается.
+
+## Affected files
+
+- Новые: `src\Wpf\Sektor.DarkestDungeon.Wpf\Behaviors\SaveScreenshotAction.cs`,
+  `Behaviors\MarkEventHandledAction.cs`, `tests\Wpf\...\SpineDemoViewModelTests.cs`,
+  `docs\plans\spine-transparency-vertex-colors.md`.
+- Изменяемые: `Views\SpineDemoView.xaml(.cs)`, `Views\DuelUnitCardView.xaml(.cs)`,
+  `ViewModels\SpineDemoViewModel.cs`, `docs\plans\00_index.md`,
+  `docs\mechanics\presentation\presentation_wpf.md`, `PLAN.md`.
+
+## Acceptance criteria
+
+- В XAML не остаётся `Click=`; SCREENSHOT сохраняет PNG и пишет статус из VM; info-кнопка в дуэли
+  ведёт себя как раньше.
+- `check-using-placement` и `dotnet test` зелёные; WPF-билд без новых ошибок.
+- Документ о белых прямоугольниках создан, проиндексирован и связан из спеки презентации.
+
+---
+
+# PLAN: Spine 2.1 — скелетная анимация героя в WPF (прототип, демо-экран)
+
+## Goal
+
+Прототип: воспроизвести скелетную анимацию героя DD (Spine 2.1.18, `crusader.sprite.idle`)
+в WPF-клиенте. Сначала демо-экран (idle-цикл Crusader), после ревью — карточка дуэли.
+Архитектура сразу готовится к переиспользованию в `unity\` и `unity-2017\`: Spine-рантайм
+собирается как отдельная netstandard2.0-библиотека (своп Unity на общую DLL — этап 2, отдельный PR).
+
+## Design decisions (user-confirmed)
+
+- Вендорный рантайм: spine-csharp 2.1 из `unity\Assets\Spine\SpineSharp\Source` (байт-в-байт
+  идентичен в обоих деревьях, чистый C# без UnityEngine/UNITY_EDITOR). `src/External/` в
+  `.gitignore` — вендорить туда нельзя; библиотека компилирует сорсы по месту (одна физическая копия).
+- Рендер — SkiaSharp (CPU, `SKCanvas.DrawVertices` с шейдером атласа), без WPF-зависимостей в библиотеке.
+- Загрузка: `SkeletonBinary` + `Atlas`, принимает `.skel`/`.skel.bytes`; текстура — outfit A PNG
+  (имя из атласа сохраняется).
+- Вход в демо — кнопка в главном меню.
+- Этап 2 (не сейчас): `git mv` сорсов в `src\Spine`, удаление копий из обоих Unity-деревьев,
+  DLL+pdb в оба `Plugins\Internal` (паттерн `CoreUnityPluginFolders`), InternalsVisibleTo
+  (SpineUnity использует internal: `RegionAttachment.uvs` — `SkeletonRenderer.cs:384`),
+  `unity-compile-check` обоих деревьев, ручной чек-лист в редакторах.
+
+## Steps / status
+
+1. [x] PLAN.md зафиксирован.
+2. [x] Библиотека `src\Spine\Sektor.DarkestDungeon.Spine\` (netstandard2.0): сорсы по месту из
+   `unity\Assets\Spine\SpineSharp\Source\**\*.cs` + свой `AssemblyInfo.cs` с InternalsVisibleTo
+   (Assembly-CSharp, Assembly-CSharp-Editor) — задел под этап 2. Сборка чистая (0 warnings).
+3. [x] Библиотека `src\Wpf\Sektor.DarkestDungeon.Spine.Wpf\` (net8.0): `SpineSkeletonLoader`,
+   `SpinePlayer`, `SpineFrameRenderer` (Region/Mesh/SkinnedMesh → SKBitmap; тинт слота; бленды
+   normal/additive/multiply/screen).
+4. [x] WPF-клиент: ProjectReference на обе библиотеки; контент-линки в `Content\Spine\Crusader\`
+   (`crusader.sprite.idle.skel`, `.atlas`, outfit A `crusader.sprite.idle.png`); SkiaSharp.Views.WPF.
+5. [x] UI: `SpineHeroControl` (SKElement + CompositionTarget.Rendering), `SpineDemoView` +
+   `SpineDemoViewModel`, кнопка «SPINE TEST» в главном меню + обвязка Shell (MainWindow DataTemplate +
+   фабрика). Сборка приложения — 0 ошибок (44 warning — все существующие, не из новых файлов).
+6. [x] Тесты `tests\Wpf\Sektor.DarkestDungeon.Wpf.Tests`: загрузка idle (версия 2.1.18/анимация/скин),
+   setup-поза измерима сразу после `CreatePlayer`, рендер двух кадров (ненулевая альфа, кадры
+   различаются) + регресс прозрачности: `DrawVertices` с vertex colors в SkiaSharp 2.88 красил
+   прозрачные пиксели атласа в белый — тинт переведён на `SKColorFilter` (Modulate), colors не
+   передаются; smoke-тест `SpineDemoView`; контент приходит транзитивно через ProjectReference.
+   Все 74 теста зелёные.
+7. [x] Доки: `docs\mechanics\presentation\presentation_wpf.md` (экран, трассировка, нюансы Spine),
+   `docs\FEATURE_DESKTOP_CLIENT.md` (этап B — сделано), `docs\TESTING.md` (чек-лист демо + сводка).
+8. [x] Проверки: сборки и тесты зелёные; `unity\*` не изменён (git status чист); ложные EOL-мутации
+   `ProjectAuditorSettings.asset`/`QualitySettings.asset` откатаны.
+9. [ ] Ручная приёмка демо (пользователь): SPINE TEST — плавность idle, PAUSE/Resume, возврат в меню.
+   После приёмки — коммит (по запросу) и, при желании, переезд плана в `docs\plans\`.
+10. [x] Кнопка SCREENSHOT на демо-экране (запрос пользователя): `Ui\WindowScreenshot`
+    (`RenderTargetBitmap` + PNG, учёт DPI) пишет окно в `screenshots\` каталога сборки, имя файла —
+    в строке статуса; тест `WindowScreenshotTests` (74/74).
+
+## Affected files
+
+- Новые: `src\Spine\Sektor.DarkestDungeon.Spine\`, `src\Wpf\Sektor.DarkestDungeon.Spine.Wpf\`,
+  `tests\Wpf\...` (новые тест-файлы), `SpineHeroControl`/`SpineDemoView`/`SpineDemoViewModel`,
+  `Ui\WindowScreenshot.cs`.
+- Изменяемые: `Sektor.DarkestDungeon.Wpf.csproj`, `MainMenuView.xaml(.cs)`, `MainMenuViewModel.cs`,
+  Shell/MainWindow, `tests\Wpf\...csproj`.
+- Доки: `docs\mechanics\presentation\presentation_wpf.md`, `docs\FEATURE_DESKTOP_CLIENT.md`,
+  `docs\TESTING.md`, `docs\CHANGELOG.md`.
+
+## Acceptance criteria
+
+- Демо: idle Crusader играет плавно (≥30 FPS при ~400×500), без артефактов; SCREENSHOT сохраняет
+  PNG окна в `screenshots\` каталога сборки.
+- `dotnet build` и `dotnet test tests\Wpf\...` зелёные; библиотека — чистый netstandard2.0
+  (без Unity/WPF/Skia зависимостей), готова к этапу 2.
+- `unity\*` не изменён (git status).
+
+## Out of scope (этап 2 и далее)
+
+- Своп Unity/Unity-2017 на общую DLL Spine (отдельный PR после ревью прототипа).
+- Монстры и остальные герои в карточке дуэли; интеграция анимаций боя (атаки, скиллы).
+
+---
+
 # PLAN: Фаза 2-A — фиксированная боевая сцена (пин высоты + оверлей)
 
 ## Goal

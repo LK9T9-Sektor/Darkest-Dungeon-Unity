@@ -1,6 +1,8 @@
 <UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.DuelUnitCardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behaviors="clr-namespace:Sektor.DarkestDungeon.Wpf.Behaviors"
              xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views">
     <!-- Solid rectangular CCG card split into two blocks: on top the vertical character card
          (reusable unit header with the rank on the left and the colored name, fully tiled portrait
@@ -74,8 +76,13 @@
                                 Margin="4" Background="#2A2218" Foreground="#E8D9B0" BorderBrush="#4A3E2C"
                                 BorderThickness="1" ToolTip="Buffs and debuffs"
                                 Command="{Binding DataContext.ToggleBuffTableCommand, RelativeSource={RelativeSource AncestorType=views:DuelBattleView}}"
-                                CommandParameter="{Binding}"
-                                Click="OnInfoButtonClick" />
+                                CommandParameter="{Binding}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <behaviors:MarkEventHandledAction />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
 
                         <!-- Floating popup over the central area: damage/heal numbers and effect texts (Bleed, Buff...)
                          rise slowly from the card center to its top edge and fade out -->

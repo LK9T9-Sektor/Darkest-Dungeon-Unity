@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <!-- Vendored spine-csharp 2.1 runtime. The sources live in unity\Assets\Spine\SpineSharp\Source (byte-identical
+       in unity\ and unity-2017\) and are compiled in place here - this project never copies or edits them. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)..\..\..\unity\Assets\Spine\SpineSharp\Source\**\*.cs" />
+  </ItemGroup>
+
+</Project>

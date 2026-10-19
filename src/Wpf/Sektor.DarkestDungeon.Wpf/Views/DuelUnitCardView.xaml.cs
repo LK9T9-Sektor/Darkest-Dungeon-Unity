@@ -1,4 +1,3 @@
-using System.Windows;
 using System.Windows.Controls;
 
 namespace Sektor.DarkestDungeon.Wpf.Views
@@ -10,14 +9,6 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         public DuelUnitCardView()
         {
             InitializeComponent();
-        }
-
-        /// <summary>Swallows the info button click so it does not trigger the wrapping slot button.</summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The event args.</param>
-        private void OnInfoButtonClick(object sender, RoutedEventArgs e)
-        {
-            e.Handled = true;
         }
     }
 }

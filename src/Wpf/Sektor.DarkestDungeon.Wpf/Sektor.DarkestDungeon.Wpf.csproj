@@ -17,6 +17,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.12" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="SkiaSharp.Views.WPF" Version="2.88.8" />
   </ItemGroup>
 
   <!-- Bundled hero class definitions consumed by the core parser at runtime (linked from unity content, not duplicated). -->
@@ -47,6 +48,20 @@
           CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <!-- Spine hero test content (linked from unity assets, not duplicated). The atlas resolves its page
+       texture by the name embedded in it, so crusader.sprite.idle.png must keep its file name. -->
+  <ItemGroup>
+    <None Include="..\..\..\unity\Assets\Sprites\Heroes\Crusader\Skeleton\Idle\crusader.sprite.idle.skel.bytes"
+          Link="Content\Spine\Crusader\crusader.sprite.idle.skel"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\unity\Assets\Sprites\Heroes\Crusader\Skeleton\Idle\crusader.sprite.idle.atlas.txt"
+          Link="Content\Spine\Crusader\crusader.sprite.idle.atlas"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\unity\Assets\Sprites\Heroes\Crusader\Outfits\A\crusader.sprite.idle.png"
+          Link="Content\Spine\Crusader\crusader.sprite.idle.png"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Content\Sektor.DarkestDungeon.Core.Content.csproj" />
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Ui\Sektor.DarkestDungeon.Core.Ui.csproj" />
@@ -57,6 +72,7 @@
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Duel\Sektor.DarkestDungeon.Core.Duel.csproj" />
     <ProjectReference Include="..\..\Lan\Sektor.DarkestDungeon.Lan.Contracts\Sektor.DarkestDungeon.Lan.Contracts.csproj" />
     <ProjectReference Include="..\..\Lan\Sektor.DarkestDungeon.Lan.Steam\Sektor.DarkestDungeon.Lan.Steam.csproj" />
+    <ProjectReference Include="..\Sektor.DarkestDungeon.Spine.Wpf\Sektor.DarkestDungeon.Spine.Wpf.csproj" />
   </ItemGroup>
 
   <Target Name="CopySteamRuntime" AfterTargets="Build">

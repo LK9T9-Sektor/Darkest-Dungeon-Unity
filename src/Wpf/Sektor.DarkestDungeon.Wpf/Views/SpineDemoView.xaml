@@ -1,0 +1,43 @@
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.SpineDemoView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behaviors="clr-namespace:Sektor.DarkestDungeon.Wpf.Behaviors"
+             xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views">
+    <Grid Background="#14100C">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header: title + close cross -->
+        <views:ScreenHeaderView Grid.Row="0" Margin="48,24,48,0"
+                                Title="SPINE TEST &#x2014; CRUSADER"
+                                CloseCommand="{Binding BackCommand}" />
+
+        <!-- Skeleton stage -->
+        <Border Grid.Row="1" Margin="64,16,64,0"
+                Background="#0E0B08" BorderBrush="#3A2E22" BorderThickness="1">
+            <views:SpineHeroControl ContentDirectory="Content\Spine\Crusader"
+                                    IsPaused="{Binding IsPaused}" />
+        </Border>
+
+        <!-- Controls -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,24">
+            <Button Content="{Binding PauseButtonText}" Width="140" Height="44" FontSize="16"
+                    Style="{StaticResource HudButton}" Command="{Binding TogglePauseCommand}" />
+            <Button Content="SCREENSHOT" Width="180" Height="44" FontSize="16" Margin="24,0,0,0"
+                    Style="{StaticResource HudButton}"
+                    ToolTip="Saves a PNG of this window into the screenshots folder next to the executable">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <behaviors:SaveScreenshotAction SavedCommand="{Binding ScreenshotSavedCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
+            <TextBlock Text="{Binding ScreenshotStatus}" Width="340" VerticalAlignment="Center" Margin="16,0,0,0"
+                       FontSize="13" Foreground="#8A7A5A" TextTrimming="CharacterEllipsis" />
+        </StackPanel>
+    </Grid>
+</UserControl>

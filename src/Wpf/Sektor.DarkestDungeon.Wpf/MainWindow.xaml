@@ -26,6 +26,9 @@
         <DataTemplate DataType="{x:Type vm:DuelBattleViewModel}">
             <views:DuelBattleView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SpineDemoViewModel}">
+            <views:SpineDemoView />
+        </DataTemplate>
     </Window.Resources>
     <ContentControl Content="{Binding CurrentScreen}" />
 </Window>
