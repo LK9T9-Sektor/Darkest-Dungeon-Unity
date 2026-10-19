@@ -8,7 +8,8 @@
 WPF-клиент — тонкий потребитель ядра: экраны (меню → лобби → бой), вводы, снапшоты. Вся доменная
 логика — в `Core.*`; ViewModel-слой транслирует вводы в `DuelController` и отображает состояние.
 Отдельный демо-экран `SpineDemoView` («SPINE TEST» в меню) играет скелетную анимацию героя
-(`crusader.sprite.idle`, Spine 2.1) — прототип Spine-рендера для карточек дуэли.
+(Spine 2.1) — прототип Spine-рендера для карточек дуэли: стрелками листаются все 15 героев,
+наборы анимаций героя (`Skeleton\`, Idle первым) и скорость воспроизведения 100…1000%.
 
 ## 2. Модель данных
 
@@ -21,6 +22,8 @@ WPF-клиент — тонкий потребитель ядра: экраны 
   (загрузчик, плеер, Skia-рендер).
 - Обёртки ИИ/сети: `AiRivalLink`, `NetworkRivalLink`, `IDuelRivalLink`.
 - `Data/DuelContent` — реализация `IDuelContent` поверх каталогов.
+- `Data/SpineDemoCatalog` (реализация `ISpineDemoCatalog`) — герои/анимации/пути контента
+  демо-экрана; `SpineDemoViewModel` получает каталог через конструктор.
 
 ## 3. Порядок срабатывания (трассировка)
 
@@ -30,9 +33,12 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 4. Ход: `DuelBattleViewModel` читает `IsLocalTurn`, применяет вводы (`ExecuteLocalSkill`), ИИ —
    `AiRivalLink` → `DuelAi.ChooseAction` → `ApplyRemoteSkill`; мультиплеер — `NetworkRivalLink`.
 5. Отображение: снапшоты состояния (HP/стресс/ранги), лог (`DuelBattleEvents.Log`), попапы.
-6. Spine-демо: меню → «SPINE TEST» → `SpineDemoView`; `SpineHeroControl` на `Loaded` находит в
-   `Content\Spine\Crusader` первый `*.skel*` и `*.atlas*`, грузит `SpineContent` и играет «idle»;
-   кадры считаются в `CompositionTarget.Rendering`. Кнопка «SCREENSHOT» (`EventTrigger` →
+6. Spine-демо: меню → «SPINE TEST» → `SpineDemoView`; `SpineHeroControl` на `Loaded`/
+   смене `ContentDirectory` находит в `Content\Spine\<Hero>\<Anim>` первый `*.skel*` и `*.atlas*`,
+   грузит `SpineContent` и играет первую анимацию сета. Селекторы (кнопки ◀/▶ с
+   `AutomationProperties.Name`) листают героя/анимацию/скорость: VM меняет `ContentDirectory`
+   (перезагрузка сета) и `SpeedMultiplier` → `SpinePlayer.TimeScale` (`AnimationState.TimeScale`,
+   float). Кадры считаются в `CompositionTarget.Rendering`. Кнопка «SCREENSHOT» (`EventTrigger` →
    `SaveScreenshotAction`, Microsoft.Xaml.Behaviors) снимает текущее окно в `screenshots/` рядом
    с exe; имя файла показывает VM (`ScreenshotStatus`).
 
@@ -53,6 +59,7 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 |---|---|---|
 | Ввод только на своём ходу | `IsLocalTurn` | иначе игнор |
 | Адаптивная раскладка | `MainWindow` | ресайз, без Viewbox |
+| Скорость Spine-демо | `SpineDemoViewModel` | 1.0…10.0 (шаг 0.5, wrap 100↔1000%); нижний кламп контрола 0.01…100 |
 
 ## 6. Нюансы и подводные камни
 
@@ -124,9 +131,16 @@ WPF-клиент — тонкий потребитель ядра: экраны 
   (`AppContext.BaseDirectory`), имя `screenshot-<yyyy-MM-dd_HH-mm-ss-fff>.png`. Префикс имени — отдельная
   константа: в строке формата `DateTime.ToString` буквы `s`/`h`/`t` из слова «screenshot» были бы
   съедены как токены времени. Ошибки записи показываются в строке статуса, приложение не падает.
-- **Контент-линки Spine** — `.skel.bytes` линкуется как `crusader.sprite.idle.skel`, `.atlas.txt` —
-  как `.atlas` (загрузчик принимает и `.skel`, и `.skel.bytes`; атлас — только `.atlas`); имя PNG
-  обязано совпадать с именем страницы атласа (`crusader.sprite.idle.png`), иначе текстура не найдётся.
+- **Выбор анимации = смена сета** — каждый `.skel` героя содержит ровно одну анимацию, поэтому
+  «ANIMATION ◀/▶» переключает папку скелета (`Skeleton\<Anim>`), а не трек внутри одного скелета.
+  При смене героя выбранная анимация сохраняется, если такой сет у нового героя есть, иначе — Idle
+  (`SpineDemoViewModel.OnCurrentCharacterChanged`). `ContentDirectory` — композиция
+  каталога (`Data\SpineDemoCatalog`).
+- **Контент-линки Spine** — раскладка `Content\Spine\<Hero>\<Anim>\`: `.skel.bytes` линкуется как
+  `*.skel`, `.atlas.txt` — как `.atlas` (загрузчик принимает и `.skel`, и `.skel.bytes`; атлас —
+  только `.atlas`); имя PNG обязано совпадать с именем страницы атласа (`<hero>.sprite.<anim>.png`),
+  иначе текстура не найдётся. Записи генерирует `tools\spine-demo-content.ps1` в
+  `SpineDemoContent.props` (591 запись — руками csproj не правится).
 - **Неймспейс `Sektor.DarkestDungeon.Spine.Wpf`** — квалифицированные ссылки `Spine.X` запрещены
   (shadowing сегментом `.Spine`): только `using Spine;` и простые имена.
 
@@ -145,6 +159,8 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/SpineHeroControl.cs`, `Views/SpineDemoView.xaml(.cs)`, `ViewModels/SpineDemoViewModel.cs`
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Ui/WindowScreenshot.cs` (кнопка SCREENSHOT)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Behaviors/` (`SaveScreenshotAction`, `MarkEventHandledAction`)
+- `src/Wpf/Sektor.DarkestDungeon.Wpf/Data/SpineDemoCatalog.cs`, `Data/ISpineDemoCatalog.cs` (герои/анимации демо)
+- `src/Wpf/Sektor.DarkestDungeon.Wpf/SpineDemoContent.props` + `tools/spine-demo-content.ps1` (генератор контент-линков)
 - `docs/plans/spine-transparency-vertex-colors.md` (разбор дефекта vertex colors)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/DuelUnitCardView.xaml` (death's door pulse, «ТВОЙ ХОД»)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/DuelBattleView.cs` (превью), `DuelBattleViewModel.cs` (пак)

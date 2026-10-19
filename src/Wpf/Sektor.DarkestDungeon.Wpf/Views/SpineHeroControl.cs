@@ -33,7 +33,16 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(SpineHeroControl),
             new PropertyMetadata(false));
 
+        /// <summary>Identifies the <see cref="SpeedMultiplier"/> dependency property.</summary>
+        public static readonly DependencyProperty SpeedMultiplierProperty = DependencyProperty.Register(
+            nameof(SpeedMultiplier),
+            typeof(double),
+            typeof(SpineHeroControl),
+            new PropertyMetadata(1.0, OnSpeedMultiplierChanged));
+
         private const float MaxFrameSeconds = 0.1f;
+        private const float MinSpeedMultiplier = 0.01f;
+        private const float MaxSpeedMultiplier = 100f;
 
         private readonly Stopwatch clock = new Stopwatch();
         private SpineContent? content;
@@ -74,6 +83,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             set => SetValue(IsPausedProperty, value);
         }
 
+        /// <summary>Gets or sets the animation speed multiplier (1 = normal speed, 10 = ten times faster).</summary>
+        public double SpeedMultiplier
+        {
+            get => (double)GetValue(SpeedMultiplierProperty);
+            set => SetValue(SpeedMultiplierProperty, value);
+        }
+
         /// <inheritdoc/>
         protected override void OnPaintSurface(SKPaintSurfaceEventArgs e)
         {
@@ -101,6 +117,9 @@ namespace Sektor.DarkestDungeon.Wpf.Views
 
         private static void OnContentPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
             => ((SpineHeroControl)d).OnContentPropertyChanged();
+
+        private static void OnSpeedMultiplierChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+            => ((SpineHeroControl)d).ApplyTimeScale();
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
@@ -164,6 +183,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
                 content = new SpineSkeletonLoader().Load(skeletonFile, atlasFile);
                 player = content.CreatePlayer();
                 renderer = new SpineFrameRenderer();
+                ApplyTimeScale();
                 PlayAnimation(ResolveAnimationName());
             }
             catch (Exception exception)
@@ -173,6 +193,12 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             }
 
             InvalidateVisual();
+        }
+
+        private void ApplyTimeScale()
+        {
+            if (player != null)
+                player.TimeScale = (float)Math.Clamp(SpeedMultiplier, MinSpeedMultiplier, MaxSpeedMultiplier);
         }
 
         private void PlayAnimation(string animationName)

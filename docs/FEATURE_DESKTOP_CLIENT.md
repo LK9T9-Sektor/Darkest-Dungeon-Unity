@@ -34,8 +34,11 @@
   `Data\JsonQuirks.json` (черты).
 - **Этап A (без Spine):** плейсхолдеры — доказывает ядро+сеть+UI с нулевым риском.
 - **Этап B (сделано, демо):** Spine-контрол `SpineHeroControl` (`UserControl` с `SKElement`) +
-  экран `SpineDemoView` («SPINE TEST» в меню): `crusader.sprite.idle` — Spine **2.1.18** (binary
-  skeleton + atlas, linked-ассеты без копирования). Рендер — SkiaSharp CPU (`DrawVertices` + шейдер
+  экран `SpineDemoView` («SPINE TEST» в меню): все 15 героев и их наборы анимаций
+  (`Skeleton\`, Idle первым) листаются стрелками ◀/▶ вместе со скоростью воспроизведения
+  100…1000% (шаг 50%); сет — Spine **2.1.18** (binary skeleton + atlas, linked-ассеты без
+  копирования, раскладка `Content\Spine\<Hero>\<Anim>\`). Рендер — SkiaSharp CPU (`DrawVertices` +
+  шейдер
   атласа); загрузка/плеер/рендер — `src\Wpf\Sektor.DarkestDungeon.Spine.Wpf`; рантайм —
   `src\Spine\Sektor.DarkestDungeon.Spine` (netstandard2.0, компилирует вендорные
   `unity\Assets\Spine\SpineSharp\Source` по месту, одна физическая копия, пригоден для Unity).
@@ -123,5 +126,6 @@ HP (текущее/макс), Stress 0–100, Speed, DMG (мин–макс), AC
 
 работает: меню → лобби (классы, активные скиллы, черты) → бой (полный HUD, лог, попапы,
 MOVE/PASS) для vs AI и мультиплеера (Steam). Плейсхолдеры: инвентарь/карта/факел, локализация
-квирков. Spine-демо: «SPINE TEST» → idle Crusader (Spine 2.1.18 + SkiaSharp, отдельный экран).
+квирков. Spine-демо: «SPINE TEST» → все герои/анимации/скорость (Spine 2.1.18 + SkiaSharp,
+отдельный экран).
 Cross-cutting: переиспользует ядро и сеть.

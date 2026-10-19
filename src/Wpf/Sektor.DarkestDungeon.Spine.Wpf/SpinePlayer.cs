@@ -26,6 +26,13 @@ public sealed class SpinePlayer : IDisposable
     /// <summary>Gets the name of the currently playing animation, or <c>null</c> when nothing is playing.</summary>
     public string? CurrentAnimation { get; private set; }
 
+    /// <summary>Gets or sets the animation time scale (Spine uses a float); values above one speed the animation up.</summary>
+    public float TimeScale
+    {
+        get => state.TimeScale;
+        set => state.TimeScale = value;
+    }
+
     /// <summary>Starts playing an animation on the base track.</summary>
     /// <param name="animationName">The animation name (validated against the skeleton data).</param>
     /// <param name="loop">Whether the animation loops.</param>

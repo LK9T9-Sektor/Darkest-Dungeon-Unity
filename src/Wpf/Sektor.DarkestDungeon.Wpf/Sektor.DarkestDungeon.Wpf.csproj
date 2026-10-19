@@ -48,19 +48,11 @@
           CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
-  <!-- Spine hero test content (linked from unity assets, not duplicated). The atlas resolves its page
-       texture by the name embedded in it, so crusader.sprite.idle.png must keep its file name. -->
-  <ItemGroup>
-    <None Include="..\..\..\unity\Assets\Sprites\Heroes\Crusader\Skeleton\Idle\crusader.sprite.idle.skel.bytes"
-          Link="Content\Spine\Crusader\crusader.sprite.idle.skel"
-          CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\..\..\unity\Assets\Sprites\Heroes\Crusader\Skeleton\Idle\crusader.sprite.idle.atlas.txt"
-          Link="Content\Spine\Crusader\crusader.sprite.idle.atlas"
-          CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\..\..\unity\Assets\Sprites\Heroes\Crusader\Outfits\A\crusader.sprite.idle.png"
-          Link="Content\Spine\Crusader\crusader.sprite.idle.png"
-          CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
+  <!-- Spine hero test content: every hero animation set (skeleton, atlas and outfit A page texture),
+       linked from unity assets, not duplicated. The atlas resolves its page texture by the name
+       embedded in it, so the PNG must keep its original file name. Regenerate the props with
+       tools\spine-demo-content.ps1 after hero sprites change. -->
+  <Import Project="SpineDemoContent.props" />
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Content\Sektor.DarkestDungeon.Core.Content.csproj" />

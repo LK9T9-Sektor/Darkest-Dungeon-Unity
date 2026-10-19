@@ -37,7 +37,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
 
         internal static SpineContent LoadCrusaderIdle()
         {
-            string directory = Path.Combine(AppContext.BaseDirectory, "Content", "Spine", "Crusader");
+            string directory = Path.Combine(AppContext.BaseDirectory, "Content", "Spine", "Crusader", "Idle");
             return new SpineSkeletonLoader().Load(
                 Path.Combine(directory, "crusader.sprite.idle.skel"),
                 Path.Combine(directory, "crusader.sprite.idle.atlas"));
