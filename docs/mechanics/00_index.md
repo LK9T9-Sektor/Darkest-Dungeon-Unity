@@ -50,3 +50,4 @@
 - `BATTLE_PARITY.md` — разрывы Unity MP vs ядро (статусы согласованы с навигатором).
 - `INDEX.md` — карта всех документов.
 - `presentation\presentation_unity_urp_cameras.md` — URP: очистка камер и стек («жёлтый экран» рейда).
+- `presentation\spine_transparency_vertex_colors.md` — Spine WPF: прозрачность атласа и «белые прямоугольники» (vertex colors, SkiaSharp 2.88).

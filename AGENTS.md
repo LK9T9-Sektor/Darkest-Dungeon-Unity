@@ -80,13 +80,13 @@
 Before planning or editing, read the relevant documents from `docs\`:
 - `ARCHITECTURE.md` — architecture, code structure, god-classes, version;
 - `KNOWN_ISSUES.md` — architectural debt and known issues (do not make them worse);
-- `CHANGELOG.md` — change log by version (current version at the top of the file);
+- `docs\changelog\` — краткие записи о **user-visible** изменениях (один файл на изменение `\<ГГГГ-ММ-ДД\>-\<слаг\>.md` и на релиз `\<версия\>.md`); индекс — `docs\changelog\00_index.md`, корневой `CHANGELOG.md` — короткий указатель;
 - `EXTRACTION_PLAN.md` — core-extraction plan: `unity\` (active) + `unity-2017\` (legacy) + shared pure C# core in `src\`;
 - `TESTING.md` — manual in-game verification checklists; must be kept in sync with behavior changes;
 - `INDEX.md` — doc map: which document answers which question (entities, execution, wishlist `FEATURE_*.md`).
 - `docs\mechanics\00_index.md` — detailed per-mechanic specifications by domain (the "how it works" source of truth).
 - `docs\CLEANUP.md` — core-code cleanup catalog (magic strings/numbers, god-classes, switch dispatch, logging).
-- `PLAN.md` — активный план задачи (цель, шаги, статусы); отложенные планы — `docs\plans\<ГГГГ-ММ-ДД>-<слаг>-deferred.md` (дата — отложение; внутри «Состояние» + исходный план), закрытые — `docs\plans\<ГГГГ-ММ-ДД>-<слаг>-closed.md` (дата — завершение; внутри «Что сделано» + исходный план), индекс обоих — `docs\plans\00_index.md`. Мелкие задачи без плана в архив не попадают.
+- `PLAN.md` — активный план задачи (цель, шаги, статусы); отложенные (незавершённые) планы — `docs\plans\<ГГГГ-ММ-ДД>-<слаг>-deferred.md` (дата — отложение; внутри «Состояние» + исходный план), индекс — `docs\plans\00_index.md`; завершённые планы не хранятся (git-история), их user-visible итог — в `docs\changelog\`. Мелкие задачи без плана в архив не попадают.
 
 **Clean core rule:** the pure core (`src\Core\`, `src\Clients\`) is owned code and must be kept clean:
 no magic strings/numbers (use named constants — content ids in `Core.Combat\Content\`, clamps/chances as
@@ -107,7 +107,7 @@ are mandatory — they exist to keep agents from re-discovering behavior by tria
 
 Read only what the task relates to. Legacy edits stay minimal; `src\External\` is read-only.
 
-**Maintenance rule:** if a code change affects a documented fact (paths/structure, god-classes, version, public APIs, new modules, dependencies), update the corresponding document in the same commit. If a code change affects game behavior, add/update the relevant section in `TESTING.md` (what to verify) in the same commit. Do not document internals or cosmetics; `CHANGELOG.md` only for user-visible changes.
+**Maintenance rule:** if a code change affects a documented fact (paths/structure, god-classes, version, public APIs, new modules, dependencies), update the corresponding document in the same commit. If a code change affects game behavior, add/update the relevant section in `TESTING.md` (what to verify) in the same commit. Do not document internals or cosmetics; user-visible changes get one short file in `docs\changelog\` (date-slug) plus a line in `docs\changelog\00_index.md` in the same commit.
 
 ## 🔤 Encoding & how to read the documents
 

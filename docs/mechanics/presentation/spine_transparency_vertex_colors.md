@@ -1,19 +1,8 @@
-> Закрыт: 2026-10-19 (ветка `core/unity7-urp`). Это разбор дефекта, а не план: почему возникли
-> белые прямоугольники, как воспроизведены и чем закрыты. Индекс закрытых планов —
-> `docs\plans\00_index.md`.
+# Spine (WPF): прозрачность атласа и «белые прямоугольники» (vertex colors, SkiaSharp 2.88)
 
-# Разбор: белые прямоугольники в Spine-рендере WPF (vertex colors, SkiaSharp 2.88)
-
-## Что сделано
-
-- Причина установлена и воспроизведена голым SkiaSharp (мини-репро, атлас 64×64): при `drawVertices` с vertex colors в SkiaSharp 2.88.8 полностью прозрачный тексель с bitmap-шейдером отдаёт цвет вершины.
-- Фикс: тинт убран из vertex colors в `SKColorFilter` — `colors: null` (`src\Wpf\Sektor.DarkestDungeon.Spine.Wpf\SpineFrameRenderer.cs:75-77`) и `SKColorFilter.CreateBlendMode(color, SKBlendMode.Modulate)` в `GetPaint` (`:198-217`), кэш paint'ов по (текстура, бленд, цвет).
-- Регресс-тест `IdleAnimation_KeepsTransparentPixelsTransparent` (`tests\Wpf\...\SpineFrameRendererTests.cs`) — доля прозрачных пикселей в границах (0.15, 0.9); без фикса тест краснеет.
-- Доки: `presentation_wpf.md` §6 (формула тинта, мапа блендов, ссылка на разбор).
-
----
-
-_Ниже — разбор без изменений._
+Разбор дефекта Spine-рендера в WPF: почему на прозрачных пикселях атласа появлялись белые
+прямоугольники, как воспроизведены и чем закрыты. Краткая версия (gotcha) — в
+`presentation_wpf.md` §6.
 
 ## Симптом
 
@@ -71,7 +60,7 @@ vertex colors корректен, значит атлас, шейдер, UV и �
   на paint (`SpineFrameRenderer.cs:198-217`); кэш paint'ов — по ключу (текстура, бленд, цвет),
   `CachedPaint.Dispose` освобождает шейдер и фильтр.
 - Формула тинта и мапа блендов (`normal→SrcOver`, `additive→Plus`, `multiply→Modulate`,
-  `screen→Screen`) — в `docs\mechanics\presentation\presentation_wpf.md`, §6.
+  `screen→Screen`) — в `docs\mechanics\presentation\presentation_wpf.md` §6.
 
 Проверка фикса в мини-репро: с фильтром прозрачные тексели остаются `(0,0,0,0)`, чёрный центр —
 `(0,0,0,255)`, полупрозрачный тинт (A=128) даёт A=128 — каждый канал ведёт себя как множитель.

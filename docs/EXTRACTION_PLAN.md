@@ -162,4 +162,4 @@ repo/
 - Карта-манифест в `AGENTS.md`: домен — `src\Core\<модуль>`, презентация — `<проект>\Assets\Scripts\<область>`.
 - Модуль = папка = namespace → поиск через glob/grep предсказуем.
 - Документы: `INDEX.md` (карта), `ARCHITECTURE.md` (структура), `KNOWN_ISSUES.md` (долг),
-  `CHANGELOG.md` (изменения), `FEATURE_*.md` (хотелки), `UNITY_MIGRATION.md` (переходы редактора).
+  `docs\changelog\` (изменения), `FEATURE_*.md` (хотелки), `UNITY_MIGRATION.md` (переходы редактора).
