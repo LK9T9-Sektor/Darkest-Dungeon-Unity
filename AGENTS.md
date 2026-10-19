@@ -12,6 +12,7 @@
 - **Adaptive (responsive) WPF layout** — presentation views fill the available space and never depend on a fixed canvas or a `Viewbox` scale: root elements stretch to the window, rows/columns use `*` (star) sizing for the majority of elements, and children align/stretch proportionally. Avoid fixed `Width`/`Height` on roots and absolute margins tuned to a single resolution; the window is resizable.
 - **Test Directory** — Isolated unit and integration tests using standard runners (NUnit/xUnit). Structurally mirrors the architecture of the source directory.
 - **External Reference Only** — `src/External` contains vendored upstream source code provided purely as reference/context material. It is **read-only**: never modify, "fix", refactor, or restructure anything inside it. Do not treat it as owned code.
+- **Visual Studio Solutions** — The root `Darkest-Dungeon-Unity.slnx` is the hand-maintained dev entry point; every new project must be registered there (VS does not add projects on its own) by adding a `<Project Path="…" />` with a **relative** path to the right `<Folder Name="/src/…/">` in the solution XML (`dotnet sln add` works but writes absolute paths and pulls in referenced projects). `unity\unity.slnx` is generated and owned by Unity (its SDK-style project generation opens it on "Open C# Project"): never edit or delete it. Details — `docs\ARCHITECTURE.md` §6, `docs\UNITY_MIGRATION.md` §6.
 
 ---
 

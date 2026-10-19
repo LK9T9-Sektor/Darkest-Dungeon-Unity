@@ -108,3 +108,13 @@ Path 'traits[0].reaction_act_outs[0].chance'
   2/3 экрана, мир скрыт). Исправлено переходом на камерный стек: `DungeonCamera` — Base со стеком
   `[BlurCamera, UI Camera]`, обе лишние — Overlay (`m_CameraType: 1`, `m_ClearDepth: 0`). Детали —
   `docs\mechanics\presentation\presentation_unity_urp_cameras.md`.
+- **Решение IDE: Unity 7 генерирует `.slnx`, а не `.sln`** — новая SDK-style генерация проектов
+  (`com.unity.ide.visualstudio` 2.0.27, встроенный в редактор): `ProjectGeneration\SdkStyleProjectGeneration.cs`
+  (`SolutionFileImpl()` → `<имя>.slnx`, `SyncSolution()` перед записью удаляет одноимённый `.sln`);
+  legacy-ветка `LegacyStyleProjectGeneration.cs` делает обратное (удаляет `.slnx`). Поэтому в `unity\`
+  лежит `unity.slnx` (4× `Assembly-CSharp*`) и нет классического `unity.sln`. Решение **открывает сам
+  Unity** («Open C# Project» → `VisualStudioEditor.OpenProject` → `generator.SolutionFile()`),
+  перезаписывает — только при смене состава проектов (`ProjectGeneration.cs`, сравнение с предыдущим
+  решением), поэтому файл трекается в git (в `.gitignore`: `*.sln` игнорируется, `!*.slnx` — исключение;
+  добавлен коммитом `fd04e75`). **Не редактировать и не удалять** `unity\unity.slnx` — Unity создаст его
+  заново. Точка входа для разработки — корневое `Darkest-Dungeon-Unity.slnx`, см. `ARCHITECTURE.md` §6.
