@@ -25,6 +25,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.DoesNotThrow(() => _ = new DuelLobbyView());
             Assert.DoesNotThrow(() => _ = new SinglePlayerLobbyView());
             Assert.DoesNotThrow(() => _ = new DuelBattleView());
+            Assert.DoesNotThrow(() => _ = new SpineDemoView());
             Assert.DoesNotThrow(() => _ = new HeroStatsView());
             Assert.DoesNotThrow(() => _ = new HeroStatsView { ShowFullDetails = true });
             Assert.DoesNotThrow(() => _ = new ScreenHeaderView { Title = "T", CloseCommand = null });

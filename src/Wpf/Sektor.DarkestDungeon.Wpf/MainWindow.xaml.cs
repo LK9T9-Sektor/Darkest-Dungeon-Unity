@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using Sektor.DarkestDungeon.Core.Common;
 using Sektor.DarkestDungeon.Wpf.Combat;
+using Sektor.DarkestDungeon.Wpf.Data;
 using Sektor.DarkestDungeon.Wpf.Logging;
 using Sektor.DarkestDungeon.Wpf.Networking;
 using Sektor.DarkestDungeon.Wpf.ViewModels;
@@ -27,7 +28,11 @@ namespace Sektor.DarkestDungeon.Wpf
             var menu = new MainMenuViewModel(
                 shell,
                 () => new DuelLobbyViewModel(shell, DuelTransportFactory.CreateSteamTransport(), DuelClasses.AllClassIds, logger),
-                () => new SinglePlayerLobbyViewModel(shell, DuelClasses.AllClassIds, logger));
+                () => new SinglePlayerLobbyViewModel(shell, DuelClasses.AllClassIds, logger),
+                () => new PveLobbyViewModel(shell, DuelClasses.AllClassIds, logger),
+                () => new SpineDemoViewModel(
+                    shell,
+                    new SpineDemoCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "Spine"))));
             shell.SetHome(menu);
             shell.NavigateTo(menu);
             return shell;

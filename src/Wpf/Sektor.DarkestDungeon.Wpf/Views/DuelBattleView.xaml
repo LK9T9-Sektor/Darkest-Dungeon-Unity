@@ -105,12 +105,13 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition MinWidth="820" />
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition MinWidth="820" />
                     </Grid.ColumnDefinitions>
 
                     <ItemsControl Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Heroes}"
-                                  HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="8,0,8,0">
+                                  HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="8,0,8,0">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Orientation="Horizontal" />
@@ -124,8 +125,8 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <ItemsControl Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Monsters}"
-                                  HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="8,0,8,0">
+                    <ItemsControl Grid.Row="1" Grid.Column="2" ItemsSource="{Binding Monsters}"
+                                  HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="8,0,8,0">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Orientation="Horizontal" />
@@ -145,7 +146,7 @@
                      Canvas (pure math), so nothing is recreated at runtime. The drawn lines/arrows are
                      individually inert (IsHitTestVisible=False) so they never block card clicks, while
                      the badge stays hoverable to fire its skill tooltip. -->
-<Canvas x:Name="TargetLayer" Grid.RowSpan="2" Grid.ColumnSpan="2" Panel.ZIndex="10">
+<Canvas x:Name="TargetLayer" Grid.RowSpan="2" Grid.ColumnSpan="3" Panel.ZIndex="10">
                         <views:SkillSquareView x:Name="SkillBadge" ShowName="False"
                                                Visibility="Collapsed" />
 

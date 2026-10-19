@@ -33,8 +33,19 @@
 - **Контент из unity (линк, без копирования):** `Data\Heroes\Info\*.bytes` (классы героев),
   `Data\JsonQuirks.json` (черты).
 - **Этап A (без Spine):** плейсхолдеры — доказывает ядро+сеть+UI с нулевым риском.
-- **Этап B (опционально):** Spine-контрол отдельным `UserControl` — spine-csharp 2.x (под ассеты DD,
-  runtime 2.3) + SkiaSharp (фолбэк MonoGame.WpfCore); демо на sample-скелете 2.x. Аудио в PoC пропускаем.
+- **Этап B (сделано, демо):** Spine-контрол `SpineHeroControl` (`UserControl` с `SKElement`) +
+  экран `SpineDemoView` («SPINE TEST» в меню): все 15 героев и их наборы анимаций
+  (`Skeleton\`, Idle первым) листаются стрелками ◀/▶ вместе со скоростью воспроизведения
+  100…1000% (шаг 50%); сет — Spine **2.1.18** (binary skeleton + atlas, linked-ассеты без
+  копирования, раскладка `Content\Spine\<Hero>\<Anim>\`). Рендер — SkiaSharp CPU (`DrawVertices` +
+  шейдер
+  атласа); загрузка/плеер/рендер — `src\Spine\Sektor.Spine.Skia`; рантайм —
+  `src\Spine\Sektor.Spine` (netstandard2.0, исходники в `src\Spine\Sektor.Spine\Source`;
+  post-build доставляет `Sektor.Spine.dll` в `Assets\Plugins\Internal` обоих Unity-проектов).
+  Кнопка «SCREENSHOT» на демо-экране сохраняет PNG текущего окна в `screenshots\` рядом с exe
+  (имя файла — в строке статуса) для ручных проверок и обмена снимками.
+  Использование в карточках дуэли — отдельная задача. Аудио в PoC
+  пропускаем.
 
 ## Механики боя (дуэль 1v1)
 
@@ -115,4 +126,6 @@ HP (текущее/макс), Stress 0–100, Speed, DMG (мин–макс), AC
 
 работает: меню → лобби (классы, активные скиллы, черты) → бой (полный HUD, лог, попапы,
 MOVE/PASS) для vs AI и мультиплеера (Steam). Плейсхолдеры: инвентарь/карта/факел, локализация
-квирков. Cross-cutting: переиспользует ядро и сеть.
+квирков. Spine-демо: «SPINE TEST» → все герои/анимации/скорость (Spine 2.1.18 + SkiaSharp,
+отдельный экран).
+Cross-cutting: переиспользует ядро и сеть.

@@ -38,7 +38,7 @@ function Find-UnityEditor {
     }
 
     $knownRoots = @(
-        "C:\Program Files\Unity\Hub\Editor\6000.5.8f1",
+        "C:\Program Files\Unity\Hub\Editor\7000.0.0a10",
         "D:\ProgramFiles\Unity2017.4.40f1",
         "D:\Program Files\Unity2017.4.40f1",
         "E:\ProgramFiles\Unity2017.4.40f1",
@@ -86,6 +86,31 @@ function Assert-ProjectNotLocked {
     Remove-Item $lockPath -Force
 }
 
+function Find-EditorByVersion {
+    param([string]$Wanted)
+    $roots = @(
+        "C:\Program Files\Unity\Hub\Editor",
+        "C:\Program Files\Unity Hub\Editor",
+        "D:\ProgramFiles",
+        "D:\Program Files"
+    )
+    foreach ($root in $roots) {
+        if (-not (Test-Path $root)) { continue }
+        $candidates = @($root)
+        if (-not (Test-Path (Join-Path $root "Editor\Unity.exe"))) {
+            $candidates = Get-ChildItem $root -Directory -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName }
+        }
+        foreach ($c in $candidates) {
+            $exe = Join-Path $c "Editor\Unity.exe"
+            if (Test-Path $exe) {
+                $v = (Get-Item $exe).VersionInfo.ProductVersion
+                if ($v -and $v.StartsWith($Wanted)) { return $c }
+            }
+        }
+    }
+    return ""
+}
+
 if (-not $UnityEditorPath) {
     $UnityEditorPath = Find-UnityEditor
 }
@@ -93,6 +118,24 @@ if (-not $UnityEditorPath) {
     throw "Unity editor not found. Pass -UnityEditorPath <editor root> (folder containing Editor\Unity.exe)."
 }
 $unityExe = Join-Path $UnityEditorPath "Editor\Unity.exe"
+
+# The batch run must use the editor the project was created with: opening e.g. unity-2017 with
+# Unity 7000 starts an irreversible upgrade. Prefer the matching editor; hard-fail otherwise.
+$projectVersionFile = Join-Path $projectRoot "ProjectSettings\ProjectVersion.txt"
+if (Test-Path $projectVersionFile) {
+    $wanted = ([regex]::Match((Get-Content $projectVersionFile -Raw), "m_EditorVersion:\s*(\S+)")).Groups[1].Value
+    $actual = (Get-Item $unityExe).VersionInfo.ProductVersion
+    if ($wanted -and $actual -and -not $actual.StartsWith($wanted)) {
+        $match = Find-EditorByVersion -Wanted $wanted
+        if ($match) {
+            $UnityEditorPath = $match
+            $unityExe = Join-Path $UnityEditorPath "Editor\Unity.exe"
+            Write-Host "==> Editor version switched to match project: $wanted"
+        } else {
+            throw "Unity editor $wanted required by '$ProjectPath' is not installed (auto-found $actual at $UnityEditorPath). Install it or pass -UnityEditorPath."
+        }
+    }
+}
 Write-Host "==> Unity editor: $UnityEditorPath"
 
 Assert-ProjectNotLocked

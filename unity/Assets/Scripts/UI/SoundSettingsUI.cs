@@ -6,7 +6,8 @@ using Sektor.DarkestDungeon.Core.Ui;
 
 /// <summary>
 /// Runtime-created in-game sound settings window that persists across all scenes.
-/// Exposes two volume steppers (music and SFX) driving DarkestSoundManager setters,
+/// Exposes two volume steppers (music and SFX) driving DarkestSoundManager setters and a
+/// resolution stepper cycling window size presets (portrait 9:16 to 32:9) via Screen.SetResolution,
 /// framed with the game's menu background texture.
 /// </summary>
 public class SoundSettingsUI : MonoBehaviour
@@ -14,12 +15,15 @@ public class SoundSettingsUI : MonoBehaviour
     private const string _titleLabelKey = "menu_options_title";
     private const string _musicVolumeLabelKey = "menu_options_element_music_volume";
     private const string _sfxVolumeLabelKey = "menu_options_element_sfx_volume";
+    private const string _resolutionLabelKey = "menu_options_element_resolution";
     private const string _returnButtonLabelKey = "menu_base_element_exit_campaign";
 
     private const string _titleLabelFallback = "Settings";
     private const string _musicVolumeLabelFallback = "Music Volume";
     private const string _sfxVolumeLabelFallback = "SFX Volume";
+    private const string _resolutionLabelFallback = "Resolution";
     private const string _returnButtonLabelFallback = "Exit to Main Menu";
+    private const string _resolutionValueSeparator = " x ";
     private const string _campaignSelectionSceneName = "CampaignSelection";
 
     private const string _settingsButtonSpriteResourcePath = "UI/settings.button";
@@ -32,12 +36,28 @@ public class SoundSettingsUI : MonoBehaviour
 
     private static SoundSettingsUI _instanse;
 
+    /// <summary>Window size presets covering the adaptivity grid from portrait 9:16 to 32:9.</summary>
+    private static readonly ResolutionPreset[] _resolutionPresets =
+    {
+        new ResolutionPreset(608, 1080),
+        new ResolutionPreset(960, 720),
+        new ResolutionPreset(1280, 800),
+        new ResolutionPreset(1920, 1080),
+        new ResolutionPreset(1544, 720),
+        new ResolutionPreset(1320, 600),
+        new ResolutionPreset(1896, 800),
+        new ResolutionPreset(1329, 480),
+        new ResolutionPreset(1920, 540),
+    };
+
     private GameObject _panel;
     private Text _title;
     private Text _musicLabel;
     private Text _sfxLabel;
+    private Text _resolutionLabel;
     private Text _musicValueText;
     private Text _sfxValueText;
+    private Text _resolutionValueText;
     private Text _returnButtonLabel;
     private Sprite _settingsButtonSprite;
     private SoundSettingsSprites _sprites;
@@ -46,6 +66,7 @@ public class SoundSettingsUI : MonoBehaviour
     private bool _titleLocalized;
     private bool _musicLabelLocalized;
     private bool _sfxLabelLocalized;
+    private bool _resolutionLabelLocalized;
     private bool _returnLabelLocalized;
 
     /// <summary>Creates the persistent settings object once the first scene has loaded.</summary>
@@ -80,8 +101,13 @@ public class SoundSettingsUI : MonoBehaviour
             _musicLabelLocalized = TryLocalize(_musicLabel, _musicVolumeLabelKey, _musicVolumeLabelFallback);
         if (!_sfxLabelLocalized)
             _sfxLabelLocalized = TryLocalize(_sfxLabel, _sfxVolumeLabelKey, _sfxVolumeLabelFallback);
+        if (!_resolutionLabelLocalized)
+            _resolutionLabelLocalized = TryLocalize(_resolutionLabel, _resolutionLabelKey, _resolutionLabelFallback);
         if (!_returnLabelLocalized)
             _returnLabelLocalized = TryLocalize(_returnButtonLabel, _returnButtonLabelKey, _returnButtonLabelFallback);
+
+        if (_panel != null && _panel.activeSelf)
+            UpdateResolutionText();
     }
 
     private void CreateUi()
@@ -107,6 +133,8 @@ public class SoundSettingsUI : MonoBehaviour
 
         _musicValueText.text = _musicVolume.ToString();
         _sfxValueText.text = _sfxVolume.ToString();
+
+        CreateResolutionRow(_panel.transform);
 
         CreateCloseButton(_panel.transform);
         CreateReturnButton(_panel.transform);
@@ -222,6 +250,84 @@ public class SoundSettingsUI : MonoBehaviour
         RuntimeUiFactory.CreateStepperButton(parent, "VolumePlus", plusArrow, new Vector2(153, rowY), increase);
     }
 
+    private void CreateResolutionRow(Transform parent)
+    {
+        float rowY = _volumeRowsTopY - 2 * _volumeRowSpacing;
+
+        _resolutionLabel = RuntimeUiFactory.CreateText("ResolutionLabel", parent, _resolutionLabelFallback,
+            new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-180, rowY), new Vector2(220, 28),
+            UiStyle.Small, UiStyle.Label);
+
+        _resolutionValueText = RuntimeUiFactory.CreateText("ResolutionValue", parent, string.Empty,
+            new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(75, rowY), new Vector2(190, 32),
+            UiStyle.Value, UiStyle.Label);
+
+        Sprite minusArrow = _sprites != null ? _sprites.MinusArrow : null;
+        Sprite plusArrow = _sprites != null ? _sprites.PlusArrow : null;
+        RuntimeUiFactory.CreateStepperButton(parent, "ResolutionMinus", minusArrow, new Vector2(-40, rowY), DecreaseResolution);
+        RuntimeUiFactory.CreateStepperButton(parent, "ResolutionPlus", plusArrow, new Vector2(190, rowY), IncreaseResolution);
+    }
+
+    private void DecreaseResolution()
+    {
+        StepResolution(-1);
+    }
+
+    private void IncreaseResolution()
+    {
+        StepResolution(1);
+    }
+
+    private void StepResolution(int delta)
+    {
+        int index = FindCurrentResolutionIndex();
+        if (index < 0)
+            index = FindClosestResolutionIndex();
+
+        index = (index + delta + _resolutionPresets.Length) % _resolutionPresets.Length;
+
+        ResolutionPreset preset = _resolutionPresets[index];
+        Screen.SetResolution(preset.Width, preset.Height, FullScreenMode.Windowed);
+        UpdateResolutionText();
+    }
+
+    private static int FindCurrentResolutionIndex()
+    {
+        for (int i = 0; i < _resolutionPresets.Length; i++)
+        {
+            if (_resolutionPresets[i].Width == Screen.width && _resolutionPresets[i].Height == Screen.height)
+                return i;
+        }
+
+        return -1;
+    }
+
+    private static int FindClosestResolutionIndex()
+    {
+        float aspect = Screen.height > 0 ? Screen.width / (float)Screen.height : 0f;
+        int closest = 0;
+        float closestDelta = float.MaxValue;
+        for (int i = 0; i < _resolutionPresets.Length; i++)
+        {
+            float delta = Mathf.Abs(_resolutionPresets[i].Aspect - aspect);
+            if (delta < closestDelta)
+            {
+                closestDelta = delta;
+                closest = i;
+            }
+        }
+
+        return closest;
+    }
+
+    private void UpdateResolutionText()
+    {
+        if (_resolutionValueText == null)
+            return;
+
+        _resolutionValueText.text = Screen.width + _resolutionValueSeparator + Screen.height;
+    }
+
     private void DecreaseMusic()
     {
         ChangeVolume(-1, ref _musicVolume, _musicValueText, DarkestSoundManager.SetMusicVolume);
@@ -303,6 +409,29 @@ public class SoundSettingsUI : MonoBehaviour
         {
             label.text = fallback;
             return false;
+        }
+    }
+
+    /// <summary>A window resolution preset covering one aspect of the adaptivity grid.</summary>
+    private sealed class ResolutionPreset
+    {
+        /// <summary>Preset width in pixels.</summary>
+        public readonly int Width;
+
+        /// <summary>Preset height in pixels.</summary>
+        public readonly int Height;
+
+        /// <summary>Creates a preset with the given window size.</summary>
+        public ResolutionPreset(int width, int height)
+        {
+            Width = width;
+            Height = height;
+        }
+
+        /// <summary>Gets the width-to-height ratio of the preset.</summary>
+        public float Aspect
+        {
+            get { return Height > 0 ? Width / (float)Height : 0f; }
         }
     }
 }

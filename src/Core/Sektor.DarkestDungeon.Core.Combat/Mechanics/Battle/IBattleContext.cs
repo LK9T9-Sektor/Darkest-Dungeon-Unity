@@ -88,5 +88,10 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Battle
         /// <param name="buffId">The buff id.</param>
         /// <returns>The buff, or null when unknown.</returns>
         Buff GetBuff(string buffId);
+
+        /// <summary>Gets a quirk definition by its id (for effects that reference content quirks/diseases).</summary>
+        /// <param name="quirkId">The quirk id.</param>
+        /// <returns>The quirk, or null when unknown.</returns>
+        IQuirk GetQuirk(string quirkId);
     }
 }

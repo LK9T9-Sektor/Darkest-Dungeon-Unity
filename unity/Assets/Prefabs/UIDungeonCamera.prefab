@@ -20,7 +20,6 @@ GameObject:
   m_Component:
   - 4: {fileID: 4000010129607448}
   - 20: {fileID: 20000012613419766}
-  - 92: {fileID: 92000012810231518}
   - 124: {fileID: 124000011141357750}
   - 114: {fileID: 114000010014563932}
   - 114: {fileID: 114000012030495238}
@@ -78,13 +77,6 @@ Camera:
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
   m_StereoMirrorMode: 0
---- !u!92 &92000012810231518
-Behaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1000010105346894}
-  m_Enabled: 1
 --- !u!114 &114000010014563932
 MonoBehaviour:
   m_ObjectHideFlags: 1

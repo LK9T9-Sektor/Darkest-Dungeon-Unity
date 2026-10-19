@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- Vendored spine-csharp 2.1 runtime (namespace Spine) in Source\, compiled by the SDK default
+       glob. Delivered to both Unity projects as a DLL (PostBuild below) - SpineUnity compiles
+       against it; InternalsVisibleTo in AssemblyInfo.cs covers its internal members. -->
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <CoreUnityPluginDir Include="$(CoreUnityPluginFolders)" />
+    </ItemGroup>
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="%(CoreUnityPluginDir.Identity)" />
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).pdb" DestinationFolder="%(CoreUnityPluginDir.Identity)" />
+  </Target>
+
+</Project>

@@ -157,9 +157,10 @@ namespace Sektor.DarkestDungeon.Core.Combat.Tests
                 "effect: .name \"Clear Corpses\" .target \"target_group\" .chance 100% .kill_enemy_types corpse .on_hit true .on_miss false\n" +
                 "effect: .name \"Rank Target Enemy 1\" .target \"target\" .chance 100% .performer_rank_target 1 .on_hit true .on_miss true\n" +
                 "effect: .name \"Clear Enemy Rank Target\" .target \"performer\" .chance 100% .clear_rank_target 1234 .on_hit true .on_miss true\n" +
-                "effect: .name \"Disease Any\" .target \"target\" .chance 33% .disease any .on_hit true .on_miss false");
+                "effect: .name \"Disease Any\" .target \"target\" .chance 33% .disease any .on_hit true .on_miss false\n" +
+                "effect: .name \"Disease Specific\" .target \"target\" .chance 33% .disease the_worries .on_hit true .on_miss false");
 
-            Assert.That(catalog.Count, Is.EqualTo(5));
+            Assert.That(catalog.Count, Is.EqualTo(6));
 
             AssertSubEffect<KillEffect>(catalog.Get("Kill Target"));
 
@@ -170,6 +171,9 @@ namespace Sektor.DarkestDungeon.Core.Combat.Tests
             AssertSubEffect<PerformerRankTargetEffect>(catalog.Get("Rank Target Enemy 1"));
             AssertSubEffect<ClearRankTargetEffect>(catalog.Get("Clear Enemy Rank Target"));
             AssertSubEffect<DiseaseEffect>(catalog.Get("Disease Any"));
+
+            var specific = catalog.Get("Disease Specific").SubEffects.OfType<DiseaseEffect>().Single();
+            Assert.That(specific.DiseaseId, Is.EqualTo("the_worries"), "A specific disease id must be preserved by the parser.");
         }
 
         [Test]

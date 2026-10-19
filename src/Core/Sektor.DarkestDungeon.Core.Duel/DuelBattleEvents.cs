@@ -196,8 +196,9 @@ namespace Sektor.DarkestDungeon.Core.Duel
             party.Units.RemoveAt(index);
             party.Units.Insert(target, unit);
 
-            for (int i = 0; i < party.Units.Count; i++)
-                ((FormationUnit)party.Units[i]).Rank = i + 1;
+            var formationParty = party as FormationParty;
+            if (formationParty != null)
+                formationParty.RecalculateRanks();
         }
 
         /// <inheritdoc/>

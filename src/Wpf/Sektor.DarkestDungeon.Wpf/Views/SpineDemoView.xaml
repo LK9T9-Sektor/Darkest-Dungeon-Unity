@@ -1,0 +1,125 @@
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.SpineDemoView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behaviors="clr-namespace:Sektor.DarkestDungeon.Wpf.Behaviors"
+             xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views">
+    <UserControl.Resources>
+        <Style x:Key="SelectorCaption" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#8A7A5A" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="0,0,0,4" />
+        </Style>
+        <Style x:Key="SelectorGroup" TargetType="Border">
+            <Setter Property="Background" Value="#1A150F" />
+            <Setter Property="BorderBrush" Value="#3A2E22" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="8,6" />
+            <Setter Property="Margin" Value="0,0,20,0" />
+        </Style>
+        <Style x:Key="SelectorArrow" TargetType="Button" BasedOn="{StaticResource HudButton}">
+            <Setter Property="Width" Value="40" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+        <Style x:Key="SelectorValue" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#E8D9B0" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextAlignment" Value="Center" />
+            <Setter Property="Margin" Value="10,0" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="#14100C">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header: title + close cross -->
+        <views:ScreenHeaderView Grid.Row="0" Margin="48,24,48,0"
+                                Title="{Binding ScreenTitle}"
+                                CloseCommand="{Binding BackCommand}" />
+
+        <!-- Skeleton stage -->
+        <Border Grid.Row="1" Margin="64,16,64,0"
+                Background="#0E0B08" BorderBrush="#3A2E22" BorderThickness="1">
+            <views:SpineHeroControl ContentDirectory="{Binding ContentDirectory}"
+                                    IsPaused="{Binding IsPaused}"
+                                    SpeedMultiplier="{Binding SpeedMultiplier}" />
+        </Border>
+
+        <!-- Selectors: hero, animation set, playback speed -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+            <Border Style="{StaticResource SelectorGroup}">
+                <StackPanel>
+                    <TextBlock Text="CHARACTER" Style="{StaticResource SelectorCaption}" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource SelectorArrow}" Content="&#x25C0;"
+                                AutomationProperties.Name="Previous hero"
+                                Command="{Binding PreviousCharacterCommand}" ToolTip="Previous hero" />
+                        <TextBlock Style="{StaticResource SelectorValue}" MinWidth="130"
+                                   Text="{Binding CurrentCharacter}" />
+                        <Button Style="{StaticResource SelectorArrow}" Content="&#x25B6;"
+                                AutomationProperties.Name="Next hero"
+                                Command="{Binding NextCharacterCommand}" ToolTip="Next hero" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource SelectorGroup}">
+                <StackPanel>
+                    <TextBlock Text="ANIMATION" Style="{StaticResource SelectorCaption}" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource SelectorArrow}" Content="&#x25C0;"
+                                AutomationProperties.Name="Previous animation"
+                                Command="{Binding PreviousAnimationCommand}" ToolTip="Previous animation" />
+                        <TextBlock Style="{StaticResource SelectorValue}" MinWidth="150"
+                                   Text="{Binding CurrentAnimation}" />
+                        <Button Style="{StaticResource SelectorArrow}" Content="&#x25B6;"
+                                AutomationProperties.Name="Next animation"
+                                Command="{Binding NextAnimationCommand}" ToolTip="Next animation" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource SelectorGroup}" Margin="0">
+                <StackPanel>
+                    <TextBlock Text="SPEED" Style="{StaticResource SelectorCaption}" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource SelectorArrow}" Content="&#x25C0;"
+                                AutomationProperties.Name="Slower"
+                                Command="{Binding DecreaseSpeedCommand}" ToolTip="Slower (down to 100%)" />
+                        <TextBlock Style="{StaticResource SelectorValue}" MinWidth="70"
+                                   Text="{Binding SpeedText}" />
+                        <Button Style="{StaticResource SelectorArrow}" Content="&#x25B6;"
+                                AutomationProperties.Name="Faster"
+                                Command="{Binding IncreaseSpeedCommand}" ToolTip="Faster (up to 1000%)" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- Controls -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,24">
+            <Button Content="{Binding PauseButtonText}" Width="140" Height="44" FontSize="16"
+                    Style="{StaticResource HudButton}" Command="{Binding TogglePauseCommand}" />
+            <Button Content="SCREENSHOT" Width="180" Height="44" FontSize="16" Margin="24,0,0,0"
+                    Style="{StaticResource HudButton}"
+                    ToolTip="Saves a PNG of this window into the screenshots folder next to the executable">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <behaviors:SaveScreenshotAction SavedCommand="{Binding ScreenshotSavedCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
+            <TextBlock Text="{Binding ScreenshotStatus}" Width="340" VerticalAlignment="Center" Margin="16,0,0,0"
+                       FontSize="13" Foreground="#8A7A5A" TextTrimming="CharacterEllipsis" />
+        </StackPanel>
+    </Grid>
+</UserControl>

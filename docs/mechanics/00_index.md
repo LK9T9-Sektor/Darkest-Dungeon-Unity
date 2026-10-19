@@ -27,6 +27,8 @@
 | 12 | Surprise 1-го раунда: шанс, -100 инициативы, shuffle | `12_surprise.md` | реализовано |
 | 13 | Инициатива / порядок хода / per-turn обновления | `13_turn_order.md` | реализовано |
 | 14 | Смерть, death's door, стресс отряда, resolve, heart attack | `14_death_stress.md` | реализовано |
+| 15 | Disease: `.disease any|<id>`, резист, применение квирка | `15_disease.md` | частично |
+| 16 | Размер юнита: size 1–4, кумулятивные ранги, ёмкость 4 слотов | `16_formation_size.md` | реализовано |
 
 ## Домены вне боя
 
@@ -38,7 +40,7 @@
 | Clients | `GameDataReader` (Newtonsoft-фасад) | `clients/` | реализовано |
 | Save | `SaveCodec` + версии + `ISaveStorage` (DTO-перенос — с Фазой 4) | `save/` | реализовано |
 | Networking | Contracts/Steam/Photon (src\Lan) | `networking/` | частично |
-| Presentation | WPF-экраны, Unity-оверлеи Тест-боя | `presentation/` | реализовано |
+| Presentation | WPF-экраны, Unity-оверлеи Тест-боя, Unity BattleTest (тонкий вид над ядром боя), легаси-рейд (рендер/камеры) | `presentation/` | реализовано |
 | Campaign | имение/здания/апгрейды/квесты/город/ростер/провизия | `campaign/` | данные |
 | Raid | подземелья/энкаунтеры/боссы/curio/loot/пропы | `raid/` | данные (+ генерация: `raid/dungeon_generation.md`) |
 
@@ -47,3 +49,5 @@
 - `GAME_RULES.md` — сводная таблица «как в репо vs оригинал DD» (ссылки на детали здесь).
 - `BATTLE_PARITY.md` — разрывы Unity MP vs ядро (статусы согласованы с навигатором).
 - `INDEX.md` — карта всех документов.
+- `presentation\presentation_unity_urp_cameras.md` — URP: очистка камер и стек («жёлтый экран» рейда).
+- `presentation\spine_transparency_vertex_colors.md` — Spine WPF: прозрачность атласа и «белые прямоугольники» (vertex colors, SkiaSharp 2.88).

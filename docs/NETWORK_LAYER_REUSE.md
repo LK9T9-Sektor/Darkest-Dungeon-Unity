@@ -97,7 +97,7 @@ src\Networking\                       (чистый C#, без Unity/игров�
 ### 7. Документация (один коммит с кодом)
 
 - Обновить: `NETWORK.md`, `ARCHITECTURE.md`, `KNOWN_ISSUES.md`,
-  `CHANGELOG.md` (user-visible), ссылки на `src\Lan\` → `src\Networking\`.
+  `docs\changelog\` (user-visible), ссылки на `src\Lan\` → `src\Networking\`.
   Коммиты на английском, с точкой.
 
 ## 5. Открытые моменты

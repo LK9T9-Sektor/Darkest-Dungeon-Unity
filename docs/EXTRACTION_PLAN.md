@@ -95,7 +95,9 @@ repo/
 (легаси `unity-2017\` — по возможности, иначе проверку проводит человек) → доки → коммит.
 
 - **Фаза 0. Монорепо.** *(готово)* Перенос в `unity\`, `.gitignore`, тулзы `-ProjectPath`, доставка ядра
-  в оба проекта. Не завершено: единое решение `Darkest-Dungeon-Unity.slnx`.
+  в оба проекта. Единое решение `Darkest-Dungeon-Unity.slnx` создано и поддерживается вручную (новый
+  проект обязательно регистрируется там, см. `ARCHITECTURE.md` §6); Unity-сторона — сгенерированный
+  редактором `unity\unity.slnx`.
 - **Фаза 0б. Фундамент** → `src\Core\Common` (netstandard2.0, C# 7.3): единый `Result`/`Result<T>`,
   примитивы (`IntVector2`, `IRng`), `InvariantCulture`, модель feature-flag; спайк Photon-клиента под
   netstandard2.0 (риск NU1202 — как Steamworks.NET, `KNOWN_ISSUES.md` §9); `tools\build-core.ps1`;
@@ -160,4 +162,4 @@ repo/
 - Карта-манифест в `AGENTS.md`: домен — `src\Core\<модуль>`, презентация — `<проект>\Assets\Scripts\<область>`.
 - Модуль = папка = namespace → поиск через glob/grep предсказуем.
 - Документы: `INDEX.md` (карта), `ARCHITECTURE.md` (структура), `KNOWN_ISSUES.md` (долг),
-  `CHANGELOG.md` (изменения), `FEATURE_*.md` (хотелки), `UNITY_MIGRATION.md` (переходы редактора).
+  `docs\changelog\` (изменения), `FEATURE_*.md` (хотелки), `UNITY_MIGRATION.md` (переходы редактора).

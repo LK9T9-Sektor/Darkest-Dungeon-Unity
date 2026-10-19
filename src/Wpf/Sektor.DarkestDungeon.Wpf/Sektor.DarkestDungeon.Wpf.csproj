@@ -17,6 +17,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.12" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="SkiaSharp.Views.WPF" Version="2.88.8" />
   </ItemGroup>
 
   <!-- Bundled hero class definitions consumed by the core parser at runtime (linked from unity content, not duplicated). -->
@@ -47,6 +48,12 @@
           CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <!-- Spine hero test content: every hero animation set (skeleton, atlas and outfit A page texture),
+       linked from unity assets, not duplicated. The atlas resolves its page texture by the name
+       embedded in it, so the PNG must keep its original file name. Regenerate the props with
+       tools\spine-demo-content.ps1 after hero sprites change. -->
+  <Import Project="SpineDemoContent.props" />
+
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Content\Sektor.DarkestDungeon.Core.Content.csproj" />
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Ui\Sektor.DarkestDungeon.Core.Ui.csproj" />
@@ -57,6 +64,7 @@
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Duel\Sektor.DarkestDungeon.Core.Duel.csproj" />
     <ProjectReference Include="..\..\Lan\Sektor.DarkestDungeon.Lan.Contracts\Sektor.DarkestDungeon.Lan.Contracts.csproj" />
     <ProjectReference Include="..\..\Lan\Sektor.DarkestDungeon.Lan.Steam\Sektor.DarkestDungeon.Lan.Steam.csproj" />
+    <ProjectReference Include="..\..\Spine\Sektor.Spine.Skia\Sektor.Spine.Skia.csproj" />
   </ItemGroup>
 
   <Target Name="CopySteamRuntime" AfterTargets="Build">

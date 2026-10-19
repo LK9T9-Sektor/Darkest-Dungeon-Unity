@@ -4,7 +4,7 @@
 
 ## 1. Что изменилось
 
-- `ProjectSettings\ProjectVersion.txt`: `m_EditorVersion: 6000.4.5f1` (было 2017.4.40f1). Актуальная версия — **6000.5.8f1** (см. §5).
+- `ProjectSettings\ProjectVersion.txt`: `m_EditorVersion: 6000.4.5f1` (было 2017.4.40f1). Актуальная версия — **7000.0.0a10** (Unity 7, см. §5–§6).
 - Старые API удалены или помечены obsolete → правки компиляции:
   - `GUIText` → `UnityEngine.UI.Text` (`DemoBoxesGui.cs`);
   - `MovieTexture` удалён — `MoviePlayer` превращён в заглушку;
@@ -76,3 +76,45 @@ Path 'traits[0].reaction_act_outs[0].chance'
   - `Assets\Plugins\Editor\FMOD\EventBrowser.cs` — событие → `hierarchyWindowItemByEntityIdOnGUI`, обработчик `(EntityId instance, Rect rect)`, `InstanceIDToObject(instance)` → `EntityIdToObject(instance)`.
 - Инструменты: `tools\unity-compile-check.ps1`/`unity-build-game.ps1`/`unity-provision-plugins.ps1` находят редактор 6000.5.8f1 (`C:\Program Files\Unity\Hub\Editor\6000.5.8f1`). Фасады .NET Standard для Unity 6+ не требуются (нативный type-forwarding; каталог `MonoBleedingEdge\lib\mono\unityjit\Facades` в 6.5 отсутствует) — доставка фасадов пропускается.
 - Проверка: `pwsh tools\unity-compile-check.ps1 -UnityEditorPath <editor 6.5> -Provision` → `Compilation succeeded`.
+
+## 6. Обновление 6000.5.8f1 → 7000.0.0a10 (Unity 7) и переход на URP
+
+- `ProjectSettings\ProjectVersion.txt`: `m_EditorVersion: 7000.0.0a10`.
+- Unity 7 отключила Built-in RP: без render pipeline asset сцены рисуются чёрным и на старте — баннер
+  «Your project has no render pipeline asset». Переход — по официальному гайду
+  (`docs.unity3d.com/7000.0/.../urp/upgrading-from-birp.html`): `com.unity.render-pipelines.universal`
+  17.7.0 (built-in пакет редактора), URP Asset + Renderer в `Assets\Settings\DarkestDungeonURP*.asset`
+  (коммит `b07cb27`), `GraphicsSettings.asset` → Default Render Pipeline = URP asset (коммит `29e7288`).
+- Dynamic Batching в Unity 7 удалён: LogError `PlayerSettingsBatchingWarning.WarnIfDynamicBatchingEnabled()`
+  на старте, галка в Player Settings серая → `m_DynamicBatching: 0` в `ProjectSettings.asset` правится
+  при закрытом редакторе (коммит `29e7288`).
+- Fixed-function пассы не поддерживаются SRP: `Skeleton.shader`/`SkeletonLit.shader` переписаны на CG
+  unlit v/f (имена, свойства, теги сохранены; коммит `39881ec`). `SkeletonLit` временно unlit —
+  освещение героев отложено, см. `KNOWN_ISSUES.md` §15.
+- `error CS1703` после апгрейда: в `Assets\Plugins\Internal` (gitignored) остались 127 .NET-фасадов из
+  провиженинга Unity 2017.4 — они дублируют `Editor\Data\UnityReferenceAssemblies\unity-4.8-api\Facades`
+  Unity 7. Удалены; в папке обязаны оставаться только `Sektor.*` DLL/PDB (см. `COMPABILITY.md` §4).
+- Инструменты: `tools\unity-compile-check.ps1`, `unity-build-game.ps1`, `unity-provision-plugins.ps1`,
+  `unity-generate-battle-test-scene.ps1` → редактор 7000.0.0a10 (коммит `93802d1`).
+- **Render Pipeline Converter не запускался** (отложено решением пользователя): материалы на built-in
+  Standard-шейдере (`CoridorWall*.mat`, `Text-Title-Standard.mat` и др.) не конвертированы — под URP
+  ожидаемо рисуются некорректно; визуально не проверялись. После прогона — отдельный коммит, см.
+  `KNOWN_ISSUES.md` §15 и чек-лист в `TESTING.md`.
+- Проверка: `pwsh tools\unity-compile-check.ps1` (редактор закрыт) → `Compilation succeeded` +
+  script-reference check зелёные; оба предупреждения в консоли исчезли.
+- **«Жёлтый экран» рейда (исправлено):** в `Dungeon`/`DungeonMultiplayer` `BlurCamera` и
+  `UI_Dangeon/Camera` имели `Clear Flags = Nothing`, но оставались Base-камерами — Render Graph путь
+  URP (`UniversalRendererRenderGraph.cs:478-485`) при `Nothing` чистит фон в `Color.yellow` (верхние
+  2/3 экрана, мир скрыт). Исправлено переходом на камерный стек: `DungeonCamera` — Base со стеком
+  `[BlurCamera, UI Camera]`, обе лишние — Overlay (`m_CameraType: 1`, `m_ClearDepth: 0`). Детали —
+  `docs\mechanics\presentation\presentation_unity_urp_cameras.md`.
+- **Решение IDE: Unity 7 генерирует `.slnx`, а не `.sln`** — новая SDK-style генерация проектов
+  (`com.unity.ide.visualstudio` 2.0.27, встроенный в редактор): `ProjectGeneration\SdkStyleProjectGeneration.cs`
+  (`SolutionFileImpl()` → `<имя>.slnx`, `SyncSolution()` перед записью удаляет одноимённый `.sln`);
+  legacy-ветка `LegacyStyleProjectGeneration.cs` делает обратное (удаляет `.slnx`). Поэтому в `unity\`
+  лежит `unity.slnx` (4× `Assembly-CSharp*`) и нет классического `unity.sln`. Решение **открывает сам
+  Unity** («Open C# Project» → `VisualStudioEditor.OpenProject` → `generator.SolutionFile()`),
+  перезаписывает — только при смене состава проектов (`ProjectGeneration.cs`, сравнение с предыдущим
+  решением), поэтому файл трекается в git (в `.gitignore`: `*.sln` игнорируется, `!*.slnx` — исключение;
+  добавлен коммитом `fd04e75`). **Не редактировать и не удалять** `unity\unity.slnx` — Unity создаст его
+  заново. Точка входа для разработки — корневое `Darkest-Dungeon-Unity.slnx`, см. `ARCHITECTURE.md` §6.

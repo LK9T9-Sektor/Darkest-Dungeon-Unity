@@ -16,6 +16,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the formation rank (1-based).</summary>
         public int Rank { get; }
 
+        /// <summary>Gets the number of ranks the unit occupies (1 for heroes and small monsters).</summary>
+        public int Size { get; }
+
+        /// <summary>Gets the card width in pixels scaled by the occupied ranks (185 per rank).</summary>
+        public double CardWidth { get { return 185 * Size; } }
+
         /// <summary>Gets the display name.</summary>
         public string Name { get; }
 
@@ -175,12 +181,14 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Initializes a new instance of the <see cref="DuelUnitViewModel"/> class.</summary>
         /// <param name="combatId">The combat id.</param>
         /// <param name="rank">The formation rank.</param>
+        /// <param name="size">The number of occupied ranks.</param>
         /// <param name="name">The name.</param>
         /// <param name="className">The class label.</param>
-        public DuelUnitViewModel(int combatId, int rank, string name, string className)
+        public DuelUnitViewModel(int combatId, int rank, int size, string name, string className)
         {
             CombatId = combatId;
             Rank = rank;
+            Size = size;
             Name = name;
             ClassName = className;
             UpdateBars();
