@@ -25,7 +25,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(characters, Does.Contain("Vestal"));
         }
 
-        /// <summary>The idle set is listed first, the other sets follow alphabetically.</summary>
+        /// <summary>The idle set is listed first, the other sets (base + Effects skill sets) follow alphabetically.</summary>
         [Test]
         public void GetAnimations_PutsIdleFirst()
         {
@@ -35,7 +35,9 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
 
             Assert.That(animations[0], Is.EqualTo("Idle"));
             Assert.That(animations, Does.Contain("Walk"));
-            Assert.That(animations, Has.Count.EqualTo(14));
+            Assert.That(animations, Does.Contain("AttackSword"));
+            Assert.That(animations, Does.Contain("Smite"));
+            Assert.That(animations, Has.Count.EqualTo(23), "14 base sets + 9 Effects skill sets");
             Assert.That(catalog.GetAnimations("NoSuchHero"), Is.Empty);
         }
 

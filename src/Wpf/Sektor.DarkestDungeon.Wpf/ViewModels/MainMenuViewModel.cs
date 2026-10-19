@@ -14,6 +14,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private readonly Func<object> createSinglePlayerLobby;
         private readonly Func<object> createPveLobby;
         private readonly Func<object> createSpineDemo;
+        private readonly Func<object> createSpineBattle;
 
         /// <summary>Gets the command opening the single player lobby.</summary>
         public IRelayCommand VsAiCommand { get; }
@@ -27,6 +28,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the command opening the Spine animation test screen.</summary>
         public IRelayCommand SpineTestCommand { get; }
 
+        /// <summary>Gets the command opening the visual 1x1 spine arena.</summary>
+        public IRelayCommand SpineBattleCommand { get; }
+
         /// <summary>Gets the command that closes the application.</summary>
         public IRelayCommand CloseCommand { get; }
 
@@ -36,17 +40,20 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <param name="createSinglePlayerLobby">Creates the single player lobby screen.</param>
         /// <param name="createPveLobby">Creates the PvE lobby screen.</param>
         /// <param name="createSpineDemo">Creates the Spine animation test screen.</param>
-        public MainMenuViewModel(INavigationService navigation, Func<object> createMultiplayerLobby, Func<object> createSinglePlayerLobby, Func<object> createPveLobby, Func<object> createSpineDemo)
+        /// <param name="createSpineBattle">Creates the visual 1x1 spine arena screen.</param>
+        public MainMenuViewModel(INavigationService navigation, Func<object> createMultiplayerLobby, Func<object> createSinglePlayerLobby, Func<object> createPveLobby, Func<object> createSpineDemo, Func<object> createSpineBattle)
         {
             this.navigation = navigation;
             this.createMultiplayerLobby = createMultiplayerLobby;
             this.createSinglePlayerLobby = createSinglePlayerLobby;
             this.createPveLobby = createPveLobby;
             this.createSpineDemo = createSpineDemo;
+            this.createSpineBattle = createSpineBattle;
             VsAiCommand = new RelayCommand(OpenVsAi);
             PveCommand = new RelayCommand(OpenPve);
             MultiplayerCommand = new RelayCommand(OpenMultiplayer);
             SpineTestCommand = new RelayCommand(OpenSpineDemo);
+            SpineBattleCommand = new RelayCommand(OpenSpineBattle);
             CloseCommand = new RelayCommand(Close);
         }
 
@@ -68,6 +75,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private void OpenSpineDemo()
         {
             navigation.NavigateTo(createSpineDemo());
+        }
+
+        private void OpenSpineBattle()
+        {
+            navigation.NavigateTo(createSpineBattle());
         }
 
         private void Close()

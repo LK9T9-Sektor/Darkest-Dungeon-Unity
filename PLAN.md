@@ -91,33 +91,23 @@ Spine-шейдеров на URP-совместимые (иначе герои/м
 - Замена BlurOptimized (showoff-блюр) URP-аналогом — отдельная задача.
 - Мёртвый `CharacterSprite.shader` (Spine/DungeonSprite, 0 ссылок) — не трогаем.
 
-## Активный план (пока URP-миграция): Spine → доставка в Unity
-
-Цель: `Sektor.Spine` (netstandard2.0) доставляется в оба Unity-дерева как DLL, сорсы spine-csharp
-уходят из `Assets\Spine\SpineSharp` в `src\Spine`.
-
-Шаги:
-1. [x] `git mv` сорсов `unity\Assets\Spine\SpineSharp\Source\**\*.cs` → `src\Spine\Sektor.Spine\Source\`
-   (`.meta` удаляются из обоих деревьев, папки `SpineSharp` убраны — в `Assets\Spine` остались
-   `SpineUnity`/`Gizmos`); csproj собирает `Source\**\*.cs` дефолтным glob'ом SDK.
-2. [x] `PostBuild`-таргет в `Sektor.Spine.csproj` (копия `.dll`/`.pdb` в `$(CoreUnityPluginFolders)` —
-   образец `Core.Ui.csproj`); `Sektor.Spine.dll` подтверждён в обоих `Assets\Plugins\Internal`.
-3. [x] `git rm` остатков `Assets\Spine\SpineSharp` в `unity\` и `unity-2017\` (SpineUnity остаётся).
-4. [x] Проверки: `dotnet build` — 0 ошибок/0 предупреждений; `unity-compile-check` для `unity\` —
-   зелёный (компиляция + script-reference check). **`unity-2017` прогнан не был**: редактора
-   2017.4.40f1 на машине нет (есть только 7000.0.0a10) — скрипту добавлен защитный блок
-   сверки версии редактора с `ProjectVersion.txt` (иначе batch-прогон открывает 2017-проект в
-   7000-м и апгрейдит его); прогон для `unity-2017` — после установки редактора.
-5. [x] Доки: `presentation_wpf.md`, `FEATURE_DESKTOP_CLIENT.md`, `TESTING.md` (пункт про
-   `Sektor.Spine.dll`), `PLAN.md` backlog (этап 2 выполнен), историческая запись
-   `docs\changelog\2026-10-19-wpf-spine-demo.md` приведена к факту.
-6. [x] Коммит.
-
-Risks: удаление `.cs.meta` — на spine-csharp-классы GUID-ссылок в сценах нет (чистые классы);
-`InternalsVisibleTo("Assembly-CSharp")`/`Assembly-CSharp-Editor` уже в `AssemblyInfo.cs`.
-
 ## Backlog (следующие шаги, план ещё не заведён)
 
-- Этап 2 Spine выполнен (см. активный план выше): своп Unity-копий на `Sektor.Spine.dll` сделан;
-  осталось прогнать `unity-compile-check` для `unity-2017` после установки редактора 2017.4.40f1.
+- **Спека игровых событий → S2/S3** (`docs\SPEC_GAME_EVENTS.md`, план открыть отдельным срезом):
+  S2 — `Core.GameEvents` (GameEvent-иерархия + `IGameEventBus`) + `Clients.EventLog`
+  (`JsonEventLogger` → JSONL, manifest.json), регистрация в `.slnx`, `TARGET_LAYOUT`/`ARCHITECTURE`,
+  `SPEC_GAME_EVENTS_SCHEMA.md`; S3 — Unity-рекордер (бутстрап как `SceneSnapshotDumper`,
+  `persistentDataPath\Replays\run_*`), публикации sceneSnapshot/partyMoved/комната/бой/факел/
+  skillUnavailable, эталонные `*.jsonl`. Решения: TFM остаётся netstandard2.0 (доставка в оба
+  Unity), только `LangVersion latest` в новых csproj; сериализатор Newtonsoft
+  `TypeNameHandling.Auto` (STJ в проекте нет); `Input`/`Rng` обязательны (`null`+причина пока);
+  хук фактических spine-имён — timebox; ресурсы клиентов (фоны, иконки, спайн бандитов) —
+  экстракцией в gitignored-общую папку под все клиенты (WPF/Avalonia).
+- Далее по этой линии: WPF-потребитель JSONL («Воспроизвести захват»), экстракция ресурсов +
+  арена hero vs бандиты (`brigand_cutthroat_A`, контент уже грузится), инвентарь/движение-дельты,
+  заполнение rng.
+- Фикс `tools\unity-compile-check.ps1`: сверка версии падает на этом ПК — установка 2017.4.40f1
+  в `E:\ProgramFiles\Unity2017.4.40f1` отдаёт `ProductVersion 2017.4.40.7214086` (без `f1`), а
+  `ProjectVersion.txt` ждёт `2017.4.40f1` (`StartsWith` не срабатывает). `unity-2017`
+  проверен ручным batch-прогоном — зелёный (компиляция + script-reference check).
 - Монстры и остальные герои в карточке дуэли; интеграция анимаций боя (атаки, скиллы).

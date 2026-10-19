@@ -31,7 +31,8 @@
                 <TextBlock Text="choose your battle" FontSize="18" Foreground="#8A7A5A"
                            HorizontalAlignment="Center" Margin="0,10,0,0" />
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,64,0,0">
+                <!-- Buttons wrap onto a second row when the window is narrow (MinWidth 1100). -->
+                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,64,0,0" MaxWidth="1160">
                     <Button Content="VS AI" Width="230" Height="58" FontSize="20"
                             Margin="0,0,36,0" Style="{StaticResource HudButton}"
                             Command="{Binding VsAiCommand}" />
@@ -42,9 +43,13 @@
                             Margin="0,0,36,0" Style="{StaticResource HudButton}"
                             Command="{Binding MultiplayerCommand}" />
                     <Button Content="SPINE TEST" Width="200" Height="58" FontSize="20"
-                            Style="{StaticResource HudButton}"
+                            Margin="0,0,36,0" Style="{StaticResource HudButton}"
                             Command="{Binding SpineTestCommand}" />
-                </StackPanel>
+                    <Button Content="АРЕНА 1×1" Width="170" Height="58" FontSize="20"
+                            Style="{StaticResource HudButton}"
+                            Command="{Binding SpineBattleCommand}"
+                            ToolTip="Visual 1x1 arena: one-shot attack animation with damage feedback" />
+                </WrapPanel>
             </StackPanel>
         </Grid>
     </Grid>

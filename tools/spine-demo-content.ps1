@@ -8,6 +8,9 @@ param(
 # exactly one animation, so the spine demo switches animation sets (skeleton + atlas + outfit A
 # page texture) to switch characters and animations. The page PNG keeps its original name because
 # the atlas resolves it by the name embedded in the atlas file.
+# Two set kinds are linked: base sets from <Hero>\Skeleton\<Set> (page texture in Outfits\A) and
+# skill sets from <Hero>\Effects\<Skill> (page texture next to the skeleton) - the latter carry the
+# real timed skill animations (base Attack* sets are zero-duration pose stubs).
 #
 # Usage:
 #   pwsh tools\spine-demo-content.ps1            # regenerate from unity assets
@@ -26,6 +29,34 @@ $entries = [System.Collections.Generic.List[string]]::new()
 $problems = [System.Collections.Generic.List[string]]::new()
 $heroCount = 0
 
+function Add-SpineSet {
+    param(
+        [string]$SetName,
+        [string]$SourceFullPath,
+        [string]$SourceRelative,
+        [string]$PngPath,
+        [string]$PngSourceRelative
+    )
+
+    $skel = @(Get-ChildItem -LiteralPath $SourceFullPath -Filter "*.skel.bytes" -File)
+    $atlas = @(Get-ChildItem -LiteralPath $SourceFullPath -Filter "*.atlas.txt" -File)
+    if ($skel.Count -ne 1 -or $atlas.Count -ne 1) {
+        $script:problems.Add("${SetName}: expected exactly one .skel.bytes and one .atlas.txt (skel=$($skel.Count) atlas=$($atlas.Count))")
+        return
+    }
+
+    $baseName = $skel[0].Name -replace "\.skel\.bytes$", ""
+    if (-not (Test-Path -LiteralPath $PngPath)) {
+        $script:problems.Add("${SetName}: missing page texture $PngPath")
+        return
+    }
+
+    $linkDir = "Content\Spine\$SetName"
+    $script:entries.Add("    <None Include=`"`$(MSBuildThisFileDirectory)$SourceRelative\$($skel[0].Name)`" Link=`"$linkDir\$baseName.skel`" CopyToOutputDirectory=`"PreserveNewest`" />")
+    $script:entries.Add("    <None Include=`"`$(MSBuildThisFileDirectory)$SourceRelative\$($atlas[0].Name)`" Link=`"$linkDir\$baseName.atlas`" CopyToOutputDirectory=`"PreserveNewest`" />")
+    $script:entries.Add("    <None Include=`"`$(MSBuildThisFileDirectory)$PngSourceRelative`" Link=`"$linkDir\$baseName.png`" CopyToOutputDirectory=`"PreserveNewest`" />")
+}
+
 foreach ($heroDir in Get-ChildItem -LiteralPath $heroesRoot -Directory | Sort-Object Name) {
     $skeletonRoot = Join-Path $heroDir.FullName "Skeleton"
     if (-not (Test-Path -LiteralPath $skeletonRoot)) {
@@ -36,24 +67,41 @@ foreach ($heroDir in Get-ChildItem -LiteralPath $heroesRoot -Directory | Sort-Ob
     foreach ($animDir in Get-ChildItem -LiteralPath $skeletonRoot -Directory | Sort-Object Name) {
         $setName = "$($heroDir.Name)\$($animDir.Name)"
         $skel = @(Get-ChildItem -LiteralPath $animDir.FullName -Filter "*.skel.bytes" -File)
-        $atlas = @(Get-ChildItem -LiteralPath $animDir.FullName -Filter "*.atlas.txt" -File)
-        if ($skel.Count -ne 1 -or $atlas.Count -ne 1) {
-            $problems.Add("${setName}: expected exactly one .skel.bytes and one .atlas.txt (skel=$($skel.Count) atlas=$($atlas.Count))")
+        if ($skel.Count -ne 1) {
+            $problems.Add("${setName}: expected exactly one .skel.bytes (skel=$($skel.Count))")
             continue
         }
 
         $baseName = $skel[0].Name -replace "\.skel\.bytes$", ""
-        $pngPath = Join-Path $heroDir.FullName "Outfits\A\$baseName.png"
-        if (-not (Test-Path -LiteralPath $pngPath)) {
-            $problems.Add("${setName}: missing Outfits\A\$baseName.png")
+        $pngName = "$baseName.png"
+        Add-SpineSet -SetName $setName `
+            -SourceFullPath $animDir.FullName `
+            -SourceRelative "$unityRelative\$($heroDir.Name)\Skeleton\$($animDir.Name)" `
+            -PngPath (Join-Path $heroDir.FullName "Outfits\A\$pngName") `
+            -PngSourceRelative "$unityRelative\$($heroDir.Name)\Outfits\A\$pngName"
+    }
+
+    $effectsRoot = Join-Path $heroDir.FullName "Effects"
+    if (-not (Test-Path -LiteralPath $effectsRoot)) {
+        continue
+    }
+
+    foreach ($fxDir in Get-ChildItem -LiteralPath $effectsRoot -Directory | Sort-Object Name) {
+        $setName = "$($heroDir.Name)\$($fxDir.Name)"
+        $fxSkel = @(Get-ChildItem -LiteralPath $fxDir.FullName -Filter "*.skel.bytes" -File)
+        if ($fxSkel.Count -ne 1) {
+            $problems.Add("${setName}: expected exactly one .skel.bytes (skel=$($fxSkel.Count))")
             continue
         }
 
-        $sourceDir = "$unityRelative\$($heroDir.Name)\Skeleton\$($animDir.Name)"
-        $linkDir = "Content\Spine\$setName"
-        $entries.Add("    <None Include=`"`$(MSBuildThisFileDirectory)$sourceDir\$($skel[0].Name)`" Link=`"$linkDir\$baseName.skel`" CopyToOutputDirectory=`"PreserveNewest`" />")
-        $entries.Add("    <None Include=`"`$(MSBuildThisFileDirectory)$sourceDir\$($atlas[0].Name)`" Link=`"$linkDir\$baseName.atlas`" CopyToOutputDirectory=`"PreserveNewest`" />")
-        $entries.Add("    <None Include=`"`$(MSBuildThisFileDirectory)$unityRelative\$($heroDir.Name)\Outfits\A\$baseName.png`" Link=`"$linkDir\$baseName.png`" CopyToOutputDirectory=`"PreserveNewest`" />")
+        $fxBase = $fxSkel[0].Name -replace "\.skel\.bytes$", ""
+        $fxPng = "$fxBase.png"
+        $fxSource = "$unityRelative\$($heroDir.Name)\Effects\$($fxDir.Name)"
+        Add-SpineSet -SetName $setName `
+            -SourceFullPath $fxDir.FullName `
+            -SourceRelative $fxSource `
+            -PngPath (Join-Path $fxDir.FullName $fxPng) `
+            -PngSourceRelative "$fxSource\$fxPng"
     }
 }
 
