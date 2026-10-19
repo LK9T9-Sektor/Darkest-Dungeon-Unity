@@ -42,7 +42,7 @@
 7. [x] Проверки: build, related-тесты (18/18), `check-using-placement`; UIA-верификация (клики
    стрелок, смена героя/анимации/скорости, рендер без ошибок).
 8. [x] Доки: `presentation_wpf.md`, `TESTING.md`, `CHANGELOG.md`, `FEATURE_DESKTOP_CLIENT.md`.
-9. [ ] Коммит + пуш.
+9. [x] Коммит + пуш.
 
 ## Affected files
 
