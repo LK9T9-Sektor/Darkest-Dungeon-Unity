@@ -20,74 +20,96 @@
 
 ## Активный план
 
-# PLAN: S2 — контракт игровых событий (GameEvents + EventLog)
+# PLAN: S3 — Unity-рекордер игровых событий (эталонные JSONL)
 
-Ветка: `core/game-events-contract` (от `main` 0633d8bd). Спека: `docs\SPEC_GAME_EVENTS.md`.
+Ветка: `core/game-events-contract` (S2 ещё не влит — S3 стекается поверх него, коммиты в ту же
+ветку). Контракт: `docs\SPEC_GAME_EVENTS_SCHEMA.md`; DLL шины/логгера уже доставлены в оба
+Unity-дерева.
 
 ## Goal
 
-(1) Библиотека DTO+шины игровых событий в чистом Core и (2) JSONL-логгер на границе клиента —
-готовая база для S3 (Unity-рекордер сценария «старт сэйва → коридор → комната → бой → факел»)
-и для WPF-потребителя. Данные вместо догадок: DTO в C# = schema.md = примеры логов.
+Рекордер в активном `unity\`: F10 старт/стоп записи run'а, публикации событий v1 по точкам
+реальной игры (старт сэйва/вход в рейд → коридор/секторы → комната → бой (скилл/урон/статы) →
+факел) в `IGameEventBus` → `JsonEventLogger` в `persistentDataPath\Replays\run_<ts>\`. После
+прогона пользователя — эталонные `*.jsonl` (копия в репо под схемой) как исполняемая
+спецификация для WPF-потребителя. Данные вместо догадок.
 
-## Design decisions (user-confirmed)
+## Design decisions (user-confirmed / по research)
 
-- Новые модули `Core.GameEvents` + `Clients.EventLog`; **TFM netstandard2.0** (доставка в оба
-  Unity-дерева через `CoreUnityPluginFolders`), только `LangVersion latest` локально в csproj
-  (записи/record); Newtonsoft `TypeNameHandling.Auto` (STJ в проекте нет) — только в
-  `Clients.EventLog`, чистый Core без JSON (правило AGENTS).
-- Обязательные поля `Input`/`Rng`: nullable; `null` = «не инструментировано», причина
-  фиксируется в schema.md (чек-лист §8 спеки допускает явный null с причиной).
-- Scope v1 — только типы под сценарий S3: `sceneSnapshot`, `stateSnapshot`, `partyMoved`,
-  `roomDiscovered`, `attackExecuted`, `heroStatChanged`, `torchChanged`, `skillUnavailable`,
-  `actionRejected`. Инвентарь (`item*`) и заполнение rng — отдельными шагами позже.
-- `Publish` шины проставляет `EventId`/`Timestamp`/`Sequence` (Interlocked, монотонность) —
-  единая точка нумерации; издатели дают `Subsystem`/payload/`Input`/`Rng`.
+- Бутстрап по образцу `SceneSnapshotDumper` (`RuntimeInitializeOnLoadMethod(AfterSceneLoad)`,
+  `DontDestroyOnLoad`); **F10** = старт/стоп (F9 занят дампером); пути/статус — Debug.Log с
+  префиксом `[GameEventLog]`. Диагностика — global namespace, конвенции `Diagnostics\`.
+- Инвазия в legacy — минимальные точечные вставки (правило minimal diff): статический фасад
+  `GameEventRecording` no-op, пока запись не запущена.
+- **Схема id**: герой = `hero_<RosterId>` (стабильно во всём рейде; CombatId героев присваивается
+  только в `InitiateBattle`), монстр = `monster_<CombatId>` (scope боя; battleStart-снапшот
+  публикуется после `SpawnEncounter` → id совпадают с боевыми событиями).
+- Анимации: факт-имя клипа читается после `yield return null` из
+  `FormationUnit.CurrentState.AnimationName` (`SkeletonAnimation.state.GetCurrent(0)`); цель —
+  `TargetAnimation: null` в v1 (hit-реакций у юнитов нет, FX — отдельные скелеты).
+- `TorchChanged`: детект в `TorchMeter.UpdateTorch` (diff с `_lastPublished`) + маркер причины
+  в mutator-ах (`corridorStep`/`snuffed`/`torchUsed`/`modifier`).
+- `Rng` = null (солвер не инструментирован); `skillUnavailable`/`actionRejected` из Unity —
+  отложены (нет дешёвой честной точки — research §7); `item*`, `combat_01`, `spineEventTriggered`
+  — вне v1 (schema §4).
 
 ## Steps / status
 
-1. [x] Ветка `core/game-events-contract`, PLAN.md зафиксирован.
-2. [x] `src\Core\Sektor.DarkestDungeon.Core.GameEvents` (netstandard2.0 + `LangVersion latest`
-   + полифилл `IsExternalInit`): `GameEvent` (abstract record), `GameInput`/`GameInputKinds`,
-   `GameRng`, `SubsystemNames`,9 событий v1, DTO (`SceneNode`/`SceneGlobals`/`CombatantState`/
-   `AnimationRef`/`StateSnapshotContexts`), `IGameEventBus`/`GameEventBus` (stамп EventId/
-   Timestamp/Sequence через `with`-копию, dispatch по assignability, отписка-`IDisposable`,
-   guard-return вместо исключений). PostBuild доставляет DLL в оба Unity-дерева (проверено).
-   Тесты `GameEventBusTests` (4): стамп/порядок, параллельная монотонность (1..200), типизированная
-   доставка/отписка, null-guard.
-3. [x] `src\Clients\Sektor.DarkestDungeon.Clients.EventLog`: `JsonEventLogger` (подписка на шину,
-   ленивый `StreamWriter` на подсистему `<subsystem>_session.jsonl`, `AutoFlush`,
-   `manifest.json` при создании/новом файле/Dispose, fallback `unspecified`) +
-   `GameEventManifest`; Newtonsoft `TypeNameHandling.Auto` с declared-типом `GameEvent` (иначе
-   `$type` не пишется у корня — ловушка закрыта тестом roundtrip). Доставка в оба Unity-дерева
-   (проверено). Тесты `JsonEventLoggerTests` (3): per-subsystem порядок/полиморфный roundtrip,
-   manifest (schemaVersion/seed/notes/files), fallback пустой подсистемы.
-4. [x] Регистрация4 проектов в `Darkest-Dungeon-Unity.slnx`; `TARGET_LAYOUT.md` (таблица + дерево
-   `src/`) и `ARCHITECTURE.md` §2 (строки `GameEvents`, `Clients.EventLog`) обновлены.
-5. [x] `docs\SPEC_GAME_EVENTS_SCHEMA.md`: формат/manifest/чтение, базовые поля (кто стампит,
-   null-причины),9 типов с триггерами/полями/инвариантами и **реальными** строками-примерами
-   (сняты из тестового вывода), чек-лист §8 (покрыто/отложено), отклонения от спеки;
-   строка в `docs\INDEX.md`.
-6. [x] `dotnet test` по всем12 тестовым проектам — exit 0; `tools\check-using-placement.ps1` — OK.
-7. [x] Коммит/пуш по подтверждению пользователя.
+1. [x] Research точек публикации (агент, file:line): старт рейда `RaidSceneManager.Start:214/261-264`,
+   сектор `RaidHallSector.OnTriggerEnter2D:223-236`, комната `RoomLoadingEvent:649` (+knowledge
+   `:798-824`), бой `EncounterEvent:1970` → `InitiateBattle:1992`/`SpawnEncounter:1994`,
+   скилл `HeroSkillTargetSelected:1474`, `ExecuteSkillBase:3958` (`SkillResultEntry`,
+   урон в `BattleSolver.ExecuteSkill:413`), intro-вызовы `:4104`/`:4304`,
+   факел `TorchMeter.UpdateTorch:403` (`TorchAmount:72`), `CurrentState`/`AnimationName`
+   (`SkeletonAnimation.cs:43/76-80`).
+2. [x] `Scripts\Diagnostics\GameEventRecording.cs` + `GameEventRecorder.cs` (+ `.meta`):
+   статический фасад (guard-publish, `UnitId`/`CombatantState`/анимация-хелперы) + MonoBehaviour-
+   бутстрап (F10, bus+logger, run-dir, Debug.Log). Gotcha (измерено): Unity7 инжектит глобальные
+   using'и и её сборки содержат двойники имён DTO (глобальный `StateSnapshot`,
+   `UnityEngine.AnimationRef`, `VectorGraphics.SceneNode`, плюс свой `SceneSnapshot` от дампера в
+   Assets) — все типы контракта подключены алиасами, `SceneSnapshot` квалифицируется полностью
+   (иначе CS0576/CS0246/CS1729); зафиксировано в `Diagnostics\README`.
+3. [x] Точки (минимальные вставки): sceneSnapshot (`Start` new/resume), partyMoved
+   (`RaidHallSector.OnTriggerEnter2D` + `RoomLoadingEvent` FromHallway), roomDiscovered
+   (knowledge=Hidden в `RoomLoadingEvent`), battleStart stateSnapshot (после `SpawnEncounter`),
+   heroStatChanged (цикл `ExecuteSkillBase`: HP before/after per target), attackExecuted
+   (hero/monster пути после intro + `WaitForSeconds(0.01)` + кадр; факт-имя клипа),
+   torchChanged (`TorchMeter.UpdateTorch` diff + причины corridorStep/snuffed/torchUsed/modifier).
+4. [x] `pwsh tools\unity-compile-check.ps1 -ProjectPath unity` зелёный (компиляция +
+   script-reference check; редактор закрыт).
+5. [ ] **Отложено пользователю** (когда будет время — прогон ~2 минуты):
+   (а) открыть `unity\` → сцена `Dungeon` → Play со стартового сэйва (новая игра);
+   (б) **F10** — в консоли `[GameEventLog] recording started: <путь>`;
+   (в) сценарий: выйти из стартовой комнаты, пройти 2–3 сектора коридора, войти в следующую
+   комнату, в бою применить 1–2 скилла, снуть факел (Shift + клик по виджету факела);
+   (г) **F10** — стоп, в консоли `recording stopped` со списком файлов;
+   (д) сказать агенту «прогнал» — агент проверит события `Replays\run_*` по
+   `docs\SPEC_GAME_EVENTS_SCHEMA.md` (Sequence, id `hero_/monster_`, анимации) и скопирует
+   эталон в `docs\spec_game_events\examples\`.
+6. [x] Доки: `Diagnostics\README` (секция GameEventRecorder), schema (id-схема, триггеры/причины
+   Unity v1, отложенные события), `TESTING.md` (строка чек-листа); коммит/пуш выполнены
+   (ветка `core/game-events-contract`).
 
 ## Affected files
 
-- Новые: `src\Core\Sektor.DarkestDungeon.Core.GameEvents\*`,
-  `src\Clients\Sektor.DarkestDungeon.Clients.EventLog\*`, `docs\SPEC_GAME_EVENTS_SCHEMA.md`.
-- `Darkest-Dungeon-Unity.slnx`, `docs\TARGET_LAYOUT.md`, `docs\ARCHITECTURE.md`, `PLAN.md`.
+- `unity\Assets\Scripts\Diagnostics\GameEventRecording.cs`, `GameEventRecorder.cs` (+ `.meta`),
+  `README.md` (секция).
+- `unity\Assets\Scripts\Managers\RaidSceneManager.cs`, `Scripts\Raid\TorchMeter.cs`,
+  `Scripts\Raid\Area\AreaObjects\RaidHallSector.cs` — точечные вставки.
+- `docs\spec_game_events\examples\*.jsonl` (эталон, после прогона), `docs\SPEC_GAME_EVENTS_SCHEMA.md`,
+  `PLAN.md`.
 
 ## Acceptance criteria
 
-- Обе библиотеки собираются netstandard2.0, тесты зелёные; логгер пишет валидный JSONL +
-  manifest и читается обратно полиморфно (`$type`/дискриминатор).
-- Newtonsoft отсутствует в `Core.GameEvents`; чистый Core не бросает исключений (Result/данные).
-- Легаси (`unity\`, `unity-2017\`, `src\External\`) не изменены.
+- F10 старт → прогон → F10 стоп: `Replays\run_*` содержит `manifest.json` + `*_session.jsonl`;
+  события в порядке `Sequence`; id/ассеты — логические (schema §3).
+- `unity-compile-check` зелёный; `unity-2017\` и `src\External\` не тронуты; диффы в legacy —
+  точечные.
 
-## Out of scope (S2)
+## Out of scope (S3)
 
-- Публикации из Unity и WPF (S3/потребитель), `item*`-события, заполнение rng в солверах,
-  spine-хук анимаций (timebox — в S3).
+- Инвентарь (`item*`), `skillUnavailable`/`actionRejected` из Unity, rng, WPF-потребитель,
+  экстракция ресурсов, нумерация `combat_01`.
 
 ## План (почти завершён): Unity 7 (7000.0.0a10) — URP-миграция после апгрейда
 
@@ -162,19 +184,13 @@ Spine-шейдеров на URP-совместимые (иначе герои/м
 
 ## Backlog (следующие шаги, план ещё не заведён)
 
-- **Спека игровых событий → S2/S3** (`docs\SPEC_GAME_EVENTS.md`, план открыть отдельным срезом):
-  S2 — `Core.GameEvents` (GameEvent-иерархия + `IGameEventBus`) + `Clients.EventLog`
-  (`JsonEventLogger` → JSONL, manifest.json), регистрация в `.slnx`, `TARGET_LAYOUT`/`ARCHITECTURE`,
-  `SPEC_GAME_EVENTS_SCHEMA.md`; S3 — Unity-рекордер (бутстрап как `SceneSnapshotDumper`,
-  `persistentDataPath\Replays\run_*`), публикации sceneSnapshot/partyMoved/комната/бой/факел/
-  skillUnavailable, эталонные `*.jsonl`. Решения: TFM остаётся netstandard2.0 (доставка в оба
-  Unity), только `LangVersion latest` в новых csproj; сериализатор Newtonsoft
-  `TypeNameHandling.Auto` (STJ в проекте нет); `Input`/`Rng` обязательны (`null`+причина пока);
-  хук фактических spine-имён — timebox; ресурсы клиентов (фоны, иконки, спайн бандитов) —
-  экстракцией в gitignored-общую папку под все клиенты (WPF/Avalonia).
-- Далее по этой линии: WPF-потребитель JSONL («Воспроизвести захват»), экстракция ресурсов +
-  арена hero vs бандиты (`brigand_cutthroat_A`, контент уже грузится), инвентарь/движение-дельты,
-  заполнение rng.
+- **Дописать S3 (отложено пользователю)** — F10-прогон сценария по чек-листу шага5 активного
+  плана; после: агент сверяет `Replays\run_*` со `SPEC_GAME_EVENTS_SCHEMA.md` и кладёт эталон
+  в `docs\spec_game_events\examples\`.
+- Далее по линии игровых событий: WPF-потребитель JSONL («Воспроизвести захват» в арене),
+  экстракция ресурсов (фоны/иконки/спайн бандитов) в gitignored-общую папку под все клиенты
+  (WPF/Avalonia), арена hero vs бандиты (`brigand_cutthroat_A`, контент уже грузится),
+  `item*`-события, заполнение rng, нумерация `combat_01`.
 - Фикс `tools\unity-compile-check.ps1`: сверка версии падает на этом ПК — установка 2017.4.40f1
   в `E:\ProgramFiles\Unity2017.4.40f1` отдаёт `ProductVersion 2017.4.40.7214086` (без `f1`), а
   `ProjectVersion.txt` ждёт `2017.4.40f1` (`StartsWith` не срабатывает). `unity-2017`

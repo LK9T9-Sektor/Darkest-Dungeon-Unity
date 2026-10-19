@@ -74,9 +74,15 @@ public class TorchMeter : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public TorchlightModifier Modifier { get; private set; }
 
     private const int BaseLength = 450;
+    private const string ReasonCorridorStep = "corridorStep";
+    private const string ReasonSnuffed = "snuffed";
+    private const string ReasonTorchUsed = "torchUsed";
+    private const string ReasonModifier = "modifier";
     private int currentLength = BaseLength;
     private int targetLength = BaseLength;
     private int lastValue;
+    private int lastPublishedAmount;
+    private string torchChangeSource = ReasonCorridorStep;
 
     private float velocity;
 
@@ -120,6 +126,7 @@ public class TorchMeter : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
         TorchAmount = Mathf.Clamp(torchValue, 0, maxAmount);
         MaxAmount = 100;
+        lastPublishedAmount = TorchAmount;
 
         Ranges = new List<TorchRange>()
         {
@@ -217,6 +224,7 @@ public class TorchMeter : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     public void IncreaseTorch(int value)
     {
+        torchChangeSource = ReasonTorchUsed;
         if(Modifier != null)
             TorchAmount = Mathf.Clamp(TorchAmount + value, Modifier.Min, Modifier.Max);
         else
@@ -242,6 +250,7 @@ public class TorchMeter : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     public void Modify(TorchlightModifier modifier)
     {
+        torchChangeSource = ReasonModifier;
         Modifier = modifier;
         lastValue = TorchAmount;
         TorchAmount = Mathf.Clamp(TorchAmount, Modifier.Min, Modifier.Max);
@@ -253,6 +262,7 @@ public class TorchMeter : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         if (Modifier != null)
         {
             Modifier = null;
+            torchChangeSource = ReasonModifier;
             TorchAmount = lastValue;
             UpdateTorch();
         }
@@ -382,6 +392,7 @@ public class TorchMeter : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 #if UNITY_ANDROID || UNITY_IOS
         if (doubleTapTimer > 0)
         {
+            torchChangeSource = ReasonSnuffed;
             DecreaseTorch(10);
 
             if (ToolTipManager.Instanse.toolTip.isActiveAndEnabled)
@@ -392,6 +403,7 @@ public class TorchMeter : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 #else
         if (Input.GetKey(KeyCode.LeftShift))
         {
+            torchChangeSource = ReasonSnuffed;
             DecreaseTorch(Input.GetKey(KeyCode.LeftControl) ? 100 : 10);
 
             if (ToolTipManager.Instanse.ToolTip.isActiveAndEnabled)
@@ -430,6 +442,13 @@ public class TorchMeter : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
         RaidSceneManager.Formations.Heroes.UpdateBuffRule(BuffRule.LightAbove);
         RaidSceneManager.Formations.Heroes.UpdateBuffRule(BuffRule.LightBelow);
+
+        if (lastPublishedAmount != TorchAmount)
+        {
+            GameEventRecording.PublishTorchChanged(lastPublishedAmount, TorchAmount, torchChangeSource);
+            lastPublishedAmount = TorchAmount;
+            torchChangeSource = ReasonCorridorStep;
+        }
     }
 
     private void ApplyBuffs()

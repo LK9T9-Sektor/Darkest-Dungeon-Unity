@@ -68,6 +68,12 @@ DTO (несовместимые логи различаются только э�
 `EventId`/`Timestamp`/`Sequence` на копии, дошедшей до подписчиков); в `Core.GameEvents` нет
 исключений и нет JSON.
 
+**Схема id (Unity v1, `GameEventRecording.cs`):** герой — `hero_<RosterId>` (стабильно во всём
+рейде; `CombatId` героев присваивается только при старте боя), монстр — `monster_<CombatId>`
+(идёт в пределах боя; battleStart-снапшот публикуется уже после присвоения CombatId). Снапшоты и
+боевые события используют **одни и те же** id. Логические имена ассетов: `Skeleton`/`Class` —
+контентный ключ (`crusader`, `brigand_cutthroat_A`), `Icon` — `<class>_portrait`; без путей.
+
 ## 3. Типы событий v1
 
 ### 3.1 `sceneSnapshot` (Subsystem `map`)
@@ -112,7 +118,10 @@ DTO (несовместимые логи различаются только э�
 
 ### 3.5 `attackExecuted` (Subsystem `combat`)
 
-- **Триггер:** скилл исполнен (S3 — из точки результата боя: `ExecuteSkillBase` → результат).
+- **Триггер:** скилл исполнен. В Unity v1 — из `RaidSceneManager` (hero/monster пути) кадром после
+  `ExecuteSkillAnimationIntro`: `AttackerAnimation` = фактическое имя проигранного клипа
+  (`FormationUnit.CurrentState.AnimationName` → `SkeletonAnimation.state`), `TargetAnimation`
+  **всегда `null`** (у юнитов нет hit-реакций; FX-скелеты — отдельные сущности).
 - **Поля:** `AttackerId`, `TargetId`, `SkillName` string; `AttackerAnimation`/`TargetAnimation`
   — `{"Skeleton","Animation","Track","Loop"}` либо `null` (анимация не инструментирована).
 - **Инварианты:** `AttackerId != TargetId`; `SkillName` непустой; анимации — **факт** того, что
@@ -137,14 +146,18 @@ DTO (несовместимые логи различаются только э�
 
 - **Триггер:** значение факела изменилось (шаг коридора, использование факела, снутье,
   зажигание); S3 детектит в точке изменения факела.
-- **Поля:** `OldValue`, `NewValue` int (0..100), `Reason` string (`corridorStep`, `itemUsed`,
-  `snuffed`, `ignited`, …).
+- **Поля:** `OldValue`, `NewValue` int (0..100), `Reason` string; v1-коды из Unity
+  (`TorchMeter`): `corridorStep` (шаг коридора — дефолт), `snuffed` (снутие кликом),
+  `torchUsed` (предмет/костёр — `IncreaseTorch`), `modifier` (модификатор).
 - **Инварианты:** `0 <= NewValue <= 100`; `OldValue != NewValue`; `Reason` непустой.
 - **Пример:** `{"$type":"…TorchChanged,…","OldValue":60,"NewValue":55,"Reason":"snuffed","EventId":"95916262-32a2-49c2-91b0-d586a9670ccf","Timestamp":"2026-10-19T12:00:00.1234567Z","Sequence":7,"Subsystem":"torch","Input":null,"Rng":null}`
 
 ### 3.8 `skillUnavailable` (Subsystem `combat`)
 
 - **Триггер:** попытка взять скилл, который нельзя применить (негативный тест-кейс, §5 спеки).
+  **v1: из Unity не публикуется** — причина отказа живёт в локальных ветках
+  `RaidCombatSkillsPanel.SetUsableCombatSkills`, а disabled-кнопка не шлёт клик (точки попытки
+  нет); после порта проверок в WPF событие может публиковать потребитель.
 - **Поля:** `Skill` string, `Reason` string, `CooldownRemaining` int|null.
 - **Инварианты:** `Skill` и `Reason` непустые; `CooldownRemaining` заполняется только при
   `Reason == "cooldown"`.
@@ -153,6 +166,8 @@ DTO (несовместимые логи различаются только э�
 ### 3.9 `actionRejected` (Subsystem `combat`/`map`/`inventory` — задаётся издателем)
 
 - **Триггер:** отклонённое действие игрока (напр. хил на полный HP), §5 спеки.
+  **v1: из Unity не публикуется** — молчаливый drop в `FormationOverlaySlot` не даёт дешёвой
+  честной точки; см. §3.8.
 - **Поля:** `Reason` string, `Subsystem` — домен действия, `Input` object **обязателен**
   (в этом весь смысл события), `Rng` — null.
 - **Инварианты:** `Input != null`; `Reason` непустой.
@@ -162,8 +177,11 @@ DTO (несовместимые логи различаются только э�
 
 - [x] `Input`/`Rng` присутствуют у всех событий; `null` с причиной — §2 этой схемы.
 - [x] Каждое событие применимо к ближайшему снапшоту (самодостаточность — §3.1/§3.2).
-- [x] Негативные события: `skillUnavailable`, `actionRejected` — покрыты;
-      `moveBlocked`, нехватка предмета — **отложены** (вместе с item*/move-событиями).
+- [x] Негативные события: типы `skillUnavailable`/`actionRejected` покрыты контрактом; из Unity v1
+      не публикуются (§3.8/§3.9); `moveBlocked`, нехватка предмета — **отложены** вместе с
+      item*/move-событиями.
+- [x] Unity-издатели v1 зафиксированы в §2 (id-схема) и §3 (триггеры/причины); compile-check
+      `unity\` зелёный (коллизии имён Unity7 закрыты алиасами — `Diagnostics\README`, gotcha).
 - [x] Ассеты — логические имена (`Icon`, `Skeleton`, `AnimationRef`), не пути.
 - [x] Иерархия снапшота — плоский список с `ParentId`.
 - [x] `manifest.json`: `SchemaVersion`, `Seed`, список файлов.

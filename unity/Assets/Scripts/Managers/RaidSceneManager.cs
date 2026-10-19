@@ -217,6 +217,8 @@ public class RaidSceneManager : MonoBehaviour
                 TorchMeter.Modify(new TorchlightModifier(DarkestDungeonManager.SaveData.ModifiedMinTorch,
                     DarkestDungeonManager.SaveData.ModifiedMaxTorch));
 
+            GameEventRecording.PublishSceneSnapshot();
+
             StartCoroutine(CurrentEvent);
         }
         else
@@ -261,6 +263,7 @@ public class RaidSceneManager : MonoBehaviour
             TorchMeter.Initialize(100);
 
             CurrentEvent = RoomLoadingEvent(CurrentRaid.Dungeon.StartingRoom, RoomTransitionType.Entrance);
+            GameEventRecording.PublishSceneSnapshot();
             StartCoroutine(CurrentEvent);
         }
     }
@@ -648,6 +651,10 @@ public class RaidSceneManager : MonoBehaviour
 
     protected virtual IEnumerator RoomLoadingEvent(DungeonRoom room, RoomTransitionType transitionType, RaidHallSector fromRaidSector = null)
     {
+        GameEventRecording.PublishRoomDiscovered(room);
+        if (transitionType == RoomTransitionType.FromHallway && fromRaidSector != null)
+            GameEventRecording.PublishPartyMoved(fromRaidSector.Area.Id, room.Id);
+
         #region Set restrictions
         QuestPanel.DisableRetreat(false);
         RaidPanel.SwitchBlocked = true;
@@ -1992,6 +1999,7 @@ public class RaidSceneManager : MonoBehaviour
         BattleGround.InitiateBattle();
         yield return new WaitForSeconds(1f);
         BattleGround.SpawnEncounter(areaView.Area.BattleEncounter, campfireAmbush);
+        GameEventRecording.PublishBattleStart();
 
         #region Starting Sound Effects
         var oneShotStart = FMODUnity.RuntimeManager.CreateInstance("event:/general/combat/start");
@@ -3962,9 +3970,11 @@ public class RaidSceneManager : MonoBehaviour
 
         foreach (var targetUnit in targetInfo.Targets)
         {
+            float healthBefore = targetUnit.Character.CurrentHealth;
             BattleSolver.ExecuteSkill(performer, targetUnit, targetInfo.Skill, targetInfo.SkillArtInfo);
             if (BattleSolver.SkillResult.Current.IsTargetHit)
                 BattleGround.LastDamaged.Add(targetUnit.Character.Class);
+            GameEventRecording.PublishSkillResult(targetUnit, healthBefore, BattleSolver.SkillResult.Current);
         }
 
         var skillResult = BattleSolver.SkillResult.Copy();
@@ -4103,6 +4113,8 @@ public class RaidSceneManager : MonoBehaviour
         DungeonCamera.SwitchBlur(true);
         ExecuteSkillAnimationIntro(actionUnit, brainDecision.TargetInfo);
         yield return new WaitForSeconds(0.01f);
+        yield return null;
+        GameEventRecording.PublishAttack(actionUnit, brainDecision.TargetInfo, true);
         ExecuteSkillInstants(actionUnit, brainDecision.TargetInfo, skillResult);
         yield return new WaitForSeconds(0.01f);
         ExecuteSlidingSetup(actionUnit, brainDecision.TargetInfo);
@@ -4303,6 +4315,8 @@ public class RaidSceneManager : MonoBehaviour
         DungeonCamera.SwitchBlur(true);
         ExecuteSkillAnimationIntro(actionUnit, targetInfo);
         yield return new WaitForSeconds(0.01f);
+        yield return null;
+        GameEventRecording.PublishAttack(actionUnit, targetInfo, false);
         ExecuteSkillInstants(actionUnit, targetInfo, skillResult);
         yield return new WaitForSeconds(0.01f);
         ExecuteSlidingSetup(actionUnit, targetInfo);

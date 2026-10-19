@@ -227,6 +227,8 @@ public class RaidHallSector : MonoBehaviour, IRaidArea
         isPartyInside = true;
         if (Area != null)
         {
+            string previousLocationId = RaidSceneManager.Raid.CurrentLocation != null
+                ? RaidSceneManager.Raid.CurrentLocation.Id : null;
             if (Area.Type == AreaType.Curio)
                 DarkestSoundManager.ExecuteNarration("curio", NarrationPlace.Raid);
 
@@ -234,6 +236,7 @@ public class RaidHallSector : MonoBehaviour, IRaidArea
             RaidSceneManager.Raid.EnteredSector(Area as HallSector);
             RaidSceneManager.Raid.CurrentLocation = Area;
             RaidSceneManager.HallwayView.CurrentSector = this;
+            GameEventRecording.PublishPartyMoved(previousLocationId, Area.Id);
 
             if (Area.Type == AreaType.Battle)
             {
