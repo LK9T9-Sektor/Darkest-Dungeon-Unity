@@ -1,7 +1,24 @@
-> Статус: завершён (18.10.2026). Ветка: `core/unity7-urp`. Перенесён из `PLAN.md` при вводе
-> архива планов; индекс архивных планов — `docs\plans\00_index.md`.
+> Закрыт: 2026-10-18 (ветка `core/unity7-urp`). Перенесён из `PLAN.md` при вводе архива планов;
+> индекс закрытых планов — `docs\plans\00_index.md`.
 
 # PLAN: URP-диагностика — JSON-дамп сцены + коммит fallout конвертера
+
+## Что сделано
+
+- Закоммичен fallout URP-конвертера: 61 файл (+101 263 / −84 291) + `DungeonSettings.lighting` + `.meta` (`c4f1cc6`); попутно закрыты мёртвый `TouchInputModule` в `Dungeon.unity` (`6d6725d`) и отсутствие индексации пакетных meta `com.unity.ugui`/URP в script-reference check (`5da0f5f`).
+- Написан дампер `unity\Assets\Scripts\Diagnostics\` (`SceneSnapshotDumper`, `SceneSnapshot`, `SceneNodeSnapshot`, `ComponentSnapshot`, `ComponentPropertySnapshot`, `SceneSnapshotPropertyReader` + `README.md`) — JSON-иерархия сцены, авто-триггеры 0/5/15 c + F9, фоновая запись; учтено удаление `CanvasRenderer.alpha` в Unity 7.
+- Установлена причина «жёлтой стены»: Base-камеры с `clearFlags == Nothing` получают очистку `Color.yellow` (1, 0.9216, 0.0157) в URP Render Graph (`UniversalRendererRenderGraph.cs:478-485`). Фикс в YAML при закрытом редакторе: `BlurCamera` и `UI_Dangeon/Camera` → Overlay (`m_CameraType: 1`, `m_ClearDepth: 0`), `DungeonCamera` — Base со стеком `[BlurCamera, UI Camera]` в обеих сценах; прогон пользователем: жёлтое исчезло.
+- Попутно: `CoridorWall`/`CoridorWall 1` на unlit `Sprites/Default`, снесён мёртвый `GUILayer` (`!u!92`) из 5 сцен и 2 префабов, null-guard'ы дампера.
+- Доки: новый `docs\mechanics\presentation\presentation_unity_urp_cameras.md`; ссылки в `INDEX.md`, `mechanics\00_index.md`, `UNITY_MIGRATION.md` §6, `KNOWN_ISSUES.md` §15, `CHANGELOG.md`, `TESTING.md`; компиляция и script-reference check зелёные.
+
+## Осталось / за пользователем
+
+- Дампер `unity\Assets\Scripts\Diagnostics\` ещё нужен (временный слой, удаляется вместе с папкой).
+- Cleanup по желанию: дампы в `%LOCALAPPDATA%Low\RedHooks\Darkest Dungeon\SceneDumps\`, временные скрипты в `%TEMP%\opencode\`.
+
+---
+
+_Ниже — исходный план без изменений._
 
 ## Goal
 

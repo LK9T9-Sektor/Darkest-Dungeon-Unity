@@ -1,64 +1,9 @@
 # PLAN.md — планы задач
 
-Активный план — ниже на этой странице. Завершённые планы переносятся в `docs\plans\` (индекс и
-статусы — `docs\plans\00_index.md`); при завершении план уезжает в архив целиком, чтобы контекст
-не терялся при работе с другого ПК — архив в git, `.opencode\` для планов не используется.
-
----
-
-# PLAN: Spine-демо — все герои + выбор анимации и скорости
-
-## Goal
-
-Расширить демо-экран SPINE TEST: все 15 героев с пролистыванием стрелками, выбор анимации
-группы (нередактируемое поле + стрелки ◀/▶, не выпадающий список), выбор скорости
-воспроизведения (100%…1000%, стрелки). По завершении — коммит и пуш.
-
-## Design decisions
-
-- Контент: плоская раскладка `Content\Spine\<Hero>\<Anim>\` из `unity\Assets\Sprites\Heroes`
-  (`skel.bytes` → `.skel`, `atlas.txt` → `.atlas`, PNG outfit A с исходным именем = страница
-  атласа). Линковка — сгенерированный `SpineDemoContent.props` (~591 запись) скриптом
-  `tools\spine-demo-content.ps1`; ручные 3 записи Crusader из csproj убираются.
-- Каждый skel содержит ровно одну анимацию → выбор анимации = переключение папок
-  (подпапки `Skeleton\` каталога героя); Idle первым, далее по алфавиту.
-- Скорость: `AnimationState.TimeScale` — float; диапазон 1.0…10.0 (100%…1000%), шаг 0.5,
-  wrap по краям; `SpinePlayer.TimeScale` (forwarder), `SpineHeroControl.SpeedMultiplier` DP.
-- Каталог через ctor-DI: `ISpineDemoCatalog` (список героев/анимаций, путь контента) +
-  `SpineDemoCatalog` поверх base directory; VM тестируется фейком.
-- VM: `Characters`/`Animations`/`CurrentCharacter`/`CurrentAnimation`/`SpeedMultiplier`/
-  `SpeedText`; команды Previous/Next (wrap), анимация сохраняется при смене героя, иначе Idle.
-- UI: строка селекторов ◀ label ▶ (герой/анимация/скорость) над строкой PAUSE/SCREENSHOT.
-
-## Steps / status
-
-1. [x] PLAN.md зафиксирован.
-2. [x] `tools\spine-demo-content.ps1` + сгенерированный `SpineDemoContent.props`; csproj: убрать
-   ручные записи Crusader, подключить props.
-3. [x] `SpinePlayer.TimeScale` (float) + тест; `SpineHeroControl.SpeedMultiplier` DP.
-4. [x] `Data\ISpineDemoCatalog.cs`, `Data\SpineDemoCatalog.cs` (+ тест каталога).
-5. [x] `SpineDemoViewModel` (состояние/команды) + `MainWindow.xaml.cs` (DI каталога) + тесты VM.
-6. [x] `SpineDemoView.xaml`: селекторы ◀/▶ + биндинги (`ContentDirectory`, `SpeedMultiplier`).
-7. [x] Проверки: build, related-тесты (18/18), `check-using-placement`; UIA-верификация (клики
-   стрелок, смена героя/анимации/скорости, рендер без ошибок).
-8. [x] Доки: `presentation_wpf.md`, `TESTING.md`, `CHANGELOG.md`, `FEATURE_DESKTOP_CLIENT.md`.
-9. [x] Коммит + пуш.
-
-## Affected files
-
-- Новые: `tools\spine-demo-content.ps1`, `src\Wpf\Sektor.DarkestDungeon.Wpf\SpineDemoContent.props`,
-  `src\Wpf\Sektor.DarkestDungeon.Wpf\Data\ISpineDemoCatalog.cs` / `SpineDemoCatalog.cs`,
-  `tests\Wpf\...\SpineDemoCatalogTests.cs`, `SpinePlayerTests.cs`.
-- Изменяемые: `Sektor.DarkestDungeon.Wpf.csproj`, `SpinePlayer.cs`, `SpineHeroControl.cs`,
-  `SpineDemoViewModel.cs`, `SpineDemoView.xaml`, `MainWindow.xaml.cs`,
-  `SpineDemoViewModelTests.cs`, доки.
-
-## Acceptance criteria
-
-- Стрелками листаются все 15 героев, анимации героя (Idle первой) и скорость 100…1000%
-  (wrap, шаг 50%); каждая комбинация рендерится без ошибок загрузки.
-- `dotnet build` и related-тесты зелёные; `check-using-placement` OK.
-- Кнопка SCREENSHOT и ползунок/пауза не сломаны.
+Активный план — ниже на этой странице. Закрытый план уезжает в `docs\plans\` одним файлом
+`<ГГГГ-ММ-ДД>-<слаг>-closed.md` (дата — завершение; внутри — «Что сделано» и исходный план),
+индекс — `docs\plans\00_index.md`; мелкие задачи без плана в архив не попадают. Архив в git —
+контекст не теряется при работе с другого ПК, `.opencode\` для планов не используется.
 
 ---
 
@@ -79,7 +24,7 @@
   статус — состояние VM (`ScreenshotStatus`), TextBlock биндится, code-behind пустой.
 - Info-кнопка: generic `MarkEventHandledAction` (ставит `RoutedEventArgs.Handled`) — семантика
   текущего `OnInfoButtonClick` сохраняется.
-- Разбор бага — `docs\plans\spine-transparency-vertex-colors.md` (+ строка в `00_index.md`),
+- Разбор бага — `docs\plans\2026-10-19-spine-transparency-vertex-colors-closed.md` (+ строка в `00_index.md`),
   минимальное репро вшивается в доку; ссылка из `presentation_wpf.md`.
 
 ## Steps / status
@@ -90,7 +35,7 @@
    `SpineDemoViewModelTests` (путь → имя файла; null → «Screenshot failed»).
 4. [x] XAML: `SpineDemoView` (EventTrigger → action, TextBlock → VM, убрать `Click=`/`x:Name`);
    `DuelUnitCardView` (EventTrigger → MarkEventHandled, удалить `OnInfoButtonClick`).
-5. [x] Дока `docs\plans\spine-transparency-vertex-colors.md` (симптом → репро/сэмплы → причина →
+5. [x] Дока `docs\plans\2026-10-19-spine-transparency-vertex-colors-closed.md` (симптом → репро/сэмплы → причина →
    фикс → регресс-тест → gotcha при апгрейде SkiaSharp) + `00_index.md`; обновить
    `presentation_wpf.md` (behavior-обвязка, ссылка на разбор).
 6. [x] Проверки: `check-using-placement`, `dotnet test` (76/76), WPF-билд; UIA-клик SCREENSHOT →
@@ -102,7 +47,7 @@
 
 - Новые: `src\Wpf\Sektor.DarkestDungeon.Wpf\Behaviors\SaveScreenshotAction.cs`,
   `Behaviors\MarkEventHandledAction.cs`, `tests\Wpf\...\SpineDemoViewModelTests.cs`,
-  `docs\plans\spine-transparency-vertex-colors.md`.
+  `docs\plans\2026-10-19-spine-transparency-vertex-colors-closed.md`.
 - Изменяемые: `Views\SpineDemoView.xaml(.cs)`, `Views\DuelUnitCardView.xaml(.cs)`,
   `ViewModels\SpineDemoViewModel.cs`, `docs\plans\00_index.md`,
   `docs\mechanics\presentation\presentation_wpf.md`, `PLAN.md`.

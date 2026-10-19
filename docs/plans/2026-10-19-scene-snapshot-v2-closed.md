@@ -1,8 +1,25 @@
-> Статус: завершён (19.10.2026). Ветка: `core/unity7-urp`. Ключевые коммиты: `19ea5aa` (дампер v2),
+> Закрыт: 2026-10-19 (ветка `core/unity7-urp`). Ключевые коммиты: `19ea5aa` (дампер v2),
 > `1184459` (ресериализация Unity 7), `9b704f2` (статусы в PLAN.md). Перенесён из `PLAN.md` при
-> старте плана фазы 2-A; индекс архивных планов — `docs\plans\00_index.md`.
+> старте плана фазы 2-A; индекс закрытых планов — `docs\plans\00_index.md`.
 
 # PLAN: Scene snapshot v2 — авто-опись сцены для раскладки
+
+## Что сделано
+
+- DTO/ридер расширены: заголовок `ScreenWidth/Height/Aspect`, флаг DDOL, экстракторы `CanvasScaler`, `Text` (~80 симв.), LayoutGroup/CSF/LE/AspectRatioFitter, `Image.fillMethod`, `Canvas.pixelPerfect`, `Camera.pixelRect/targetTexture`; screen rect (px + доли экрана) в `ReadRectTransform`.
+- Новый `SceneSnapshotLayoutWriter.cs` (+`.meta`) — компактный CSV рядом с JSON; DDOL вынесен в псевдо-сцену с отдельными файлами `DontDestroyOnLoad-<триггер>-<stamp>`.
+- Триггеры: `auto-settled` вместо t0, resize при смене `Screen.width/height`, публичный `Capture(tag)`; README дампера обновлён.
+- Верификация: `unity-compile-check.ps1` зелёный; на каждую сцену `auto-settled`/`auto-t5s` (JSON+CSV+PNG), шапка 1920×1080/1.7778, screen rect сходится (488.5/1920 = 0.2544), DDOL 144/144 UI-строк. Коммит `19ea5aa`: 7 файлов, +645/−37.
+- По снимкам пользователя найдена причина проблемы раскладки: `RaidPanel` = (0,0,1,1/3) во всех снимках, арт-полоса фикс 360 юнитов занимает 52% экрана на 2.77:1.
+
+## Осталось / за пользователем
+
+- Фаза 2 (адаптивность рейдового HUD, фикс BattleTest, карта долей экрана → XAML для WPF) — отдельным планом (см. `PLAN.md` «Фаза 2-A»).
+- Cleanup артефактов по желанию: `unity\Build\`, `%LOCALAPPDATA%Low\RedHooks\Darkest Dungeon\SceneDumps\`, временные логи.
+
+---
+
+_Ниже — исходный план без изменений._
 
 ## Goal
 

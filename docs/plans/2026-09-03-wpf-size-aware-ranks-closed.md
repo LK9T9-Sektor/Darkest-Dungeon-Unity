@@ -1,7 +1,19 @@
-> Статус: завершён (коммит `d764a32`, `dotnet test`/`dotnet build` зелёные). Перенесён из
-> `PLAN.md` при вводе архива планов; индекс архивных планов — `docs\plans\00_index.md`.
+> Закрыт: 2026-09-03 (коммит `d764a32`, `dotnet test`/`dotnet build` зелёные). Перенесён из
+> `PLAN.md` при вводе архива планов; индекс закрытых планов — `docs\plans\00_index.md`.
 
 # PLAN: WPF — монстры/боссы размером 1–4 ранга: size-aware ранги в ядре + PvE-режим
+
+## Что сделано
+
+- Ядро: size-aware ранги — `FormationParty.AddUnit` (ранг = ранг + size предыдущего), `RemoveUnit`, `TurnMover.TryMove`, `SurpriseResolver.ShuffleParty`, `DuelBattleEvents.MoveUnit`; герои (size=1) сохраняют ранги 1–4.
+- Тесты: формация size-2 + size-1 даёт ранги 1,3 (не 1,2); таргетинг/запуск учитывают занимаемый диапазон.
+- WPF-вид: `DuelUnitViewModel.Size`, карточка шириной `185 × Size`, ранг-бейдж по фронтовому рангу.
+- PvE: кнопка **PvE** → `PveLobbyViewModel`/`PveLobbyView` (Σ size ≤ 4, seed) → `DuelController.StartFight`; водитель `PveBattleViewModel` (герои — `ApplyRemoteSkill`, монстры — `UseMonsterBrain`) на переиспользуемом `DuelBattleView`/`IDuelBattleViewData`; тесты `PveBattleTests`.
+- Доки: `docs\mechanics\combat\16_formation_size.md`, `BATTLE_PARITY.md`, `TESTING.md`, `CHANGELOG.md`, `INDEX.md`, `presentation_wpf.md` (gotcha).
+
+---
+
+_Ниже — исходный план без изменений._
 
 ## Goal
 

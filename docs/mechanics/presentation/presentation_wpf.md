@@ -115,7 +115,7 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 - **Тинт — только через ColorFilter, не через vertex colors** — `DrawVertices` с непустым массивом
   vertex colors в SkiaSharp 2.88.8 превращает прозрачные пиксели атласа в непрозрачный белый
   (белые прямоугольники вокруг частей персонажа). Полный разбор с минимальным репро —
-  `docs\plans\spine-transparency-vertex-colors.md`. Рендер передаёт `colors: null`, а цвет накладывает
+  `docs\plans\2026-10-19-spine-transparency-vertex-colors-closed.md`. Рендер передаёт `colors: null`, а цвет накладывает
   `SKColorFilter.CreateBlendMode(color, SKBlendMode.Modulate)` (кэш paint'ов по текстуре/бленду/цвету);
   тинт = `skeleton × slot × attachment` (формула Unity `SkeletonRenderer`).
   Шейдер атласа — `SKShader.CreateBitmap(..., Clamp)`; UV — в пикселях текстуры; мапа блендов DD:
@@ -161,7 +161,7 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Behaviors/` (`SaveScreenshotAction`, `MarkEventHandledAction`)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Data/SpineDemoCatalog.cs`, `Data/ISpineDemoCatalog.cs` (герои/анимации демо)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/SpineDemoContent.props` + `tools/spine-demo-content.ps1` (генератор контент-линков)
-- `docs/plans/spine-transparency-vertex-colors.md` (разбор дефекта vertex colors)
+- `docs/plans/2026-10-19-spine-transparency-vertex-colors-closed.md` (разбор дефекта vertex colors)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/DuelUnitCardView.xaml` (death's door pulse, «ТВОЙ ХОД»)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/DuelBattleView.cs` (превью), `DuelBattleViewModel.cs` (пак)
 - `docs/FEATURE_DESKTOP_CLIENT.md`

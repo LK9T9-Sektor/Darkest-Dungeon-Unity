@@ -1,8 +1,22 @@
-> Статус: завершён, кроме ручного чеклиста M4.2 (Stage-1 вид в Play Mode так и не прогонялся).
-> Ветка: `core/battle-test-scene`. Перенесён из `PLAN.md` при вводе архива планов;
-> индекс архивных планов — `docs\plans\00_index.md`.
+> Закрыт: 2026-09-03 (ветка `core/battle-test-scene`). Перенесён из `PLAN.md` при вводе архива
+> планов; индекс закрытых планов — `docs\plans\00_index.md`.
 
 # PLAN: BattleTest — тест-сцена боёв как первый Unity-потребитель ядра (прототип Фазы 6)
+
+## Что сделано
+
+- M1 (ядро): sweep-тесты герой-vs-монстр — `tests\Clients\Sektor.DarkestDungeon.Clients.Content.Tests\FightPveSweepTests.cs`: 225 из 230 монстров, детерминизм по сиду, чистое завершение; закрыт NRE в `DiseaseEffect.ApplyQueued` (`the_worries`/`rabies` парсятся и резолвятся). `dotnet test` — 10 тестовых проектов зелёные.
+- M2–M3 (Unity-вид): `Assets\Scripts\Testing\BattleTest\` в обоих деревьях (`BattleTestConfig`/`CoreBattleDriver`/`BattleEventsAdapter`/`BattleUnitView`/`BattleFormationView`/`BattleHud`/`BattlePopupLayer`/`BattleTestConfigPanel`), редакторский сборщик `Assets\Editor\BattleTestSceneBuilder.cs` + `tools\unity-generate-battle-test-scene.ps1` → сцена `BattleTest.unity` в `unity\` и `unity-2017\` (все с `.meta`).
+- M4: `unity-compile-check.ps1` зелёный в обоих деревьях; script-reference check зелёный.
+- M5 (доки): `docs\mechanics\presentation\presentation_unity_battle_view.md`, `presentation_unity_battle_rig.md`, `TESTING.md`, `INDEX.md`, `CHANGELOG.md`.
+
+## Осталось / за пользователем
+
+- Ручной чеклист M4.2 в `TESTING.md` не пройден: Stage-1 вид ни разу не запускался в Play Mode (конфиг → FIGHT → ввод игрока → AI → попапы/анимации → победа → сид-детерминизм).
+
+---
+
+_Ниже — исходный план без изменений._
 
 ## Goal
 

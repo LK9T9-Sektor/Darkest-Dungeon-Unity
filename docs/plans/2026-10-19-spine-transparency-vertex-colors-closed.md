@@ -1,8 +1,19 @@
-> Статус: завершён (19.10.2026). Ветка: `core/unity7-urp`. Это разбор дефекта, а не план:
-> почему возникли белые прямоугольники, как воспроизведены и чем закрыты. Индекс —
+> Закрыт: 2026-10-19 (ветка `core/unity7-urp`). Это разбор дефекта, а не план: почему возникли
+> белые прямоугольники, как воспроизведены и чем закрыты. Индекс закрытых планов —
 > `docs\plans\00_index.md`.
 
 # Разбор: белые прямоугольники в Spine-рендере WPF (vertex colors, SkiaSharp 2.88)
+
+## Что сделано
+
+- Причина установлена и воспроизведена голым SkiaSharp (мини-репро, атлас 64×64): при `drawVertices` с vertex colors в SkiaSharp 2.88.8 полностью прозрачный тексель с bitmap-шейдером отдаёт цвет вершины.
+- Фикс: тинт убран из vertex colors в `SKColorFilter` — `colors: null` (`src\Wpf\Sektor.DarkestDungeon.Spine.Wpf\SpineFrameRenderer.cs:75-77`) и `SKColorFilter.CreateBlendMode(color, SKBlendMode.Modulate)` в `GetPaint` (`:198-217`), кэш paint'ов по (текстура, бленд, цвет).
+- Регресс-тест `IdleAnimation_KeepsTransparentPixelsTransparent` (`tests\Wpf\...\SpineFrameRendererTests.cs`) — доля прозрачных пикселей в границах (0.15, 0.9); без фикса тест краснеет.
+- Доки: `presentation_wpf.md` §6 (формула тинта, мапа блендов, ссылка на разбор).
+
+---
+
+_Ниже — разбор без изменений._
 
 ## Симптом
 
