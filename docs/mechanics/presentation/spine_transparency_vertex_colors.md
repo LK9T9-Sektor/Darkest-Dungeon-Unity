@@ -54,7 +54,7 @@ vertex colors корректен, значит атлас, шейдер, UV и �
 Тинт убран из vertex colors и перенесён на `SKColorFilter`:
 
 - `SpineFrameRenderer.Render` — `SKVertices.CreateCopy(..., colors: null, indices)`
-  (`src\Wpf\Sektor.DarkestDungeon.Spine.Wpf\SpineFrameRenderer.cs:75-77`); цвет кадра
+  (`src\Spine\Sektor.Spine.Skia\SpineFrameRenderer.cs:75-77`); цвет кадра
   рассчитывается как `skeleton × slot × attachment` (`CreateColor`).
 - `SpineFrameRenderer.GetPaint` — `SKColorFilter.CreateBlendMode(color, SKBlendMode.Modulate)`
   на paint (`SpineFrameRenderer.cs:198-217`); кэш paint'ов — по ключу (текстура, бленд, цвет),
@@ -97,7 +97,7 @@ vertex colors корректен, значит атлас, шейдер, UV и �
 
 ## Файлы-источники
 
-- `src\Wpf\Sektor.DarkestDungeon.Spine.Wpf\SpineFrameRenderer.cs` — `Render`, `GetPaint`,
+- `src\Spine\Sektor.Spine.Skia\SpineFrameRenderer.cs` — `Render`, `GetPaint`,
   `CachedPaint`.
 - `tests\Wpf\Sektor.DarkestDungeon.Wpf.Tests\SpineFrameRendererTests.cs` —
   `IdleAnimation_KeepsTransparentPixelsTransparent`, `FrameProjection`.

@@ -1,6 +1,6 @@
 using Spine;
 
-namespace Sektor.DarkestDungeon.Spine.Wpf;
+namespace Sektor.Spine.Skia;
 
 /// <summary>Registry resolving the geometry adapter of a Spine attachment.</summary>
 internal sealed class AttachmentGeometries

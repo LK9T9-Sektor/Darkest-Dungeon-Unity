@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <!-- src\Directory.Build.props pins src to C# 7.3; the WPF zone overrides it (client-zone carve-out). -->
+    <!-- src\Directory.Build.props pins src to C# 7.3 and nullable off; this library opts into
+         modern language features locally (file-scoped namespaces, nullable annotations). -->
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -14,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Spine\Sektor.DarkestDungeon.Spine\Sektor.DarkestDungeon.Spine.csproj" />
+    <ProjectReference Include="..\Sektor.Spine\Sektor.Spine.csproj" />
   </ItemGroup>
 
 </Project>

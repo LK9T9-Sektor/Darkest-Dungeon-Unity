@@ -64,7 +64,7 @@
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Duel\Sektor.DarkestDungeon.Core.Duel.csproj" />
     <ProjectReference Include="..\..\Lan\Sektor.DarkestDungeon.Lan.Contracts\Sektor.DarkestDungeon.Lan.Contracts.csproj" />
     <ProjectReference Include="..\..\Lan\Sektor.DarkestDungeon.Lan.Steam\Sektor.DarkestDungeon.Lan.Steam.csproj" />
-    <ProjectReference Include="..\Sektor.DarkestDungeon.Spine.Wpf\Sektor.DarkestDungeon.Spine.Wpf.csproj" />
+    <ProjectReference Include="..\..\Spine\Sektor.Spine.Skia\Sektor.Spine.Skia.csproj" />
   </ItemGroup>
 
   <Target Name="CopySteamRuntime" AfterTargets="Build">

@@ -1,6 +1,6 @@
 using Spine;
 
-namespace Sektor.DarkestDungeon.Spine.Wpf;
+namespace Sektor.Spine.Skia;
 
 /// <summary>Geometry adapter for <see cref="SkinnedMeshAttachment"/>.</summary>
 internal sealed class SkinnedMeshAttachmentGeometry : AttachmentGeometry

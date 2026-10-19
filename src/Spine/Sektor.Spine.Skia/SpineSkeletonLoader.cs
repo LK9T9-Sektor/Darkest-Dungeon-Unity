@@ -1,7 +1,7 @@
 using SkiaSharp;
 using Spine;
 
-namespace Sektor.DarkestDungeon.Spine.Wpf;
+namespace Sektor.Spine.Skia;
 
 /// <summary>Loads Spine 2.1 skeleton data (binary or JSON) plus its atlas and page textures.</summary>
 public sealed class SpineSkeletonLoader

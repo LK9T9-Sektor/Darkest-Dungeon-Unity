@@ -18,7 +18,7 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 - ViewModels: `MainMenuViewModel`, `SinglePlayerLobbyViewModel`, `DuelBattleViewModel`,
   `SpineDemoViewModel`, ...
 - Spine-демо: рендер-контрол `SpineHeroControl` (`SKElement`) поверх библиотек
-  `Sektor.DarkestDungeon.Spine` (рантайм 2.1, netstandard2.0) и `Sektor.DarkestDungeon.Spine.Wpf`
+  `Sektor.Spine` (рантайм 2.1, netstandard2.0) и `Sektor.Spine.Skia`
   (загрузчик, плеер, Skia-рендер).
 - Обёртки ИИ/сети: `AiRivalLink`, `NetworkRivalLink`, `IDuelRivalLink`.
 - `Data/DuelContent` — реализация `IDuelContent` поверх каталогов.
@@ -100,7 +100,7 @@ WPF-клиент — тонкий потребитель ядра: экраны 
   `DuelBattleViewModel.ToUnit`); карточка (`DuelUnitCardView.xaml`) при `True` проигрывает
   `ColorAnimation`-пульс (#33E83333 ↔ прозрачный, 0.75s AutoReverse) — паритет Unity
   `FormationUnit.Update` (R=1, G/B 1↔0.4, цикл ~1.5s). При хeлье `AtDeathsDoor → false` пульс гаснет.
-- **Spine-рантайм — один физический источник** — `src\Spine\Sektor.DarkestDungeon.Spine`
+- **Spine-рантайм — один физический источник** — `src\Spine\Sektor.Spine`
   (netstandard2.0) компилирует вендорные сорсы `unity\Assets\Spine\SpineSharp\Source\**\*.cs` по
   месту (одна копия, байт-в-байт одинакова в обоих Unity-деревьях); `InternalsVisibleTo`
   (Assembly-CSharp, Assembly-CSharp-Editor) — задел под будущий своп Unity-копий на эту DLL.
@@ -141,7 +141,7 @@ WPF-клиент — тонкий потребитель ядра: экраны 
   только `.atlas`); имя PNG обязано совпадать с именем страницы атласа (`<hero>.sprite.<anim>.png`),
   иначе текстура не найдётся. Записи генерирует `tools\spine-demo-content.ps1` в
   `SpineDemoContent.props` (591 запись — руками csproj не правится).
-- **Неймспейс `Sektor.DarkestDungeon.Spine.Wpf`** — квалифицированные ссылки `Spine.X` запрещены
+- **Неймспейс `Sektor.Spine.Skia`** — квалифицированные ссылки `Spine.X` запрещены
   (shadowing сегментом `.Spine`): только `using Spine;` и простые имена.
 
 ## 7. Взаимодействия
@@ -155,7 +155,7 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/*`, `ViewModels/*`, `Ui/TargetArrowMath.cs`,
   `Data/DuelContent.cs`, `Combat/AiRivalLink.cs`, `Networking/NetworkRivalLink.cs`
-- `src/Spine/Sektor.DarkestDungeon.Spine/` (рантайм spine-csharp 2.1), `src/Wpf/Sektor.DarkestDungeon.Spine.Wpf/` (loader/player/Skia-рендер)
+- `src/Spine/Sektor.Spine/` (рантайм spine-csharp 2.1), `src/Spine/Sektor.Spine.Skia/` (loader/player/Skia-рендер)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/SpineHeroControl.cs`, `Views/SpineDemoView.xaml(.cs)`, `ViewModels/SpineDemoViewModel.cs`
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Ui/WindowScreenshot.cs` (кнопка SCREENSHOT)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Behaviors/` (`SaveScreenshotAction`, `MarkEventHandledAction`)

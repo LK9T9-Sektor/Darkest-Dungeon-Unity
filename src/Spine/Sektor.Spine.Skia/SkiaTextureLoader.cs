@@ -1,7 +1,7 @@
 using SkiaSharp;
 using Spine;
 
-namespace Sektor.DarkestDungeon.Spine.Wpf;
+namespace Sektor.Spine.Skia;
 
 /// <summary>Atlas texture loader decoding pages into <see cref="SKBitmap"/> instances.</summary>
 internal sealed class SkiaTextureLoader : TextureLoader

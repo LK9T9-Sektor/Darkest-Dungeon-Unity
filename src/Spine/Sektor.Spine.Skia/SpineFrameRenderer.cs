@@ -1,7 +1,7 @@
 using SkiaSharp;
 using Spine;
 
-namespace Sektor.DarkestDungeon.Spine.Wpf;
+namespace Sektor.Spine.Skia;
 
 /// <summary>Renders a Spine skeleton onto a SkiaSharp canvas and measures its world bounds.</summary>
 public sealed class SpineFrameRenderer : IDisposable

@@ -1,4 +1,4 @@
-namespace Sektor.DarkestDungeon.Spine.Wpf;
+namespace Sektor.Spine.Skia;
 
 /// <summary>Axis-aligned bounding box of a skeleton pose, in skeleton units.</summary>
 public readonly struct SpineBounds

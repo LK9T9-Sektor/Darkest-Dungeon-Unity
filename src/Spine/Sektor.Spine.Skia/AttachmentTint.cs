@@ -1,4 +1,4 @@
-namespace Sektor.DarkestDungeon.Spine.Wpf;
+namespace Sektor.Spine.Skia;
 
 /// <summary>Straight (non-premultiplied) tint of a Spine attachment.</summary>
 internal readonly struct AttachmentTint

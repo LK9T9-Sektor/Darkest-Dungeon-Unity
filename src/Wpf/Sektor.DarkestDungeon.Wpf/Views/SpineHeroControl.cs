@@ -5,7 +5,7 @@ using System.Windows.Media;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 using SkiaSharp.Views.WPF;
-using Sektor.DarkestDungeon.Spine.Wpf;
+using Sektor.Spine.Skia;
 
 namespace Sektor.DarkestDungeon.Wpf.Views
 {

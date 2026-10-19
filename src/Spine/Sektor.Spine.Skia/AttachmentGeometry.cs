@@ -1,7 +1,7 @@
 using SkiaSharp;
 using Spine;
 
-namespace Sektor.DarkestDungeon.Spine.Wpf;
+namespace Sektor.Spine.Skia;
 
 /// <summary>Geometry adapter of one Spine attachment kind (region, mesh or skinned mesh).</summary>
 internal abstract class AttachmentGeometry

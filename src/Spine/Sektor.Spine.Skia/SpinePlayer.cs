@@ -1,6 +1,6 @@
 using Spine;
 
-namespace Sektor.DarkestDungeon.Spine.Wpf;
+namespace Sektor.Spine.Skia;
 
 /// <summary>Advances and applies Spine animations onto a skeleton instance.</summary>
 public sealed class SpinePlayer : IDisposable

@@ -7,10 +7,10 @@
   наборы анимаций героя (`Skeleton\`, Idle первым; при смене героя чужая анимация сбрасывается в
   Idle) и скорость воспроизведения 100…1000% (шаг 50%, wrap). Контент — `Content\Spine\<Hero>\<Anim>\`
   (591 линк генерирует `tools\spine-demo-content.ps1` в `SpineDemoContent.props`).
-- **Рантайм — общая библиотека** `src\Spine\Sektor.DarkestDungeon.Spine` (netstandard2.0): компилирует
+- **Рантайм — общая библиотека** `src\Spine\Sektor.Spine` (netstandard2.0): компилирует
   вендорные `unity\Assets\Spine\SpineSharp\Source` по месту (одна физическая копия) — задел под
   переиспользование в Unity (своп копий на общую DLL — отдельная задача). Загрузка/плеер/рендер —
-  `src\Wpf\Sektor.DarkestDungeon.Spine.Wpf` (SkiaSharp, `DrawVertices` + шейдер атласа; бленды
+  `src\Spine\Sektor.Spine.Skia` (SkiaSharp, `DrawVertices` + шейдер атласа; бленды
   normal/additive/multiply/screen). Использование в карточках дуэли — отдельная задача.
 - **Кнопка SCREENSHOT на демо-экране** сохраняет PNG текущего окна в `screenshots\` рядом с exe
   (имя `screenshot-<timestamp>.png`, имя файла видно в строке статуса) — для ручной проверки и

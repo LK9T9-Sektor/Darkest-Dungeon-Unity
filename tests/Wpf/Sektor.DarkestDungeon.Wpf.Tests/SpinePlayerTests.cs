@@ -2,7 +2,7 @@ using System;
 
 using NUnit.Framework;
 
-using Sektor.DarkestDungeon.Spine.Wpf;
+using Sektor.Spine.Skia;
 
 namespace Sektor.DarkestDungeon.Wpf.Tests
 {

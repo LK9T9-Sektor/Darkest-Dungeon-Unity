@@ -39,8 +39,8 @@
   100…1000% (шаг 50%); сет — Spine **2.1.18** (binary skeleton + atlas, linked-ассеты без
   копирования, раскладка `Content\Spine\<Hero>\<Anim>\`). Рендер — SkiaSharp CPU (`DrawVertices` +
   шейдер
-  атласа); загрузка/плеер/рендер — `src\Wpf\Sektor.DarkestDungeon.Spine.Wpf`; рантайм —
-  `src\Spine\Sektor.DarkestDungeon.Spine` (netstandard2.0, компилирует вендорные
+  атласа); загрузка/плеер/рендер — `src\Spine\Sektor.Spine.Skia`; рантайм —
+  `src\Spine\Sektor.Spine` (netstandard2.0, компилирует вендорные
   `unity\Assets\Spine\SpineSharp\Source` по месту, одна физическая копия, пригоден для Unity).
   Кнопка «SCREENSHOT» на демо-экране сохраняет PNG текущего окна в `screenshots\` рядом с exe
   (имя файла — в строке статуса) для ручных проверок и обмена снимками.
