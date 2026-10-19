@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <!-- src\Directory.Build.props pins src to C# 7.3; this module opts into records locally
+         (JSONL event log per docs\SPEC_GAME_EVENTS.md) and ships to both Unity trees. -->
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.GameEvents\Sektor.DarkestDungeon.Core.GameEvents.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <CoreUnityPluginDir Include="$(CoreUnityPluginFolders)" />
+    </ItemGroup>
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="%(CoreUnityPluginDir.Identity)" />
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).pdb" DestinationFolder="%(CoreUnityPluginDir.Identity)" />
+  </Target>
+
+</Project>

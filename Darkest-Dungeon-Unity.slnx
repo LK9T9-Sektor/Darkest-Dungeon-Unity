@@ -55,10 +55,12 @@
     <Project Path="src/Core/Sektor.DarkestDungeon.Core.Raid/Sektor.DarkestDungeon.Core.Raid.csproj" />
     <Project Path="src/Core/Sektor.DarkestDungeon.Core.Save/Sektor.DarkestDungeon.Core.Save.csproj" />
     <Project Path="src/Core/Sektor.DarkestDungeon.Core.Duel/Sektor.DarkestDungeon.Core.Duel.csproj" />
+    <Project Path="src/Core/Sektor.DarkestDungeon.Core.GameEvents/Sektor.DarkestDungeon.Core.GameEvents.csproj" />
     <Project Path="src/Core/Sektor.DarkestDungeon.Core.Ui/Sektor.DarkestDungeon.Core.Ui.csproj" />
   </Folder>
   <Folder Name="/src/Clients/">
     <Project Path="src/Clients/Sektor.DarkestDungeon.Clients.Content/Sektor.DarkestDungeon.Clients.Content.csproj" />
+    <Project Path="src/Clients/Sektor.DarkestDungeon.Clients.EventLog/Sektor.DarkestDungeon.Clients.EventLog.csproj" />
   </Folder>
   <Folder Name="/src/Lan/">
     <Project Path="src/Lan/Sektor.DarkestDungeon.Lan.Cmd/Sektor.DarkestDungeon.Lan.Cmd.csproj" />
@@ -79,10 +81,12 @@
     <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Campaign.Tests/Sektor.DarkestDungeon.Core.Campaign.Tests.csproj" />
     <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Raid.Tests/Sektor.DarkestDungeon.Core.Raid.Tests.csproj" />
     <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Duel.Tests/Sektor.DarkestDungeon.Core.Duel.Tests.csproj" />
+    <Project Path="tests/Core/Sektor.DarkestDungeon.Core.GameEvents.Tests/Sektor.DarkestDungeon.Core.GameEvents.Tests.csproj" />
     <Project Path="tests/Core/Sektor.DarkestDungeon.Core.Ui.Tests/Sektor.DarkestDungeon.Core.Ui.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/Clients/">
     <Project Path="tests/Clients/Sektor.DarkestDungeon.Clients.Content.Tests/Sektor.DarkestDungeon.Clients.Content.Tests.csproj" />
+    <Project Path="tests/Clients/Sektor.DarkestDungeon.Clients.EventLog.Tests/Sektor.DarkestDungeon.Clients.EventLog.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/Wpf/">
     <Project Path="tests/Wpf/Sektor.DarkestDungeon.Wpf.Tests/Sektor.DarkestDungeon.Wpf.Tests.csproj" />

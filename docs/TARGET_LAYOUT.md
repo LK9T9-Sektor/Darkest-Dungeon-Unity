@@ -34,8 +34,10 @@
 | `Core.Raid` | существует | подземелья/энкаунтеры/боссы/curio-взаимодействия/loot/пропы (модели + данные) |
 | `Core.Save` | существует | `IBinarySaveData` (+ будущий кодек/`ISaveStorage`) |
 | `Core.Duel` | существует | PvP-оркестрация + `Fight\`-раннер (+`TextFightContent`) |
+| `Core.GameEvents` | существует | контракт записываемых игровых событий (`SPEC_GAME_EVENTS.md`): `GameEvent`-иерархия (record), `IGameEventBus` (стамп `EventId`/`Timestamp`/`Sequence`), `GameInput`/`GameRng`, события снапшотов/боя/карт/факела/негативные |
 | `Networking` | будущее | транспорт: Contracts/Steam/Photon (переименование `src\Lan`) |
 | `Clients.Content` | существует | клиентская граница: `GameDataReader` (Newtonsoft-фасад) |
+| `Clients.EventLog` | существует | клиентская граница: `JsonEventLogger` → JSONL по подсистемам + `manifest.json` |
 | `Core.Ui` | существует (кандидат на перенос) | токены UI (`UiStyle`, `ArgbColor`) |
 
 ```
@@ -53,11 +55,14 @@ src/
 │   ├── Raid          — подземелья/энкаунтеры/боссы/curio-взаимодействия/loot/props-модели
 │   │                   (модели + данные из Content\Curio, Content\Loot)
 │   ├── Save          — DTO + бинарный кодек + версии + ISaveStorage
-│   └── Duel          — PvP-оркестрация (DuelController/Seed/Payload/Ai) + Fight-раннер
-│                       + TextFightContent (IDuelContent-мост из Core.Data)
+│   ├── Duel          — PvP-оркестрация (DuelController/Seed/Payload/Ai) + Fight-раннер
+│   │                   + TextFightContent (IDuelContent-мост из Core.Data)
+│   └── GameEvents    — контракт записываемых событий: GameEvent (record)/IGameEventBus,
+│                       GameInput/GameRng, события снапшотов/боя/карт/факела/негативные
 ├── Networking/       — транспорт: Contracts (Result, каналы) / Steam / Photon (переименование src\Lan)
 └── Clients/          — клиентская граница (НЕ домен): Clients.Content — GameDataReader-фасад
-                        (Newtonsoft на границе, читает файлы → каталоги доменов)
+                        (Newtonsoft на границе, читает файлы → каталоги доменов);
+                        Clients.EventLog — JsonEventLogger → JSONL подсистем + manifest.json
 ```
 
 ## 3. Что куда переезжает (по шагам)

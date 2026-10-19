@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <!-- src\Directory.Build.props pins src to C# 7.3; this module opts into records locally
+         (contract DTOs per docs\SPEC_GAME_EVENTS.md) and still ships to both Unity trees. -->
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <CoreUnityPluginDir Include="$(CoreUnityPluginFolders)" />
+    </ItemGroup>
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="%(CoreUnityPluginDir.Identity)" />
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).pdb" DestinationFolder="%(CoreUnityPluginDir.Identity)" />
+  </Target>
+
+</Project>

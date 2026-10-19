@@ -20,7 +20,76 @@
 
 ## Активный план
 
-# PLAN: Unity 7 (7000.0.0a10) — URP-миграция после апгрейда
+# PLAN: S2 — контракт игровых событий (GameEvents + EventLog)
+
+Ветка: `core/game-events-contract` (от `main` 0633d8bd). Спека: `docs\SPEC_GAME_EVENTS.md`.
+
+## Goal
+
+(1) Библиотека DTO+шины игровых событий в чистом Core и (2) JSONL-логгер на границе клиента —
+готовая база для S3 (Unity-рекордер сценария «старт сэйва → коридор → комната → бой → факел»)
+и для WPF-потребителя. Данные вместо догадок: DTO в C# = schema.md = примеры логов.
+
+## Design decisions (user-confirmed)
+
+- Новые модули `Core.GameEvents` + `Clients.EventLog`; **TFM netstandard2.0** (доставка в оба
+  Unity-дерева через `CoreUnityPluginFolders`), только `LangVersion latest` локально в csproj
+  (записи/record); Newtonsoft `TypeNameHandling.Auto` (STJ в проекте нет) — только в
+  `Clients.EventLog`, чистый Core без JSON (правило AGENTS).
+- Обязательные поля `Input`/`Rng`: nullable; `null` = «не инструментировано», причина
+  фиксируется в schema.md (чек-лист §8 спеки допускает явный null с причиной).
+- Scope v1 — только типы под сценарий S3: `sceneSnapshot`, `stateSnapshot`, `partyMoved`,
+  `roomDiscovered`, `attackExecuted`, `heroStatChanged`, `torchChanged`, `skillUnavailable`,
+  `actionRejected`. Инвентарь (`item*`) и заполнение rng — отдельными шагами позже.
+- `Publish` шины проставляет `EventId`/`Timestamp`/`Sequence` (Interlocked, монотонность) —
+  единая точка нумерации; издатели дают `Subsystem`/payload/`Input`/`Rng`.
+
+## Steps / status
+
+1. [x] Ветка `core/game-events-contract`, PLAN.md зафиксирован.
+2. [x] `src\Core\Sektor.DarkestDungeon.Core.GameEvents` (netstandard2.0 + `LangVersion latest`
+   + полифилл `IsExternalInit`): `GameEvent` (abstract record), `GameInput`/`GameInputKinds`,
+   `GameRng`, `SubsystemNames`,9 событий v1, DTO (`SceneNode`/`SceneGlobals`/`CombatantState`/
+   `AnimationRef`/`StateSnapshotContexts`), `IGameEventBus`/`GameEventBus` (stамп EventId/
+   Timestamp/Sequence через `with`-копию, dispatch по assignability, отписка-`IDisposable`,
+   guard-return вместо исключений). PostBuild доставляет DLL в оба Unity-дерева (проверено).
+   Тесты `GameEventBusTests` (4): стамп/порядок, параллельная монотонность (1..200), типизированная
+   доставка/отписка, null-guard.
+3. [x] `src\Clients\Sektor.DarkestDungeon.Clients.EventLog`: `JsonEventLogger` (подписка на шину,
+   ленивый `StreamWriter` на подсистему `<subsystem>_session.jsonl`, `AutoFlush`,
+   `manifest.json` при создании/новом файле/Dispose, fallback `unspecified`) +
+   `GameEventManifest`; Newtonsoft `TypeNameHandling.Auto` с declared-типом `GameEvent` (иначе
+   `$type` не пишется у корня — ловушка закрыта тестом roundtrip). Доставка в оба Unity-дерева
+   (проверено). Тесты `JsonEventLoggerTests` (3): per-subsystem порядок/полиморфный roundtrip,
+   manifest (schemaVersion/seed/notes/files), fallback пустой подсистемы.
+4. [x] Регистрация4 проектов в `Darkest-Dungeon-Unity.slnx`; `TARGET_LAYOUT.md` (таблица + дерево
+   `src/`) и `ARCHITECTURE.md` §2 (строки `GameEvents`, `Clients.EventLog`) обновлены.
+5. [x] `docs\SPEC_GAME_EVENTS_SCHEMA.md`: формат/manifest/чтение, базовые поля (кто стампит,
+   null-причины),9 типов с триггерами/полями/инвариантами и **реальными** строками-примерами
+   (сняты из тестового вывода), чек-лист §8 (покрыто/отложено), отклонения от спеки;
+   строка в `docs\INDEX.md`.
+6. [x] `dotnet test` по всем12 тестовым проектам — exit 0; `tools\check-using-placement.ps1` — OK.
+7. [x] Коммит/пуш по подтверждению пользователя.
+
+## Affected files
+
+- Новые: `src\Core\Sektor.DarkestDungeon.Core.GameEvents\*`,
+  `src\Clients\Sektor.DarkestDungeon.Clients.EventLog\*`, `docs\SPEC_GAME_EVENTS_SCHEMA.md`.
+- `Darkest-Dungeon-Unity.slnx`, `docs\TARGET_LAYOUT.md`, `docs\ARCHITECTURE.md`, `PLAN.md`.
+
+## Acceptance criteria
+
+- Обе библиотеки собираются netstandard2.0, тесты зелёные; логгер пишет валидный JSONL +
+  manifest и читается обратно полиморфно (`$type`/дискриминатор).
+- Newtonsoft отсутствует в `Core.GameEvents`; чистый Core не бросает исключений (Result/данные).
+- Легаси (`unity\`, `unity-2017\`, `src\External\`) не изменены.
+
+## Out of scope (S2)
+
+- Публикации из Unity и WPF (S3/потребитель), `item*`-события, заполнение rng в солверах,
+  spine-хук анимаций (timebox — в S3).
+
+## План (почти завершён): Unity 7 (7000.0.0a10) — URP-миграция после апгрейда
 
 ## Goal
 
