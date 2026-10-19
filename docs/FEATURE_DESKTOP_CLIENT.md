@@ -40,11 +40,11 @@
   копирования, раскладка `Content\Spine\<Hero>\<Anim>\`). Рендер — SkiaSharp CPU (`DrawVertices` +
   шейдер
   атласа); загрузка/плеер/рендер — `src\Spine\Sektor.Spine.Skia`; рантайм —
-  `src\Spine\Sektor.Spine` (netstandard2.0, компилирует вендорные
-  `unity\Assets\Spine\SpineSharp\Source` по месту, одна физическая копия, пригоден для Unity).
+  `src\Spine\Sektor.Spine` (netstandard2.0, исходники в `src\Spine\Sektor.Spine\Source`;
+  post-build доставляет `Sektor.Spine.dll` в `Assets\Plugins\Internal` обоих Unity-проектов).
   Кнопка «SCREENSHOT» на демо-экране сохраняет PNG текущего окна в `screenshots\` рядом с exe
   (имя файла — в строке статуса) для ручных проверок и обмена снимками.
-  Использование в карточках дуэли и своп Unity-копий на общую DLL — отдельные задачи. Аудио в PoC
+  Использование в карточках дуэли — отдельная задача. Аудио в PoC
   пропускаем.
 
 ## Механики боя (дуэль 1v1)

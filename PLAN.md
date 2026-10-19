@@ -91,13 +91,33 @@ Spine-шейдеров на URP-совместимые (иначе герои/м
 - Замена BlurOptimized (showoff-блюр) URP-аналогом — отдельная задача.
 - Мёртвый `CharacterSprite.shader` (Spine/DungeonSprite, 0 ссылок) — не трогаем.
 
+## Активный план (пока URP-миграция): Spine → доставка в Unity
+
+Цель: `Sektor.Spine` (netstandard2.0) доставляется в оба Unity-дерева как DLL, сорсы spine-csharp
+уходят из `Assets\Spine\SpineSharp` в `src\Spine`.
+
+Шаги:
+1. [x] `git mv` сорсов `unity\Assets\Spine\SpineSharp\Source\**\*.cs` → `src\Spine\Sektor.Spine\Source\`
+   (`.meta` удаляются из обоих деревьев, папки `SpineSharp` убраны — в `Assets\Spine` остались
+   `SpineUnity`/`Gizmos`); csproj собирает `Source\**\*.cs` дефолтным glob'ом SDK.
+2. [x] `PostBuild`-таргет в `Sektor.Spine.csproj` (копия `.dll`/`.pdb` в `$(CoreUnityPluginFolders)` —
+   образец `Core.Ui.csproj`); `Sektor.Spine.dll` подтверждён в обоих `Assets\Plugins\Internal`.
+3. [x] `git rm` остатков `Assets\Spine\SpineSharp` в `unity\` и `unity-2017\` (SpineUnity остаётся).
+4. [x] Проверки: `dotnet build` — 0 ошибок/0 предупреждений; `unity-compile-check` для `unity\` —
+   зелёный (компиляция + script-reference check). **`unity-2017` прогнан не был**: редактора
+   2017.4.40f1 на машине нет (есть только 7000.0.0a10) — скрипту добавлен защитный блок
+   сверки версии редактора с `ProjectVersion.txt` (иначе batch-прогон открывает 2017-проект в
+   7000-м и апгрейдит его); прогон для `unity-2017` — после установки редактора.
+5. [x] Доки: `presentation_wpf.md`, `FEATURE_DESKTOP_CLIENT.md`, `TESTING.md` (пункт про
+   `Sektor.Spine.dll`), `PLAN.md` backlog (этап 2 выполнен), историческая запись
+   `docs\changelog\2026-10-19-wpf-spine-demo.md` приведена к факту.
+6. [x] Коммит.
+
+Risks: удаление `.cs.meta` — на spine-csharp-классы GUID-ссылок в сценах нет (чистые классы);
+`InternalsVisibleTo("Assembly-CSharp")`/`Assembly-CSharp-Editor` уже в `AssemblyInfo.cs`.
+
 ## Backlog (следующие шаги, план ещё не заведён)
 
-- Вендорный рантайм: spine-csharp 2.1 из `unity\Assets\Spine\SpineSharp\Source` (байт-в-байт
-  идентичен в обоих деревьях, чистый C# без UnityEngine/UNITY_EDITOR).
-- Этап 2 (не сейчас): `git mv` сорсов в `src\Spine`, удаление копий из обоих Unity-деревьев,
-  DLL+pdb в оба `Plugins\Internal` (паттерн `CoreUnityPluginFolders`), InternalsVisibleTo
-  (SpineUnity использует internal: `RegionAttachment.uvs` — `SkeletonRenderer.cs:384`),
-  `unity-compile-check` обоих деревьев, ручной чек-лист в редакторах.
-- Своп Unity/Unity-2017 на общую DLL Spine.
+- Этап 2 Spine выполнен (см. активный план выше): своп Unity-копий на `Sektor.Spine.dll` сделан;
+  осталось прогнать `unity-compile-check` для `unity-2017` после установки редактора 2017.4.40f1.
 - Монстры и остальные герои в карточке дуэли; интеграция анимаций боя (атаки, скиллы).

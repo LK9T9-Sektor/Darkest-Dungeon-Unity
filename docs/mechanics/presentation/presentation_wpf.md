@@ -100,11 +100,12 @@ WPF-клиент — тонкий потребитель ядра: экраны 
   `DuelBattleViewModel.ToUnit`); карточка (`DuelUnitCardView.xaml`) при `True` проигрывает
   `ColorAnimation`-пульс (#33E83333 ↔ прозрачный, 0.75s AutoReverse) — паритет Unity
   `FormationUnit.Update` (R=1, G/B 1↔0.4, цикл ~1.5s). При хeлье `AtDeathsDoor → false` пульс гаснет.
-- **Spine-рантайм — один физический источник** — `src\Spine\Sektor.Spine`
-  (netstandard2.0) компилирует вендорные сорсы `unity\Assets\Spine\SpineSharp\Source\**\*.cs` по
-  месту (одна копия, байт-в-байт одинакова в обоих Unity-деревьях); `InternalsVisibleTo`
-  (Assembly-CSharp, Assembly-CSharp-Editor) — задел под будущий своп Unity-копий на эту DLL.
-  Unity/WPF/Skia зависимостей нет.
+- **Spine-рантайм — вынесенные исходники, доставка в Unity DLL** — `src\Spine\Sektor.Spine`
+  (netstandard2.0, `namespace Spine`) собирается из своих сорсов `src\Spine\Sektor.Spine\Source\**\*.cs`
+  (переехали из `unity\Assets\Spine\SpineSharp\Source`); post-build копирует `Sektor.Spine.dll`/`.pdb`
+  в `Assets\Plugins\Internal` обоих Unity-деревьев (`CoreUnityPluginFolders`), где их подхватывает
+  `SpineUnity`. `InternalsVisibleTo` (Assembly-CSharp, Assembly-CSharp-Editor) — доступ к internal
+  членам из Unity-кода по этой DLL. WPF/Skia зависимостей нет.
 - **Setup-поза требует world-трансформа** — конструктор `Skeleton(data)` не считает world-позиции
   костей, поэтому `SpinePlayer` в конструкторе делает `SetToSetupPose()` + `UpdateWorldTransform()`;
   без этого `Measure`/`Render` на «свежем» скелете дают нули до первого `Play/Update` (аттачи

@@ -71,14 +71,20 @@
    Game view не чёрный.
 2. Герои/монстры рисуются в рейде (Spine-шейдеры перенесены на CG unlit); у `SkeletonLit` сейчас нет
    освещения/подсветки — это ожидаемо (`KNOWN_ISSUES.md` §15).
-3. В `Dungeon`/`DungeonMultiplayer` нет жёлтой заливки экрана: камеры стоят стеком —
+3. Рантайм spine-csharp подключён DLL: в `Assets\Plugins\Internal` лежат `Sektor.Spine.dll`
+   (папки `Assets\Spine\SpineSharp\Source` в обоих деревьях удалены, `SpineUnity` остался), после
+   `dotnet build src\Spine\Sektor.Spine` они обновляются пост-билдом; в консоли нет ошибок
+   дублирования типов `Spine.*`. Для `unity-2017`: редактор 2017.4.40f1 на машине должен быть
+   установлен — `unity-compile-check` теперь сверяет версию редактора с `ProjectVersion.txt`
+   и отказывается открывать проект чужой версией.
+4. В `Dungeon`/`DungeonMultiplayer` нет жёлтой заливки экрана: камеры стоят стеком —
    `DungeonCamera` (Base) + `BlurCamera`/`UI_Dangeon/Camera` (Overlay, `m_ClearDepth: 0`). Если у
    Base-камеры `Clear Flags = Nothing`, URP Render Graph чистит фон в `Color.yellow` и мир скрыт —
    см. `mechanics\presentation\presentation_unity_urp_cameras.md`.
-4. Стены `Dungeon` — задник комнаты (`DungeonView/RoomView/RoomWall/Wall`, спрайт `weald.room_wall.*`)
+5. Стены `Dungeon` — задник комнаты (`DungeonView/RoomView/RoomWall/Wall`, спрайт `weald.room_wall.*`)
    и стены коридоров (`corridor_wall.*`): арт виден, без маджента. Материалы `CoridorWall`/
    `CoridorWall 1` — unlit `Sprites/Default`: лит-шейдеры на canvas-изображении не назначать.
-5. Блюр (`BlurOptimized`, шоу-офф) не работает — ожидаемо (`KNOWN_ISSUES.md` §15).
+6. Блюр (`BlurOptimized`, шоу-офф) не работает — ожидаемо (`KNOWN_ISSUES.md` §15).
 
 ### Стартовая загрузка данных (база данных)
 
