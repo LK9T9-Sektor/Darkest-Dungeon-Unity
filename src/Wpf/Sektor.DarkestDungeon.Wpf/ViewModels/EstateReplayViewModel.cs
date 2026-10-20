@@ -33,6 +33,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         private GameEventCapture? capture;
         private IReadOnlyList<GameEvent> events = Array.Empty<GameEvent>();
+        private readonly List<int> timelineIndexByEvent = new List<int>();
         private int currentIndex;
 
         /// <summary>Gets or sets the current campaign week.</summary>
@@ -90,6 +91,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Gets the total number of events in the capture.</summary>
         public int TotalEvents => events.Count;
+
+        /// <summary>Gets the number of visible replay steps (audio events are kept in a separate log).</summary>
+        public int TotalSteps => Timeline.Count;
 
         /// <summary>Gets the capture subtitle (notes and event count).</summary>
         public string CaptureSubtitle
@@ -175,13 +179,23 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private void BuildTimeline()
         {
             Timeline.Clear();
+            timelineIndexByEvent.Clear();
             foreach (GameEvent gameEvent in events)
             {
+                if (gameEvent is AudioPlayed)
+                {
+                    timelineIndexByEvent.Add(Timeline.Count - 1);
+                    continue;
+                }
+
                 string description = descriptions.TryGetValue(gameEvent.GetType(), out Func<GameEvent, string>? describe)
                     ? describe(gameEvent)
                     : gameEvent.GetType().Name;
                 Timeline.Add(new CaptureTimelineEntryViewModel(gameEvent.Sequence, description));
+                timelineIndexByEvent.Add(Timeline.Count - 1);
             }
+
+            OnPropertyChanged(nameof(TotalSteps));
         }
 
         private void StartReplay()
@@ -197,8 +211,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             IsPlaying = true;
             ReplayCommand.NotifyCanExecuteChanged();
             ErrorText = string.Empty;
-            StatusText = $"Событие 1 из {TotalEvents}";
-            logger.Log($"estate replay: started events={TotalEvents}");
+            StatusText = $"Событие 1 из {TotalSteps}";
+            logger.Log($"estate replay: started events={TotalEvents} steps={TotalSteps}");
             Advance();
         }
 
@@ -226,9 +240,14 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             {
                 GameEvent gameEvent = events[currentIndex];
                 currentIndex++;
-                MarkCurrent(currentIndex - 1);
+                bool isVisible = gameEvent is not AudioPlayed;
+                if (isVisible)
+                    MarkCurrent(currentIndex - 1);
                 ApplyEvent(gameEvent);
                 logger.Log($"estate replay: event seq={gameEvent.Sequence} type={gameEvent.GetType().Name}");
+
+                if (!isVisible)
+                    continue;
 
                 if (currentIndex < events.Count)
                 {
@@ -248,22 +267,28 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         private void MarkCurrent(int index)
         {
+            int timelineIndex = index >= 0 && index < timelineIndexByEvent.Count
+                ? timelineIndexByEvent[index]
+                : Timeline.Count - 1;
+            if (timelineIndex < 0)
+                return;
+
             for (int i = 0; i < Timeline.Count; i++)
             {
-                Timeline[i].IsCurrent = i == index;
-                Timeline[i].IsPast = i < index;
+                Timeline[i].IsCurrent = i == timelineIndex;
+                Timeline[i].IsPast = i < timelineIndex;
             }
 
-            CurrentEventNumber = index + 1;
-            CurrentEntry = Timeline[index];
-            StatusText = $"Событие {CurrentEventNumber} из {TotalEvents}";
+            CurrentEventNumber = timelineIndex + 1;
+            CurrentEntry = Timeline[timelineIndex];
+            StatusText = $"Событие {CurrentEventNumber} из {TotalSteps}";
         }
 
         private void Finish()
         {
             IsPlaying = false;
             IsFinished = true;
-            StatusText = $"Готово: {TotalEvents} событий";
+            StatusText = $"Готово: {TotalSteps} событий";
             ReplayCommand.NotifyCanExecuteChanged();
             logger.Log("estate replay: finished");
         }

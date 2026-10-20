@@ -31,6 +31,10 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   `SpineDemoViewModel`, `SpineBattleViewModel`, `CaptureReplayViewModel`, `EstateReplayViewModel`
   (юниты `CaptureUnitViewModel`, estate-карточки `Estate*ViewModel`, таймлайн
   `CaptureTimelineEntryViewModel`, темп `IReplayPacer` / `DispatcherReplayPacer`), ...
+- Estate-экран (`EstateReplayView`): шапка с заметкой захвата, полоса недели/ресурсов/town event,
+  слева и в центре — сетка карточек зданий (`WrapPanel`, прогресс апгрейдов), справа — скролл
+  карточек героев (класс, уровень, HP-бар, стресс, квирки/болезни/статус), внизу — таймлайн
+  видимых шагов и аудио-журнал. Квесты на экране не показываются — они открываются отдельно.
 - Захват: `Clients.EventLog.GameEventLogReader` + `GameEventCapture` (allowlist-биндер, схемы
   `1.0.0`/`1.1.0`, `Sequence` 1..N, `Subsystem` = имени файла); `CaptureAnimationCatalog`
   (`ICaptureAnimationCatalog`) мэппит `skeleton/animation` в `Content\Spine\<Skeleton>\<Animation>`;
@@ -99,11 +103,14 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
    снимаются и `Advance` продолжает. Без Spine-контента атака завершается по
    `AttackFallbackDelay` (900 мс). После последнего события — `IsFinished`, «Повторить» сбрасывает
    проекцию и снова стартует.
-9. Estate-захват: меню → «ИМЕНИЕ (ЗАХВАТ)» → `EstateReplayViewModel`. `MainWindow` выбирает
-   самый свежий `run_*` с `Kind = estate` (иначе `ErrorText`/«Захват имения недоступен»); VM
-   читает его, строит таймлайн и на `estateSnapshot` перестраивает ресурсы, здания, ростер и
-   квесты. Action-события только подписываются в таймлайне; темп 100 мс, «ПОВТОРИТЬ»/«НАЗАД» —
-   как у боевого replay. Арт/интерактивные окна в v1 не используются.
+9. Estate-захват: меню → «ИМЕНИЕ (ЗАХВАТ)» → `EstateReplayViewModel` (DataTemplate
+   зарегистрирован в `MainWindow.xaml`; без него `ContentControl` рисует пустоту — чёрный экран).
+   `MainWindow` выбирает самый свежий `run_*` с `Kind = estate` (иначе `ErrorText`/«Захват имения
+   недоступен»); VM читает его, строит таймлайн и на `estateSnapshot` перестраивает ресурсы, здания,
+   ростер и квесты. `AudioPlayed` не попадают в основной таймлайн: они копятся в `AudioLog` и
+   применяются без паузы, поэтому видимые шаги идут с темпом 100 мс, а не тонут в музыке/UI-звуках.
+   Action-события только подписываются в таймлайне; «ПОВТОРИТЬ»/«НАЗАД» — как у боевого replay.
+   Арт/интерактивные окна в v1 не используются.
 
 ## 4. Очередь и обновления
 
@@ -135,7 +142,8 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 | Fallback формации | `CaptureUnitViewModel` | `Rank <= 0` → `index + 1`; `Size <= 0` → 1 |
 | Захват без Spine-клипа | `CaptureReplayViewModel` | idle-сет, иначе карточка; атака завершается по фолбэку 900 мс |
 | Темп захвата | `CaptureReplayViewModel` | 100 мс на событие; атака — минимум 1.2 с (клип + удержание) |
-| Аудио в захвате | `CaptureReplayViewModel` | `AudioLog` пополняется только `AudioPlayed`; звук не проигрывается |
+| Аудио в захвате | `CaptureReplayViewModel`, `EstateReplayViewModel` | `AudioLog` пополняется только `AudioPlayed`; звук не проигрывается; в estate-таймлайн аудио не входит |
+| Шаги estate | `EstateReplayViewModel` | `TotalSteps` = только видимые (не audio) события; `TotalEvents` = все события run |
 
 ## 6. Нюансы и подводные камни
 
@@ -273,8 +281,15 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 - **`BattleWinner` — только после `BattleEnded`** — до него `"—"`; retreat (`Retreat=true`) даёт
   `ОТСТУПЛЕНИЕ`, иначе winner по `BattleWinners`; `unknown` → `ИТОГ НЕИЗВЕСТЕН`.
 - **Аудио-журнал ≠ воспроизведение** — `AudioLog` показывает фактические `AudioPlayed`
-  (`event:/… · kind · action`), но FMOD не запускает; событие пишется только в рейде, поэтому
-  title/town-музыка в захвате отсутствует. Реальный playback — отдельный срез.
+  (`event:/… · kind · action`), но FMOD не запускает; рейд и estate пишут аудио, но
+  title/town-музыка в старых `1.0.0`/`1.1.0` отсутствует. Реальный playback — отдельный срез.
+- **Estate-таймлайн — без аудио** — `EstateReplayViewModel` не добавляет `AudioPlayed` в
+  `Timeline` (они только в `AudioLog`) и не тратит на них темп: иначе 150+ звуков города
+  растягивали бы 17 видимых шагов на десятки секунд. `TotalSteps` = число видимых шагов,
+  `TotalEvents` = все события захвата (для подписи).
+- **Забытый DataTemplate = чёрный экран** — новый экран (`EstateReplayViewModel`) обязан иметь
+  `<DataTemplate>` в `MainWindow.xaml`; без него `ContentControl` не рисует ничего и виден только
+  чёрный фон окна, даже если VM загрузилась без ошибок.
 - **Монстр — карточка** — `CaptureAnimationCatalog` возвращает `null` для скелета без линкованного
   контента (`brigand_cutthroat`); юнит не падает, показывает имя/HP и подпись «карточка».
 - **Ошибка чтения не роняет экран** — reader возвращает `Result`, VM пишет `ErrorText` и
@@ -300,6 +315,8 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   `ViewModels/CaptureUnitViewModel.cs`, `ViewModels/CaptureTimelineEntryViewModel.cs`,
   `ViewModels/IReplayPacer.cs`, `ViewModels/DispatcherReplayPacer.cs`,
   `Data/CaptureAnimationCatalog.cs` (плеер захвата)
+- `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/EstateReplayView.xaml(.cs)`,
+  `ViewModels/EstateReplayViewModel.cs`, `ViewModels/Estate*ViewModel.cs` (estate-экран)
 - `src/Clients/Sektor.DarkestDungeon.Clients.EventLog/GameEventLogReader.cs` (чтение/валидация JSONL),
   `GameEventTypeBinder.cs` (allowlist `List<T>`/`T[]`), `JsonEventLogger.cs` (`1.1.0`),
   `GameEventCaptureLocator.cs` (поиск `<repo>/captures` и свежего `run_*`)

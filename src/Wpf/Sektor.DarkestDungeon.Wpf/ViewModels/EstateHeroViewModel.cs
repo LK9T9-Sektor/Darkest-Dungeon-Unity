@@ -1,4 +1,5 @@
 using Sektor.DarkestDungeon.Core.GameEvents;
+using Sektor.DarkestDungeon.Wpf.Ui;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
@@ -11,11 +12,15 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         {
             Id = hero.Id;
             Class = hero.Class;
+            ClassLabel = DisplayNames.Class(hero.Class);
             Name = hero.Name;
             LevelText = $"Ур. {hero.Level}";
+            Hp = hero.Hp;
+            MaxHp = hero.MaxHp > 0 ? hero.MaxHp : 1;
             HpText = $"{hero.Hp}/{hero.MaxHp}";
             StressText = $"{hero.Stress}";
             StatusText = hero.Status;
+            IsDead = !hero.IsAlive;
             QuirksText = hero.Quirks == null ? string.Empty : string.Join(", ", hero.Quirks);
             DiseasesText = hero.Diseases == null ? string.Empty : string.Join(", ", hero.Diseases);
             ConditionText = Condition(hero);
@@ -27,11 +32,23 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the hero class id.</summary>
         public string Class { get; }
 
+        /// <summary>Gets the readable hero class label.</summary>
+        public string ClassLabel { get; }
+
         /// <summary>Gets the hero name.</summary>
         public string Name { get; }
 
         /// <summary>Gets the resolve level label.</summary>
         public string LevelText { get; }
+
+        /// <summary>Gets the current hit points.</summary>
+        public int Hp { get; }
+
+        /// <summary>Gets the maximum hit points (at least one to keep the progress bar valid).</summary>
+        public int MaxHp { get; }
+
+        /// <summary>Gets a value indicating whether the hero is dead.</summary>
+        public bool IsDead { get; }
 
         /// <summary>Gets the hp label.</summary>
         public string HpText { get; }

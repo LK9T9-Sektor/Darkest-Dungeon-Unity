@@ -32,6 +32,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
 
                 Assert.That(viewModel.IsFinished, Is.True);
                 Assert.That(viewModel.TotalEvents, Is.EqualTo(8));
+                Assert.That(viewModel.TotalSteps, Is.EqualTo(7));
                 Assert.That(viewModel.Week, Is.EqualTo(2));
                 Assert.That(viewModel.Resources, Has.Count.EqualTo(2));
                 Assert.That(viewModel.Resources[0].Label, Does.Contain("gold").And.Contain("750"));
@@ -43,9 +44,11 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                 Assert.That(viewModel.Quests, Has.Count.EqualTo(1));
                 Assert.That(viewModel.Quests[0].Title, Does.Contain("weald"));
                 Assert.That(viewModel.AudioLog, Has.Count.EqualTo(1));
-                Assert.That(viewModel.Timeline, Has.Count.EqualTo(8));
-                Assert.That(viewModel.Timeline[7].IsCurrent, Is.True);
-                Assert.That(viewModel.StatusText, Does.Contain("8"));
+                Assert.That(viewModel.Timeline, Has.Count.EqualTo(7));
+                Assert.That(viewModel.Timeline[6].IsCurrent, Is.True);
+                Assert.That(viewModel.Timeline, Has.None.Matches<CaptureTimelineEntryViewModel>(
+                    entry => entry.Description.Contains(AudioActions.Start)));
+                Assert.That(viewModel.StatusText, Does.Contain("7"));
             }
             finally
             {

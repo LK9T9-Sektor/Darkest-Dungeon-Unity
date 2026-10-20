@@ -10,9 +10,21 @@
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="Margin" Value="0,14,0,6" />
         </Style>
+        <Style x:Key="PanelTitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#8A7A5A" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+        </Style>
         <Style x:Key="BodyText" TargetType="TextBlock">
             <Setter Property="Foreground" Value="#C8C0B0" />
             <Setter Property="FontSize" Value="12" />
+        </Style>
+        <Style x:Key="EmptyText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#6A5A4A" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Visibility" Value="Collapsed" />
         </Style>
 
         <DataTemplate x:Key="ResourceTemplate" DataType="{x:Type vm:EstateResourceViewModel}">
@@ -23,56 +35,110 @@
         </DataTemplate>
 
         <DataTemplate x:Key="BuildingTemplate" DataType="{x:Type vm:EstateBuildingViewModel}">
-            <Border Background="#241A12" BorderBrush="#3A2E22" BorderThickness="1"
-                    CornerRadius="6" Padding="10" Margin="0,0,8,8" Width="190">
-                <StackPanel>
-                    <TextBlock Text="{Binding Name}" Foreground="#E8D9B0" FontWeight="Bold" FontSize="13" />
-                    <ProgressBar Height="6" Margin="0,7,0,4" Maximum="100"
-                                 Value="{Binding ProgressPercent}" Foreground="#B08A50" Background="#1A120C" />
-                    <TextBlock Text="{Binding ProgressText}" Style="{StaticResource BodyText}" />
-                </StackPanel>
-            </Border>
-        </DataTemplate>
-
-        <DataTemplate x:Key="HeroTemplate" DataType="{x:Type vm:EstateHeroViewModel}">
-            <Border Background="#241A12" BorderBrush="#3A2E22" BorderThickness="1"
-                    CornerRadius="6" Padding="10" Margin="0,0,0,7">
+            <Border Width="210" MinHeight="104" Background="#241A12" BorderBrush="#3A2E22"
+                    BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,10,10">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Name}" Foreground="#E8D9B0" FontWeight="Bold" FontSize="14" />
-                            <TextBlock Text="{Binding Class}" Foreground="#8A7A5A" FontSize="12" Margin="8,1,0,0" />
-                        </StackPanel>
-                        <TextBlock Text="{Binding QuirksText}" Style="{StaticResource BodyText}"
-                                   TextTrimming="CharacterEllipsis" />
-                        <TextBlock Text="{Binding DiseasesText}" Foreground="#B07070" FontSize="11"
-                                   TextTrimming="CharacterEllipsis" />
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                        <TextBlock Text="{Binding LevelText}" Foreground="#E8D9B0" FontSize="12"
-                                   HorizontalAlignment="Right" />
-                        <TextBlock Text="{Binding HpText}" Style="{StaticResource BodyText}" HorizontalAlignment="Right" />
-                        <TextBlock Text="{Binding StressText}" Foreground="#E0B0B0" FontSize="12"
-                                   HorizontalAlignment="Right" />
-                        <TextBlock Text="{Binding ConditionText}" Foreground="#E0B0B0" FontSize="11"
-                                   HorizontalAlignment="Right" />
-                    </StackPanel>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="{Binding Name}" Foreground="#E8D9B0" FontWeight="Bold"
+                               FontSize="14" TextTrimming="CharacterEllipsis" />
+
+                    <ProgressBar Grid.Row="1" Height="8" Margin="0,10,0,6" Maximum="100"
+                                 Value="{Binding ProgressPercent, Mode=OneWay}"
+                                 Foreground="#B08A50" Background="#1A120C" VerticalAlignment="Center" />
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="АПГРЕЙДЫ" Foreground="#6A5A4A" FontSize="10" FontWeight="Bold"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1" Text="{Binding ProgressText}" Foreground="#E8D9B0"
+                                   FontSize="13" FontWeight="Bold" />
+                    </Grid>
                 </Grid>
             </Border>
         </DataTemplate>
 
-        <DataTemplate x:Key="QuestTemplate" DataType="{x:Type vm:EstateQuestViewModel}">
-            <Border Background="#241A12" BorderBrush="#3A2E22" BorderThickness="1"
-                    CornerRadius="6" Padding="10" Margin="0,0,0,7">
-                <StackPanel>
-                    <TextBlock Text="{Binding Title}" Foreground="#E8D9B0" FontWeight="Bold" FontSize="13" />
-                    <TextBlock Text="{Binding Details}" Style="{StaticResource BodyText}" />
-                    <TextBlock Text="{Binding Goal}" Style="{StaticResource BodyText}" FontSize="11" />
-                </StackPanel>
+        <DataTemplate x:Key="HeroTemplate" DataType="{x:Type vm:EstateHeroViewModel}">
+            <Border Padding="12" Margin="0,0,0,8" CornerRadius="6" BorderThickness="1">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="#241A12" />
+                        <Setter Property="BorderBrush" Value="#3A2E22" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsDead}" Value="True">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}" Foreground="#E8D9B0" FontWeight="Bold"
+                                       FontSize="14" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{Binding ClassLabel}" Foreground="#8A7A5A" FontSize="12"
+                                       Margin="8,1,0,0" />
+                        </StackPanel>
+                        <TextBlock Grid.Column="1" Text="{Binding LevelText}" Foreground="#E8D9B0"
+                                   FontSize="12" HorizontalAlignment="Right" />
+                    </Grid>
+
+                    <Grid Grid.Row="1" Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="HP" Foreground="#6A5A4A" FontSize="10" FontWeight="Bold"
+                                   VerticalAlignment="Center" />
+                        <ProgressBar Grid.Column="1" Minimum="0" Maximum="{Binding MaxHp, Mode=OneWay}"
+                                     Value="{Binding Hp, Mode=OneWay}" Height="8" Margin="8,0"
+                                     Foreground="#B05050" Background="#1A120C" />
+                        <TextBlock Grid.Column="2" Text="{Binding HpText}" Style="{StaticResource BodyText}"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+
+                    <StackPanel Grid.Row="2" Margin="0,6,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="СТРЕСС" Foreground="#6A5A4A" FontSize="10" FontWeight="Bold"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding StressText}" Foreground="#E0B0B0" FontSize="12"
+                                       Margin="6,0,0,0" />
+                        </StackPanel>
+                        <Border Background="#3A2E22" CornerRadius="3" Padding="6,1" Margin="0,4,0,0"
+                                HorizontalAlignment="Left"
+                                Visibility="{Binding ConditionText, Converter={StaticResource StringToVisibility}}">
+                            <TextBlock Text="{Binding ConditionText}" Foreground="#E0B0B0" FontSize="10"
+                                       FontWeight="Bold" />
+                        </Border>
+                        <TextBlock Text="{Binding QuirksText}" Style="{StaticResource BodyText}"
+                                   TextWrapping="Wrap" Margin="0,4,0,0"
+                                   Visibility="{Binding QuirksText, Converter={StaticResource StringToVisibility}}" />
+                        <TextBlock Text="{Binding DiseasesText}" Foreground="#B07070" FontSize="11"
+                                   TextWrapping="Wrap" Margin="0,2,0,0"
+                                   Visibility="{Binding DiseasesText, Converter={StaticResource StringToVisibility}}" />
+                        <TextBlock Text="{Binding StatusText}" Foreground="#8A7A5A" FontSize="11"
+                                   Margin="0,4,0,0" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </Grid>
             </Border>
         </DataTemplate>
 
@@ -97,19 +163,22 @@
         </DataTemplate>
     </UserControl.Resources>
 
-    <Grid>
+    <Grid Background="#14100C">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <views:ScreenHeaderView Grid.Row="0" Margin="48,24,48,0"
                                 Title="{Binding ScreenTitle}"
+                                Subtitle="{Binding CaptureSubtitle}"
                                 CloseCommand="{Binding BackCommand}" />
 
-        <Border Grid.Row="1" Margin="48,16,48,0" Padding="14,10" CornerRadius="8"
+        <!-- Week + resources + town event -->
+        <Border Grid.Row="1" Margin="48,12,48,0" Padding="14,10" CornerRadius="8"
                 Background="#1A120C" BorderBrush="#3A2E22" BorderThickness="1">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -118,11 +187,10 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="НЕДЕЛЯ" Foreground="#8A7A5A" FontSize="11" FontWeight="Bold" />
+                    <TextBlock Text="НЕДЕЛЯ" Foreground="#8A7A5A" FontSize="11" FontWeight="Bold"
+                               VerticalAlignment="Center" />
                     <TextBlock Text="{Binding Week}" Foreground="#E8D9B0" FontSize="18" FontWeight="Bold"
                                Margin="8,0,20,0" />
-                    <TextBlock Text="{Binding CaptureSubtitle}" Foreground="#8A7A5A" FontSize="12"
-                               VerticalAlignment="Center" />
                 </StackPanel>
                 <ItemsControl Grid.Column="1" ItemsSource="{Binding Resources}" Margin="20,0">
                     <ItemsControl.ItemsPanel>
@@ -139,70 +207,137 @@
             </Grid>
         </Border>
 
-        <Grid Grid.Row="2" Margin="48,16,48,0">
+        <!-- Buildings left/center, heroes on the right -->
+        <Grid Grid.Row="2" Margin="48,12,48,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="*" MinWidth="340" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0" Margin="0,0,20,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock Text="ЗДАНИЯ" Style="{StaticResource PanelTitle}" />
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <Grid>
+                        <ItemsControl ItemsSource="{Binding Buildings}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <StaticResource ResourceKey="BuildingTemplate" />
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Text="Зданий нет — сцена имения не записалась.">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource EmptyText}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Buildings.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </ScrollViewer>
+            </Grid>
+
+            <Border Grid.Column="1" Style="{StaticResource OverlayPanel}" Padding="12">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="ГЕРОИ" Style="{StaticResource PanelTitle}" />
+                        <TextBlock Grid.Column="1" Foreground="#8A7A5A" FontSize="11"
+                                   Text="{Binding Roster.Count, StringFormat={}{0} чел.}"
+                                   VerticalAlignment="Center" Margin="0,0,0,6" />
+                    </Grid>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <Grid>
+                            <ItemsControl ItemsSource="{Binding Roster}">
+                                <ItemsControl.ItemTemplate>
+                                    <StaticResource ResourceKey="HeroTemplate" />
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="Ростер пуст.">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource EmptyText}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Roster.Count}" Value="0">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Timeline and audio log at the bottom -->
+        <Grid Grid.Row="3" Margin="48,12,48,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="0,0,20,0">
-                    <TextBlock Text="ЗДАНИЯ" Style="{StaticResource SectionTitle}" />
-                    <ItemsControl ItemsSource="{Binding Buildings}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <StaticResource ResourceKey="BuildingTemplate" />
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <TextBlock Text="РОСТЕР" Style="{StaticResource SectionTitle}" />
-                    <ItemsControl ItemsSource="{Binding Roster}">
-                        <ItemsControl.ItemTemplate>
-                            <StaticResource ResourceKey="HeroTemplate" />
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <TextBlock Text="КВЕСТЫ" Style="{StaticResource SectionTitle}" />
-                    <ItemsControl ItemsSource="{Binding Quests}">
-                        <ItemsControl.ItemTemplate>
-                            <StaticResource ResourceKey="QuestTemplate" />
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </ScrollViewer>
-
-            <Grid Grid.Column="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <DockPanel>
-                    <TextBlock DockPanel.Dock="Top" Text="ТАЙМЛАЙН" Style="{StaticResource SectionTitle}" />
-                    <ListBox ItemsSource="{Binding Timeline}" BorderThickness="0" Background="Transparent"
+            <Border Grid.Column="0" Margin="0,0,12,0" Style="{StaticResource OverlayPanel}" Padding="12,8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="ТАЙМЛАЙН" Style="{StaticResource PanelTitle}" />
+                    <ListBox x:Name="TimelineList" Grid.Row="1" Height="120"
+                             ItemsSource="{Binding Timeline}"
+                             SelectedItem="{Binding CurrentEntry, Mode=OneWay}"
+                             SelectionChanged="OnTimelineSelectionChanged"
+                             Loaded="OnTimelineLoaded"
+                             BorderThickness="0" Background="Transparent"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                         <ListBox.ItemTemplate>
                             <StaticResource ResourceKey="TimelineTemplate" />
                         </ListBox.ItemTemplate>
                     </ListBox>
-                </DockPanel>
+                </Grid>
+            </Border>
 
-                <DockPanel Grid.Row="1" Height="150">
-                    <TextBlock DockPanel.Dock="Top" Text="АУДИО" Style="{StaticResource SectionTitle}" />
-                    <ListBox ItemsSource="{Binding AudioLog}" BorderThickness="0" Background="Transparent"
+            <Border Grid.Column="1" Style="{StaticResource OverlayPanel}" Padding="12,8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="АУДИО" Style="{StaticResource PanelTitle}" />
+                    <ListBox Grid.Row="1" Height="120" ItemsSource="{Binding AudioLog}"
+                             BorderThickness="0" Background="Transparent"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                         <ListBox.ItemTemplate>
                             <StaticResource ResourceKey="TimelineTemplate" />
                         </ListBox.ItemTemplate>
                     </ListBox>
-                </DockPanel>
-            </Grid>
+                </Grid>
+            </Border>
         </Grid>
 
-        <Grid Grid.Row="3" Margin="48,16,48,28">
+        <Grid Grid.Row="4" Margin="48,12,48,24">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -217,14 +352,20 @@
             </StackPanel>
         </Grid>
 
-        <Border Grid.RowSpan="4" Background="#CC0E0A08"
+        <Border Grid.RowSpan="5" Background="#B30E0A08"
                 Visibility="{Binding ErrorText, Converter={StaticResource StringToVisibility}}">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="900">
-                <TextBlock Text="ЗАХВАТ ИМЕНИЯ НЕДОСТУПЕН" Foreground="#E8D9B0" FontSize="26"
-                           FontWeight="Bold" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding ErrorText}" Foreground="#E0B0B0" FontSize="14"
-                           TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,12,0,0" />
-            </StackPanel>
+            <Border Style="{StaticResource OverlayPanel}" Padding="24" MaxWidth="760"
+                    VerticalAlignment="Center" HorizontalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Text="ЗАХВАТ ИМЕНИЯ НЕДОСТУПЕН" Foreground="#E8D9B0" FontSize="24"
+                               FontWeight="Bold" HorizontalAlignment="Center" />
+                    <TextBlock Text="{Binding ErrorText}" Foreground="#E0B0B0" FontSize="14"
+                               TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,12,0,0" />
+                    <TextBlock Text="Запишите город в Unity (сцена EstateManagement) и откройте экран заново."
+                               Foreground="#8A7A5A" FontSize="12" TextWrapping="Wrap"
+                               HorizontalAlignment="Center" Margin="0,12,0,0" />
+                </StackPanel>
+            </Border>
         </Border>
     </Grid>
 </UserControl>
