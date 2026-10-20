@@ -26,11 +26,11 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 
 - Экраны: `MainMenuView`, `DuelLobbyView`, `SinglePlayerLobbyView`, `PartySelectionView`,
   `DuelBattleView`, `RaidHudView`, `ScreenHeaderView`, `SpineDemoView`, `SpineBattleView`,
-  `CaptureReplayView`.
+  `CaptureReplayView`, `EstateReplayView`.
 - ViewModels: `MainMenuViewModel`, `SinglePlayerLobbyViewModel`, `DuelBattleViewModel`,
-  `SpineDemoViewModel`, `SpineBattleViewModel`, `CaptureReplayViewModel` (юниты
-  `CaptureUnitViewModel`, таймлайн `CaptureTimelineEntryViewModel`, темп `IReplayPacer` /
-  `DispatcherReplayPacer`), ...
+  `SpineDemoViewModel`, `SpineBattleViewModel`, `CaptureReplayViewModel`, `EstateReplayViewModel`
+  (юниты `CaptureUnitViewModel`, estate-карточки `Estate*ViewModel`, таймлайн
+  `CaptureTimelineEntryViewModel`, темп `IReplayPacer` / `DispatcherReplayPacer`), ...
 - Захват: `Clients.EventLog.GameEventLogReader` + `GameEventCapture` (allowlist-биндер, схемы
   `1.0.0`/`1.1.0`, `Sequence` 1..N, `Subsystem` = имени файла); `CaptureAnimationCatalog`
   (`ICaptureAnimationCatalog`) мэппит `skeleton/animation` в `Content\Spine\<Skeleton>\<Animation>`;
@@ -99,6 +99,11 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
    снимаются и `Advance` продолжает. Без Spine-контента атака завершается по
    `AttackFallbackDelay` (900 мс). После последнего события — `IsFinished`, «Повторить» сбрасывает
    проекцию и снова стартует.
+9. Estate-захват: меню → «ИМЕНИЕ (ЗАХВАТ)» → `EstateReplayViewModel`. `MainWindow` выбирает
+   самый свежий `run_*` с `Kind = estate` (иначе `ErrorText`/«Захват имения недоступен»); VM
+   читает его, строит таймлайн и на `estateSnapshot` перестраивает ресурсы, здания, ростер и
+   квесты. Action-события только подписываются в таймлайне; темп 100 мс, «ПОВТОРИТЬ»/«НАЗАД» —
+   как у боевого replay. Арт/интерактивные окна в v1 не используются.
 
 ## 4. Очередь и обновления
 
@@ -247,8 +252,9 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   моменте. Synthetic `1.1.0` вместо этого заканчивается `BattleEnded` (10 событий).
 - **Захваты — общая папка репозитория** — Unity-редактор пишет в `<repo>/captures/run_*`
   (собранная игра без репозитория — fallback `persistentDataPath/Replays`); WPF берёт самый
-  свежий `run_*` при открытии экрана. Папка gitignored; копировать файлы вручную не нужно.
-  Пустые слоты формации (без `Character`) в снапшот не попадают. Захват, который ещё пишется,
+  свежий `run_*` при открытии экрана; battle replay берёт только `Kind = raid`, estate replay —
+  только `Kind = estate`. Папка gitignored; копировать файлы вручную не нужно. Пустые слоты
+  формации (без `Character`) в снапшот не попадают. Захват, который ещё пишется,
   лучше не открывать: reader может увидеть неполный хвост.
 - **Таймлайн отмечает текущий момент** — `CurrentEntry` — последнее применённое событие; при
   пошаговом темпе каждая строка остаётся текущей ~100 мс, атака — ~1.2 с. `ListBox`

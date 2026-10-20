@@ -44,7 +44,13 @@ namespace Sektor.DarkestDungeon.Wpf
                         new CaptureAnimationCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "Spine")),
                         logger,
                         ResolveCaptureReplayDirectory(),
-                        new DispatcherReplayPacer())));
+                        new DispatcherReplayPacer())),
+                () => new EstateReplayViewModel(
+                    shell,
+                    new GameEventLogReader(),
+                    logger,
+                    ResolveEstateReplayDirectory(),
+                    new DispatcherReplayPacer()));
             shell.SetHome(menu);
             shell.NavigateTo(menu);
             return shell;
@@ -53,7 +59,19 @@ namespace Sektor.DarkestDungeon.Wpf
         private static string ResolveCaptureReplayDirectory()
         {
             string reference = Path.Combine(AppContext.BaseDirectory, "Content", "Captures", "Reference");
-            return GameEventCaptureLocator.ResolveReplayDirectory(AppContext.BaseDirectory, reference);
+            return GameEventCaptureLocator.ResolveReplayDirectory(
+                AppContext.BaseDirectory,
+                reference,
+                GameEventRunKinds.Raid);
+        }
+
+        private static string ResolveEstateReplayDirectory()
+        {
+            string reference = Path.Combine(AppContext.BaseDirectory, "Content", "Captures", "EstateReference");
+            return GameEventCaptureLocator.ResolveReplayDirectory(
+                AppContext.BaseDirectory,
+                reference,
+                GameEventRunKinds.Estate);
         }
 
         private static Core.Common.ILogger CreateLogger()

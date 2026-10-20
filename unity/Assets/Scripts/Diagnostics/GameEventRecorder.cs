@@ -22,7 +22,8 @@ public class GameEventRecorder : MonoBehaviour
     private const string LogPrefix = "[GameEventLog]";
     private const string FallbackReplaysFolderName = "Replays";
     private const string RunTimestampFormat = "yyyy-MM-dd_HH-mm-ss";
-    private const string RunNotes = "auto-recorded raid run";
+    private const string RaidRunNotes = "auto-recorded raid run";
+    private const string EstateRunNotes = "auto-recorded estate run";
 
     private GameEventBus bus;
     private JsonEventLogger logger;
@@ -36,6 +37,9 @@ public class GameEventRecorder : MonoBehaviour
     {
         get { return logger != null; }
     }
+
+    /// <summary>Gets the active run kind (<c>raid</c>/<c>estate</c>), or <c>null</c> when idle.</summary>
+    public string Kind { get; private set; }
 
     /// <summary>Creates the non-destroyable recorder host right after the first scene load.</summary>
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -52,11 +56,13 @@ public class GameEventRecorder : MonoBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded;
         SceneManager.sceneUnloaded += OnSceneUnloaded;
 
-        // Play can start directly in a raid scene: no sceneLoaded fires for it, and this host is
-        // created after the scene Awake (RaidSceneManager.Instanse is set) but before its Start,
-        // so the raid-start snapshot published from Start lands in the run.
+        // Play can start directly in a raid/estate scene: no sceneLoaded fires for it, and this host
+        // is created after the scene Awake (the manager instance is set) but before its Start, so
+        // the entry snapshot published from Start lands in the run.
         if (RaidSceneManager.Instanse != null)
-            StartRecording(SceneManager.GetActiveScene());
+            StartRecording(SceneManager.GetActiveScene(), GameEventRunKinds.Raid);
+        else if (EstateSceneManager.Instanse != null)
+            StartRecording(SceneManager.GetActiveScene(), GameEventRunKinds.Estate);
 
         Debug.Log(LogPrefix + " ready. Raid runs are recorded automatically.");
     }
@@ -96,14 +102,24 @@ public class GameEventRecorder : MonoBehaviour
         // and the recorder is in place before RaidSceneManager.Start publishes. The scene check
         // keeps an unrelated (e.g. additive) scene from restarting the run.
         RaidSceneManager raid = RaidSceneManager.Instanse;
-        if (raid == null || raid.gameObject.scene != scene)
+        if (raid != null && raid.gameObject.scene == scene)
+        {
+            RestartRecording(scene, GameEventRunKinds.Raid);
             return;
+        }
 
+        EstateSceneManager estate = EstateSceneManager.Instanse;
+        if (estate != null && estate.gameObject.scene == scene)
+            RestartRecording(scene, GameEventRunKinds.Estate);
+    }
+
+    private void RestartRecording(Scene scene, string kind)
+    {
         // A stale run is finalized here too, in case a delayed sceneUnloaded arrives afterwards.
         if (IsRecording)
             StopRecording();
 
-        StartRecording(scene);
+        StartRecording(scene, kind);
     }
 
     private void OnSceneUnloaded(Scene scene)
@@ -112,7 +128,7 @@ public class GameEventRecorder : MonoBehaviour
             StopRecording();
     }
 
-    private void StartRecording(Scene scene)
+    private void StartRecording(Scene scene, string kind)
     {
         if (IsRecording)
             return;
@@ -126,18 +142,23 @@ public class GameEventRecorder : MonoBehaviour
             runDirectory = Path.Combine(captureRoot, runName);
 
             bus = new GameEventBus();
-            logger = new JsonEventLogger(bus, runDirectory, notes: RunNotes);
+            string notes = string.Equals(kind, GameEventRunKinds.Estate, StringComparison.Ordinal)
+                ? EstateRunNotes
+                : RaidRunNotes;
+            logger = new JsonEventLogger(bus, runDirectory, notes: notes, kind: kind);
         }
         catch (Exception exception)
         {
             bus = null;
             logger = null;
+            Kind = null;
             Debug.LogError(LogPrefix + " failed to start recording in '" + runDirectory + "': " + exception);
             return;
         }
 
         recordingScene = scene;
-        Debug.Log(LogPrefix + " recording started: " + logger.ManifestPath);
+        Kind = kind;
+        Debug.Log(LogPrefix + " recording started (" + kind + "): " + logger.ManifestPath);
     }
 
     private void StopRecording()
@@ -160,6 +181,7 @@ public class GameEventRecorder : MonoBehaviour
         {
             logger = null;
             bus = null;
+            Kind = null;
         }
     }
 }

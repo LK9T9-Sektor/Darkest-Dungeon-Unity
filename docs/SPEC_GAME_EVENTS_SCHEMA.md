@@ -1,4 +1,4 @@
-# SPEC_GAME_EVENTS_SCHEMA.md — схема записываемых игровых событий (v1.1.0)
+# SPEC_GAME_EVENTS_SCHEMA.md — схема записываемых игровых событий (v1.2.0)
 
 > Домен: `GameEvents` (`src\Core\Sektor.DarkestDungeon.Core.GameEvents`) +
 > `Clients.EventLog` (`src\Clients\Sektor.DarkestDungeon.Clients.EventLog`).
@@ -7,18 +7,21 @@
 > (`JsonEventLoggerTests`, `GameEventBusTests`, `GameEventLogReaderTests`) и эталонного прогона
 > (`docs/spec_game_events/examples/`); сокращения (`…`) — для читаемости.
 >
-> **Версии:** текущая схема — `1.1.0` (`JsonEventLogger.CurrentSchemaVersion`). Reader принимает
-> `1.0.0` (эталон `docs/spec_game_events/examples/`, 38 событий) и `1.1.0`. В `1.0.0` нет
-> `CombatantState.Rank`/`Size`/`Stress`/`Statuses`/`Buffs`, `StateSnapshot.Battle` и новых
-> боевых/аудио событий; WPF для старых записей берёт `fallbackRank = index + 1`.
+> **Версии:** текущая схема — `1.2.0` (`JsonEventLogger.CurrentSchemaVersion`). Reader принимает
+> `1.0.0` (эталон `docs/spec_game_events/examples/`, 38 событий), `1.1.0` и `1.2.0`. В `1.0.0`
+> нет `CombatantState.Rank`/`Size`/`Stress`/`Statuses`/`Buffs`, `StateSnapshot.Battle` и новых
+> боевых/аудио событий; WPF для старых записей берёт `fallbackRank = index + 1`. В `1.2.0`
+> добавлены estate-события и `manifest.Kind` (`raid`/`estate`); старый manifest без `Kind`
+> считается рейдом.
 
 ## 1. Формат файлов
 
 Run-директория записи (её создаёт рекордер S3). В редакторе Unity и в игре, запущенной
 внутри репозитория, это общая папка `<repo>\captures\run_<timestamp>\`; если корень репозитория
 не найден (собранная игра), используется fallback `persistentDataPath\Replays\run_<timestamp>\`.
-WPF при открытии реплея сам берёт самый свежий `run_*` из `<repo>\captures`, а при отсутствии
-записей — встроенный эталон `Content\Captures\Reference`. Папка `captures` в `.gitignore`.
+WPF при открытии боевого реплея берёт свежий `run_*` с `Kind = raid`, estate-реплея — с
+`Kind = estate`; при отсутствии записей battle replay играет встроенный эталон
+`Content\Captures\Reference`. Папка `captures` в `.gitignore`.
 
 ```
 <run>/
@@ -27,8 +30,11 @@ WPF при открытии реплея сам берёт самый свежи
   map_session.jsonl
   torch_session.jsonl
   audio_session.jsonl      # v1.1: реально проигранное аудио
+  estate_session.jsonl     # v1.2: estate snapshot/actions (только estate-run)
   ...
 ```
+
+`Kind` в manifest отделяет рейдовые run от estate-run; WPF выбирает свежий run нужного kind.
 
 - **JSONL**: UTF-8, одна строка = одно событие, запись с `AutoFlush` (краш теряет максимум одну
   строку; manifest может не дописаться). Порядок строк = порядок `Publish` (возрастающий
@@ -37,7 +43,7 @@ WPF при открытии реплея сам берёт самый свежи
 
 ```json
 {
-  "SchemaVersion": "1.1.0",
+  "SchemaVersion": "1.2.0",
   "StartedAt": "2026-10-19T12:00:00.1234567Z",
   "Seed": 42,
   "Notes": "first mission",
@@ -45,13 +51,15 @@ WPF при открытии реплея сам берёт самый свежи
     "torch_session.jsonl",
     "combat_session.jsonl",
     "audio_session.jsonl"
-  ]
+  ],
+  "Kind": "raid"
 }
 ```
 
 `SchemaVersion` = `JsonEventLogger.CurrentSchemaVersion` — поднимать в том же коммите, что меняет
-DTO (несовместимые логи различаются только этой версией). Reader принимает `1.0.0` и `1.1.0`;
-`9.9.9` и любая другая версия отвергаются с `Result`-ошибкой.
+DTO (несовместимые логи различаются только этой версией). Reader принимает `1.0.0`, `1.1.0` и
+`1.2.0`; `9.9.9` и любая другая версия отвергаются с `Result`-ошибкой. `Kind` (`raid`/`estate`)
+нужен WPF для выбора свежего run; отсутствие `Kind` = `raid`.
 
 **Чтение (C#):** `JsonConvert.DeserializeObject<GameEvent>(строка, settings)` с
 `TypeNameHandling = TypeNameHandling.Auto` и `GameEventTypeBinder` — `$type` в корне строки
@@ -78,7 +86,7 @@ DTO (несовместимые логи различаются только э�
 | `EventId` | GUID | шина (`GameEventBus.Publish`) | уникален, стамп при публикации |
 | `Timestamp` | ISO8601 UTC | шина | момент `Publish` |
 | `Sequence` | int | шина | монотонный счётчик от 1, порядок `Publish` |
-| `Subsystem` | string | издатель (константы `SubsystemNames`) | ключ файла: `combat`, `map`, `inventory`, `torch`, `audio`, `ai`; пустое значение → файл `unspecified_session.jsonl` (страховка) |
+| `Subsystem` | string | издатель (константы `SubsystemNames`) | ключ файла: `combat`, `map`, `inventory`, `torch`, `audio`, `ai`, `estate`; пустое значение → файл `unspecified_session.jsonl` (страховка) |
 | `Input` | object\|null | издатель | `{"Kind":"playerClick"\|"aiDecision"\|"move"\|"pass"\|"retreat"\|"tick"\|"system","Target":…,"Skill":…,"Slot":…}`; `null` = системное событие без актора (снапшоты, шаг коридора, снутье факела, аудио) |
 | `Rng` | object\|null | издатель | `{"Seed":…,"Roll":…,"Crit":…,"Modifier":…}`; у `SkillResolved` — бросок/шанс/крит первой цели (hit roll для miss/dodge, crit roll при проверке крита; `Seed` = `null`); у `AudioPlayed` — только шанс нарратива в `Modifier` (§5.7) |
 
@@ -92,13 +100,20 @@ DTO (несовместимые логи различаются только э�
 `BattleEnded`, `AudioPlayed`. Все новые параметры — optional-хвосты записей, поэтому старые
 конструкторы и записи `1.0.0` остаются читаемыми.
 
+**Новое в 1.2:** `GameEventManifest.Kind` (`raid`/`estate`), subsystem `estate`, `estateSnapshot`
+и action-события `estateHeroRecruited`/`Dismissed`/`Resurrected`, `estateBuildingUpgraded`,
+`estateQuestSelected`, `estateProvisionsPurchased`, `estateHeirloomExchanged`,
+`estateTownEventTriggered`; DTO `EstateResourceAmount`, `EstateHeroState`,
+`EstateBuildingState`, `EstateQuestState`. Reader понимает `1.0.0`/`1.1.0`/`1.2.0`; старый
+manifest без `Kind` считается `raid`.
+
 **Схема id (Unity v1, `GameEventRecording.cs`):** герой — `hero_<RosterId>` (стабильно во всём
 рейде; `CombatId` героев присваивается только при старте боя), монстр — `monster_<CombatId>`
 (идёт в пределах боя; battleStart-снапшот публикуется уже после присвоения CombatId). Снапшоты и
 боевые события используют **одни и те же** id. Логические имена ассетов: `Skeleton`/`Class` —
 контентный ключ (`crusader`, `brigand_cutthroat_A`), `Icon` — `<class>_portrait`; без путей.
 
-## 3. Типы событий v1.1
+## 3. Типы событий v1.2
 
 ### 3.1 `sceneSnapshot` (Subsystem `map`)
 
@@ -288,7 +303,7 @@ DTO (несовместимые логи различаются только э�
 
 - **Триггер:** фактический вызов FMOD — `DarkestSoundManager.PlayOneShot`, музыка/эмбиент/
   нарратив и прямые `RuntimeManager.CreateInstance` в `RaidSceneManager` (старт боя, курио).
-  Пишется только при активной записи и внутри рейда (`RaidSceneManager.Instanse != null`).
+  С 1.2 пишется также в estate-run (town music/UI); нужен только активный recorder.
 - **Поля:** `EventPath` — точный путь, запрошенный в рантайме (включая динамические
   `<class>_<skill>`); `Kind` (`music`/`ambience`/`voice`/`sfx`/`ui`/`props`/`camp`/`town`,
   по префиксу пути); `Action` (`oneShot`/`start`/`stop`/`pause`/`resume`); `Volume`;
@@ -298,19 +313,85 @@ DTO (несовместимые логи различаются только э�
   только у нарратива (`Modifier = Chance`), без seed/roll.
 - **Пример (payload):** `{"EventPath":"event:/char/hero/highwayman/attack","Kind":"sfx","Action":"oneShot","Volume":0.8,"Position":{"X":1,"Y":0,"Z":2},"Parameters":[{"Name":"material","Value":1,"Label":null}],"Input":null,"Rng":null}`
 
-## 4. Статус чек-листа §8 спеки (v1.1)
+### 3.18 `estateSnapshot` (Subsystem `estate`, v1.2)
+
+- **Триггер:** вход в `EstateManagement` после инициализации ростера/зданий/currency, затем после
+  каждого estate-действия (`RecruitHero`, `DismissHero`, `BuyUpgrade`, quest/provision/exchange).
+- **Поля:** `Week`, `Resources[]` (`EstateResourceAmount`: `Id`, `Amount` — `gold`/`bust`/
+  `portrait`/`deed`/`crest`), `Roster[]` (`EstateHeroState`), `Buildings[]`
+  (`EstateBuildingState`: `Id`, `Name`, `UpgradeRatio` 0..1), `Quests[]` (`EstateQuestState`),
+  `TownEventId`/`TownEventTone` (могут быть `null`), `Input`, `Rng`.
+- **`EstateHeroState`:** `Id` (`hero_<rosterId>`), `Class`, `Name`, `Level`, `ResolveLevel`,
+  `Hp`, `MaxHp`, `Stress`, `Status`, `IsAlive`, `IsAfflicted`, `IsVirtued`, `Quirks[]`,
+  `Diseases[]`.
+- **`EstateQuestState`:** `Id`, `Dungeon`, `Type`, `Difficulty`, `Length`, `GoalId`, `IsPlot`.
+- **Инварианты:** snapshot самодостаточен; после каждого действия публикуется новый snapshot,
+  поэтому WPF не пересчитывает ресурсы/ростер вручную. `Rng` — `null`.
+- **Пример (payload):** `{"Week":2,"Resources":[{"Id":"gold","Amount":750}],"Roster":[{"Id":"hero_1","Class":"crusader","Name":"Reynauld","Level":1,"ResolveLevel":1,"Hp":33,"MaxHp":33,"Stress":10,"Status":"Available","IsAlive":true,"IsAfflicted":false,"IsVirtued":false,"Quirks":[],"Diseases":[]}],"Buildings":[{"Id":"abbey","Name":"Abbey","UpgradeRatio":0.5}],"Quests":[],"TownEventId":null,"TownEventTone":null,"Input":null,"Rng":null}`
+
+### 3.19 `estateHeroRecruited` (Subsystem `estate`, v1.2)
+
+- **Триггер:** `HeroRosterPanel.CreateSlot` после `Estate.RecruitHero` (StageCoach/town event).
+- **Поля:** `HeroId`, `Class`, `Name`, `Level`, `ResolveLevel`, `Cost[]` (может быть `null`),
+  `Input`, `Rng`.
+- **Инварианты:** `HeroId` совпадает с id в следующем `estateSnapshot`; затем публикуется snapshot.
+
+### 3.20 `estateHeroDismissed` (Subsystem `estate`, v1.2)
+
+- **Триггер:** `Campaign.DismissHero` перед удалением из ростера.
+- **Поля:** `HeroId`, `Class`, `Name`, `Input`, `Rng`.
+- **Инварианты:** после удаления публикуется новый `estateSnapshot` без героя.
+
+### 3.21 `estateHeroResurrected` (Subsystem `estate`, v1.2)
+
+- **Триггер:** `HeroRosterPanel.CreateSlot`, если `Estate.RecruitHero` вернул `DeathRecord`.
+- **Поля:** `HeroId`, `Class`, `Name`, `Cost[]`, `Input`, `Rng`.
+
+### 3.22 `estateBuildingUpgraded` (Subsystem `estate`, v1.2)
+
+- **Триггер:** успешный `Estate.BuyUpgrade(string treeId, TownUpgrade upgrade, bool isFree)`.
+- **Поля:** `BuildingId` (префикс `treeId` до `.`), `TreeId`, `UpgradeId`, `UpgradeRatio`,
+  `Cost[]` (для free — `null`), `Input`, `Rng`.
+- **Инварианты:** публикуется после списания валюты; затем — `estateSnapshot`.
+
+### 3.23 `estateQuestSelected` (Subsystem `estate`, v1.2)
+
+- **Триггер:** `RaidPreparationManager.DungeonPanelQuestSelected`.
+- **Поля:** `QuestId`, `Dungeon`, `Type`, `Difficulty`, `Length`, `Input`, `Rng`.
+
+### 3.24 `estateProvisionsPurchased` (Subsystem `estate`, v1.2)
+
+- **Триггер:** `ShopManager` purchase/sellback (`ShopInventoryPurchase`, `SellSingleItem`,
+  `SellOutEverything`, `ShopInventorySellBackSlot`).
+- **Поля:** `ItemId`, `Amount`, `GoldCost` (положительный при покупке, отрицательный/0 при
+  продаже), `IsSellback`, `Input`, `Rng`.
+- **Инварианты:** после действия публикуется `estateSnapshot` с точным золотом.
+
+### 3.25 `estateHeirloomExchanged` (Subsystem `estate`, v1.2)
+
+- **Триггер:** `ExchangeEntry.ConfirmButtonClicked` после изменения `Estate.Currencies`.
+- **Поля:** `FromId`, `FromAmount`, `ToId`, `ToAmount`, `Input`, `Rng`.
+- **Инварианты:** затем `estateSnapshot` содержит новые остатки.
+
+### 3.26 `estateTownEventTriggered` (Subsystem `estate`, v1.2)
+
+- **Триггер:** `EstateSceneManager.Start`, если `Campaign.TriggeredEvent != null`.
+- **Поля:** `TownEventId`, `Tone`, `Input`, `Rng`.
+- **Инварианты:** следующий `estateSnapshot` содержит `TownEventId`/`TownEventTone`.
+
+## 4. Статус чек-листа §8 спеки (v1.2)
 
 - [x] `Input`/`Rng` присутствуют у всех событий; `null` с причиной — §2 этой схемы.
 - [x] Каждое событие применимо к ближайшему снапшоту (самодостаточность — §3.1/§3.2).
 - [x] Негативные события: типы `skillUnavailable`/`actionRejected` покрыты контрактом; из Unity v1
       не публикуются (§3.8/§3.9); `moveBlocked`, нехватка предмета — **отложены** вместе с
       item*/move-событиями.
-- [x] Unity-издатели v1.1 зафиксированы в §2 (id-схема) и §3 (триггеры/причины); compile-check
+- [x] Unity-издатели v1.2 зафиксированы в §2 (id-схема) и §3 (триггеры/причины); compile-check
       `unity\` зелёный (коллизии имён Unity7 закрыты алиасами — `Diagnostics\README`, gotcha).
 - [x] Ассеты — логические имена (`Icon`, `Skeleton`, `AnimationRef`), не пути.
 - [x] Иерархия снапшота — плоский список с `ParentId`.
-- [x] `manifest.json`: `SchemaVersion`, `Seed`, список файлов.
-- [x] Схема покрывает 100% типов v1.1 (17 типов, §3) с инвариантами.
+- [x] `manifest.json`: `SchemaVersion`, `Seed`, список файлов, `Kind`.
+- [x] Схема покрывает 100% типов v1.2 (26 типов, §3) с инвариантами.
 - [x] Боевой цикл v1.1: `Rank`/`Size`, `Stress`, статусы/баффы, `Battle`, `SkillResolved`,
       `UnitMoved`, `TurnStarted/Ended`, `RoundStarted/Ended`, `BattleEnded`.
 - [x] Аудио v1.1: `audio_session.jsonl`, `AudioPlayed` с фактическим путём/kind/action/volume/
@@ -322,8 +403,13 @@ DTO (несовместимые логи различаются только э�
 - [x] RNG боевых бросков: `SkillResolved.Rng` содержит бросок/шанс/крит первой цели (hit roll для
       miss/dodge, crit roll при проверке крита); `AudioPlayed.Rng` — только `Modifier` нарратива.
       Per-target rolls мультицелевого скилла не дублируются (§5.7).
-- Отложено (не в v1.1): `item*`-события, `spineEventTriggered`, нумерация `combat_01` (файлы
-  боёв), полный map/`MapSnapshot` и WPF FMOD playback, дробные статы.
+- [x] Estate v1.2: отдельный run (`Kind = estate`), `estateSnapshot` + 8 action-событий
+      (`estateHeroRecruited/Dismissed/Resurrected`, `estateBuildingUpgraded`,
+      `estateQuestSelected`, `estateProvisionsPurchased`, `estateHeirloomExchanged`,
+      `estateTownEventTriggered`).
+- Отложено (не в v1.2): `item*`-события, `spineEventTriggered`, нумерация `combat_01` (файлы
+  боёв), полный map/`MapSnapshot`, WPF FMOD playback, дробные статы и активности героев
+  (Abbey/Tavern/Sanitarium/Blacksmith/Guild).
 
 ## 5. Отклонения от спеки
 
@@ -334,7 +420,8 @@ DTO (несовместимые логи различаются только э�
 3. DTO — `record` + полифилл `IsExternalInit`: TFM остался `netstandard2.0` (доставка в оба
    Unity-дерева), поднят только `LangVersion`.
 4. Один файл `<subsystem>_session.jsonl` за run; нумерация `combat_01.jsonl` (по номеру боя) —
-   отложена: рекордер пока не знает границ боёв. В 1.1 добавлен `audio_session.jsonl`.
+   отложена: рекордер пока не знает границ боёв. В 1.1 добавлен `audio_session.jsonl`, в 1.2 —
+   `estate_session.jsonl` и `Kind` в manifest.
 5. `Sequence` стампит шина (порядок `Publish`), не издатель.
 6. `heroStatChanged`: int-значения (hp/stress); дробные статы — отдельным шагом.
 7. RNG: `AudioPlayed` пишет шанс нарратива в `Modifier`; `SkillResolved.Rng` — бросок первой
@@ -344,8 +431,8 @@ DTO (несовместимые логи различаются только э�
 8. `BattleEnded`: winner — эвристика по живым (`heroes`/`monsters`/`unknown`); при retreat
    событие не публикуется (цикл выходит до `PublishBattleEnded`). Reader/UI принимают оба
    варианта.
-9. `AudioPlayed`: пишется только внутри рейда (`GameEventRecording.ActiveRecorder` требует
-   `RaidSceneManager.Instanse`); title/town-музыка вне рейда в захват не попадает.
+9. `AudioPlayed`: с 1.2 пишется и в рейде, и в estate-run (town music/UI); нужен только активный
+   recorder. Записи `1.0.0`/`1.1.0` содержат только рейдовое аудио.
 10. `GameEventTypeBinder` дополнительно разрешает массивы (`T[]`) для allowlist-элементов:
     собственные записи `JsonEventLogger` сериализуют некоторые коллекции как массивы.
 
@@ -357,39 +444,49 @@ DTO (несовместимые логи различаются только э�
   `StateSnapshot`, `PartyMoved`, `RoomDiscovered`, `AttackExecuted`, `HeroStatChanged`,
   `TorchChanged`, `SkillUnavailable`, `ActionRejected`, `SkillResolved`, `UnitMoved`,
   `TurnStarted`, `TurnEnded`, `RoundStarted`, `RoundEnded`, `BattleEnded`, `AudioPlayed`;
+  estate v1.2: `EstateSnapshot`, `EstateHeroRecruited`, `EstateHeroDismissed`,
+  `EstateHeroResurrected`, `EstateBuildingUpgraded`, `EstateQuestSelected`,
+  `EstateProvisionsPurchased`, `EstateHeirloomExchanged`, `EstateTownEventTriggered`;
   DTO (`SceneNode`, `SceneGlobals`, `CombatantState`, `CombatantStatusState`,
   `CombatantBuffState`, `BattleState`, `SkillTargetResult`, `AudioPosition`, `AudioParameter`,
-  `AnimationRef`, `BattleWinners`, `AudioEventKinds`, `AudioActions`).
+  `AnimationRef`, `BattleWinners`, `AudioEventKinds`, `AudioActions`, `EstateResourceIds`,
+  `EstateResourceAmount`, `EstateHeroState`, `EstateBuildingState`, `EstateQuestState`).
 - `src/Clients/Sektor.DarkestDungeon.Clients.EventLog/` — `JsonEventLogger.cs`,
-  `GameEventManifest.cs`, `GameEventLogReader.cs` (allowlist-биндер, проверки
-  `SchemaVersion`/`Sequence`/`Subsystem`, поддержка `1.0.0`/`1.1.0`), `GameEventTypeBinder.cs`
-  (`List<T>`/`T[]`), `GameEventCapture.cs`, `GameEventFileNames.cs`,
-  `GameEventCaptureLocator.cs` (поиск `<repo>\captures` и свежего `run_*`).
-- Unity-издатель: `unity\Assets\Scripts\Diagnostics\GameEventRecorder.cs` (run-директория),
-  `GameEventRecording.cs` (снапшоты, скиллы, ходы/раунды, бой, аудио),
-  `Managers\RaidSceneManager.cs` (боевой цикл, `ExecuteSkillBase`,
+  `GameEventManifest.cs` (`Kind`), `GameEventRunKinds.cs`, `GameEventLogReader.cs`
+  (allowlist-биндер, проверки `SchemaVersion`/`Sequence`/`Subsystem`, поддержка
+  `1.0.0`/`1.1.0`/`1.2.0`), `GameEventTypeBinder.cs` (`List<T>`/`T[]`), `GameEventCapture.cs`,
+  `GameEventFileNames.cs`, `GameEventCaptureLocator.cs` (поиск `<repo>\captures` и свежего
+  `run_*` нужного kind).
+- Unity-издатель: `unity\Assets\Scripts\Diagnostics\GameEventRecorder.cs` (run-директория,
+  `Kind`, выбор raid/estate), `GameEventRecording.cs` (снапшоты, скиллы, ходы/раунды, бой,
+  estate, аудио), `Managers\RaidSceneManager.cs` (боевой цикл, `ExecuteSkillBase`,
   стартовый звук/курио), `Mechanics\Battle\Round.cs` (turn/round hooks),
   `Mechanics\Battle\BattleSolver.cs`/`SkillResultEntry.cs` (hit/crit roll),
   `Mechanics\RandomSolver.cs` (roll overload), `Managers\DarkestSoundManager.cs`
-  (музыка/нарратив/one-shot), `Character\Character.cs` (`GetBuffs`).
+  (музыка/нарратив/one-shot), `Character\Character.cs` (`GetBuffs`),
+  `Managers\EstateSceneManager.cs` (snapshot/town event), `Campaign\Estate.cs` (building
+  upgrade), `Campaign\Campaign.cs` (dismiss), `Managers\RaidPreparationManager.cs` (quest),
+  `Managers\ShopManager.cs` (provisions), `UI\Panels\HeroRosterPanel.cs` (recruit/resurrect),
+  `UI\Controls\ExchangeEntry.cs` (heirloom exchange).
 - WPF-потребитель: `src/Wpf/Sektor.DarkestDungeon.Wpf/MainWindow.xaml.cs` (выбор свежего
-  `run_*` через `GameEventCaptureLocator`), `ViewModels/CaptureReplayViewModel.cs`
-  (проекция состояния, `SkillResolved`/`UnitMoved`/turn/round/battle-end/audio, расстановка по
-  `Rank`, темп 100 мс/атака ≥1.2 с через `IReplayPacer`), `CaptureUnitViewModel.cs`
-  (stress/statuses/buffs/conditions), `Views/CaptureReplayView.xaml`,
-  `Data/CaptureAnimationCatalog.cs`; вход — «ВОСПРОИЗВЕСТИ ЗАХВАТ» в `SpineBattleView`.
-  `Rank` в 1.1 пишется; точные x/y по-прежнему не пишутся.
+  `run_*` нужного kind через `GameEventCaptureLocator`), `ViewModels/CaptureReplayViewModel.cs`
+  (боевая проекция), `ViewModels/EstateReplayViewModel.cs` (estate-проекция),
+  `CaptureUnitViewModel.cs`, `Estate*ViewModel.cs`, `Views/CaptureReplayView.xaml`,
+  `Views/EstateReplayView.xaml`, `Data/CaptureAnimationCatalog.cs`; входы — «АРЕНА 1×1» и
+  «ИМЕНИЕ (ЗАХВАТ)» в меню. `Rank` пишется; точные x/y по-прежнему не пишутся.
 - Тесты-образцы: `tests/Core/Sektor.DarkestDungeon.Core.GameEvents.Tests/GameEventBusTests.cs`,
   `tests/Clients/Sektor.DarkestDungeon.Clients.EventLog.Tests/JsonEventLoggerTests.cs`,
-  `GameEventLogReaderTests.cs`, `GameEventCaptureLocatorTests.cs`,
-  `tests/Wpf/Sektor.DarkestDungeon.Wpf.Tests/CaptureReplay*.cs`.
+  `GameEventLogReaderTests.cs`, `GameEventCaptureLocatorTests.cs`, `EstateCaptureReaderTests.cs`,
+  `tests/Wpf/Sektor.DarkestDungeon.Wpf.Tests/CaptureReplay*.cs`,
+  `EstateReplayViewModelTests.cs`.
 - Аудио: `docs/audio/00_index.md`, `audio_catalog.json`, `audio_catalog.md`;
   генератор `tools/extract-fmod-catalog.ps1`.
 - Эталон: `docs/spec_game_events/examples/` — `1.0.0` (§7).
 - Спека: `docs/SPEC_GAME_EVENTS.md`; решения по срезу — git history (S2/S3/1.1), результаты —
   `docs/changelog/2026-10-20-unity-raid-event-recorder.md`,
   `docs/changelog/2026-10-20-wpf-capture-replay.md`,
-  `docs/changelog/2026-10-20-game-events-1-1-audio.md`.
+  `docs/changelog/2026-10-20-game-events-1-1-audio.md`,
+  `docs/changelog/2026-10-20-estate-capture.md`.
 
 ## 7. Эталонный захват (S3)
 
@@ -419,3 +516,9 @@ DTO (несовместимые логи различаются только э�
 10 событий, `Rank`/`Size`/stress/statuses/buffs, `SkillResolved` с RNG, `UnitMoved`,
 `TurnStarted`, `RoundStarted`, `BattleEnded`, `AudioPlayed`. Старый эталон в WPF по-прежнему
 расставляет героев по порядку (fallback rank) и не падает.
+
+**1.2.0:** эталонный файл остаётся `1.0.0`; estate-run проверяется synthetic-захватом
+(`EstateCaptureReaderTests.Read_EstateCapture_RestoresManifestKindAndEvents`,
+`EstateReplayViewModelTests.EstateCapture_ProjectsEconomyRosterBuildingsAndActions`):
+`Kind = estate`, `estateSnapshot`, action-события, аудио, повторный snapshot. WPF battle replay
+читает только `raid`, estate replay — только `estate`; manifest без `Kind` считается `raid`.

@@ -18,7 +18,7 @@ namespace Sektor.DarkestDungeon.Clients.EventLog
     /// </summary>
     public sealed class GameEventLogReader
     {
-        private static readonly string[] SupportedSchemaVersions = { "1.0.0", JsonEventLogger.CurrentSchemaVersion };
+        private static readonly string[] SupportedSchemaVersions = { "1.0.0", "1.1.0", JsonEventLogger.CurrentSchemaVersion };
 
         private static readonly JsonSerializerSettings ReadSettings = new JsonSerializerSettings
         {

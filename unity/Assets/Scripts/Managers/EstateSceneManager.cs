@@ -263,6 +263,9 @@ public class EstateSceneManager : MonoBehaviour
 
         townManager.InitializeBuildings();
 
+        GameEventRecording.PublishEstateTownEventTriggered();
+        GameEventRecording.PublishEstateSnapshot();
+
         StartCoroutine(LoadEstateEvent());
 
         if(DarkestDungeonManager.RaidManager.Status != RaidStatus.Preparation)

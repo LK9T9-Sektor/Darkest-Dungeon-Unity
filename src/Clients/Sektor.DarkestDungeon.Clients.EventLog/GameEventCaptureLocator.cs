@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 
+using Newtonsoft.Json;
+
 namespace Sektor.DarkestDungeon.Clients.EventLog
 {
     /// <summary>
@@ -18,6 +20,12 @@ namespace Sektor.DarkestDungeon.Clients.EventLog
 
         /// <summary>The repository marker file used to locate the project root.</summary>
         public const string RepositoryMarkerFileName = "Darkest-Dungeon-Unity.slnx";
+
+        private static readonly JsonSerializerSettings ManifestReadSettings = new JsonSerializerSettings
+        {
+            TypeNameHandling = TypeNameHandling.Auto,
+            SerializationBinder = GameEventTypeBinder.Instance,
+        };
 
         /// <summary>Finds the repository root by walking up from <paramref name="startDirectory"/>.</summary>
         /// <param name="startDirectory">The directory to start from (for example <c>AppContext.BaseDirectory</c>).</param>
@@ -65,6 +73,15 @@ namespace Sektor.DarkestDungeon.Clients.EventLog
         /// <returns>The newest run directory, or <c>null</c> when none exists.</returns>
         public static string? FindLatestRunDirectory(string captureRoot)
         {
+            return FindLatestRunDirectory(captureRoot, kind: null);
+        }
+
+        /// <summary>Returns the newest <c>run_*</c> directory of one kind that contains a manifest.</summary>
+        /// <param name="captureRoot">The shared capture root to scan.</param>
+        /// <param name="kind">The run kind (<c>raid</c>/<c>estate</c>), or <c>null</c> for any kind.</param>
+        /// <returns>The newest matching run directory, or <c>null</c> when none exists.</returns>
+        public static string? FindLatestRunDirectory(string captureRoot, string? kind)
+        {
             if (string.IsNullOrWhiteSpace(captureRoot) || !Directory.Exists(captureRoot))
                 return null;
 
@@ -86,6 +103,8 @@ namespace Sektor.DarkestDungeon.Clients.EventLog
                     continue;
                 if (!File.Exists(Path.Combine(directory, GameEventFileNames.Manifest)))
                     continue;
+                if (kind != null && !MatchesKind(directory, kind))
+                    continue;
 
                 if (latest == null || string.CompareOrdinal(name, Path.GetFileName(latest)) > 0)
                     latest = directory;
@@ -97,11 +116,47 @@ namespace Sektor.DarkestDungeon.Clients.EventLog
         /// <summary>Returns the newest recorded run for replay, or the fallback directory.</summary>
         /// <param name="startDirectory">The directory to start the repository search from.</param>
         /// <param name="fallbackDirectory">The replay directory used when no recorded run exists.</param>
-        /// <returns>The newest run directory or <paramref name="fallbackDirectory"/>.</returns>
+        /// <returns>The newest raid run directory or <paramref name="fallbackDirectory"/>.</returns>
         public static string ResolveReplayDirectory(string startDirectory, string fallbackDirectory)
         {
+            return ResolveReplayDirectory(startDirectory, fallbackDirectory, GameEventRunKinds.Raid);
+        }
+
+        /// <summary>Returns the newest recorded run of one kind, or the fallback directory.</summary>
+        /// <param name="startDirectory">The directory to start the repository search from.</param>
+        /// <param name="fallbackDirectory">The replay directory used when no recorded run exists.</param>
+        /// <param name="kind">The run kind (<c>raid</c>/<c>estate</c>).</param>
+        /// <returns>The newest run directory of <paramref name="kind"/> or <paramref name="fallbackDirectory"/>.</returns>
+        public static string ResolveReplayDirectory(
+            string startDirectory,
+            string fallbackDirectory,
+            string kind)
+        {
             string captureRoot = ResolveCaptureRoot(startDirectory, fallbackDirectory);
-            return FindLatestRunDirectory(captureRoot) ?? fallbackDirectory;
+            return FindLatestRunDirectory(captureRoot, kind) ?? fallbackDirectory;
+        }
+
+        private static bool MatchesKind(string directory, string kind)
+        {
+            try
+            {
+                string manifestPath = Path.Combine(directory, GameEventFileNames.Manifest);
+                GameEventManifest? manifest = JsonConvert.DeserializeObject<GameEventManifest>(
+                    File.ReadAllText(manifestPath),
+                    ManifestReadSettings);
+                if (manifest?.Files == null || manifest.Files.Count == 0)
+                    return false;
+
+                string runKind = manifest.Kind ?? GameEventRunKinds.Raid;
+                return string.Equals(runKind, kind, StringComparison.Ordinal);
+            }
+            catch (Exception exception) when (
+                exception is IOException
+                || exception is UnauthorizedAccessException
+                || exception is JsonException)
+            {
+                return false;
+            }
         }
     }
 }

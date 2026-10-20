@@ -196,8 +196,13 @@ public class Campaign
 
     public void DismissHero(Hero dismissedHero)
     {
+        if (dismissedHero == null)
+            return;
+
+        GameEventRecording.PublishEstateHeroDismissed(dismissedHero);
         Heroes.Remove(dismissedHero);
         Estate.ReturnRosterId(dismissedHero.RosterId);
+        GameEventRecording.PublishEstateSnapshot();
         DarkestSoundManager.PlayOneShot("event:/ui/town/let_go");
     }
 

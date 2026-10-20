@@ -41,7 +41,7 @@
 | Save | `SaveCodec` + версии + `ISaveStorage` (DTO-перенос — с Фазой 4) | `save/` | реализовано |
 | Networking | Contracts/Steam/Photon (src\Lan) | `networking/` | частично |
 | Presentation | WPF-экраны, Unity-оверлеи Тест-боя, Unity BattleTest (тонкий вид над ядром боя), легаси-рейд (рендер/камеры) | `presentation/` | реализовано |
-| Campaign | имение/здания/апгрейды/квесты/город/ростер/провизия | `campaign/` | данные |
+| Campaign | имение/здания/апгрейды/квесты/город/ростер/провизия; capture estate (`estate_capture.md`) | `campaign/` | данные |
 | Raid | подземелья/энкаунтеры/боссы/curio/loot/пропы | `raid/` | данные (+ генерация: `raid/dungeon_generation.md`) |
 
 ## Связанные доки

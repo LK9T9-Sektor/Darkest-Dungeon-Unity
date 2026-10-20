@@ -46,9 +46,13 @@
                             Margin="0,0,36,0" Style="{StaticResource HudButton}"
                             Command="{Binding SpineTestCommand}" />
                     <Button Content="АРЕНА 1×1" Width="170" Height="58" FontSize="20"
-                            Style="{StaticResource HudButton}"
+                            Margin="0,0,36,0" Style="{StaticResource HudButton}"
                             Command="{Binding SpineBattleCommand}"
                             ToolTip="Visual 1x1 arena: one-shot attack animation with damage feedback" />
+                    <Button Content="ИМЕНИЕ (ЗАХВАТ)" Width="230" Height="58" FontSize="20"
+                            Style="{StaticResource HudButton}"
+                            Command="{Binding EstateReplayCommand}"
+                            ToolTip="Replay the latest recorded estate run" />
                 </WrapPanel>
             </StackPanel>
         </Grid>

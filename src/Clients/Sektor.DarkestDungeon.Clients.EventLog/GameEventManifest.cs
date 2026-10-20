@@ -9,10 +9,12 @@ namespace Sektor.DarkestDungeon.Clients.EventLog
     /// <param name="Seed">The run seed, when known.</param>
     /// <param name="Notes">Free-form notes describing the recorded scenario.</param>
     /// <param name="Files">The JSONL files present in the run directory.</param>
+    /// <param name="Kind">The run kind (<c>raid</c>/<c>estate</c>), or <c>null</c> for old manifests.</param>
     public sealed record GameEventManifest(
         string SchemaVersion,
         DateTime StartedAt,
         long? Seed,
         string? Notes,
-        IReadOnlyList<string> Files);
+        IReadOnlyList<string> Files,
+        string? Kind = null);
 }

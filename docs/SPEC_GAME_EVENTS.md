@@ -1,9 +1,9 @@
 # Спецификация: система записи игровых событий для последующей реализации на WPF
 
-> **Статус:** реализованный срез `1.1.0` — боевой контракт, аудио-каталог и запись аудио.
-> Актуальное описание wire-формата — `docs\SPEC_GAME_EVENTS_SCHEMA.md` (версии `1.0.0`/`1.1.0`,
-> 17 типов событий). Этот документ — исходная постановка и общие требования; при расхождении
-> источник истины — DTO и schema-файл.
+> **Статус:** реализованный срез `1.2.0` — боевой контракт, аудио, estate snapshot/actions.
+> Актуальное описание wire-формата — `docs\SPEC_GAME_EVENTS_SCHEMA.md`
+> (`1.0.0`/`1.1.0`/`1.2.0`, 26 типов событий). Этот документ — исходная постановка и общие
+> требования; при расхождении источник истины — DTO и schema-файл.
 
 ## Назначение
 
@@ -192,6 +192,12 @@ skillResolved — механическая истина скилла по все
 `turnEnded`, `roundStarted`/`roundEnded`, `battleEnded` и `audioPlayed`; полные поля и примеры —
 `docs\SPEC_GAME_EVENTS_SCHEMA.md` §3.10–§3.17.
 
+Estate (v1.2) — отдельный run (`Kind = estate`): `estateSnapshot` с ресурсами/золотом/
+реликвиями, ростером, зданиями и квестами, плюс `estateHeroRecruited/Dismissed/Resurrected`,
+`estateBuildingUpgraded`, `estateQuestSelected`, `estateProvisionsPurchased`,
+`estateHeirloomExchanged`, `estateTownEventTriggered`. После каждого действия публикуется
+новый snapshot; WPF estate replay читает только estate-run. Полные поля — schema §3.18–§3.26.
+
 spineEventTriggered — если в Spine-анимации есть кадровые события
 (например, «удар нанёсся»), писать их отдельными записями для синхронизации
 урона и визуала. В текущий срез не входит.
@@ -215,7 +221,7 @@ skillUnavailable — негативный случай (см. §5).
 
     { "type": "torchChanged", "oldValue": 65, "newValue": 55, "reason": "corridorStep" }
 
-### 4.6. Аудио (v1.1)
+### 4.6. Аудио (v1.1+/estate)
 
 `audioPlayed` пишется для фактически проигранного FMOD-события: music/ambience/voice по
 префиксу пути, `oneShot`/`start`/`stop`/`pause`/`resume`, громкость, 3D-позиция и параметры.
@@ -278,7 +284,7 @@ skillUnavailable — негативный случай (см. §5).
 
 ## 8. Чек-лист «не гадать»
 
-> Исторический чек-лист исходной спеки; фактический статус среза `1.1.0` —
+> Исторический чек-лист исходной спеки; фактический статус среза `1.2.0` —
 > `docs\SPEC_GAME_EVENTS_SCHEMA.md` §4.
 
 - [ ] Каждое событие содержит input и rng (или явный null с причиной).

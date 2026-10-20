@@ -415,6 +415,9 @@ public class Estate
                 EstateSceneManager.Instanse.CurrencyPanel.CurrencyDecreased("heirloom");
         }
 
+        GameEventRecording.PublishEstateBuildingUpgraded(treeId, upgrade, isFree);
+        GameEventRecording.PublishEstateSnapshot();
+
         if (DarkestDungeonManager.Data.UpgradeTrees.ContainsKey(treeId))
             DarkestSoundManager.ExecuteNarration("upgrade_building", NarrationPlace.Town,
                 DarkestDungeonManager.Data.UpgradeTrees[treeId].Tags.ToArray());

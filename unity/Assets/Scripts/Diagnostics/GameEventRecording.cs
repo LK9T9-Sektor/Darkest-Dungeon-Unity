@@ -18,6 +18,22 @@ using BattleWinners = Sektor.DarkestDungeon.Core.GameEvents.BattleWinners;
 using CombatantBuffState = Sektor.DarkestDungeon.Core.GameEvents.CombatantBuffState;
 using CombatantState = Sektor.DarkestDungeon.Core.GameEvents.CombatantState;
 using CombatantStatusState = Sektor.DarkestDungeon.Core.GameEvents.CombatantStatusState;
+using EstateBuildingState = Sektor.DarkestDungeon.Core.GameEvents.EstateBuildingState;
+using EstateBuildingUpgraded = Sektor.DarkestDungeon.Core.GameEvents.EstateBuildingUpgraded;
+using EstateHeirloomExchanged = Sektor.DarkestDungeon.Core.GameEvents.EstateHeirloomExchanged;
+using EstateHeroDismissed = Sektor.DarkestDungeon.Core.GameEvents.EstateHeroDismissed;
+using EstateHeroRecruited = Sektor.DarkestDungeon.Core.GameEvents.EstateHeroRecruited;
+using EstateHeroResurrected = Sektor.DarkestDungeon.Core.GameEvents.EstateHeroResurrected;
+using EstateHeroState = Sektor.DarkestDungeon.Core.GameEvents.EstateHeroState;
+using EstateProvisionsPurchased = Sektor.DarkestDungeon.Core.GameEvents.EstateProvisionsPurchased;
+using EstateQuestSelected = Sektor.DarkestDungeon.Core.GameEvents.EstateQuestSelected;
+using EstateQuestState = Sektor.DarkestDungeon.Core.GameEvents.EstateQuestState;
+using EstateResourceAmount = Sektor.DarkestDungeon.Core.GameEvents.EstateResourceAmount;
+using EstateResourceIds = Sektor.DarkestDungeon.Core.GameEvents.EstateResourceIds;
+using EstateSnapshot = Sektor.DarkestDungeon.Core.GameEvents.EstateSnapshot;
+using EstateTownEventTriggered = Sektor.DarkestDungeon.Core.GameEvents.EstateTownEventTriggered;
+using GameEvent = Sektor.DarkestDungeon.Core.GameEvents.GameEvent;
+using GameEventRunKinds = Sektor.DarkestDungeon.Clients.EventLog.GameEventRunKinds;
 using GameInput = Sektor.DarkestDungeon.Core.GameEvents.GameInput;
 using GameInputKinds = Sektor.DarkestDungeon.Core.GameEvents.GameInputKinds;
 using GameRng = Sektor.DarkestDungeon.Core.GameEvents.GameRng;
@@ -235,6 +251,139 @@ public static class GameEventRecording
         recorder.Publish(new RoundEnded(round));
     }
 
+    /// <summary>Publishes the complete estate state; called on entry and after every estate action.</summary>
+    public static void PublishEstateSnapshot()
+    {
+        try
+        {
+            PublishEstateSnapshotCore();
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError(LogPrefix + " estate snapshot failed: " + exception);
+        }
+    }
+
+    /// <summary>Publishes a recruited hero event.</summary>
+    /// <param name="hero">The recruited hero.</param>
+    public static void PublishEstateHeroRecruited(Hero hero)
+    {
+        if (hero == null)
+            return;
+
+        PublishEstateSafely(() => new EstateHeroRecruited(
+            HeroId(hero), hero.Class, hero.Name, HeroResolveLevel(hero), HeroResolveLevel(hero)));
+    }
+
+    /// <summary>Publishes a dismissed hero event.</summary>
+    /// <param name="hero">The dismissed hero.</param>
+    public static void PublishEstateHeroDismissed(Hero hero)
+    {
+        if (hero == null)
+            return;
+
+        PublishEstateSafely(() => new EstateHeroDismissed(
+            HeroId(hero), hero.Class, hero.Name));
+    }
+
+    /// <summary>Publishes a resurrected hero event.</summary>
+    /// <param name="hero">The resurrected hero.</param>
+    public static void PublishEstateHeroResurrected(Hero hero)
+    {
+        if (hero == null)
+            return;
+
+        PublishEstateSafely(() => new EstateHeroResurrected(
+            HeroId(hero), hero.Class, hero.Name));
+    }
+
+    /// <summary>Publishes a purchased building upgrade.</summary>
+    /// <param name="treeId">The upgrade tree id (for example <c>abbey.meditation</c>).</param>
+    /// <param name="upgrade">The purchased upgrade.</param>
+    /// <param name="isFree">Whether the upgrade was granted for free.</param>
+    public static void PublishEstateBuildingUpgraded(string treeId, TownUpgrade upgrade, bool isFree)
+    {
+        if (string.IsNullOrEmpty(treeId) || upgrade == null || string.IsNullOrEmpty(upgrade.Code))
+            return;
+
+        PublishEstateSafely(() => new EstateBuildingUpgraded(
+            BuildingIdFromTree(treeId),
+            treeId,
+            upgrade.Code,
+            BuildingUpgradeRatio(treeId),
+            isFree ? null : ToEstateCost(upgrade.Cost)));
+    }
+
+    /// <summary>Publishes the selected quest.</summary>
+    /// <param name="quest">The selected quest.</param>
+    public static void PublishEstateQuestSelected(Quest quest)
+    {
+        if (quest == null)
+            return;
+
+        PublishEstateSafely(() => new EstateQuestSelected(
+            quest.Id,
+            quest.Dungeon,
+            quest.Type,
+            quest.Difficulty,
+            quest.Length));
+    }
+
+    /// <summary>Publishes a provision purchase or sell-back.</summary>
+    /// <param name="itemId">The item id.</param>
+    /// <param name="amount">The item amount.</param>
+    /// <param name="goldCost">The paid (positive) or received (negative) gold.</param>
+    /// <param name="isSellback">Whether this was a sell-back.</param>
+    public static void PublishEstateProvisionsPurchased(
+        string itemId,
+        int amount,
+        int goldCost,
+        bool isSellback)
+    {
+        if (string.IsNullOrEmpty(itemId))
+            return;
+
+        PublishEstateSafely(() => new EstateProvisionsPurchased(
+            itemId, amount, goldCost, isSellback));
+    }
+
+    /// <summary>Publishes an heirloom exchange.</summary>
+    /// <param name="fromId">The spent heirloom id.</param>
+    /// <param name="fromAmount">The spent amount.</param>
+    /// <param name="toId">The received heirloom id.</param>
+    /// <param name="toAmount">The received amount.</param>
+    public static void PublishEstateHeirloomExchanged(
+        string fromId,
+        int fromAmount,
+        string toId,
+        int toAmount)
+    {
+        if (string.IsNullOrEmpty(fromId) || string.IsNullOrEmpty(toId))
+            return;
+
+        PublishEstateSafely(() => new EstateHeirloomExchanged(
+            fromId, fromAmount, toId, toAmount));
+    }
+
+    /// <summary>Publishes the active town event when the estate is entered.</summary>
+    public static void PublishEstateTownEventTriggered()
+    {
+        try
+        {
+            Campaign campaign = DarkestDungeonManager.Campaign;
+            TownEvent townEvent = campaign != null ? campaign.TriggeredEvent : null;
+            if (townEvent == null)
+                return;
+
+            PublishEstateSafely(() => new EstateTownEventTriggered(
+                townEvent.Id, townEvent.Tone.ToString()));
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError(LogPrefix + " estate town event failed: " + exception);
+        }
+    }
+
     /// <summary>Captures formation ranks before a skill so movement can be recorded exactly.</summary>
     /// <returns>Unit-to-rank map for both parties; empty outside a battle.</returns>
     public static Dictionary<FormationUnit, int> CaptureRanks()
@@ -257,6 +406,221 @@ public static class GameEventRecording
         }
 
         return ranks;
+    }
+
+    private static void PublishEstateSnapshotCore()
+    {
+        GameEventRecorder recorder = ActiveRecorder(GameEventRunKinds.Estate);
+        if (recorder == null)
+            return;
+
+        Campaign campaign = DarkestDungeonManager.Campaign;
+        if (campaign == null || campaign.Estate == null)
+            return;
+
+        TownEvent townEvent = campaign.TriggeredEvent;
+        recorder.Publish(new EstateSnapshot(
+            campaign.CurrentWeek,
+            EstateResources(campaign.Estate),
+            EstateRoster(campaign),
+            EstateBuildings(campaign.Estate),
+            EstateQuests(campaign),
+            townEvent != null ? townEvent.Id : null,
+            townEvent != null ? townEvent.Tone.ToString() : null));
+    }
+
+    private static void PublishEstateSafely(Func<GameEvent> eventFactory)
+    {
+        try
+        {
+            GameEventRecorder recorder = ActiveRecorder(GameEventRunKinds.Estate);
+            if (recorder == null)
+                return;
+
+            GameEvent gameEvent = eventFactory();
+            if (gameEvent != null)
+                recorder.Publish(gameEvent);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError(LogPrefix + " estate event failed: " + exception);
+        }
+    }
+
+    private static List<EstateResourceAmount> EstateResources(Estate estate)
+    {
+        var resources = new List<EstateResourceAmount>(EstateResourceIds.All.Count);
+        for (int i = 0; i < EstateResourceIds.All.Count; i++)
+        {
+            string id = EstateResourceIds.All[i];
+            int amount = 0;
+            if (estate.Currencies != null)
+                estate.Currencies.TryGetValue(id, out amount);
+            resources.Add(new EstateResourceAmount(id, amount));
+        }
+        return resources;
+    }
+
+    private static List<EstateHeroState> EstateRoster(Campaign campaign)
+    {
+        var roster = new List<EstateHeroState>();
+        if (campaign.Heroes == null)
+            return roster;
+
+        for (int i = 0; i < campaign.Heroes.Count; i++)
+        {
+            Hero hero = campaign.Heroes[i];
+            if (hero == null)
+                continue;
+
+            try
+            {
+                roster.Add(ToEstateHero(hero));
+            }
+            catch (Exception exception)
+            {
+                Debug.LogWarning(LogPrefix + " estate hero skipped: " + exception.Message);
+            }
+        }
+        return roster;
+    }
+
+    private static EstateHeroState ToEstateHero(Hero hero)
+    {
+        return new EstateHeroState(
+            HeroId(hero),
+            hero.Class,
+            hero.Name,
+            HeroResolveLevel(hero),
+            HeroResolveLevel(hero),
+            Mathf.RoundToInt(hero.CurrentHealth),
+            Mathf.RoundToInt(hero.MaxHealth),
+            hero.Stress != null ? Mathf.RoundToInt(hero.Stress.CurrentValue) : 0,
+            hero.Status.ToString(),
+            !hero.HasZeroHealth,
+            hero.IsAfflicted,
+            hero.IsVirtued,
+            HeroQuirks(hero),
+            HeroDiseases(hero));
+    }
+
+    private static List<EstateBuildingState> EstateBuildings(Estate estate)
+    {
+        var buildings = new List<EstateBuildingState>();
+        foreach (BuildingType type in Enum.GetValues(typeof(BuildingType)))
+        {
+            float ratio = 0;
+            try
+            {
+                ratio = estate.GetBuildingUpgradeRatio(type);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogWarning(LogPrefix + " building ratio failed for " + type + ": " + exception.Message);
+            }
+
+            buildings.Add(new EstateBuildingState(
+                type.ToString().ToLowerInvariant(),
+                type.ToString(),
+                ratio));
+        }
+        return buildings;
+    }
+
+    private static List<EstateQuestState> EstateQuests(Campaign campaign)
+    {
+        var quests = new List<EstateQuestState>();
+        if (campaign.Quests == null)
+            return quests;
+
+        for (int i = 0; i < campaign.Quests.Count; i++)
+        {
+            Quest quest = campaign.Quests[i];
+            if (quest == null)
+                continue;
+
+            quests.Add(new EstateQuestState(
+                quest.Id,
+                quest.Dungeon,
+                quest.Type,
+                quest.Difficulty,
+                quest.Length,
+                quest.Goal != null ? quest.Goal.Id : string.Empty,
+                quest.IsPlotQuest));
+        }
+        return quests;
+    }
+
+    private static string HeroId(Hero hero)
+    {
+        return HeroIdPrefix + hero.RosterId;
+    }
+
+    private static int HeroResolveLevel(Hero hero)
+    {
+        return hero.Resolve != null ? hero.Resolve.Level : 0;
+    }
+
+    private static List<string> HeroQuirks(Hero hero)
+    {
+        var quirks = new List<string>();
+        if (hero.Quirks == null)
+            return quirks;
+
+        foreach (QuirkInfo info in hero.Quirks)
+        {
+            if (info != null && info.Quirk != null && !string.IsNullOrEmpty(info.Quirk.Id))
+                quirks.Add(info.Quirk.Id);
+        }
+        return quirks;
+    }
+
+    private static List<string> HeroDiseases(Hero hero)
+    {
+        var diseases = new List<string>();
+        if (hero.Diseases == null)
+            return diseases;
+
+        foreach (QuirkInfo info in hero.Diseases)
+        {
+            if (info != null && info.Quirk != null && !string.IsNullOrEmpty(info.Quirk.Id))
+                diseases.Add(info.Quirk.Id);
+        }
+        return diseases;
+    }
+
+    private static string BuildingIdFromTree(string treeId)
+    {
+        int separator = treeId.IndexOf('.');
+        return separator > 0 ? treeId.Substring(0, separator) : treeId;
+    }
+
+    private static float BuildingUpgradeRatio(string treeId)
+    {
+        try
+        {
+            BuildingType type = (BuildingType)Enum.Parse(
+                typeof(BuildingType), BuildingIdFromTree(treeId), ignoreCase: true);
+            return DarkestDungeonManager.Campaign.Estate.GetBuildingUpgradeRatio(type);
+        }
+        catch (Exception)
+        {
+            return 0;
+        }
+    }
+
+    private static List<EstateResourceAmount> ToEstateCost(IEnumerable<CurrencyCost> costs)
+    {
+        if (costs == null)
+            return null;
+
+        var result = new List<EstateResourceAmount>();
+        foreach (CurrencyCost cost in costs)
+        {
+            if (cost != null && !string.IsNullOrEmpty(cost.Type))
+                result.Add(new EstateResourceAmount(cost.Type, cost.Amount));
+        }
+        return result;
     }
 
     /// <summary>
@@ -655,7 +1019,15 @@ public static class GameEventRecording
     private static GameEventRecorder ActiveRecorder()
     {
         GameEventRecorder recorder = GameEventRecorder.Instance;
-        if (recorder == null || !recorder.IsRecording || RaidSceneManager.Instanse == null)
+        if (recorder == null || !recorder.IsRecording)
+            return null;
+        return recorder;
+    }
+
+    private static GameEventRecorder ActiveRecorder(string kind)
+    {
+        GameEventRecorder recorder = ActiveRecorder();
+        if (recorder == null || !string.Equals(recorder.Kind, kind, StringComparison.Ordinal))
             return null;
         return recorder;
     }

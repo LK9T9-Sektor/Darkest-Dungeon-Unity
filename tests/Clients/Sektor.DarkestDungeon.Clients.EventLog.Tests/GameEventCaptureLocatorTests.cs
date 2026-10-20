@@ -4,6 +4,7 @@ using System.IO;
 using NUnit.Framework;
 
 using Sektor.DarkestDungeon.Clients.EventLog;
+using Sektor.DarkestDungeon.Core.GameEvents;
 
 namespace Sektor.DarkestDungeon.Clients.EventLog.Tests
 {
@@ -89,6 +90,23 @@ namespace Sektor.DarkestDungeon.Clients.EventLog.Tests
             Assert.That(latest, Is.EqualTo(newest));
         }
 
+        /// <summary>Raid and estate runs are selected independently by their manifest kind.</summary>
+        [Test]
+        public void FindLatestRunDirectory_FiltersByManifestKind()
+        {
+            File.WriteAllText(Path.Combine(root, GameEventCaptureLocator.RepositoryMarkerFileName), string.Empty);
+            string captureRoot = Path.Combine(root, GameEventCaptureLocator.CapturesFolderName);
+            string raid = CreateRunWithKind(captureRoot, "run_2026-10-22_10-00-00", GameEventRunKinds.Raid);
+            string estate = CreateRunWithKind(captureRoot, "run_2026-10-21_10-00-00", GameEventRunKinds.Estate);
+
+            Assert.That(
+                GameEventCaptureLocator.FindLatestRunDirectory(captureRoot, GameEventRunKinds.Raid),
+                Is.EqualTo(raid));
+            Assert.That(
+                GameEventCaptureLocator.FindLatestRunDirectory(captureRoot, GameEventRunKinds.Estate),
+                Is.EqualTo(estate));
+        }
+
         /// <summary>An empty or missing captures folder yields no run.</summary>
         [Test]
         public void FindLatestRunDirectory_WithoutRuns_ReturnsNull()
@@ -126,12 +144,25 @@ namespace Sektor.DarkestDungeon.Clients.EventLog.Tests
             Assert.That(replayDirectory, Is.EqualTo(reference));
         }
 
-        private static string CreateRun(string captureRoot, string name, bool withManifest)
+        private static string CreateRunWithKind(string captureRoot, string name, string kind)
         {
             string directory = Path.Combine(captureRoot, name);
             Directory.CreateDirectory(directory);
+            var bus = new GameEventBus();
+            using (var logger = new JsonEventLogger(bus, directory, notes: "locator test", kind: kind))
+            {
+                bus.Publish(new TorchChanged(0, 1, "test"));
+            }
+            return directory;
+        }
+
+        private static string CreateRun(string captureRoot, string name, bool withManifest)
+        {
             if (withManifest)
-                File.WriteAllText(Path.Combine(directory, GameEventFileNames.Manifest), "{}");
+                return CreateRunWithKind(captureRoot, name, GameEventRunKinds.Raid);
+
+            string directory = Path.Combine(captureRoot, name);
+            Directory.CreateDirectory(directory);
             return directory;
         }
     }

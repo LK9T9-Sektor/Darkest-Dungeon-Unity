@@ -64,6 +64,12 @@ public class HeroRosterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
         DarkestSoundManager.ExecuteNarration("recruit_hero", NarrationPlace.Town, recruitSlot.Hero.Class);
 
+        if (deathRecord != null)
+            GameEventRecording.PublishEstateHeroResurrected(recruitSlot.Hero);
+        else
+            GameEventRecording.PublishEstateHeroRecruited(recruitSlot.Hero);
+        GameEventRecording.PublishEstateSnapshot();
+
         if (deathRecord != null && EventHeroResurrected != null)
             EventHeroResurrected(deathRecord);
         else

@@ -17,7 +17,7 @@ namespace Sektor.DarkestDungeon.Clients.EventLog
     public sealed class JsonEventLogger : IDisposable
     {
         /// <summary>The schema version written into manifest.json; bump when the event DTOs change shape.</summary>
-        public const string CurrentSchemaVersion = "1.1.0";
+        public const string CurrentSchemaVersion = "1.2.0";
 
         private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
         {
@@ -31,6 +31,7 @@ namespace Sektor.DarkestDungeon.Clients.EventLog
         private readonly string directory;
         private readonly long? seed;
         private readonly string? notes;
+        private readonly string? kind;
         private readonly DateTime startedAt = DateTime.UtcNow;
         private readonly object gate = new object();
         private bool disposed;
@@ -40,9 +41,15 @@ namespace Sektor.DarkestDungeon.Clients.EventLog
         /// <param name="directory">The run directory (created if missing); one JSONL file per subsystem.</param>
         /// <param name="seed">The run seed recorded in the manifest, when known.</param>
         /// <param name="notes">Free-form scenario notes recorded in the manifest.</param>
+        /// <param name="kind">The run kind (<c>raid</c>/<c>estate</c>), when known.</param>
         /// <exception cref="ArgumentNullException">The bus is null.</exception>
         /// <exception cref="ArgumentException">The directory is empty or whitespace.</exception>
-        public JsonEventLogger(IGameEventBus bus, string directory, long? seed = null, string? notes = null)
+        public JsonEventLogger(
+            IGameEventBus bus,
+            string directory,
+            long? seed = null,
+            string? notes = null,
+            string? kind = null)
         {
             this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
             if (string.IsNullOrWhiteSpace(directory))
@@ -51,6 +58,7 @@ namespace Sektor.DarkestDungeon.Clients.EventLog
             this.directory = directory;
             this.seed = seed;
             this.notes = notes;
+            this.kind = kind;
             Directory.CreateDirectory(directory);
 
             subscription = this.bus.Subscribe<GameEvent>(Append);
@@ -140,7 +148,7 @@ namespace Sektor.DarkestDungeon.Clients.EventLog
             foreach (SubsystemFile file in files)
                 fileNames.Add(file.FileName);
 
-            var manifest = new GameEventManifest(CurrentSchemaVersion, startedAt, seed, notes, fileNames);
+            var manifest = new GameEventManifest(CurrentSchemaVersion, startedAt, seed, notes, fileNames, kind);
             File.WriteAllText(
                 ManifestPath,
                 JsonConvert.SerializeObject(manifest, Formatting.Indented, SerializerSettings));

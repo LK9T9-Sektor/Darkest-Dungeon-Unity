@@ -18,6 +18,9 @@ namespace Sektor.DarkestDungeon.Core.GameEvents
         /// <summary>Audio events (music, SFX, ambience, narration).</summary>
         public const string Audio = "audio";
 
+        /// <summary>Estate events (resources, roster, buildings, quests, town events).</summary>
+        public const string Estate = "estate";
+
         /// <summary>AI decision events.</summary>
         public const string Ai = "ai";
 
