@@ -8,6 +8,10 @@
     public bool CanKillReleaf { get; set; }
     public SkillResultType Type { get; set; }
     public FormationUnit Target { get; set; }
+    public float? HitRoll { get; set; }
+    public float? HitChance { get; set; }
+    public float? CritRoll { get; set; }
+    public float? CritChance { get; set; }
 
     public SkillResultEntry(FormationUnit target, SkillResultType result)
     {

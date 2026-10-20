@@ -15,13 +15,29 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 позу `AttackSword` (заглушка с нулевой длительностью), поверх временно играет оверлей-скилл
 `Smite` (1.867 с, след меча); по завершению оверлея цель показывает красный флеш и попап урона,
 оба слота возвращаются в Idle. Ядро боя не участвует.
+Экран `CaptureReplayView` («ВОСПРОИЗВЕСТИ ЗАХВАТ» в арене) — первый потребитель контракта
+игровых событий: читает JSONL-захват Unity (`manifest.json` + `*_session.jsonl`, схемы
+`1.0.0`/`1.1.0`) и проигрывает его визуально. Состояние не симулируется — берётся ближайший
+снапшот и к нему последовательно применяются события; атаки идут по одной и ждут окончания
+клипа атакующего. В 1.1 добавлены формация `Rank`/`Size`, стресс, статусы/баффы, переходы
+`SkillResolved`/`UnitMoved`, границы хода/раунда, победитель боя и журнал `AudioPlayed`.
 
 ## 2. Модель данных
 
 - Экраны: `MainMenuView`, `DuelLobbyView`, `SinglePlayerLobbyView`, `PartySelectionView`,
-  `DuelBattleView`, `RaidHudView`, `ScreenHeaderView`, `SpineDemoView`, `SpineBattleView`.
+  `DuelBattleView`, `RaidHudView`, `ScreenHeaderView`, `SpineDemoView`, `SpineBattleView`,
+  `CaptureReplayView`.
 - ViewModels: `MainMenuViewModel`, `SinglePlayerLobbyViewModel`, `DuelBattleViewModel`,
-  `SpineDemoViewModel`, `SpineBattleViewModel`, ...
+  `SpineDemoViewModel`, `SpineBattleViewModel`, `CaptureReplayViewModel` (юниты
+  `CaptureUnitViewModel`, таймлайн `CaptureTimelineEntryViewModel`, темп `IReplayPacer` /
+  `DispatcherReplayPacer`), ...
+- Захват: `Clients.EventLog.GameEventLogReader` + `GameEventCapture` (allowlist-биндер, схемы
+  `1.0.0`/`1.1.0`, `Sequence` 1..N, `Subsystem` = имени файла); `CaptureAnimationCatalog`
+  (`ICaptureAnimationCatalog`) мэппит `skeleton/animation` в `Content\Spine\<Skeleton>\<Animation>`;
+  эталон линкуется в `Content\Captures\Reference`. `CaptureUnitViewModel` хранит `Rank`/`Size`/
+  `Stress`/`MaxStress`/`AtDeathsDoor`/`IsAfflicted`/`IsVirtued` и производные подписи
+  (`R1`/`R2 · x2`, `25/100`, `Bleeding 2`, `damage +0.15`); `AudioLog` — отдельная коллекция
+  `CaptureTimelineEntryViewModel`, заполняемая `AudioPlayed` (без реального FMOD-воспроизведения).
 - Spine-демо: рендер-контрол `SpineHeroControl` (`SKElement`) поверх библиотек
   `Sektor.Spine` (рантайм 2.1, netstandard2.0) и `Sektor.Spine.Skia`
   (загрузчик, плеер, Skia-рендер).
@@ -56,6 +72,30 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
    → VM: оверлей → `""` (слот выключается), base → `Idle`, цель получает
    `TargetCardFlash="Damage"` (вход DataTrigger перезапускает флеш) и `TargetPopupVisible=true`
    с текстом `-6`; `IsAttacking=false` разблокирует кнопку (`NotifyCanExecuteChangedFor`).
+8. Захват: арена → «ВОСПРОИЗВЕСТИ ЗАХВАТ» → `SpineBattleViewModel.CaptureReplayCommand` →
+   `MainWindow` создаёт `CaptureReplayViewModel` с `GameEventLogReader`, путём эталона и
+   `DispatcherReplayPacer`. Конструктор читает захват (`Result`: ошибка → `ErrorText`/«Захват
+   недоступен», без исключения), строит таймлайн из подписей и сразу запускает `StartReplay`.
+   `Advance` применяет **одно** неатакующее событие и планирует следующее через `EventPacing`
+   (100 мс), поэтому переходы/факел/HP видны пошагово; текущая строка таймлайна подсвечивается и
+   скроллится в видимую область.
+   - `SceneSnapshot`/`StateSnapshot`: `SetCombatants` создаёт `CaptureUnitViewModel` с
+     `fallbackRank = index + 1`; `SortFormation` сортирует `Party`/`Enemies` по `Rank`, а
+     `PartyFormation` — reverse `Party`, чтобы rank 1 был у центра. `StateSnapshot.Battle`
+     обновляет `Round`/`Turn` (в старых записях `Battle == null`).
+   - `SkillResolved` обновляет `Hp`/`Stress` каждой цели и `Rank` по `RankAfter`; `UnitMoved`
+     обновляет ранг и перестраивает строй; `HeroStatChanged` (`hp`/`stress`) обновляет
+     соответствующее значение.
+   - `TurnStarted`/`RoundStarted` обновляют `Round`/`Turn`; `TurnEnded`/`RoundEnded` только
+     подписываются в таймлайне; `BattleEnded` выставляет `BattleWinner` (`ПОБЕДА ГЕРОЕВ`/
+     `ПОРАЖЕНИЕ`/`ОТСТУПЛЕНИЕ`/`ИТОГ НЕИЗВЕСТЕН`).
+   - `AudioPlayed` добавляет строку в `AudioLog` (`event:/… · kind · action`), не запуская звук;
+     `AttackExecuted` по-прежнему управляет анимацией/подсветкой (пауза `IsAwaitingAnimation`).
+   На `attackExecuted` атакующий получает клип из `CaptureAnimationCatalog`, цель — подсветку; по
+   `AnimationCompletedCommand` поза держится до `MinimumAttackDuration` (1.2 с), затем подсветки
+   снимаются и `Advance` продолжает. Без Spine-контента атака завершается по
+   `AttackFallbackDelay` (900 мс). После последнего события — `IsFinished`, «Повторить» сбрасывает
+   проекцию и снова стартует.
 
 ## 4. Очередь и обновления
 
@@ -67,6 +107,13 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 - **Пак превью** (`DuelBattleViewModel.PaceState` + 50мс `DispatcherTimer`): при смене исполнителя
   хода — бит 0.5с + попап «ТВОЙ ХОД»; для действия соперника (ИИ и сеть одинаково) — превью 1с,
   затем `ApplyRivalActionPayload`. Паузы презентационные, lockstep не нарушают.
+- Захват: UI-темп через `IReplayPacer` — 100 мс на неатакующее событие; атака ждёт
+  `SpineHeroControl.AnimationCompletedCommand` (нецикличный клип) и держит позу минимум 1.2 с.
+  Если у атакующего нет Spine-контента (монстр), `CaptureReplayViewModel` планирует завершение
+  через 900 мс. Итоговый прогон эталона `1.0.0` — ~10.8 с вместо прежних ~1.3 с. Каждый шаг и
+  атака пишутся в `Logs\duel.log` с метками времени (`capture replay: event/attack/hold/finished`).
+  `AudioLog` только журналирует `AudioPlayed`; реальный FMOD playback и выбор банков — отдельный
+  срез.
 
 ## 5. Проверки и клэмпы
 
@@ -75,6 +122,11 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 | Ввод только на своём ходу | `IsLocalTurn` | иначе игнор |
 | Адаптивная раскладка | `MainWindow` | ресайз, без Viewbox |
 | Скорость Spine-демо | `SpineDemoViewModel` | 1.0…10.0 (шаг 0.5, wrap 100↔1000%); нижний кламп контрола 0.01…100 |
+| Чтение захвата | `GameEventLogReader` | `SchemaVersion` = `1.0.0`/`1.1.0`; `Sequence` ровно 1..N; `Subsystem` = имени файла; allowlist-биндер |
+| Fallback формации | `CaptureUnitViewModel` | `Rank <= 0` → `index + 1`; `Size <= 0` → 1 |
+| Захват без Spine-клипа | `CaptureReplayViewModel` | idle-сет, иначе карточка; атака завершается по фолбэку 900 мс |
+| Темп захвата | `CaptureReplayViewModel` | 100 мс на событие; атака — минимум 1.2 с (клип + удержание) |
+| Аудио в захвате | `CaptureReplayViewModel` | `AudioLog` пополняется только `AudioPlayed`; звук не проигрывается |
 
 ## 6. Нюансы и подводные камни
 
@@ -184,11 +236,41 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 - **Повторный флеш урона** — DataTrigger `TargetCardFlash="Damage"` срабатывает только на
   входе в значение, поэтому VM перед каждым ударом сбрасывает `TargetCardFlash` в `""` (и
   `TargetPopupVisible` в false), иначе второй удар флеш не покажет.
+- **Финальный снапшот эталона `1.0.0` — новый бой** — эталон заканчивается `stateSnapshot`
+  (seq 38) с факелом 7 и врагами `brigand_blood`/`brigand_fusilier`; он применяется последним и
+  замещает `monster_3`, которого довели до 0 HP на seq 28. Поэтому «финал с монстром 0 HP»
+  неверен: проверять нужно последний снапшот (35/35 и 12/12), а смерть старого монстра видна в
+  моменте. Synthetic `1.1.0` вместо этого заканчивается `BattleEnded` (10 событий).
+- **Таймлайн отмечает текущий момент** — `CurrentEntry` — последнее применённое событие; при
+  пошаговом темпе каждая строка остаётся текущей ~100 мс, атака — ~1.2 с. `ListBox`
+  `SelectedItem` привязан one-way, code-behind скроллит выбранную строку в видимую область.
+- **Расстановка: `Rank` есть в 1.1, координат нет** — `CombatantState.Rank`/`Size` пишутся
+  рекордером; `SortFormation` сортирует обе стороны по `Rank`, `PartyFormation` реверсит героев,
+  чтобы rank 1 был у центра. Точные x/y и позиции вне рангов не пишутся; для записи `1.0.0`
+  используется `fallbackRank = index + 1`, поэтому строй остаётся прежним.
+- **`SkillResolved` — истина, `AttackExecuted` — визуал** — состояние HP/stress/рангов меняет
+  `SkillResolved` (и `UnitMoved`), а `AttackExecuted` только запускает клип/подсветку. Если
+  визуального события нет, цифры всё равно обновятся; если нет `SkillResolved` (старая запись),
+  HP меняется через `HeroStatChanged`.
+- **Статусы обновляются снапшотом, а не каждым событием** — `StatusText` берётся из
+  `CombatantState.Statuses/Buffs` на `battleStart`/`turnEnd`/`battleEnd`; внутри применения
+  скилла HP/stress меняются сразу, а список статусов — только следующим снапшотом.
+- **`BattleWinner` — только после `BattleEnded`** — до него `"—"`; retreat (`Retreat=true`) даёт
+  `ОТСТУПЛЕНИЕ`, иначе winner по `BattleWinners`; `unknown` → `ИТОГ НЕИЗВЕСТЕН`.
+- **Аудио-журнал ≠ воспроизведение** — `AudioLog` показывает фактические `AudioPlayed`
+  (`event:/… · kind · action`), но FMOD не запускает; событие пишется только в рейде, поэтому
+  title/town-музыка в захвате отсутствует. Реальный playback — отдельный срез.
+- **Монстр — карточка** — `CaptureAnimationCatalog` возвращает `null` для скелета без линкованного
+  контента (`brigand_cutthroat`); юнит не падает, показывает имя/HP и подпись «карточка».
+- **Ошибка чтения не роняет экран** — reader возвращает `Result`, VM пишет `ErrorText` и
+  блокирует «Повторить»; оверлей ошибки перекрывает тело экрана.
 
 ## 7. Взаимодействия
 
 - `duel/*` (DuelController, DuelAi), `common_random.md` (детерминизм), `clients_reader.md`
   (контент).
+- `docs/SPEC_GAME_EVENTS_SCHEMA.md` — контракт событий `1.0.0`/`1.1.0` и правила чтения; эталон
+  `docs/spec_game_events/examples/`; `docs/audio/00_index.md` — каталог FMOD и запись `AudioPlayed`.
 - `FEATURE_DESKTOP_CLIENT.md` — детали экранов/механик.
 - Unity-оверлеи Тест-боя — `presentation_unity_fight.md`.
 
@@ -199,6 +281,12 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 - `src/Spine/Sektor.Spine/` (рантайм spine-csharp 2.1), `src/Spine/Sektor.Spine.Skia/` (loader/player/Skia-рендер)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/SpineHeroControl.cs`, `Views/SpineDemoView.xaml(.cs)`, `ViewModels/SpineDemoViewModel.cs`
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/SpineBattleView.xaml(.cs)`, `ViewModels/SpineBattleViewModel.cs` (арена 1×1)
+- `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/CaptureReplayView.xaml(.cs)`, `ViewModels/CaptureReplayViewModel.cs`,
+  `ViewModels/CaptureUnitViewModel.cs`, `ViewModels/CaptureTimelineEntryViewModel.cs`,
+  `ViewModels/IReplayPacer.cs`, `ViewModels/DispatcherReplayPacer.cs`,
+  `Data/CaptureAnimationCatalog.cs` (плеер захвата)
+- `src/Clients/Sektor.DarkestDungeon.Clients.EventLog/GameEventLogReader.cs` (чтение/валидация JSONL),
+  `GameEventTypeBinder.cs` (allowlist `List<T>`/`T[]`), `JsonEventLogger.cs` (`1.1.0`)
 - `src/Spine/Sektor.Spine.Skia/SpinePlayer.cs` (one-shot `Play` + событие `AnimationCompleted`)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Ui/WindowScreenshot.cs` (кнопка SCREENSHOT)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Behaviors/` (`SaveScreenshotAction`, `MarkEventHandledAction`)

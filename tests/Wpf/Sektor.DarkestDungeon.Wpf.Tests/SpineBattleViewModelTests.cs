@@ -62,6 +62,23 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(logger.Messages, Has.Some.Contains("attack completed"));
         }
 
+        /// <summary>The capture button navigates to the factory-created replay screen.</summary>
+        [Test]
+        public void CaptureReplayCommand_NavigatesToCaptureReplayScreen()
+        {
+            var navigation = new FakeNavigationService();
+            var replayScreen = new object();
+            var viewModel = new SpineBattleViewModel(
+                navigation,
+                new FakeSpineDemoCatalog(),
+                new FakeLogger(),
+                () => replayScreen);
+
+            viewModel.CaptureReplayCommand.Execute(null);
+
+            Assert.That(navigation.Current, Is.SameAs(replayScreen));
+        }
+
         /// <summary>A completion outside of an attack is ignored (no flash, no popup).</summary>
         [Test]
         public void AttackerAnimationCompleted_WithoutAttack_IsIgnored()
@@ -79,7 +96,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         private static SpineBattleViewModel CreateViewModel(out FakeLogger logger)
         {
             logger = new FakeLogger();
-            return new SpineBattleViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog(), logger);
+            return new SpineBattleViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog(), logger, () => new object());
         }
 
         private sealed class FakeSpineDemoCatalog : ISpineDemoCatalog
@@ -106,13 +123,11 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
 
         private sealed class FakeNavigationService : INavigationService
         {
-            public void NavigateTo(object screen)
-            {
-            }
+            public object? Current { get; private set; }
 
-            public void GoHome()
-            {
-            }
+            public void NavigateTo(object screen) => Current = screen;
+
+            public void GoHome() => Current = null;
         }
     }
 }

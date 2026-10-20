@@ -6,6 +6,9 @@ namespace Sektor.DarkestDungeon.Core.GameEvents
         /// <summary>Taken when a battle starts.</summary>
         public const string BattleStart = "battleStart";
 
+        /// <summary>Taken when a battle ends.</summary>
+        public const string BattleEnd = "battleEnd";
+
         /// <summary>Taken after a combat turn resolves.</summary>
         public const string TurnEnd = "turnEnd";
 

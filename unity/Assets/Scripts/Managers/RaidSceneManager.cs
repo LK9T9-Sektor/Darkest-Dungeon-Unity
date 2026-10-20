@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Sektor.DarkestDungeon.Core.Raid;
 using Sektor.DarkestDungeon.Core.Campaign;
+using AudioActions = Sektor.DarkestDungeon.Core.GameEvents.AudioActions;
+using AudioParameter = Sektor.DarkestDungeon.Core.GameEvents.AudioParameter;
 
 public enum DungeonSceneState { Room, Hall }
 public enum StartingMode { Normal, EntranceEncounter, EntranceCurio }
@@ -2013,6 +2015,16 @@ public class RaidSceneManager : MonoBehaviour
             else
                 oneShotStart.setParameterValue("start_condition", 2);
 
+            GameEventRecording.PublishAudio(
+                "event:/general/combat/start",
+                AudioActions.OneShot,
+                DarkestSoundManager.SfxVolume,
+                parameters: new List<AudioParameter>
+                {
+                    new AudioParameter("start_condition", BattleGround.SurpriseStatus == SurpriseStatus.Nothing ? 0
+                        : BattleGround.SurpriseStatus == SurpriseStatus.MonstersSurprised ? 1 : 2),
+                });
+
             oneShotStart.start();
             oneShotStart.release();
         }
@@ -2077,6 +2089,7 @@ public class RaidSceneManager : MonoBehaviour
 
         #endregion
 
+        GameEventRecording.PublishBattleEnded();
         yield return StartCoroutine(FinishEncouter(areaView));
     }
 
@@ -3967,17 +3980,21 @@ public class RaidSceneManager : MonoBehaviour
     {
         BattleSolver.SkillResult.Reset();
         BattleGround.LastDamaged.Clear();
+        var ranksBefore = GameEventRecording.CaptureRanks();
 
         foreach (var targetUnit in targetInfo.Targets)
         {
             float healthBefore = targetUnit.Character.CurrentHealth;
+            float stressBefore = targetUnit.Character.Stress.CurrentValue;
             BattleSolver.ExecuteSkill(performer, targetUnit, targetInfo.Skill, targetInfo.SkillArtInfo);
             if (BattleSolver.SkillResult.Current.IsTargetHit)
                 BattleGround.LastDamaged.Add(targetUnit.Character.Class);
-            GameEventRecording.PublishSkillResult(targetUnit, healthBefore, BattleSolver.SkillResult.Current);
+            GameEventRecording.PublishSkillResult(
+                targetUnit, healthBefore, stressBefore, BattleSolver.SkillResult.Current);
         }
 
         var skillResult = BattleSolver.SkillResult.Copy();
+        GameEventRecording.PublishSkillResolved(performer, targetInfo, skillResult, ranksBefore);
 
         string playSkillEvent;
         string playSkillMissEvent;
@@ -5348,6 +5365,10 @@ public class RaidSceneManager : MonoBehaviour
                 else
                     oneShotCurio.setParameterValue("result_category", 0);
             }
+            GameEventRecording.PublishAudio(
+                "event:/props/curios/" + curio.OriginalId,
+                AudioActions.OneShot,
+                DarkestSoundManager.SfxVolume);
             oneShotCurio.start();
             oneShotCurio.release();
         }

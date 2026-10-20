@@ -326,26 +326,36 @@ public static class BattleSolver
                 float initialHeal = RandomSolver.Next(skill.Heal.MinAmount, skill.Heal.MaxAmount + 1) *
                     (1 + performer.GetSingleAttribute(AttributeType.HpHealPercent).ModifiedValue);
 
+                float critChance = 0;
+                float critRoll = 0;
+                bool isCrit = false;
                 if (skill.IsCritValid)
                 {
-                    float critChance = performer[AttributeType.CritChance].ModifiedValue + skill.CritMod / 100;
-                    if (RandomSolver.CheckSuccess(critChance))
-                    {
-                        int critHeal = target.Heal(initialHeal * 1.5f, true);
-                        targetUnit.OverlaySlot.UpdateOverlay();
-                        SkillResult.AddResultEntry(new SkillResultEntry(targetUnit, critHeal, SkillResultType.CritHeal));
-                        
-                        ApplyEffects(performerUnit, targetUnit, skill);
-                        if (targetUnit.Character.IsMonster == false)
-                            DarkestDungeonManager.Data.Effects["crit_heal_stress_heal"].ApplyIndependent(targetUnit);
-                        return;
-                    }
+                    critChance = performer[AttributeType.CritChance].ModifiedValue + skill.CritMod / 100;
+                    isCrit = RandomSolver.CheckSuccess(critChance, out critRoll);
+                }
+
+                if (isCrit)
+                {
+                    int critHeal = target.Heal(initialHeal * 1.5f, true);
+                    targetUnit.OverlaySlot.UpdateOverlay();
+                    SkillResultEntry critEntry = new SkillResultEntry(targetUnit, critHeal, SkillResultType.CritHeal);
+                    SetCritRoll(critEntry, critRoll, critChance);
+                    SkillResult.AddResultEntry(critEntry);
+
+                    ApplyEffects(performerUnit, targetUnit, skill);
+                    if (targetUnit.Character.IsMonster == false)
+                        DarkestDungeonManager.Data.Effects["crit_heal_stress_heal"].ApplyIndependent(targetUnit);
+                    return;
                 }
 
                 int heal = target.Heal(initialHeal, true);
                 targetUnit.OverlaySlot.UpdateOverlay();
 
-                SkillResult.AddResultEntry(new SkillResultEntry(targetUnit, heal, SkillResultType.Heal));
+                SkillResultEntry healEntry = new SkillResultEntry(targetUnit, heal, SkillResultType.Heal);
+                if (skill.IsCritValid)
+                    SetCritRoll(healEntry, critRoll, critChance);
+                SkillResult.AddResultEntry(healEntry);
                 ApplyEffects(performerUnit, targetUnit, skill);
             }
             else
@@ -370,10 +380,11 @@ public static class BattleSolver
             {
                 if (!(skill.CanMiss == false || (target.BattleModifiers != null && target.BattleModifiers.CanBeMissed == false)))
                 {
-                    if (roll > Mathf.Min(accuracy, 0.95f))
-                        SkillResult.AddResultEntry(new SkillResultEntry(targetUnit, SkillResultType.Miss));
-                    else
-                        SkillResult.AddResultEntry(new SkillResultEntry(targetUnit, SkillResultType.Dodge));
+                    SkillResultEntry missEntry = roll > Mathf.Min(accuracy, 0.95f)
+                        ? new SkillResultEntry(targetUnit, SkillResultType.Miss)
+                        : new SkillResultEntry(targetUnit, SkillResultType.Dodge);
+                    SetHitRoll(missEntry, roll, hitChance);
+                    SkillResult.AddResultEntry(missEntry);
 
                     ApplyEffects(performerUnit, targetUnit, skill);
                     return;
@@ -391,36 +402,62 @@ public static class BattleSolver
             if (target.BattleModifiers != null && target.BattleModifiers.CanBeDamagedDirectly == false)
                 damage = 0;
 
+            float critChance = 0;
+            float critRoll = 0;
+            bool isCrit = false;
             if (skill.IsCritValid)
             {
-                float critChance = performer.GetSingleAttribute(AttributeType.CritChance).ModifiedValue + skill.CritMod;
-                if (RandomSolver.CheckSuccess(critChance))
-                {
-                    int critDamage = target.TakeDamage(damage * 1.5f);
-                    targetUnit.OverlaySlot.UpdateOverlay();
-
-                    if (target.HasZeroHealth)
-                        SkillResult.AddResultEntry(new SkillResultEntry(targetUnit, critDamage, true, SkillResultType.Crit));
-                    else
-                        SkillResult.AddResultEntry(new SkillResultEntry(targetUnit, critDamage, SkillResultType.Crit));
-
-                    ApplyEffects(performerUnit, targetUnit, skill);
-                    if (targetUnit.Character.IsMonster == false)
-                        DarkestDungeonManager.Data.Effects["Stress 2"].ApplyIndependent(targetUnit);
-                    return;
-                }
+                critChance = performer.GetSingleAttribute(AttributeType.CritChance).ModifiedValue + skill.CritMod;
+                isCrit = RandomSolver.CheckSuccess(critChance, out critRoll);
             }
+
+            if (isCrit)
+            {
+                int critDamage = target.TakeDamage(damage * 1.5f);
+                targetUnit.OverlaySlot.UpdateOverlay();
+
+                SkillResultEntry critEntry = target.HasZeroHealth
+                    ? new SkillResultEntry(targetUnit, critDamage, true, SkillResultType.Crit)
+                    : new SkillResultEntry(targetUnit, critDamage, SkillResultType.Crit);
+                SetHitRoll(critEntry, roll, hitChance);
+                SetCritRoll(critEntry, critRoll, critChance);
+                SkillResult.AddResultEntry(critEntry);
+
+                ApplyEffects(performerUnit, targetUnit, skill);
+                if (targetUnit.Character.IsMonster == false)
+                    DarkestDungeonManager.Data.Effects["Stress 2"].ApplyIndependent(targetUnit);
+                return;
+            }
+
             damage = target.TakeDamage(damage);
             targetUnit.OverlaySlot.UpdateOverlay();
-            if (target.HasZeroHealth)
-                SkillResult.AddResultEntry(new SkillResultEntry(targetUnit, damage, true, SkillResultType.Hit));
-            else
-                SkillResult.AddResultEntry(new SkillResultEntry(targetUnit, damage, SkillResultType.Hit));
+            SkillResultEntry hitEntry = target.HasZeroHealth
+                ? new SkillResultEntry(targetUnit, damage, true, SkillResultType.Hit)
+                : new SkillResultEntry(targetUnit, damage, SkillResultType.Hit);
+            SetHitRoll(hitEntry, roll, hitChance);
+            if (skill.IsCritValid)
+                SetCritRoll(hitEntry, critRoll, critChance);
+            SkillResult.AddResultEntry(hitEntry);
 
             ApplyEffects(performerUnit, targetUnit, skill);
 
             #endregion
         }
+    }
+
+    private static void SetHitRoll(SkillResultEntry entry, float roll, float chance)
+    {
+        if (roll >= 0 && roll <= 1)
+        {
+            entry.HitRoll = roll;
+            entry.HitChance = chance;
+        }
+    }
+
+    private static void SetCritRoll(SkillResultEntry entry, float roll, float chance)
+    {
+        entry.CritRoll = roll;
+        entry.CritChance = chance;
     }
 
     public static void CalculateSkillPotential(FormationUnit performerUnit, FormationUnit targetUnit, CombatSkill skill)

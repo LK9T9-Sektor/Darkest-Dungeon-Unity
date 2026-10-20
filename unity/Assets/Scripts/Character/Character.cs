@@ -345,6 +345,13 @@ public class Character
         return BuffInfo.Find(info => info.SourceType == BuffSourceType.Estate) != null;
     }
 
+    /// <summary>Returns a copy of the active buff list for event recording.</summary>
+    /// <returns>The recorded buff entries; mutating the returned list does not change the unit.</returns>
+    public List<BuffInfo> GetBuffs()
+    {
+        return new List<BuffInfo>(BuffInfo);
+    }
+
     public void ApplyStunRecovery()
     {
         var recoveryBuff = DarkestDungeonManager.Data.Buffs["STUNRECOVERYBUFF"];

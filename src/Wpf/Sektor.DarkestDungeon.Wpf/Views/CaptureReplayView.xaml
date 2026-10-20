@@ -1,0 +1,319 @@
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.CaptureReplayView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Sektor.DarkestDungeon.Wpf.ViewModels"
+             xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views">
+    <UserControl.Resources>
+        <Style x:Key="PanelCaption" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#8A7A5A" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+        <Style x:Key="PanelValue" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#E8D9B0" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        </Style>
+
+        <!-- One combatant in the formation: idle spine clip or a monster card, with attack/target frames. -->
+        <DataTemplate x:Key="UnitTemplate" DataType="{x:Type vm:CaptureUnitViewModel}">
+            <Border Margin="6" Padding="8" CornerRadius="8" BorderThickness="2">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="#241A12" />
+                        <Setter Property="BorderBrush" Value="#3A2E22" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsEnemy}" Value="True">
+                                <Setter Property="Background" Value="#2E1714" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsAttacker}" Value="True">
+                                <Setter Property="BorderBrush" Value="#E8D9B0" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsTarget}" Value="True">
+                                <Setter Property="BorderBrush" Value="#B05050" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsDead}" Value="True">
+                                <Setter Property="Opacity" Value="0.45" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border CornerRadius="3" Padding="4,1" Background="#3A2E22" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding FormationLabel}" Foreground="#C8C0B0"
+                                       FontSize="10" FontWeight="Bold" />
+                        </Border>
+                        <TextBlock Grid.Column="1" Text="{Binding Name}" Foreground="#E8D9B0" FontSize="14"
+                                   FontWeight="Bold" TextTrimming="CharacterEllipsis" Margin="6,0" />
+                        <TextBlock Grid.Column="2" Text="{Binding HpText}" Foreground="#C8C0B0"
+                                   FontSize="12" Margin="8,0,0,0" />
+                    </Grid>
+
+                    <Grid Grid.Row="1" Margin="0,6,0,0">
+                        <views:SpineHeroControl ContentDirectory="{Binding ContentDirectory}"
+                                                Loop="{Binding Loop}"
+                                                AnimationCompletedCommand="{Binding DataContext.AnimationCompletedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                Visibility="{Binding HasSpineContent, Converter={StaticResource BoolToVisibility}}" />
+                        <Border Visibility="{Binding IsCard, Converter={StaticResource BoolToVisibility}}"
+                                BorderBrush="#4A3A2E" BorderThickness="1" CornerRadius="6"
+                                Background="#1A120C">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding Skeleton}" Foreground="#8A7A5A" FontSize="11"
+                                           HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="карточка" Foreground="#6A5A4A" FontSize="10"
+                                           HorizontalAlignment="Center" Margin="0,4,0,0" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border HorizontalAlignment="Left" VerticalAlignment="Top" CornerRadius="3"
+                                Padding="5,1" Background="#E8D9B0"
+                                Visibility="{Binding IsAttacker, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="АТАКА" Foreground="#14100C" FontSize="10" FontWeight="Bold" />
+                        </Border>
+                        <Border HorizontalAlignment="Right" VerticalAlignment="Top" CornerRadius="3"
+                                Padding="5,1" Background="#B05050"
+                                Visibility="{Binding IsTarget, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="ЦЕЛЬ" Foreground="#FFFFFF" FontSize="10" FontWeight="Bold" />
+                        </Border>
+                    </Grid>
+
+                    <StackPanel Grid.Row="2" Margin="0,6,0,0">
+                        <Grid Visibility="{Binding HasStress, Converter={StaticResource BoolToVisibility}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="СТРЕСС" Style="{StaticResource PanelCaption}" FontSize="9"
+                                       VerticalAlignment="Center" />
+                            <ProgressBar Grid.Column="1" Minimum="0" Maximum="{Binding MaxStress}"
+                                         Value="{Binding Stress}" Height="6" Margin="6,0"
+                                         Background="#2A1C14" Foreground="#B05050" />
+                            <TextBlock Grid.Column="2" Text="{Binding StressText}" Foreground="#C8C0B0"
+                                       FontSize="10" VerticalAlignment="Center" />
+                        </Grid>
+                        <TextBlock Text="{Binding ConditionText}" Foreground="#D8A050" FontSize="10"
+                                   FontWeight="Bold" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
+                        <TextBlock Text="{Binding StatusText}" Foreground="#8A7A5A" FontSize="10"
+                                   TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Background="#14100C">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <views:ScreenHeaderView Grid.Row="0" Margin="48,24,48,0"
+                                Title="{Binding ScreenTitle}"
+                                Subtitle="{Binding CaptureSubtitle}"
+                                CloseCommand="{Binding BackCommand}" />
+
+        <!-- Scene/room/torch/gold strip -->
+        <Border Grid.Row="1" Margin="48,12,48,0" Padding="14,10" Style="{StaticResource OverlayPanel}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="СЦЕНА" Style="{StaticResource PanelCaption}" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding SceneName}" Style="{StaticResource PanelValue}" Margin="8,0,24,0" />
+                    <TextBlock Text="КОМНАТА" Style="{StaticResource PanelCaption}" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding RoomName}" Style="{StaticResource PanelValue}" Margin="8,0,4,0" />
+                    <TextBlock Text="{Binding RoomType}" Foreground="#8A7A5A" FontSize="11"
+                               VerticalAlignment="Center" Margin="0,2,0,0" />
+                    <TextBlock Text="РАУНД" Style="{StaticResource PanelCaption}" VerticalAlignment="Center"
+                               Margin="20,0,0,0" />
+                    <TextBlock Text="{Binding Round}" Style="{StaticResource PanelValue}" Margin="6,0,16,0" />
+                    <TextBlock Text="ХОД" Style="{StaticResource PanelCaption}" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding Turn}" Style="{StaticResource PanelValue}" Margin="6,0,0,0" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="ФАКЕЛ" Style="{StaticResource PanelCaption}" VerticalAlignment="Center" />
+                    <ProgressBar Minimum="0" Maximum="100" Value="{Binding Torch}"
+                                 Width="160" Height="10" Margin="10,0" />
+                    <TextBlock Text="{Binding Torch}" Style="{StaticResource PanelValue}" Margin="0,0,24,0" />
+                    <TextBlock Text="ЗОЛОТО" Style="{StaticResource PanelCaption}" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding Gold}" Style="{StaticResource PanelValue}" Margin="8,0,0,0" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Battlefield: heroes (rank 4..1) left, monsters (rank 1..n) right -->
+        <Border Grid.Row="2" Margin="48,16,48,0"
+                Background="#0E0B08" BorderBrush="#3A2E22" BorderThickness="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0" Margin="10,8,10,12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="ПАРТИЯ" Style="{StaticResource PanelCaption}"
+                               HorizontalAlignment="Center" Margin="0,0,0,4" />
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding PartyFormation}"
+                                  ItemTemplate="{StaticResource UnitTemplate}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="1" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </Grid>
+
+                <TextBlock Grid.Column="1" Text="VS" FontSize="26" FontWeight="Bold"
+                           Foreground="#5A4A3A" VerticalAlignment="Center" Margin="8,0" />
+
+                <Grid Grid.Column="2" Margin="10,8,10,12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="ВРАГИ" Style="{StaticResource PanelCaption}"
+                               HorizontalAlignment="Center" Margin="0,0,0,4" />
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding Enemies}"
+                                  ItemTemplate="{StaticResource UnitTemplate}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="1" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Bottom bar: buttons left, status center, event log right -->
+        <Grid Grid.Row="3" Margin="48,12,48,24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="3*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Top">
+                <Button Content="ПОВТОРИТЬ" Width="180" Height="48" FontSize="16"
+                        Style="{StaticResource HudButton}" Command="{Binding ReplayCommand}"
+                        ToolTip="Restarts the replay from the first recorded event" />
+                <Button Content="НАЗАД" Width="140" Height="48" FontSize="16" Margin="12,0,0,0"
+                        Style="{StaticResource HudButton}" Command="{Binding BackCommand}" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="24,6,24,0">
+                <TextBlock Text="{Binding StatusText}" Foreground="#C8C0B0" FontSize="14" />
+                <TextBlock Text="{Binding BattleWinner}" Foreground="#D8A050" FontSize="13"
+                           FontWeight="Bold" Margin="0,4,0,0" />
+                <TextBlock Text="Тайминг: одно событие в 100 мс, атака держится 1,2 с."
+                           Foreground="#6A5A4A" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap" />
+                <Border Style="{StaticResource OverlayPanel}" Padding="8" Margin="0,10,0,0" MaxHeight="96">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" Text="АУДИО"
+                                   Style="{StaticResource PanelCaption}" Margin="0,0,0,4" />
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <ItemsControl ItemsSource="{Binding AudioLog}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Label}" Foreground="#8A7A5A"
+                                                   FontSize="10" TextWrapping="Wrap" Margin="0,1" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Border>
+            </StackPanel>
+
+            <Border Grid.Column="2" Style="{StaticResource OverlayPanel}" Padding="10" Height="190"
+                    HorizontalAlignment="Stretch">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="ЖУРНАЛ СОБЫТИЙ"
+                               Style="{StaticResource PanelCaption}" Margin="0,0,0,4" />
+                    <ListBox x:Name="TimelineList" ItemsSource="{Binding Timeline}"
+                             SelectedItem="{Binding CurrentEntry, Mode=OneWay}"
+                             SelectionChanged="OnTimelineSelectionChanged"
+                             Loaded="OnTimelineLoaded"
+                             VirtualizingPanel.IsVirtualizing="False"
+                             Background="Transparent" BorderThickness="0" Padding="0"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Focusable" Value="False" />
+                                <Setter Property="IsTabStop" Value="False" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <ContentPresenter />
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Label}" FontSize="11" TextWrapping="Wrap" Margin="0,1">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="#8A7A5A" />
+                                            <Setter Property="Opacity" Value="0.45" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsPast}" Value="True">
+                                                    <Setter Property="Foreground" Value="#C8C0B0" />
+                                                    <Setter Property="Opacity" Value="0.8" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                                    <Setter Property="Foreground" Value="#E8D9B0" />
+                                                    <Setter Property="Opacity" Value="1" />
+                                                    <Setter Property="FontWeight" Value="Bold" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+        </Grid>
+
+        <!-- Reader error covers the scene when the capture cannot be loaded -->
+        <Border Grid.Row="1" Grid.RowSpan="2" Background="#D0200A0A" BorderBrush="#8A2E2E"
+                BorderThickness="2" Margin="48,12,48,0"
+                Visibility="{Binding ErrorText, Converter={StaticResource StringToVisibility}}">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="720">
+                <TextBlock Text="НЕ УДАЛОСЬ ПРОЧИТАТЬ ЗАХВАТ" Foreground="#E8D9B0"
+                           FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding ErrorText}" Foreground="#E0B0B0" FontSize="14"
+                           TextWrapping="Wrap" TextAlignment="Center" Margin="0,12,0,0" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

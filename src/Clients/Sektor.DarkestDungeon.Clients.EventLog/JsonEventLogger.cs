@@ -17,10 +17,7 @@ namespace Sektor.DarkestDungeon.Clients.EventLog
     public sealed class JsonEventLogger : IDisposable
     {
         /// <summary>The schema version written into manifest.json; bump when the event DTOs change shape.</summary>
-        public const string CurrentSchemaVersion = "1.0.0";
-
-        private const string SubsystemFileSuffix = "_session.jsonl";
-        private const string ManifestFileName = "manifest.json";
+        public const string CurrentSchemaVersion = "1.1.0";
 
         private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
         {
@@ -61,7 +58,7 @@ namespace Sektor.DarkestDungeon.Clients.EventLog
         }
 
         /// <summary>Gets the path of the manifest file inside the run directory.</summary>
-        public string ManifestPath => Path.Combine(directory, ManifestFileName);
+        public string ManifestPath => Path.Combine(directory, GameEventFileNames.Manifest);
 
         /// <summary>Gets the base names of the JSONL files written so far (in creation order).</summary>
         public IReadOnlyList<string> Files
@@ -127,7 +124,7 @@ namespace Sektor.DarkestDungeon.Clients.EventLog
                     return existing;
             }
 
-            string fileName = subsystem + SubsystemFileSuffix;
+            string fileName = GameEventFileNames.SessionFile(subsystem);
             var created = new SubsystemFile(
                 subsystem,
                 fileName,

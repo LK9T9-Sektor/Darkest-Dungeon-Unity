@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.Common\Sektor.DarkestDungeon.Core.Common.csproj" />
     <ProjectReference Include="..\..\Core\Sektor.DarkestDungeon.Core.GameEvents\Sektor.DarkestDungeon.Core.GameEvents.csproj" />
   </ItemGroup>
 

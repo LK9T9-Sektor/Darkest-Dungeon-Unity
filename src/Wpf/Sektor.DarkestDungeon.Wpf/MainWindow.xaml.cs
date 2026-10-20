@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Windows;
+using Sektor.DarkestDungeon.Clients.EventLog;
 using Sektor.DarkestDungeon.Core.Common;
 using Sektor.DarkestDungeon.Wpf.Combat;
 using Sektor.DarkestDungeon.Wpf.Data;
@@ -36,7 +37,14 @@ namespace Sektor.DarkestDungeon.Wpf
                 () => new SpineBattleViewModel(
                     shell,
                     new SpineDemoCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "Spine")),
-                    logger));
+                    logger,
+                    () => new CaptureReplayViewModel(
+                        shell,
+                        new GameEventLogReader(),
+                        new CaptureAnimationCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "Spine")),
+                        logger,
+                        Path.Combine(AppContext.BaseDirectory, "Content", "Captures", "Reference"),
+                        new DispatcherReplayPacer())));
             shell.SetHome(menu);
             shell.NavigateTo(menu);
             return shell;

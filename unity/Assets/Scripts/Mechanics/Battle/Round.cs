@@ -32,6 +32,7 @@ public class Round
         SelectedTarget = null;
 
         OrderedUnits.Remove(heroUnit);
+        GameEventRecording.PublishTurnStarted(heroUnit, RoundNumber, OrderedUnits);
     }
 
     public void OnHeroTurn()
@@ -42,6 +43,7 @@ public class Round
     public void PostHeroTurn()
     {
         TurnStatus = TurnStatus.PostTurn;
+        GameEventRecording.PublishTurnEnded(SelectedUnit, RoundNumber);
 
         HeroAction = HeroTurnAction.Waiting;
         SelectedUnit = null;
@@ -60,6 +62,7 @@ public class Round
         SelectedTarget = null;
 
         OrderedUnits.Remove(monsterUnit);
+        GameEventRecording.PublishTurnStarted(monsterUnit, RoundNumber, OrderedUnits);
     }
 
     public void OnMonsterTurn()
@@ -70,6 +73,7 @@ public class Round
     public void PostMonsterTurn()
     {
         TurnStatus = TurnStatus.PostTurn;
+        GameEventRecording.PublishTurnEnded(SelectedUnit, RoundNumber);
 
         HeroAction = HeroTurnAction.Waiting;
         SelectedUnit = null;
@@ -97,6 +101,9 @@ public class Round
 
     public int NextRound(BattleGround battleground)
     {
+        if (RoundNumber > 0)
+            GameEventRecording.PublishRoundEnded(RoundNumber);
+
         RoundStatus = RoundStatus.Start;
         OrderedUnits.Clear();
 
@@ -150,7 +157,9 @@ public class Round
             OrderedUnits = new List<FormationUnit>(OrderedUnits.OrderByDescending(unit =>
                 unit.Character.Speed + RandomSolver.Next(0, 3) + RandomSolver.NextDouble()));
 
-        return ++RoundNumber;
+        RoundNumber++;
+        GameEventRecording.PublishRoundStarted(RoundNumber, OrderedUnits);
+        return RoundNumber;
     }
 
     public void InsertInitiativeRoll(FormationUnit unit)

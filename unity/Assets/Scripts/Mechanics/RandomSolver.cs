@@ -74,10 +74,19 @@ public static class RandomSolver
 
     public static bool CheckSuccess(float chance)
     {
-        if (chance >= 1)
-            return true;
+        return CheckSuccess(chance, out _);
+    }
 
-        return random.NextDouble() < chance;
+    public static bool CheckSuccess(float chance, out float roll)
+    {
+        if (chance >= 1)
+        {
+            roll = 0;
+            return true;
+        }
+
+        roll = (float)random.NextDouble();
+        return roll < chance;
     }
 
     public static int Next(int maxValue)

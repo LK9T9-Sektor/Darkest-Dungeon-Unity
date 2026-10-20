@@ -15,6 +15,9 @@ namespace Sektor.DarkestDungeon.Core.GameEvents
         /// <summary>Torch events.</summary>
         public const string Torch = "torch";
 
+        /// <summary>Audio events (music, SFX, ambience, narration).</summary>
+        public const string Audio = "audio";
+
         /// <summary>AI decision events.</summary>
         public const string Ai = "ai";
 

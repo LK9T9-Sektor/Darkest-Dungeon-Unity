@@ -32,6 +32,9 @@
         <DataTemplate DataType="{x:Type vm:SpineBattleViewModel}">
             <views:SpineBattleView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:CaptureReplayViewModel}">
+            <views:CaptureReplayView />
+        </DataTemplate>
     </Window.Resources>
     <ContentControl Content="{Binding CurrentScreen}" />
 </Window>

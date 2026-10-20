@@ -114,6 +114,10 @@
             <Button Content="АТАКА" Width="200" Height="58" FontSize="20"
                     Style="{StaticResource HudButton}" Command="{Binding AttackCommand}"
                     ToolTip="Plays the attacker's attack set once, then applies the damage feedback" />
+            <Button Content="ВОСПРОИЗВЕСТИ ЗАХВАТ" Width="300" Height="58" FontSize="20"
+                    Margin="24,0,0,0" Style="{StaticResource HudButton}"
+                    Command="{Binding CaptureReplayCommand}"
+                    ToolTip="Replays the recorded Unity run (manifest + JSONL) event by event" />
         </StackPanel>
     </Grid>
 </UserControl>

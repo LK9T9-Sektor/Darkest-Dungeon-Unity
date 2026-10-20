@@ -39,6 +39,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private readonly INavigationService navigation;
         private readonly ISpineDemoCatalog catalog;
         private readonly ILogger logger;
+        private readonly Func<object> createCaptureReplay;
 
         /// <summary>Gets or sets the content directory of the attacker slot.</summary>
         [ObservableProperty]
@@ -91,6 +92,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the command starting the one-shot attack animation.</summary>
         public IRelayCommand AttackCommand { get; }
 
+        /// <summary>Gets the command opening the recorded-capture replay screen.</summary>
+        public IRelayCommand CaptureReplayCommand { get; }
+
         /// <summary>
         /// Gets the command executed by the attacker control when its non-looping animation
         /// finished; the parameter is the completed animation name.
@@ -101,17 +105,24 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <param name="navigation">The navigation service.</param>
         /// <param name="catalog">The catalog resolving animation set content directories.</param>
         /// <param name="logger">The structural logger.</param>
-        public SpineBattleViewModel(INavigationService navigation, ISpineDemoCatalog catalog, ILogger logger)
+        /// <param name="createCaptureReplay">Creates the recorded-capture replay screen.</param>
+        public SpineBattleViewModel(
+            INavigationService navigation,
+            ISpineDemoCatalog catalog,
+            ILogger logger,
+            Func<object> createCaptureReplay)
         {
             this.navigation = navigation;
             this.catalog = catalog;
             this.logger = logger;
+            this.createCaptureReplay = createCaptureReplay ?? throw new ArgumentNullException(nameof(createCaptureReplay));
 
             AttackerContentDirectory = catalog.GetContentDirectory(AttackerHero, IdleAnimation);
             TargetContentDirectory = catalog.GetContentDirectory(TargetHero, IdleAnimation);
 
             BackCommand = new RelayCommand(navigation.GoHome);
             AttackCommand = new RelayCommand(StartAttack, () => !IsAttacking);
+            CaptureReplayCommand = new RelayCommand(OpenCaptureReplay);
             AttackerAnimationCompletedCommand = new RelayCommand<string?>(OnAttackerAnimationCompleted);
 
             logger.Log($"arena: opened attacker={AttackerHero} target={TargetHero}");
@@ -127,6 +138,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             AttackerOverlayContentDirectory = catalog.GetContentDirectory(AttackerHero, AttackSkillAnimation);
             logger.Log(
                 $"arena: attack started attacker={AttackerHero} pose={AttackPoseAnimation} skill={AttackSkillAnimation}");
+        }
+
+        private void OpenCaptureReplay()
+        {
+            logger.Log("arena: opening capture replay");
+            navigation.NavigateTo(createCaptureReplay());
         }
 
         private void OnAttackerAnimationCompleted(string? animationName)

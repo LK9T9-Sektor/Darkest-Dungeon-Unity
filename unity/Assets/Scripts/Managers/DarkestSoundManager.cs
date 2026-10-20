@@ -3,6 +3,9 @@ using FMODUnity;
 using System.Collections.Generic;
 using System.Linq;
 using Sektor.DarkestDungeon.Core.Campaign;
+using AudioActions = Sektor.DarkestDungeon.Core.GameEvents.AudioActions;
+using AudioPosition = Sektor.DarkestDungeon.Core.GameEvents.AudioPosition;
+using GameRng = Sektor.DarkestDungeon.Core.GameEvents.GameRng;
 
 public class DarkestSoundManager : MonoBehaviour
 {
@@ -104,9 +107,17 @@ public class DarkestSoundManager : MonoBehaviour
         else if (!RandomSolver.CheckSuccess(narrationEvent.Chance))
             return;
 
-        var narrationInstanse = RuntimeManager.CreateInstance("event:" + narrationEvent.AudioEvent);
+        string narrationPath = "event:" + narrationEvent.AudioEvent;
+        var narrationInstanse = RuntimeManager.CreateInstance(narrationPath);
         if (narrationInstanse != null)
+        {
             NarrationQueue.Add(narrationInstanse);
+            GameEventRecording.PublishAudio(
+                narrationPath,
+                AudioActions.OneShot,
+                SfxVolume,
+                rng: new GameRng(Modifier: narrationEvent.Chance));
+        }
 
         switch (place)
         {
@@ -147,7 +158,10 @@ public class DarkestSoundManager : MonoBehaviour
 
         var narrationInstanse = RuntimeManager.CreateInstance(id);
         if (narrationInstanse != null)
+        {
             NarrationQueue.Add(narrationInstanse);
+            GameEventRecording.PublishAudio(id, AudioActions.OneShot, SfxVolume);
+        }
     }
 
     public static void SilenceNarrator()
@@ -174,6 +188,11 @@ public class DarkestSoundManager : MonoBehaviour
 
         eventInstance.set3DAttributes(FMODUnity.RuntimeUtils.To3DAttributes(position));
         SoundSetLevel(eventInstance, SfxVolume);
+        GameEventRecording.PublishAudio(
+            eventId,
+            AudioActions.OneShot,
+            SfxVolume,
+            new AudioPosition(position.x, position.y, position.z));
         eventInstance.start();
         eventInstance.release();
     }
@@ -210,14 +229,15 @@ public class DarkestSoundManager : MonoBehaviour
     {
         StopTitleMusic();
 
-        if (isIntro)
-            TitleMusicInstanse = RuntimeManager.CreateInstance("event:/music/_music_assets/title_intro");
-        else
-            TitleMusicInstanse = RuntimeManager.CreateInstance("event:/music/_music_assets/title_outro");
+        string eventPath = isIntro
+            ? "event:/music/_music_assets/title_intro"
+            : "event:/music/_music_assets/title_outro";
+        TitleMusicInstanse = RuntimeManager.CreateInstance(eventPath);
 
         if (TitleMusicInstanse != null)
         {
             SoundSetLevel(TitleMusicInstanse, MusicVolume);
+            GameEventRecording.PublishAudio(eventPath, AudioActions.Start, MusicVolume);
             TitleMusicInstanse.start();
         }
     }
@@ -235,14 +255,15 @@ public class DarkestSoundManager : MonoBehaviour
     {
         StopDungeonSoundtrack();
 
-        if(dungeonName == "darkestdungeon")
-            DungeonInstanse = RuntimeManager.CreateInstance("event:/ambience/dungeon/quest/" + RaidSceneManager.Raid.Quest.Id);
-        else
-            DungeonInstanse = RuntimeManager.CreateInstance("event:/ambience/dungeon/" + dungeonName);
+        string eventPath = dungeonName == "darkestdungeon"
+            ? "event:/ambience/dungeon/quest/" + RaidSceneManager.Raid.Quest.Id
+            : "event:/ambience/dungeon/" + dungeonName;
+        DungeonInstanse = RuntimeManager.CreateInstance(eventPath);
 
         if (DungeonInstanse != null)
         {
             SoundSetLevel(DungeonInstanse, MusicVolume);
+            GameEventRecording.PublishAudio(eventPath, AudioActions.Start, MusicVolume);
             DungeonInstanse.start();
         }
     }
@@ -274,11 +295,13 @@ public class DarkestSoundManager : MonoBehaviour
     {
         StopBattleSoundtrack();
 
-        BattleInstanse = RuntimeManager.CreateInstance("event:/music/mus_battle_" +
-            dungeonName + (isRoom ? "_room" : "_hallway"));
+        string eventPath = "event:/music/mus_battle_" +
+            dungeonName + (isRoom ? "_room" : "_hallway");
+        BattleInstanse = RuntimeManager.CreateInstance(eventPath);
         if (BattleInstanse != null)
         {
             SoundSetLevel(BattleInstanse, MusicVolume);
+            GameEventRecording.PublishAudio(eventPath, AudioActions.Start, MusicVolume);
             BattleInstanse.start();
         }
     }
@@ -300,12 +323,15 @@ public class DarkestSoundManager : MonoBehaviour
         if (CampingInstanse != null)
         {
             SoundSetLevel(CampingInstanse, MusicVolume);
+            GameEventRecording.PublishAudio(
+                "event:/ambience/local/campfire", AudioActions.Start, MusicVolume);
             CampingInstanse.start();
         }
         CampingMusicInstanse = RuntimeManager.CreateInstance("event:/music/mus_camp");
         if (CampingMusicInstanse != null)
         {
             SoundSetLevel(CampingMusicInstanse, MusicVolume);
+            GameEventRecording.PublishAudio("event:/music/mus_camp", AudioActions.Start, MusicVolume);
             CampingMusicInstanse.start();
         }
     }
@@ -332,12 +358,15 @@ public class DarkestSoundManager : MonoBehaviour
         if (TownInstanse != null)
         {
             SoundSetLevel(TownInstanse, MusicVolume);
+            GameEventRecording.PublishAudio(
+                "event:/ambience/town/general", AudioActions.Start, MusicVolume);
             TownInstanse.start();
         }
         TownMusicInstanse = RuntimeManager.CreateInstance("event:/music/mus_town");
         if (TownMusicInstanse != null)
         {
             SoundSetLevel(TownMusicInstanse, MusicVolume);
+            GameEventRecording.PublishAudio("event:/music/mus_town", AudioActions.Start, MusicVolume);
             TownMusicInstanse.start();
         }
     }
