@@ -43,11 +43,17 @@ namespace Sektor.DarkestDungeon.Wpf
                         new GameEventLogReader(),
                         new CaptureAnimationCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "Spine")),
                         logger,
-                        Path.Combine(AppContext.BaseDirectory, "Content", "Captures", "Reference"),
+                        ResolveCaptureReplayDirectory(),
                         new DispatcherReplayPacer())));
             shell.SetHome(menu);
             shell.NavigateTo(menu);
             return shell;
+        }
+
+        private static string ResolveCaptureReplayDirectory()
+        {
+            string reference = Path.Combine(AppContext.BaseDirectory, "Content", "Captures", "Reference");
+            return GameEventCaptureLocator.ResolveReplayDirectory(AppContext.BaseDirectory, reference);
         }
 
         private static Core.Common.ILogger CreateLogger()

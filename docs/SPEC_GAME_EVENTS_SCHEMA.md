@@ -14,7 +14,11 @@
 
 ## 1. Формат файлов
 
-Run-директория записи (её создаёт рекордер S3):
+Run-директория записи (её создаёт рекордер S3). В редакторе Unity и в игре, запущенной
+внутри репозитория, это общая папка `<repo>\captures\run_<timestamp>\`; если корень репозитория
+не найден (собранная игра), используется fallback `persistentDataPath\Replays\run_<timestamp>\`.
+WPF при открытии реплея сам берёт самый свежий `run_*` из `<repo>\captures`, а при отсутствии
+записей — встроенный эталон `Content\Captures\Reference`. Папка `captures` в `.gitignore`.
 
 ```
 <run>/
@@ -133,6 +137,8 @@ DTO (несовместимые логи различаются только э�
 - **Инварианты:** `Combatants` полон для контекста (бой: обе стороны); `Rank` монотонно
   возрастает от фронта; `Statuses`/`Buffs` содержат только `IsApplied`-эффекты; самодостаточность
   — как у `sceneSnapshot`.
+- **Диагностика:** пустые слоты формации (`FormationUnit.Character == null`) в `Combatants` не
+  попадают; ошибка построения снапшота логируется `[GameEventLog] ... failed` и не прерывает бой.
 - **Пример (payload):** `{"Context":"battleStart","Globals":{"Torch":99,"Gold":1000},"Combatants":[{"Id":"hero_1","Name":"crusader","Hp":33,"MaxHp":33,"IsEnemy":false,"Icon":"crusader_portrait","Skeleton":"crusader","Rank":1,"Size":1,"Stress":4,"MaxStress":100,"AtDeathsDoor":false,"IsDead":false,"IsAfflicted":false,"IsVirtued":false,"Statuses":[],"Buffs":[]},{"Id":"monster_3","Name":"brigand_cutthroat","Hp":12,"MaxHp":12,"IsEnemy":true,"Icon":"brigand_cutthroat_portrait","Skeleton":"brigand_cutthroat","Rank":1,"Size":1,"Stress":0,"MaxStress":0,"AtDeathsDoor":false,"IsDead":false,"IsAfflicted":false,"IsVirtued":false,"Statuses":[],"Buffs":[]}],"Battle":{"Round":1,"Turn":"Hero","ActiveUnitId":"hero_1","OrderedUnitIds":["hero_2","monster_3"],"Surprise":"Nothing","Status":"Active","Retreat":false}}`
 
 ### 3.3 `partyMoved` (Subsystem `map`)
@@ -225,7 +231,8 @@ DTO (несовместимые логи различаются только э�
   крита; `Seed` не пишется (`null`). Для мультицелевого скилла RNG остальных целей в `Targets`
   не дублируется — это ограничение v1.1 (§5.7).
 - **Инварианты:** одна запись на каждую цель, включая miss; `Targets` непустой для боевого
-  скилла; `Amount >= 0`; `HpAfter`/`StressAfter` — фактическое состояние после скилла.
+  скилла; `Amount >= 0`; `HpAfter`/`StressAfter` — фактическое состояние после скилла;
+  `StressAfter = 0` для юнитов без стресса (монстры).
 - **Пример (payload):** `{"AttackerId":"hero_2","SkillName":"slice","Targets":[{"TargetId":"monster_3","ResultType":"Crit","Amount":8,"IsHit":true,"IsZeroed":false,"IsHarmful":true,"HpAfter":4,"StressAfter":31,"RankAfter":1}],"Effects":["damage"],"Input":{"Kind":"playerClick","Target":"monster_3","Skill":"slice","Slot":null},"Rng":{"Seed":null,"Roll":0.07,"Crit":true,"Modifier":0.1}}`
 
 ### 3.11 `unitMoved` (Subsystem `combat`, v1.1)
@@ -356,14 +363,17 @@ DTO (несовместимые логи различаются только э�
 - `src/Clients/Sektor.DarkestDungeon.Clients.EventLog/` — `JsonEventLogger.cs`,
   `GameEventManifest.cs`, `GameEventLogReader.cs` (allowlist-биндер, проверки
   `SchemaVersion`/`Sequence`/`Subsystem`, поддержка `1.0.0`/`1.1.0`), `GameEventTypeBinder.cs`
-  (`List<T>`/`T[]`), `GameEventCapture.cs`, `GameEventFileNames.cs`.
-- Unity-издатель: `unity\Assets\Scripts\Diagnostics\GameEventRecording.cs` (снапшоты,
-  скиллы, ходы/раунды, бой, аудио), `Managers\RaidSceneManager.cs` (боевой цикл, `ExecuteSkillBase`,
+  (`List<T>`/`T[]`), `GameEventCapture.cs`, `GameEventFileNames.cs`,
+  `GameEventCaptureLocator.cs` (поиск `<repo>\captures` и свежего `run_*`).
+- Unity-издатель: `unity\Assets\Scripts\Diagnostics\GameEventRecorder.cs` (run-директория),
+  `GameEventRecording.cs` (снапшоты, скиллы, ходы/раунды, бой, аудио),
+  `Managers\RaidSceneManager.cs` (боевой цикл, `ExecuteSkillBase`,
   стартовый звук/курио), `Mechanics\Battle\Round.cs` (turn/round hooks),
   `Mechanics\Battle\BattleSolver.cs`/`SkillResultEntry.cs` (hit/crit roll),
   `Mechanics\RandomSolver.cs` (roll overload), `Managers\DarkestSoundManager.cs`
   (музыка/нарратив/one-shot), `Character\Character.cs` (`GetBuffs`).
-- WPF-потребитель: `src/Wpf/Sektor.DarkestDungeon.Wpf/ViewModels/CaptureReplayViewModel.cs`
+- WPF-потребитель: `src/Wpf/Sektor.DarkestDungeon.Wpf/MainWindow.xaml.cs` (выбор свежего
+  `run_*` через `GameEventCaptureLocator`), `ViewModels/CaptureReplayViewModel.cs`
   (проекция состояния, `SkillResolved`/`UnitMoved`/turn/round/battle-end/audio, расстановка по
   `Rank`, темп 100 мс/атака ≥1.2 с через `IReplayPacer`), `CaptureUnitViewModel.cs`
   (stress/statuses/buffs/conditions), `Views/CaptureReplayView.xaml`,
@@ -371,7 +381,8 @@ DTO (несовместимые логи различаются только э�
   `Rank` в 1.1 пишется; точные x/y по-прежнему не пишутся.
 - Тесты-образцы: `tests/Core/Sektor.DarkestDungeon.Core.GameEvents.Tests/GameEventBusTests.cs`,
   `tests/Clients/Sektor.DarkestDungeon.Clients.EventLog.Tests/JsonEventLoggerTests.cs`,
-  `GameEventLogReaderTests.cs`, `tests/Wpf/Sektor.DarkestDungeon.Wpf.Tests/CaptureReplay*.cs`.
+  `GameEventLogReaderTests.cs`, `GameEventCaptureLocatorTests.cs`,
+  `tests/Wpf/Sektor.DarkestDungeon.Wpf.Tests/CaptureReplay*.cs`.
 - Аудио: `docs/audio/00_index.md`, `audio_catalog.json`, `audio_catalog.md`;
   генератор `tools/extract-fmod-catalog.ps1`.
 - Эталон: `docs/spec_game_events/examples/` — `1.0.0` (§7).
@@ -394,8 +405,9 @@ DTO (несовместимые логи различаются только э�
 - `manifest.json` — `SchemaVersion` 1.0.0, `StartedAt`, `Files`.
 
 Захват читается как исполняемая спецификация для WPF-потребителя: JSONL по `Sequence`,
-применение событий к ближайшему снапшоту. Эталон линкуется в output WPF как
-`Content\Captures\Reference`; экран читает его через `GameEventLogReader` и проигрывает
+применение событий к ближайшему снапшоту. WPF-экран читает самый свежий `<repo>\captures\run_*`
+(если записей нет — эталон, линкуемый в output как `Content\Captures\Reference`) через
+`GameEventLogReader` и проигрывает
 `attackExecuted` по одному, ожидая завершения нецикличной анимации атакующего (fallback —
 таймер, если Spine-контента нет). Финальное состояние — последний `stateSnapshot` (seq 38):
 факел 7, комната `room2_1`, новый бой `brigand_blood` + `brigand_fusilier`; предыдущий

@@ -34,7 +34,8 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 - Захват: `Clients.EventLog.GameEventLogReader` + `GameEventCapture` (allowlist-биндер, схемы
   `1.0.0`/`1.1.0`, `Sequence` 1..N, `Subsystem` = имени файла); `CaptureAnimationCatalog`
   (`ICaptureAnimationCatalog`) мэппит `skeleton/animation` в `Content\Spine\<Skeleton>\<Animation>`;
-  эталон линкуется в `Content\Captures\Reference`. `CaptureUnitViewModel` хранит `Rank`/`Size`/
+  WPF ищет свежий `<repo>/captures/run_*`, иначе играет эталон из `Content\Captures\Reference`.
+  `CaptureUnitViewModel` хранит `Rank`/`Size`/
   `Stress`/`MaxStress`/`AtDeathsDoor`/`IsAfflicted`/`IsVirtued` и производные подписи
   (`R1`/`R2 · x2`, `25/100`, `Bleeding 2`, `damage +0.15`); `AudioLog` — отдельная коллекция
   `CaptureTimelineEntryViewModel`, заполняемая `AudioPlayed` (без реального FMOD-воспроизведения).
@@ -73,9 +74,11 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
    `TargetCardFlash="Damage"` (вход DataTrigger перезапускает флеш) и `TargetPopupVisible=true`
    с текстом `-6`; `IsAttacking=false` разблокирует кнопку (`NotifyCanExecuteChangedFor`).
 8. Захват: арена → «ВОСПРОИЗВЕСТИ ЗАХВАТ» → `SpineBattleViewModel.CaptureReplayCommand` →
-   `MainWindow` создаёт `CaptureReplayViewModel` с `GameEventLogReader`, путём эталона и
-   `DispatcherReplayPacer`. Конструктор читает захват (`Result`: ошибка → `ErrorText`/«Захват
-   недоступен», без исключения), строит таймлайн из подписей и сразу запускает `StartReplay`.
+   `MainWindow` через `GameEventCaptureLocator` выбирает самый свежий `<repo>/captures/run_*`
+   (если записей нет — эталон `Content\Captures\Reference`) и создаёт `CaptureReplayViewModel`
+   с `GameEventLogReader`, этим путём и `DispatcherReplayPacer`. Конструктор читает захват
+   (`Result`: ошибка → `ErrorText`/«Захват недоступен», без исключения), строит таймлайн из
+   подписей и сразу запускает `StartReplay`.
    `Advance` применяет **одно** неатакующее событие и планирует следующее через `EventPacing`
    (100 мс), поэтому переходы/факел/HP видны пошагово; текущая строка таймлайна подсвечивается и
    скроллится в видимую область.
@@ -122,6 +125,7 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 | Ввод только на своём ходу | `IsLocalTurn` | иначе игнор |
 | Адаптивная раскладка | `MainWindow` | ресайз, без Viewbox |
 | Скорость Spine-демо | `SpineDemoViewModel` | 1.0…10.0 (шаг 0.5, wrap 100↔1000%); нижний кламп контрола 0.01…100 |
+| Выбор захвата | `GameEventCaptureLocator` | новейший `<repo>/captures/run_*` с `manifest.json`; иначе эталон `Content\Captures\Reference` |
 | Чтение захвата | `GameEventLogReader` | `SchemaVersion` = `1.0.0`/`1.1.0`; `Sequence` ровно 1..N; `Subsystem` = имени файла; allowlist-биндер |
 | Fallback формации | `CaptureUnitViewModel` | `Rank <= 0` → `index + 1`; `Size <= 0` → 1 |
 | Захват без Spine-клипа | `CaptureReplayViewModel` | idle-сет, иначе карточка; атака завершается по фолбэку 900 мс |
@@ -241,6 +245,11 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   замещает `monster_3`, которого довели до 0 HP на seq 28. Поэтому «финал с монстром 0 HP»
   неверен: проверять нужно последний снапшот (35/35 и 12/12), а смерть старого монстра видна в
   моменте. Synthetic `1.1.0` вместо этого заканчивается `BattleEnded` (10 событий).
+- **Захваты — общая папка репозитория** — Unity-редактор пишет в `<repo>/captures/run_*`
+  (собранная игра без репозитория — fallback `persistentDataPath/Replays`); WPF берёт самый
+  свежий `run_*` при открытии экрана. Папка gitignored; копировать файлы вручную не нужно.
+  Пустые слоты формации (без `Character`) в снапшот не попадают. Захват, который ещё пишется,
+  лучше не открывать: reader может увидеть неполный хвост.
 - **Таймлайн отмечает текущий момент** — `CurrentEntry` — последнее применённое событие; при
   пошаговом темпе каждая строка остаётся текущей ~100 мс, атака — ~1.2 с. `ListBox`
   `SelectedItem` привязан one-way, code-behind скроллит выбранную строку в видимую область.
@@ -286,7 +295,8 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   `ViewModels/IReplayPacer.cs`, `ViewModels/DispatcherReplayPacer.cs`,
   `Data/CaptureAnimationCatalog.cs` (плеер захвата)
 - `src/Clients/Sektor.DarkestDungeon.Clients.EventLog/GameEventLogReader.cs` (чтение/валидация JSONL),
-  `GameEventTypeBinder.cs` (allowlist `List<T>`/`T[]`), `JsonEventLogger.cs` (`1.1.0`)
+  `GameEventTypeBinder.cs` (allowlist `List<T>`/`T[]`), `JsonEventLogger.cs` (`1.1.0`),
+  `GameEventCaptureLocator.cs` (поиск `<repo>/captures` и свежего `run_*`)
 - `src/Spine/Sektor.Spine.Skia/SpinePlayer.cs` (one-shot `Play` + событие `AnimationCompleted`)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Ui/WindowScreenshot.cs` (кнопка SCREENSHOT)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Behaviors/` (`SaveScreenshotAction`, `MarkEventHandledAction`)

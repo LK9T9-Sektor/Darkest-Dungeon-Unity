@@ -48,6 +48,7 @@ using UnitMoved = Sektor.DarkestDungeon.Core.GameEvents.UnitMoved;
 /// </summary>
 public static class GameEventRecording
 {
+    private const string LogPrefix = "[GameEventLog]";
     private const string HeroIdPrefix = "hero_";
     private const string MonsterIdPrefix = "monster_";
     private const string PortraitSuffix = "_portrait";
@@ -71,11 +72,26 @@ public static class GameEventRecording
     /// <summary>Publishes the raid-start scene snapshot (party, globals, hierarchy).</summary>
     public static void PublishSceneSnapshot()
     {
+        try
+        {
+            PublishSceneSnapshotCore();
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError(LogPrefix + " scene snapshot failed: " + exception);
+        }
+    }
+
+    private static void PublishSceneSnapshotCore()
+    {
         GameEventRecorder recorder = ActiveRecorder();
-        if (recorder == null)
+        if (recorder == null || RaidSceneManager.HeroParty == null)
             return;
 
         IList<FormationUnit> units = RaidSceneManager.HeroParty.Units;
+        if (units == null)
+            return;
+
         var hierarchy = new List<SceneNode>(units.Count + 1);
         var heroes = new List<CombatantState>(units.Count);
         var party = new List<string>(units.Count);
@@ -84,10 +100,17 @@ public static class GameEventRecording
         for (int i = 0; i < units.Count; i++)
         {
             FormationUnit unit = units[i];
+            if (unit == null || unit.Character == null || unit.CombatInfo == null)
+                continue;
+
             string id = UnitId(unit);
+            CombatantState combatant = ToCombatant(unit);
+            if (string.IsNullOrEmpty(id) || combatant == null)
+                continue;
+
             hierarchy.Add(new SceneNode(id, PartyRootId,
                 new List<string> { HeroViewComponent, SkeletonAnimationComponent }));
-            heroes.Add(ToCombatant(unit));
+            heroes.Add(combatant);
             party.Add(id);
         }
 
@@ -142,8 +165,8 @@ public static class GameEventRecording
             return;
 
         BattleGround battleGround = RaidSceneManager.BattleGround;
-        bool heroesAlive = HasLivingUnits(battleGround.HeroParty.Units);
-        bool monstersAlive = HasLivingUnits(battleGround.MonsterParty.Units);
+        bool heroesAlive = HasLivingUnits(battleGround.HeroParty != null ? battleGround.HeroParty.Units : null);
+        bool monstersAlive = HasLivingUnits(battleGround.MonsterParty != null ? battleGround.MonsterParty.Units : null);
         string winner = !monstersAlive ? BattleWinners.Heroes
             : !heroesAlive ? BattleWinners.Monsters
             : BattleWinners.Unknown;
@@ -217,11 +240,22 @@ public static class GameEventRecording
     public static Dictionary<FormationUnit, int> CaptureRanks()
     {
         var ranks = new Dictionary<FormationUnit, int>();
-        if (RaidSceneManager.Instanse == null || RaidSceneManager.BattleGround == null)
-            return ranks;
+        try
+        {
+            if (RaidSceneManager.Instanse == null || RaidSceneManager.BattleGround == null)
+                return ranks;
 
-        AddRanks(RaidSceneManager.BattleGround.HeroParty.Units, ranks);
-        AddRanks(RaidSceneManager.BattleGround.MonsterParty.Units, ranks);
+            if (RaidSceneManager.BattleGround.HeroParty != null)
+                AddRanks(RaidSceneManager.BattleGround.HeroParty.Units, ranks);
+            if (RaidSceneManager.BattleGround.MonsterParty != null)
+                AddRanks(RaidSceneManager.BattleGround.MonsterParty.Units, ranks);
+        }
+        catch (Exception exception)
+        {
+            ranks.Clear();
+            Debug.LogError(LogPrefix + " rank capture failed: " + exception);
+        }
+
         return ranks;
     }
 
@@ -239,23 +273,43 @@ public static class GameEventRecording
         float stressBefore,
         SkillResultEntry entry)
     {
-        if (target == null || entry == null)
+        try
+        {
+            PublishSkillResultCore(target, healthBefore, stressBefore, entry);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError(LogPrefix + " skill result failed: " + exception);
+        }
+    }
+
+    private static void PublishSkillResultCore(
+        FormationUnit target,
+        float healthBefore,
+        float stressBefore,
+        SkillResultEntry entry)
+    {
+        if (target == null || target.Character == null || entry == null)
             return;
 
         GameEventRecorder recorder = ActiveRecorder();
         if (recorder == null)
             return;
 
+        Character character = target.Character;
         int oldHp = Mathf.RoundToInt(healthBefore);
-        int newHp = Mathf.RoundToInt(target.Character.CurrentHealth);
+        int newHp = Mathf.RoundToInt(character.CurrentHealth);
         if (oldHp != newHp)
         {
             recorder.Publish(new HeroStatChanged(
                 UnitId(target), HpStat, oldHp, newHp, entry.Type.ToString(), HpInvariant));
         }
 
+        if (character.Stress == null)
+            return;
+
         int oldStress = Mathf.RoundToInt(stressBefore);
-        int newStress = Mathf.RoundToInt(target.Character.Stress.CurrentValue);
+        int newStress = Mathf.RoundToInt(character.Stress.CurrentValue);
         if (oldStress != newStress)
         {
             recorder.Publish(new HeroStatChanged(
@@ -296,6 +350,22 @@ public static class GameEventRecording
         SkillResult result,
         Dictionary<FormationUnit, int> ranksBefore)
     {
+        try
+        {
+            PublishSkillResolvedCore(performer, targetInfo, result, ranksBefore);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError(LogPrefix + " skill resolved failed: " + exception);
+        }
+    }
+
+    private static void PublishSkillResolvedCore(
+        FormationUnit performer,
+        SkillTargetInfo targetInfo,
+        SkillResult result,
+        Dictionary<FormationUnit, int> ranksBefore)
+    {
         if (performer == null || targetInfo == null || targetInfo.Skill == null || result == null)
             return;
 
@@ -308,8 +378,12 @@ public static class GameEventRecording
         {
             foreach (SkillResultEntry entry in result.SkillEntries)
             {
-                if (entry == null || entry.Target == null)
+                if (entry == null || entry.Target == null || entry.Target.Character == null)
                     continue;
+
+                int stressAfter = entry.Target.Character.Stress != null
+                    ? Mathf.RoundToInt(entry.Target.Character.Stress.CurrentValue)
+                    : 0;
 
                 targets.Add(new SkillTargetResult(
                     UnitId(entry.Target),
@@ -319,7 +393,7 @@ public static class GameEventRecording
                     entry.IsZeroed,
                     entry.IsHarmful,
                     Mathf.RoundToInt(entry.Target.Character.CurrentHealth),
-                    Mathf.RoundToInt(entry.Target.Character.Stress.CurrentValue),
+                    stressAfter,
                     entry.Target.Rank));
             }
         }
@@ -440,17 +514,32 @@ public static class GameEventRecording
 
     private static void PublishSnapshot(string context)
     {
+        try
+        {
+            PublishSnapshotCore(context);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError(LogPrefix + " snapshot '" + context + "' failed: " + exception);
+        }
+    }
+
+    private static void PublishSnapshotCore(string context)
+    {
         GameEventRecorder recorder = ActiveRecorder();
         if (recorder == null || RaidSceneManager.BattleGround == null)
             return;
 
-        IList<FormationUnit> heroUnits = RaidSceneManager.BattleGround.HeroParty.Units;
-        IList<FormationUnit> monsterUnits = RaidSceneManager.BattleGround.MonsterParty.Units;
-        var combatants = new List<CombatantState>(heroUnits.Count + monsterUnits.Count);
-        for (int i = 0; i < heroUnits.Count; i++)
-            combatants.Add(ToCombatant(heroUnits[i]));
-        for (int i = 0; i < monsterUnits.Count; i++)
-            combatants.Add(ToCombatant(monsterUnits[i]));
+        IList<FormationUnit> heroUnits = RaidSceneManager.BattleGround.HeroParty != null
+            ? RaidSceneManager.BattleGround.HeroParty.Units
+            : null;
+        IList<FormationUnit> monsterUnits = RaidSceneManager.BattleGround.MonsterParty != null
+            ? RaidSceneManager.BattleGround.MonsterParty.Units
+            : null;
+        int capacity = (heroUnits != null ? heroUnits.Count : 0) + (monsterUnits != null ? monsterUnits.Count : 0);
+        var combatants = new List<CombatantState>(capacity);
+        AddCombatants(heroUnits, combatants);
+        AddCombatants(monsterUnits, combatants);
 
         recorder.Publish(new StateSnapshot(
             context,
@@ -460,6 +549,19 @@ public static class GameEventRecording
             null,
             null,
             CurrentBattleState()));
+    }
+
+    private static void AddCombatants(IList<FormationUnit> units, List<CombatantState> combatants)
+    {
+        if (units == null)
+            return;
+
+        for (int i = 0; i < units.Count; i++)
+        {
+            CombatantState combatant = ToCombatant(units[i]);
+            if (combatant != null)
+                combatants.Add(combatant);
+        }
     }
 
     private static BattleState CurrentBattleState()
@@ -498,6 +600,9 @@ public static class GameEventRecording
 
     private static void AddRanks(IList<FormationUnit> units, Dictionary<FormationUnit, int> ranks)
     {
+        if (units == null)
+            return;
+
         for (int i = 0; i < units.Count; i++)
         {
             if (units[i] != null)
@@ -522,6 +627,9 @@ public static class GameEventRecording
 
     private static string TurnKind(FormationUnit unit)
     {
+        if (unit == null || unit.Character == null)
+            return null;
+
         return unit.Character.IsMonster ? "Monster" : "Hero";
     }
 
@@ -554,24 +662,50 @@ public static class GameEventRecording
 
     private static SceneGlobals CurrentGlobals()
     {
-        return new SceneGlobals(
-            RaidSceneManager.TorchMeter.TorchAmount,
-            DarkestDungeonManager.SaveData.GoldAmount);
+        int torch = RaidSceneManager.TorchMeter != null
+            ? RaidSceneManager.TorchMeter.TorchAmount
+            : 0;
+        int gold = DarkestDungeonManager.SaveData != null
+            ? DarkestDungeonManager.SaveData.GoldAmount
+            : 0;
+        return new SceneGlobals(torch, gold);
     }
 
     private static string UnitId(FormationUnit unit)
     {
+        if (unit == null)
+            return string.Empty;
+
         Hero hero = unit.Character as Hero;
         if (hero != null)
             return HeroIdPrefix + hero.RosterId;
-        return MonsterIdPrefix + unit.CombatInfo.CombatId;
+        if (unit.CombatInfo != null)
+            return MonsterIdPrefix + unit.CombatInfo.CombatId;
+
+        return string.Empty;
     }
 
     private static CombatantState ToCombatant(FormationUnit unit)
     {
+        if (unit == null || unit.Character == null || unit.CombatInfo == null)
+            return null;
+
         Character character = unit.Character;
+        string id = UnitId(unit);
+        if (string.IsNullOrEmpty(id))
+            return null;
+
+        int stress = 0;
+        int maxStress = 0;
+        if (character.Stress != null)
+        {
+            stress = Mathf.RoundToInt(character.Stress.CurrentValue);
+            maxStress = Mathf.RoundToInt(character.Stress.ModifiedValue);
+        }
+
+        StatusEffect deathsDoor = character[StatusType.DeathsDoor];
         return new CombatantState(
-            UnitId(unit),
+            id,
             character.Class,
             Mathf.RoundToInt(character.CurrentHealth),
             Mathf.RoundToInt(character.MaxHealth),
@@ -580,9 +714,9 @@ public static class GameEventRecording
             character.Class,
             unit.Rank,
             unit.Size,
-            Mathf.RoundToInt(character.Stress.CurrentValue),
-            Mathf.RoundToInt(character.Stress.ModifiedValue),
-            character[StatusType.DeathsDoor].IsApplied,
+            stress,
+            maxStress,
+            deathsDoor != null && deathsDoor.IsApplied,
             unit.CombatInfo.IsDead || character.CurrentHealth <= 0f,
             character.IsAfflicted,
             character.IsVirtued,
@@ -593,6 +727,9 @@ public static class GameEventRecording
     private static IReadOnlyList<CombatantStatusState> ToStatuses(Character character)
     {
         var statuses = new List<CombatantStatusState>();
+        if (character == null)
+            return statuses;
+
         foreach (StatusType type in Enum.GetValues(typeof(StatusType)))
         {
             if (type == StatusType.None)
@@ -644,7 +781,14 @@ public static class GameEventRecording
     private static IReadOnlyList<CombatantBuffState> ToBuffs(Character character)
     {
         var buffs = new List<CombatantBuffState>();
-        foreach (BuffInfo buff in character.GetBuffs())
+        if (character == null)
+            return buffs;
+
+        IReadOnlyList<BuffInfo> activeBuffs = character.GetBuffs();
+        if (activeBuffs == null)
+            return buffs;
+
+        foreach (BuffInfo buff in activeBuffs)
         {
             if (buff == null || buff.Buff == null)
                 continue;
@@ -664,26 +808,43 @@ public static class GameEventRecording
 
     private static AnimationRef CurrentAnimation(FormationUnit unit)
     {
-        string animation = CurrentSkeletonAnimation(unit);
-        if (string.IsNullOrEmpty(animation))
-            animation = CurrentAnimatorClip(unit);
-        if (string.IsNullOrEmpty(animation))
+        if (unit == null || unit.Character == null)
+            return null;
+
+        try
         {
-            Debug.LogWarning("[GameEventLog] no attack animation for " + unit.Character.Class
-                + "; active skeletons: " + ActiveSkeletonNames(unit));
+            string animation = CurrentSkeletonAnimation(unit);
+            if (string.IsNullOrEmpty(animation))
+                animation = CurrentAnimatorClip(unit);
+            if (string.IsNullOrEmpty(animation))
+            {
+                Debug.LogWarning(LogPrefix + " no attack animation for " + unit.Character.Class
+                    + "; active skeletons: " + ActiveSkeletonNames(unit));
+                return null;
+            }
+            return new AnimationRef(unit.Character.Class, animation);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError(LogPrefix + " failed to read the attack animation: " + exception);
             return null;
         }
-        return new AnimationRef(unit.Character.Class, animation);
     }
 
     private static string CurrentSkeletonAnimation(FormationUnit unit)
     {
+        if (unit == null)
+            return null;
+
         SkeletonAnimation state = unit.CurrentState;
         return state != null ? state.AnimationName : null;
     }
 
     private static string CurrentAnimatorClip(FormationUnit unit)
     {
+        if (unit == null)
+            return null;
+
         UnitAnimator unitAnimator = unit.GetComponentInChildren<UnitAnimator>();
         Animator animator = unitAnimator != null ? unitAnimator.Animator : null;
         if (animator == null)
@@ -700,9 +861,12 @@ public static class GameEventRecording
     private static string ActiveSkeletonNames(FormationUnit unit)
     {
         var names = new List<string>();
+        if (unit == null || unit.SkeletonAnimations == null)
+            return "<none>";
+
         foreach (SkeletonAnimation skeleton in unit.SkeletonAnimations)
         {
-            if (!skeleton.isActiveAndEnabled)
+            if (skeleton == null || !skeleton.isActiveAndEnabled)
                 continue;
             string animation = skeleton.AnimationName;
             names.Add(skeleton.name + "=" + (string.IsNullOrEmpty(animation) ? "<none>" : animation));

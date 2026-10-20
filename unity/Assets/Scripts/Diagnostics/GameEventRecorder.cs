@@ -9,17 +9,18 @@ using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Game-event recorder host (docs\SPEC_GAME_EVENTS.md): creates a <see cref="GameEventBus"/>
-/// plus <see cref="JsonEventLogger"/> run directory under
-/// <c>persistentDataPath\Replays\run_&lt;timestamp&gt;</c>. Bootstrapped after the first scene load
-/// (same pattern as SceneSnapshotDumper) and records every raid automatically: a run starts when a
-/// scene with a <see cref="RaidSceneManager"/> appears (including a direct Play in the raid scene)
-/// and stops when that scene unloads, so leaving to the menu finalizes the manifest.
+/// plus <see cref="JsonEventLogger"/> run directory under the shared
+/// <c>&lt;repository&gt;\captures\run_&lt;timestamp&gt;</c> folder, or
+/// <c>persistentDataPath\Replays\run_&lt;timestamp&gt;</c> when the repository is not found.
+/// Bootstrapped after the first scene load (same pattern as SceneSnapshotDumper) and records every
+/// raid automatically: a run starts when a scene with a <see cref="RaidSceneManager"/> appears
+/// (including a direct Play in the raid scene) and stops when that scene unloads, so leaving to the
+/// menu finalizes the manifest.
 /// </summary>
 public class GameEventRecorder : MonoBehaviour
 {
     private const string LogPrefix = "[GameEventLog]";
-    private const string ReplaysFolderName = "Replays";
-    private const string RunFolderPrefix = "run_";
+    private const string FallbackReplaysFolderName = "Replays";
     private const string RunTimestampFormat = "yyyy-MM-dd_HH-mm-ss";
     private const string RunNotes = "auto-recorded raid run";
 
@@ -75,8 +76,18 @@ public class GameEventRecorder : MonoBehaviour
     /// <param name="gameEvent">The stamped event record.</param>
     public void Publish(GameEvent gameEvent)
     {
-        if (bus != null && gameEvent != null)
+        if (bus == null || gameEvent == null)
+            return;
+
+        try
+        {
             bus.Publish(gameEvent);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError(LogPrefix + " failed to publish " + gameEvent.GetType().Name
+                + ": " + exception);
+        }
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -106,11 +117,14 @@ public class GameEventRecorder : MonoBehaviour
         if (IsRecording)
             return;
 
-        string runName = RunFolderPrefix + DateTime.Now.ToString(RunTimestampFormat);
-        string runDirectory = Path.Combine(Application.persistentDataPath, ReplaysFolderName, runName);
-
+        string runDirectory = string.Empty;
         try
         {
+            string fallbackRoot = Path.Combine(Application.persistentDataPath, FallbackReplaysFolderName);
+            string captureRoot = GameEventCaptureLocator.ResolveCaptureRoot(Application.dataPath, fallbackRoot);
+            string runName = GameEventCaptureLocator.RunFolderPrefix + DateTime.Now.ToString(RunTimestampFormat);
+            runDirectory = Path.Combine(captureRoot, runName);
+
             bus = new GameEventBus();
             logger = new JsonEventLogger(bus, runDirectory, notes: RunNotes);
         }
@@ -133,8 +147,19 @@ public class GameEventRecorder : MonoBehaviour
 
         Debug.Log(LogPrefix + " recording stopped: " + logger.ManifestPath
             + " (files: " + string.Join(", ", logger.Files) + ")");
-        logger.Dispose();
-        logger = null;
-        bus = null;
+
+        try
+        {
+            logger.Dispose();
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError(LogPrefix + " failed to finalize recording: " + exception);
+        }
+        finally
+        {
+            logger = null;
+            bus = null;
+        }
     }
 }

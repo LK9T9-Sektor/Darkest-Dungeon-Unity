@@ -1,7 +1,7 @@
 namespace Sektor.DarkestDungeon.Clients.EventLog
 {
     /// <summary>Well-known file names of one recorded run directory (spec §1).</summary>
-    internal static class GameEventFileNames
+    public static class GameEventFileNames
     {
         /// <summary>The manifest file with the schema version and the list of event files.</summary>
         public const string Manifest = "manifest.json";

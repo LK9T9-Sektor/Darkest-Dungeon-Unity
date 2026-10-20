@@ -68,7 +68,7 @@
 
 ## 2. Структура файлов
 
-    /replays/run_<YYYY_MM_DD_HHMMSS>/
+    <repo>/captures/run_<yyyy-MM-dd_HH-mm-ss>/
       manifest.json              # версия схемы, seed, список файлов, дата
       scene_dungeon.json         # полный снимок сцены + иерархия + параметры
       combat_01.jsonl            # бой 1: input -> events -> snapshot
@@ -76,6 +76,10 @@
       map_session.jsonl          # перемещение, комнаты
       inventory_session.jsonl    # открытие, использование, перемещение предметов
       town_session.jsonl         # город
+
+Если корень репозитория не найден (собранная Unity-игра), запись идёт в
+`persistentDataPath\Replays\run_<timestamp>\`. WPF читает самый свежий `run_*` из
+`<repo>\captures`; при отсутствии записей — встроенный эталон.
 
 manifest.json — обязателен:
 

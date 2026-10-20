@@ -3984,10 +3984,15 @@ public class RaidSceneManager : MonoBehaviour
 
         foreach (var targetUnit in targetInfo.Targets)
         {
+            if (targetUnit == null || targetUnit.Character == null)
+                continue;
+
             float healthBefore = targetUnit.Character.CurrentHealth;
-            float stressBefore = targetUnit.Character.Stress.CurrentValue;
+            float stressBefore = targetUnit.Character.Stress != null
+                ? targetUnit.Character.Stress.CurrentValue
+                : 0f;
             BattleSolver.ExecuteSkill(performer, targetUnit, targetInfo.Skill, targetInfo.SkillArtInfo);
-            if (BattleSolver.SkillResult.Current.IsTargetHit)
+            if (BattleSolver.SkillResult.Current.IsTargetHit && targetUnit.Character != null)
                 BattleGround.LastDamaged.Add(targetUnit.Character.Class);
             GameEventRecording.PublishSkillResult(
                 targetUnit, healthBefore, stressBefore, BattleSolver.SkillResult.Current);
