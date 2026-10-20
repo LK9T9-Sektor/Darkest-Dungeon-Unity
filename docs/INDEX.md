@@ -14,7 +14,7 @@
 | Архитектурная критика: Unity + текущее ядро + разделение проектов | `ARCHITECTURE_REVIEW.md` |
 | Целевая декомпозиция ядра по доменам (данные = домен) | `TARGET_LAYOUT.md` |
 | Правила и механики: как реализовано здесь vs оригинал DD | `GAME_RULES.md` |
-| Запись игровых событий (спека пайплайна: DTO/шина/JSONL) и схема событий (типы, инварианты, примеры строк) | `SPEC_GAME_EVENTS.md`, `SPEC_GAME_EVENTS_SCHEMA.md` |
+| Запись игровых событий (спека пайплайна: DTO/шина/JSONL) и схема событий (типы, инварианты, примеры строк; эталонный прогон — `docs\spec_game_events\examples\`) | `SPEC_GAME_EVENTS.md`, `SPEC_GAME_EVENTS_SCHEMA.md` |
 | **Детальные спецификации механик по доменам** (условия, порядок срабатывания, очереди, нюансы) | `docs\mechanics\00_index.md` (навигатор) |
 | **Unity BattleTest: тонкий вид-слой над ядром боя** (сцена, драйвер, gotchas) | `docs\mechanics\presentation\presentation_unity_battle_view.md` |
 | **Размер юнита (size 1–4): кумулятивные ранги, ёмкость формации, рендер** | `docs\mechanics\combat\16_formation_size.md` |

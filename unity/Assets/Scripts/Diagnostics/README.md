@@ -92,7 +92,7 @@ layout-лист (CSV) рядом — авто, по смене разрешен�
   скриншотах). Скриншоты и JSON/CSV — диагностический слой, который перестаёт быть нужен после
   завершения работ по раскладке.
 
-## GameEventRecorder (F10) — запись игровых событий в JSONL
+## GameEventRecorder — запись игровых событий в JSONL (авто)
 
 Второй инструмент в этой папке: пишет **игровые события** (не снимки сцены) по контракту
 `docs\SPEC_GAME_EVENTS_SCHEMA.md` / спеке `docs\SPEC_GAME_EVENTS.md`. Использует доставленные в
@@ -100,15 +100,20 @@ layout-лист (CSV) рядом — авто, по смене разрешен�
 `GameEventBus`, стампует `EventId`/`Timestamp`/`Sequence`) и `Sektor.DarkestDungeon.Clients.EventLog`
 (`JsonEventLogger` → JSONL + `manifest.json`).
 
-- **F10** — старт/стоп записи (F9 остаётся за дампером сцен). Вывод:
-  `%USERPROFILE%\AppData\LocalLow\<компания>\<игра>\Replays\run_<yyyy-MM-dd_HH-mm-ss>\` —
+- **Клавиш нет:** каждый рейд записывается автоматически. Старт — когда загружена сцена с
+  `RaidSceneManager` (включая Play сразу из `Dungeon`), стоп — когда эта сцена выгружается
+  (выход в меню/загрузка) или останавливается Play. Строки JSONL пишутся с `AutoFlush`, а
+  `Dispose` дописывает `manifest.json`; при аварийном выходе теряется максимум последняя строка,
+  а manifest может быть неполным.
+  Вывод: `%USERPROFILE%\AppData\LocalLow\<компания>\<игра>\Replays\run_<yyyy-MM-dd_HH-mm-ss>\` —
   `manifest.json` + `<subsystem>_session.jsonl` (`combat_`, `map_`, `torch_`). В консоли строки
   `[GameEventLog] recording started/stopped: <путь>`; все публикации — no-op, пока запись не идёт.
 - **Что публикуется (v1, минимальные вставки в legacy-код):** `sceneSnapshot` (старт рейда в
   `RaidSceneManager.Start`), `partyMoved` (сектор коридора + вход в комнату), `roomDiscovered`
   (комната с `Knowledge.Hidden`), `stateSnapshot` battleStart (после `SpawnEncounter`),
   `attackExecuted` (после `ExecuteSkillAnimationIntro` + кадр; анимация атаки — фактическое имя
-  клипа из `FormationUnit.CurrentState.AnimationName`, цель — `null`), `heroStatChanged` (дельта HP
+  клипа из `FormationUnit.CurrentState.AnimationName`, при переключении скелета — fallback на
+  текущий/следующий клип `Animator`; цель — `null`), `heroStatChanged` (дельта HP
   в `ExecuteSkillBase`), `torchChanged` (детект в `TorchMeter.UpdateTorch`,
   причины: `corridorStep`/`snuffed`/`torchUsed`/`modifier`).
 - **Id юнитов:** герой `hero_<RosterId>` (стабильно во всём рейде), монстр `monster_<CombatId>`
@@ -118,5 +123,8 @@ layout-лист (CSV) рядом — авто, по смене разрешен�
   а в Assets есть свой глобальный `SceneSnapshot` от дампера) — в `GameEventRecording.cs` все типы
   контракта подключены **алиасами** (`using TorchChanged = Sektor...TorchChanged;`), `SceneSnapshot`
   квалифицируется полностью (CS0576/CS0246/CS0104/CS1729 иначе).
-- Проверка, что работает: после Play в консоли есть `[GameEventLog] ready. Press F10...`; по F10 →
-  прогон → F10 — строки started/stopped и существование `Replays\run_*\manifest.json`.
+- Проверка, что работает: после Play в консоли есть `[GameEventLog] ready. Raid runs are recorded
+  automatically.`; на входе в рейд — `recording started`, после выхода в меню (или остановки Play) —
+  `recording stopped` и существование `Replays\run_*\manifest.json` + JSONL.
+- **Эталон:** реальный прогон S3 (38 событий, 6 атак с `attack_*`, комната `room2_1`) —
+  `docs\spec_game_events\examples\`; он же исполняемая спецификация для WPF-потребителя.

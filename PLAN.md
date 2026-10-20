@@ -18,100 +18,7 @@
   `UI_Overlay` match-height). Возобновление: когда будут доступны эталонные снимки с другого ПК и
   прогон сетки аспектов.
 
-## Активный план
-
-# PLAN: S3 — Unity-рекордер игровых событий (эталонные JSONL)
-
-Ветка: `core/game-events-contract` (S2 ещё не влит — S3 стекается поверх него, коммиты в ту же
-ветку). Контракт: `docs\SPEC_GAME_EVENTS_SCHEMA.md`; DLL шины/логгера уже доставлены в оба
-Unity-дерева.
-
-## Goal
-
-Рекордер в активном `unity\`: F10 старт/стоп записи run'а, публикации событий v1 по точкам
-реальной игры (старт сэйва/вход в рейд → коридор/секторы → комната → бой (скилл/урон/статы) →
-факел) в `IGameEventBus` → `JsonEventLogger` в `persistentDataPath\Replays\run_<ts>\`. После
-прогона пользователя — эталонные `*.jsonl` (копия в репо под схемой) как исполняемая
-спецификация для WPF-потребителя. Данные вместо догадок.
-
-## Design decisions (user-confirmed / по research)
-
-- Бутстрап по образцу `SceneSnapshotDumper` (`RuntimeInitializeOnLoadMethod(AfterSceneLoad)`,
-  `DontDestroyOnLoad`); **F10** = старт/стоп (F9 занят дампером); пути/статус — Debug.Log с
-  префиксом `[GameEventLog]`. Диагностика — global namespace, конвенции `Diagnostics\`.
-- Инвазия в legacy — минимальные точечные вставки (правило minimal diff): статический фасад
-  `GameEventRecording` no-op, пока запись не запущена.
-- **Схема id**: герой = `hero_<RosterId>` (стабильно во всём рейде; CombatId героев присваивается
-  только в `InitiateBattle`), монстр = `monster_<CombatId>` (scope боя; battleStart-снапшот
-  публикуется после `SpawnEncounter` → id совпадают с боевыми событиями).
-- Анимации: факт-имя клипа читается после `yield return null` из
-  `FormationUnit.CurrentState.AnimationName` (`SkeletonAnimation.state.GetCurrent(0)`); цель —
-  `TargetAnimation: null` в v1 (hit-реакций у юнитов нет, FX — отдельные скелеты).
-- `TorchChanged`: детект в `TorchMeter.UpdateTorch` (diff с `_lastPublished`) + маркер причины
-  в mutator-ах (`corridorStep`/`snuffed`/`torchUsed`/`modifier`).
-- `Rng` = null (солвер не инструментирован); `skillUnavailable`/`actionRejected` из Unity —
-  отложены (нет дешёвой честной точки — research §7); `item*`, `combat_01`, `spineEventTriggered`
-  — вне v1 (schema §4).
-
-## Steps / status
-
-1. [x] Research точек публикации (агент, file:line): старт рейда `RaidSceneManager.Start:214/261-264`,
-   сектор `RaidHallSector.OnTriggerEnter2D:223-236`, комната `RoomLoadingEvent:649` (+knowledge
-   `:798-824`), бой `EncounterEvent:1970` → `InitiateBattle:1992`/`SpawnEncounter:1994`,
-   скилл `HeroSkillTargetSelected:1474`, `ExecuteSkillBase:3958` (`SkillResultEntry`,
-   урон в `BattleSolver.ExecuteSkill:413`), intro-вызовы `:4104`/`:4304`,
-   факел `TorchMeter.UpdateTorch:403` (`TorchAmount:72`), `CurrentState`/`AnimationName`
-   (`SkeletonAnimation.cs:43/76-80`).
-2. [x] `Scripts\Diagnostics\GameEventRecording.cs` + `GameEventRecorder.cs` (+ `.meta`):
-   статический фасад (guard-publish, `UnitId`/`CombatantState`/анимация-хелперы) + MonoBehaviour-
-   бутстрап (F10, bus+logger, run-dir, Debug.Log). Gotcha (измерено): Unity7 инжектит глобальные
-   using'и и её сборки содержат двойники имён DTO (глобальный `StateSnapshot`,
-   `UnityEngine.AnimationRef`, `VectorGraphics.SceneNode`, плюс свой `SceneSnapshot` от дампера в
-   Assets) — все типы контракта подключены алиасами, `SceneSnapshot` квалифицируется полностью
-   (иначе CS0576/CS0246/CS1729); зафиксировано в `Diagnostics\README`.
-3. [x] Точки (минимальные вставки): sceneSnapshot (`Start` new/resume), partyMoved
-   (`RaidHallSector.OnTriggerEnter2D` + `RoomLoadingEvent` FromHallway), roomDiscovered
-   (knowledge=Hidden в `RoomLoadingEvent`), battleStart stateSnapshot (после `SpawnEncounter`),
-   heroStatChanged (цикл `ExecuteSkillBase`: HP before/after per target), attackExecuted
-   (hero/monster пути после intro + `WaitForSeconds(0.01)` + кадр; факт-имя клипа),
-   torchChanged (`TorchMeter.UpdateTorch` diff + причины corridorStep/snuffed/torchUsed/modifier).
-4. [x] `pwsh tools\unity-compile-check.ps1 -ProjectPath unity` зелёный (компиляция +
-   script-reference check; редактор закрыт).
-5. [ ] **Отложено пользователю** (когда будет время — прогон ~2 минуты):
-   (а) открыть `unity\` → сцена `Dungeon` → Play со стартового сэйва (новая игра);
-   (б) **F10** — в консоли `[GameEventLog] recording started: <путь>`;
-   (в) сценарий: выйти из стартовой комнаты, пройти 2–3 сектора коридора, войти в следующую
-   комнату, в бою применить 1–2 скилла, снуть факел (Shift + клик по виджету факела);
-   (г) **F10** — стоп, в консоли `recording stopped` со списком файлов;
-   (д) сказать агенту «прогнал» — агент проверит события `Replays\run_*` по
-   `docs\SPEC_GAME_EVENTS_SCHEMA.md` (Sequence, id `hero_/monster_`, анимации) и скопирует
-   эталон в `docs\spec_game_events\examples\`.
-6. [x] Доки: `Diagnostics\README` (секция GameEventRecorder), schema (id-схема, триггеры/причины
-   Unity v1, отложенные события), `TESTING.md` (строка чек-листа); коммит/пуш выполнены
-   (ветка `core/game-events-contract`).
-
-## Affected files
-
-- `unity\Assets\Scripts\Diagnostics\GameEventRecording.cs`, `GameEventRecorder.cs` (+ `.meta`),
-  `README.md` (секция).
-- `unity\Assets\Scripts\Managers\RaidSceneManager.cs`, `Scripts\Raid\TorchMeter.cs`,
-  `Scripts\Raid\Area\AreaObjects\RaidHallSector.cs` — точечные вставки.
-- `docs\spec_game_events\examples\*.jsonl` (эталон, после прогона), `docs\SPEC_GAME_EVENTS_SCHEMA.md`,
-  `PLAN.md`.
-
-## Acceptance criteria
-
-- F10 старт → прогон → F10 стоп: `Replays\run_*` содержит `manifest.json` + `*_session.jsonl`;
-  события в порядке `Sequence`; id/ассеты — логические (schema §3).
-- `unity-compile-check` зелёный; `unity-2017\` и `src\External\` не тронуты; диффы в legacy —
-  точечные.
-
-## Out of scope (S3)
-
-- Инвентарь (`item*`), `skillUnavailable`/`actionRejected` из Unity, rng, WPF-потребитель,
-  экстракция ресурсов, нумерация `combat_01`.
-
-## План (почти завершён): Unity 7 (7000.0.0a10) — URP-миграция после апгрейда
+## Активный план: Unity 7 (7000.0.0a10) — URP-миграция после апгрейда
 
 ## Goal
 
@@ -184,10 +91,7 @@ Spine-шейдеров на URP-совместимые (иначе герои/м
 
 ## Backlog (следующие шаги, план ещё не заведён)
 
-- **Дописать S3 (отложено пользователю)** — F10-прогон сценария по чек-листу шага5 активного
-  плана; после: агент сверяет `Replays\run_*` со `SPEC_GAME_EVENTS_SCHEMA.md` и кладёт эталон
-  в `docs\spec_game_events\examples\`.
-- Далее по линии игровых событий: WPF-потребитель JSONL («Воспроизвести захват» в арене),
+- По линии игровых событий: WPF-потребитель JSONL («Воспроизвести захват» в арене),
   экстракция ресурсов (фоны/иконки/спайн бандитов) в gitignored-общую папку под все клиенты
   (WPF/Avalonia), арена hero vs бандиты (`brigand_cutthroat_A`, контент уже грузится),
   `item*`-события, заполнение rng, нумерация `combat_01`.

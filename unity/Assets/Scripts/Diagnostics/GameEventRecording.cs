@@ -230,10 +230,49 @@ public static class GameEventRecording
 
     private static AnimationRef CurrentAnimation(FormationUnit unit)
     {
-        SkeletonAnimation state = unit.CurrentState;
-        string animation = state != null ? state.AnimationName : null;
+        string animation = CurrentSkeletonAnimation(unit);
         if (string.IsNullOrEmpty(animation))
+            animation = CurrentAnimatorClip(unit);
+        if (string.IsNullOrEmpty(animation))
+        {
+            Debug.LogWarning("[GameEventLog] no attack animation for " + unit.Character.Class
+                + "; active skeletons: " + ActiveSkeletonNames(unit));
             return null;
+        }
         return new AnimationRef(unit.Character.Class, animation);
+    }
+
+    private static string CurrentSkeletonAnimation(FormationUnit unit)
+    {
+        SkeletonAnimation state = unit.CurrentState;
+        return state != null ? state.AnimationName : null;
+    }
+
+    private static string CurrentAnimatorClip(FormationUnit unit)
+    {
+        UnitAnimator unitAnimator = unit.GetComponentInChildren<UnitAnimator>();
+        Animator animator = unitAnimator != null ? unitAnimator.Animator : null;
+        if (animator == null)
+            return null;
+
+        AnimatorClipInfo[] clips = animator.IsInTransition(0)
+            ? animator.GetNextAnimatorClipInfo(0)
+            : animator.GetCurrentAnimatorClipInfo(0);
+        if (clips.Length == 0)
+            clips = animator.GetCurrentAnimatorClipInfo(0);
+        return clips.Length > 0 && clips[0].clip != null ? clips[0].clip.name : null;
+    }
+
+    private static string ActiveSkeletonNames(FormationUnit unit)
+    {
+        var names = new List<string>();
+        foreach (SkeletonAnimation skeleton in unit.SkeletonAnimations)
+        {
+            if (!skeleton.isActiveAndEnabled)
+                continue;
+            string animation = skeleton.AnimationName;
+            names.Add(skeleton.name + "=" + (string.IsNullOrEmpty(animation) ? "<none>" : animation));
+        }
+        return names.Count > 0 ? string.Join(", ", names.ToArray()) : "<none>";
     }
 }

@@ -1,0 +1,14 @@
+{
+  "SchemaVersion": "1.0.0",
+  "StartedAt": "2026-10-20T09:26:50.6146403Z",
+  "Seed": null,
+  "Notes": "auto-recorded raid run",
+  "Files": {
+    "$type": "System.Collections.Generic.List`1[[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+    "$values": [
+      "map_session.jsonl",
+      "torch_session.jsonl",
+      "combat_session.jsonl"
+    ]
+  }
+}
