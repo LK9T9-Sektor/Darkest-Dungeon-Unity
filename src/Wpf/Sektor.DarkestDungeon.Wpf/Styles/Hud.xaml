@@ -31,6 +31,16 @@
         <Setter Property="Foreground" Value="{x:Static ui:UiBrushes.Label}" />
     </Style>
 
+    <!-- Bordered section chrome for grouped controls inside a larger panel (skills, quirks,
+         resistances, equipment, trinkets). -->
+    <Style x:Key="SectionPanel" TargetType="Border">
+        <Setter Property="Background" Value="#331A150F" />
+        <Setter Property="BorderBrush" Value="#3A2E22" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="8,6" />
+    </Style>
+
     <!-- Darkest Dungeon styled tooltip popup -->
     <Style TargetType="ToolTip">
         <Setter Property="Background" Value="#E6000000" />

@@ -91,6 +91,8 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   (X с красным фоном), слева `HeroStatsView` + `HeroEquipmentView` + `HeroTrinketsEditorView`,
   справа `AbilityRowView`, квирки в две колонки и таблица резистов. Слот поднимает
   `HeroSlotEditRequestedEventArgs`.
+- `Styles/Hud.xaml` → `SectionPanel` — общая рамка секций (скиллы, квирки, резисты, экипировка,
+  тринькеты); шапка оверлея имеет нижнюю линию 2 px, как боевой `UnitHeaderView`.
 - `Views/EquipmentSlotView` — переиспользуемый слот экипировки: глиф (мечи/щит), квадратный
   бейдж уровня без префикса `Lv.`, ниже placeholder 72×144 (размер слота из Unity `CharacterWindow`).
   `Views/HeroEquipmentView` — два таких слота (weapon/armor) рядом.

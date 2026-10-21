@@ -4,15 +4,17 @@
              xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views">
     <!-- Equipment control: weapon and armor slots side by side, each a reusable EquipmentSlotView
          with a glyph, rounded level badge and a 72x144 image placeholder. -->
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+    <Border Style="{StaticResource SectionPanel}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-        <views:EquipmentSlotView Grid.Column="0" Glyph="&#x2694;" Level="{Binding WeaponLevel}"
-                                 Tooltip="Weapon" Margin="0,0,4,0" />
-        <views:EquipmentSlotView Grid.Column="1" Glyph="&#x26E8;" Level="{Binding ArmorLevel}"
-                                 Tooltip="Armor" Margin="4,0,0,0" />
-    </Grid>
+            <views:EquipmentSlotView Grid.Column="0" Glyph="&#x2694;" Level="{Binding WeaponLevel}"
+                                     Tooltip="Weapon" Margin="0,0,4,0" />
+            <views:EquipmentSlotView Grid.Column="1" Glyph="&#x26E8;" Level="{Binding ArmorLevel}"
+                                     Tooltip="Armor" Margin="4,0,0,0" />
+        </Grid>
+    </Border>
 </UserControl>
