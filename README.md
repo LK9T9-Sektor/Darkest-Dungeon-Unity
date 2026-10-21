@@ -23,6 +23,22 @@ All audio and graphic assets are ignored!
 - [ ] Better UI for Android/iOS
 
 
+## WPF desktop client
+
+The WPF client lives in `src\Wpf\Sektor.DarkestDungeon.Wpf` and targets .NET 8.
+
+Prerequisites: .NET 8 SDK (`dotnet --version`).
+
+Run from the repository root:
+
+```powershell
+pwsh .\run-wpf.ps1
+```
+
+Options: `-Configuration Release`, `-NoBuild`, and `-DryRun` (print the underlying
+`dotnet run` command and exit).
+
+
 ## References
 - [**Darkest Dungeon**](http://www.darkestdungeon.com/) - original game by [**Red Hook Studios**.](http://www.darkestdungeon.com/press/index.php)
 - [**FMOD/UnityIntegration**](https://github.com/fmod/UnityIntegration) - plugins for FMOD Studio integration in Unity.
