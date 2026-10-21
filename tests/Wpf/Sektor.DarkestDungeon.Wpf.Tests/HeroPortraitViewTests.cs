@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -57,6 +59,54 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Layout(view);
 
             Assert.That(FindChildren<TextBlock>(view).All(text => text.Visibility == Visibility.Collapsed), Is.True);
+        }
+
+        /// <summary>The class-cycling arrows are hidden by default and shown on demand.</summary>
+        [Test]
+        public void Arrows_AreHiddenByDefaultAndShownOnDemand()
+        {
+            var view = new HeroPortraitView();
+            Layout(view);
+
+            Button previous = (Button)view.FindName("PreviousButton");
+            Button next = (Button)view.FindName("NextButton");
+            Assert.That(previous.Visibility, Is.EqualTo(Visibility.Collapsed));
+            Assert.That(next.Visibility, Is.EqualTo(Visibility.Collapsed));
+
+            view.ShowArrows = true;
+            Layout(view);
+
+            Assert.That(previous.Visibility, Is.EqualTo(Visibility.Visible));
+            Assert.That(next.Visibility, Is.EqualTo(Visibility.Visible));
+        }
+
+        /// <summary>The portrait click is enabled only when the host supplies a command.</summary>
+        [Test]
+        public void PortraitClick_IsEnabledOnlyWithSelectCommand()
+        {
+            var view = new HeroPortraitView();
+            Layout(view);
+
+            Button portrait = (Button)view.FindName("PortraitButton");
+            Assert.That(portrait.IsHitTestVisible, Is.False);
+            Assert.That(portrait.Cursor, Is.EqualTo(Cursors.Arrow));
+
+            view.SelectCommand = new StubCommand();
+            Assert.That(portrait.IsHitTestVisible, Is.True);
+            Assert.That(portrait.Cursor, Is.EqualTo(Cursors.Hand));
+        }
+
+        private sealed class StubCommand : ICommand
+        {
+#pragma warning disable CS0067
+            public event EventHandler? CanExecuteChanged;
+#pragma warning restore CS0067
+
+            public bool CanExecute(object? parameter) => true;
+
+            public void Execute(object? parameter)
+            {
+            }
         }
 
         private static TextBlock Caption(HeroPortraitView view, string text)

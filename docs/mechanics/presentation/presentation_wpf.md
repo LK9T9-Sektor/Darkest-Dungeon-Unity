@@ -10,11 +10,12 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 Отдельный демо-экран `SpineDemoView` («SPINE TEST» в меню) играет скелетную анимацию героя
 (Spine 2.1) — прототип Spine-рендера для карточек дуэли: стрелками листаются все 15 героев,
 наборы анимаций героя (`Skeleton\`, Idle первым) и скорость воспроизведения 100…1000%.
-Слева от блока селекторов показана карточка выбранного героя — переиспользуемый `HeroPortraitView`
-(roster-портрет аутфита `A` + читаемое имя); карточка меняется вместе с героем. Под скелетом —
-строка «SKILLS»: базовые боевые скиллы героя (`SkillSquareView`, иконка 72×72, имя и
-структурированный тултип); клик проигрывает эффект скилла один раз и возвращает ранее выбранный
-набор анимаций.
+Карточка выбранного героя — переиспользуемый `HeroPortraitView` (roster-портрет аутфита `A`,
+читаемое имя и опциональные стрелки `◀`/`▶`); стрелки героя стоят вокруг портрета и меняют
+класс вместе с карточкой. Справа от карточки — строка «SKILLS»: базовые боевые скиллы героя
+(`SkillSquareView`, иконка 72×72, имя и структурированный тултип); клик проигрывает эффект скилла
+один раз и возвращает ранее выбранный набор анимаций. Ниже — селекторы `ANIMATION`/`SPEED`, а
+`Pause`/`Screenshot` со строкой статуса стоят справа в той же нижней строке.
 Экран `SpineBattleView` («АРЕНА 1×1» в меню) — чисто визуальная арена: слева Crusader, справа
 Highwayman, кнопка «АТАКА» проигрывает атаку как в Unity — слоями: base-слот принимает ударную
 позу `AttackSword` (заглушка с нулевой длительностью), поверх временно играет оверлей-скилл
@@ -60,8 +61,10 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   кэш по пути, отсутствие/битый файл → `null`); `GetAbilityIcon(classId, iconId)` читает
   `ability.<id>.png` (72×72) для боевых скиллов; `Ui/HeroIds.ToClassId` переводит имя папки героя
   (`ManAtArms`) в class id (`man_at_arms`). Карточка — `Views/HeroPortraitView.xaml(.cs)`: DP
-  `Portrait` (`ImageSource`), `Caption` (string), `PortraitSize` (double, 96), плейсхолдер `?`;
-  контрол не знает про Spine/демо-экран и переиспользуется любым экраном.
+  `Portrait` (`ImageSource`), `Caption` (string), `PortraitSize` (double, 96), `ShowArrows`
+  (bool, false), `PreviousCommand`/`NextCommand` (класс-циклинг), `SelectCommand` (клик по
+  портрету; null — карточка read-only), плейсхолдер `?`; контрол не знает про Spine/демо-экран и
+  переиспользуется любым экраном: SPINE TEST показывает стрелки, бой — нет.
 - Боевые скиллы героя: `Data/IHeroSkillCatalog` / `Data/HeroSkillCatalog` (`HeroSkillInfo`) —
   соединяет распарсенные `HeroClass.CombatSkills` с `art:`-секцией (`SkillArtInfo`) и иконкой;
   `GetSkills(classId)` — список для демо, `GetSkillIcon(classId, skillId)` — точечный поиск для
@@ -80,18 +83,19 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 5. Отображение: снапшоты состояния (HP/стресс/ранги), лог (`DuelBattleEvents.Log`), попапы.
 6. Spine-демо: меню → «SPINE TEST» → `SpineDemoView`; `SpineHeroControl` на `Loaded`/
    смене `ContentDirectory` находит в `Content\Spine\<Hero>\<Anim>` первый `*.skel*` и `*.atlas*`,
-   грузит `SpineContent` и играет первую анимацию сета. Селекторы (кнопки ◀/▶ с
-   `AutomationProperties.Name`) листают героя/анимацию/скорость: VM меняет `ContentDirectory`
-   (перезагрузка сета) и `SpeedMultiplier` → `SpinePlayer.TimeScale` (`AnimationState.TimeScale`,
-   float). Кадры считаются в `CompositionTarget.Rendering`. Смена героя также пересчитывает
-   `CurrentHeroClassId` → `CurrentHeroName`/`CurrentHeroPortrait` (`NotifyPropertyChangedFor`),
-   и карточка `HeroPortraitView` слева перерисовывается. Кнопка «SCREENSHOT» (`EventTrigger` →
-   `SaveScreenshotAction`, Microsoft.Xaml.Behaviors) снимает текущее окно в `screenshots/` рядом
-    с exe; имя файла показывает VM (`ScreenshotStatus`). Ниже — строка «SKILLS»
-   (`ItemsControl`/`WrapPanel`): VM собирает `Skills` из `IHeroSkillCatalog.GetSkills(
-   CurrentHeroClassId)` при смене героя. Клик (`SelectSkillCommand`) помечает квадрат и играет
-   `Effects\<skill>` как one-shot (`Loop=false`); команда завершения возвращает ранее выбранный
-   сет. Если у скилла нет `.fx`-сета, играет базовая поза (`anim`) в обычном цикле.
+   грузит `SpineContent` и играет первую анимацию сета. Кнопки ◀/▶ карточки героя и селекторы
+   `ANIMATION`/`SPEED` (с `AutomationProperties.Name`) листают класс/анимацию/скорость: VM меняет
+   `ContentDirectory` (перезагрузка сета) и `SpeedMultiplier` → `SpinePlayer.TimeScale`
+   (`AnimationState.TimeScale`, float). Кадры считаются в `CompositionTarget.Rendering`. Смена
+   героя также пересчитывает `CurrentHeroClassId` → `CurrentHeroName`/`CurrentHeroPortrait`
+   (`NotifyPropertyChangedFor`), и стрелки карточки `HeroPortraitView` перерисовываются. Кнопка
+   «SCREENSHOT» (`EventTrigger` → `SaveScreenshotAction`, Microsoft.Xaml.Behaviors) снимает
+   текущее окно в `screenshots/` рядом с exe; имя файла показывает VM (`ScreenshotStatus`) в
+   нижней строке. Справа от карточки — строка «SKILLS» (`ItemsControl`/`WrapPanel`): VM собирает
+   `Skills` из `IHeroSkillCatalog.GetSkills(CurrentHeroClassId)` при смене героя. Клик
+   (`SelectSkillCommand`) помечает квадрат и играет `Effects\<skill>` как one-shot (`Loop=false`);
+   команда завершения возвращает ранее выбранный сет. Если у скилла нет `.fx`-сета, играет базовая
+   поза (`anim`) в обычном цикле.
 7. Арена: меню → «АРЕНА 1×1» → `SpineBattleViewModel` (логгер пишет `arena: opened/attack started/
    attack completed` в `Logs\duel.log`). «АТАКА» (`AttackCommand`) меняет два directory атакующего
    в одном потоке: base-слот → `Crusader\AttackSword` (поза) и оверлей-слот → `Crusader\Smite`
@@ -163,7 +167,7 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 | Ввод только на своём ходу | `IsLocalTurn` | иначе игнор |
 | Адаптивная раскладка | `MainWindow` | ресайз, без Viewbox |
 | Скорость Spine-демо | `SpineDemoViewModel` | 1.0…10.0 (шаг 0.5, wrap 100↔1000%); нижний кламп контрола 0.01…100 |
-| Портрет героя | `IHeroIconCatalog`, `HeroPortraitView` | аутфит `A`; отсутствующий/битый/неизвестный id → `null` → плейсхолдер `?`, исключения не летят |
+| Портрет героя | `IHeroIconCatalog`, `HeroPortraitView` | аутфит `A`; опциональные стрелки `◀`/`▶` и клик по портрету через DP; отсутствующий/битый/неизвестный id → `null` → плейсхолдер `?`, исключения не летят |
 | Иконка скилла | `HeroSkillCatalog.GetSkillIcon`, `HeroIconCatalog.GetAbilityIcon` | нет класса/скилла/файла → `null` → квадрат без иконки |
 | Размер иконки скилла | `SkillSquareView.IconSize` | нижний кламп 16; кнопка = размер + 8, корень = размер + 16 |
 | Эффект скилла в демо | `SpineDemoViewModel` | нет `.fx`-сета → базовая поза в цикле; нет и позы → анимация не меняется |
@@ -283,11 +287,12 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 - **`IconSize` — это область иконки, а не кнопки** — рамка `SkillSquareView` (border 2 + padding 2
   с каждой стороны) добавляет 8 px, поэтому иконка 72 даёт кнопку 80 и корень 88; `IconSize` ниже
   16 клампится. Иконки рендерятся с `BitmapScalingMode=HighQuality`.
-- **Карточка героя не должна ломать центровку селекторов** — строка селекторов — `Grid` с
-  колонками `Auto|*|Auto`: слева `HeroPortraitView`, справа невидимый спейсер шириной
-  `ActualWidth` карточки; без него группа селекторов уезжает вправо на ширину карточки. Сам
-  `UserControl` при Measure/Arrange растягивается на всё предложенное пространство, поэтому его
-  `ActualWidth` — не размер портрета: реальная рамка — `PortraitFrame` (`PortraitSize`).
+- **Карточка героя — один контрол и для стрелок, и без** — `HeroPortraitView` получил DP
+  `ShowArrows`/`PreviousCommand`/`NextCommand`/`SelectCommand`: SPINE TEST показывает стрелки
+  вокруг портрета, а бой/read-only места — нет. Клик по портрету включается только при заданном
+  `SelectCommand` (иначе `IsHitTestVisible=false` и курсор-стрелка); выключенные стрелки
+  `Collapsed`, поэтому колонки `Auto` не занимают место. Реальная рамка портрета — `PortraitFrame`
+  (`PortraitSize`), а не весь `UserControl` (он растягивается на предложенное пространство).
 - **Неймспейс `Sektor.Spine.Skia`** — квалифицированные ссылки `Spine.X` запрещены
   (shadowing сегментом `.Spine`): только `using Spine;` и простые имена.
 - **One-shot анимация (арена)** — `SpinePlayer.Play(name, loop: false)` ведёт флаг

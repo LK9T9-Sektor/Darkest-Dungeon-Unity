@@ -34,9 +34,10 @@
   `Data\JsonQuirks.json` (черты).
 - **Этап A (без Spine):** плейсхолдеры — доказывает ядро+сеть+UI с нулевым риском.
 - **Этап B (сделано, демо):** Spine-контрол `SpineHeroControl` (`UserControl` с `SKElement`) +
-  экран `SpineDemoView` («SPINE TEST» в меню): все 15 героев и их наборы анимаций
-  (`Skeleton\`, Idle первым) листаются стрелками ◀/▶ вместе со скоростью воспроизведения
-  100…1000% (шаг 50%); сет — Spine **2.1.18** (binary skeleton + atlas, linked-ассеты без
+  экран `SpineDemoView` («SPINE TEST» в меню): все 15 героев листаются стрелками на карточке
+  героя, наборы анимаций (`Skeleton\`, Idle первым) — селектором `ANIMATION`, скорость
+  воспроизведения 100…1000% (шаг 50%) — селектором `SPEED`, рядом строка `SKILLS`; сет — Spine
+  **2.1.18** (binary skeleton + atlas, linked-ассеты без
   копирования, раскладка `Content\Spine\<Hero>\<Anim>\`). Рендер — SkiaSharp CPU (`DrawVertices` +
   шейдер
   атласа); загрузка/плеер/рендер — `src\Spine\Sektor.Spine.Skia`; рантайм —

@@ -39,7 +39,6 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- Header: title + close cross -->
@@ -57,104 +56,101 @@
                                     AnimationCompletedCommand="{Binding SkillAnimationCompletedCommand}" />
         </Border>
 
-        <!-- Selectors: selected hero icon, hero, animation set, playback speed. The trailing spacer
-             mirrors the hero card so the selector group stays centered in the window. -->
+        <!-- Hero card with the class-cycling arrows; the ability row sits to its right, above the
+             animation/speed controls. -->
         <Grid Grid.Row="2" Margin="64,16,64,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <views:HeroPortraitView x:Name="SelectedHeroCard" Grid.Column="0"
-                                    VerticalAlignment="Center" Margin="0,0,24,0"
+                                    VerticalAlignment="Top"
                                     AutomationProperties.Name="Selected hero"
                                     Portrait="{Binding CurrentHeroPortrait}"
-                                    Caption="{Binding CurrentHeroName}" />
-            <Border Grid.Column="2" Width="{Binding ActualWidth, ElementName=SelectedHeroCard}"
-                    Margin="24,0,0,0" IsHitTestVisible="False" />
+                                    Caption="{Binding CurrentHeroName}"
+                                    ShowArrows="True"
+                                    PreviousCommand="{Binding PreviousCharacterCommand}"
+                                    NextCommand="{Binding NextCharacterCommand}" />
 
-            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Border Style="{StaticResource SelectorGroup}">
-                    <StackPanel>
-                        <TextBlock Text="CHARACTER" Style="{StaticResource SelectorCaption}" />
-                        <StackPanel Orientation="Horizontal">
-                            <Button Style="{StaticResource SelectorArrow}" Content="&#x25C0;"
-                                    AutomationProperties.Name="Previous hero"
-                                    Command="{Binding PreviousCharacterCommand}" ToolTip="Previous hero" />
-                            <TextBlock Style="{StaticResource SelectorValue}" MinWidth="130"
-                                       Text="{Binding CurrentCharacter}" />
-                            <Button Style="{StaticResource SelectorArrow}" Content="&#x25B6;"
-                                    AutomationProperties.Name="Next hero"
-                                    Command="{Binding NextCharacterCommand}" ToolTip="Next hero" />
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <Border Style="{StaticResource SelectorGroup}">
-                    <StackPanel>
-                        <TextBlock Text="ANIMATION" Style="{StaticResource SelectorCaption}" />
-                        <StackPanel Orientation="Horizontal">
-                            <Button Style="{StaticResource SelectorArrow}" Content="&#x25C0;"
-                                    AutomationProperties.Name="Previous animation"
-                                    Command="{Binding PreviousAnimationCommand}" ToolTip="Previous animation" />
-                            <TextBlock Style="{StaticResource SelectorValue}" MinWidth="150"
-                                       Text="{Binding CurrentAnimation}" />
-                            <Button Style="{StaticResource SelectorArrow}" Content="&#x25B6;"
-                                    AutomationProperties.Name="Next animation"
-                                    Command="{Binding NextAnimationCommand}" ToolTip="Next animation" />
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <Border Style="{StaticResource SelectorGroup}" Margin="0">
-                    <StackPanel>
-                        <TextBlock Text="SPEED" Style="{StaticResource SelectorCaption}" />
-                        <StackPanel Orientation="Horizontal">
-                            <Button Style="{StaticResource SelectorArrow}" Content="&#x25C0;"
-                                    AutomationProperties.Name="Slower"
-                                    Command="{Binding DecreaseSpeedCommand}" ToolTip="Slower (down to 100%)" />
-                            <TextBlock Style="{StaticResource SelectorValue}" MinWidth="70"
-                                       Text="{Binding SpeedText}" />
-                            <Button Style="{StaticResource SelectorArrow}" Content="&#x25B6;"
-                                    AutomationProperties.Name="Faster"
-                                    Command="{Binding IncreaseSpeedCommand}" ToolTip="Faster (up to 1000%)" />
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
+            <!-- Ability preview: the selected hero's base-rank combat skills with their bundled icons and
+                 the structured skill tooltip on hover. Clicking a skill plays its effect animation once and
+                 returns to the previously selected animation set. -->
+            <Border Grid.Column="1" Margin="32,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"
+                    Style="{StaticResource SelectorGroup}">
+                <StackPanel>
+                    <TextBlock Text="SKILLS" Style="{StaticResource SelectorCaption}" />
+                    <ItemsControl ItemsSource="{Binding Skills}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <views:SkillSquareView Margin="4,0" IconSize="72"
+                                                       AutomationProperties.Name="{Binding DisplayNameUpper}"
+                                                       SelectCommand="{Binding DataContext.SelectSkillCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                       CommandParameter="{Binding}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
         </Grid>
 
-        <!-- Ability preview: the selected hero's base-rank combat skills with their bundled icons and
-             the structured skill tooltip on hover. Clicking a skill plays its effect animation once and
-             returns to the previously selected animation set. -->
-        <Border Grid.Row="3" Margin="64,16,64,0" HorizontalAlignment="Center" Style="{StaticResource SelectorGroup}">
-            <StackPanel>
-                <TextBlock Text="SKILLS" Style="{StaticResource SelectorCaption}" />
-                <ItemsControl ItemsSource="{Binding Skills}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <views:SkillSquareView Margin="4,0" IconSize="72"
-                                                   AutomationProperties.Name="{Binding DisplayNameUpper}"
-                                                   SelectCommand="{Binding DataContext.SelectSkillCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                   CommandParameter="{Binding}" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
-        </Border>
+        <!-- Bottom row: animation set and playback speed on the left, pause/screenshot on the right. -->
+        <Grid Grid.Row="3" Margin="64,16,64,24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
-        <!-- Controls -->
-        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,24">
-            <Button Content="{Binding PauseButtonText}" Width="140" Height="44" FontSize="16"
-                    Style="{StaticResource HudButton}" Command="{Binding TogglePauseCommand}" />
-            <Button Content="SCREENSHOT" Width="180" Height="44" FontSize="16" Margin="24,0,0,0"
-                    Style="{StaticResource HudButton}"
+            <Border Grid.Column="0" Style="{StaticResource SelectorGroup}">
+                <StackPanel>
+                    <TextBlock Text="ANIMATION" Style="{StaticResource SelectorCaption}" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource SelectorArrow}" Content="&#x25C0;"
+                                AutomationProperties.Name="Previous animation"
+                                Command="{Binding PreviousAnimationCommand}" ToolTip="Previous animation" />
+                        <TextBlock Style="{StaticResource SelectorValue}" MinWidth="150"
+                                   Text="{Binding CurrentAnimation}" />
+                        <Button Style="{StaticResource SelectorArrow}" Content="&#x25B6;"
+                                AutomationProperties.Name="Next animation"
+                                Command="{Binding NextAnimationCommand}" ToolTip="Next animation" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" Style="{StaticResource SelectorGroup}" Margin="0">
+                <StackPanel>
+                    <TextBlock Text="SPEED" Style="{StaticResource SelectorCaption}" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource SelectorArrow}" Content="&#x25C0;"
+                                AutomationProperties.Name="Slower"
+                                Command="{Binding DecreaseSpeedCommand}" ToolTip="Slower (down to 100%)" />
+                        <TextBlock Style="{StaticResource SelectorValue}" MinWidth="70"
+                                   Text="{Binding SpeedText}" />
+                        <Button Style="{StaticResource SelectorArrow}" Content="&#x25B6;"
+                                AutomationProperties.Name="Faster"
+                                Command="{Binding IncreaseSpeedCommand}" ToolTip="Faster (up to 1000%)" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Grid.Column="2" Text="{Binding ScreenshotStatus}" VerticalAlignment="Center"
+                       HorizontalAlignment="Right" Margin="16,0,16,0" FontSize="13" Foreground="#8A7A5A"
+                       TextTrimming="CharacterEllipsis" />
+
+            <Button Grid.Column="3" Content="{Binding PauseButtonText}" Width="140" Height="44" FontSize="16"
+                    VerticalAlignment="Center" Style="{StaticResource HudButton}"
+                    Command="{Binding TogglePauseCommand}" />
+
+            <Button Grid.Column="4" Content="SCREENSHOT" Width="180" Height="44" FontSize="16" Margin="24,0,0,0"
+                    VerticalAlignment="Center" Style="{StaticResource HudButton}"
                     ToolTip="Saves a PNG of this window into the screenshots folder next to the executable">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
@@ -162,8 +158,6 @@
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </Button>
-            <TextBlock Text="{Binding ScreenshotStatus}" Width="340" VerticalAlignment="Center" Margin="16,0,0,0"
-                       FontSize="13" Foreground="#8A7A5A" TextTrimming="CharacterEllipsis" />
-        </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>

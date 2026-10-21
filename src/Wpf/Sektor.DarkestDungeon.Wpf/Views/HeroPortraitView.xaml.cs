@@ -1,10 +1,14 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace Sektor.DarkestDungeon.Wpf.Views
 {
-    /// <summary>Reusable hero card: a roster portrait in a dark frame with the hero name under it.</summary>
+    /// <summary>Reusable hero card: a roster portrait in the dark frame with the hero name under it and
+    /// optional class-cycling arrows around the portrait. The host supplies the portrait, the caption,
+    /// the arrow commands and (optionally) the portrait click command; without a click command the
+    /// portrait stays read-only.</summary>
     public partial class HeroPortraitView : UserControl
     {
         /// <summary>Identifies the <see cref="Portrait"/> dependency property.</summary>
@@ -27,6 +31,34 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(double),
             typeof(HeroPortraitView),
             new PropertyMetadata(96.0));
+
+        /// <summary>Identifies the <see cref="ShowArrows"/> dependency property.</summary>
+        public static readonly DependencyProperty ShowArrowsProperty = DependencyProperty.Register(
+            nameof(ShowArrows),
+            typeof(bool),
+            typeof(HeroPortraitView),
+            new PropertyMetadata(false));
+
+        /// <summary>Identifies the <see cref="PreviousCommand"/> dependency property.</summary>
+        public static readonly DependencyProperty PreviousCommandProperty = DependencyProperty.Register(
+            nameof(PreviousCommand),
+            typeof(ICommand),
+            typeof(HeroPortraitView),
+            new PropertyMetadata(null));
+
+        /// <summary>Identifies the <see cref="NextCommand"/> dependency property.</summary>
+        public static readonly DependencyProperty NextCommandProperty = DependencyProperty.Register(
+            nameof(NextCommand),
+            typeof(ICommand),
+            typeof(HeroPortraitView),
+            new PropertyMetadata(null));
+
+        /// <summary>Identifies the <see cref="SelectCommand"/> dependency property.</summary>
+        public static readonly DependencyProperty SelectCommandProperty = DependencyProperty.Register(
+            nameof(SelectCommand),
+            typeof(ICommand),
+            typeof(HeroPortraitView),
+            new PropertyMetadata(null, OnSelectCommandChanged));
 
         /// <summary>Initializes a new instance of the <see cref="HeroPortraitView"/> class.</summary>
         public HeroPortraitView()
@@ -53,6 +85,47 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             get => (double)GetValue(PortraitSizeProperty);
             set => SetValue(PortraitSizeProperty, value);
+        }
+
+        /// <summary>Gets or sets a value indicating whether the class-cycling arrows are shown around
+        /// the portrait. False keeps the card read-only (battle HUD, info panels).</summary>
+        public bool ShowArrows
+        {
+            get => (bool)GetValue(ShowArrowsProperty);
+            set => SetValue(ShowArrowsProperty, value);
+        }
+
+        /// <summary>Gets or sets the command that cycles to the previous hero (the left arrow).</summary>
+        public ICommand? PreviousCommand
+        {
+            get => (ICommand?)GetValue(PreviousCommandProperty);
+            set => SetValue(PreviousCommandProperty, value);
+        }
+
+        /// <summary>Gets or sets the command that cycles to the next hero (the right arrow).</summary>
+        public ICommand? NextCommand
+        {
+            get => (ICommand?)GetValue(NextCommandProperty);
+            set => SetValue(NextCommandProperty, value);
+        }
+
+        /// <summary>Gets or sets the command invoked by clicking the portrait; null makes the portrait
+        /// read-only (no hand cursor, no click handling).</summary>
+        public ICommand? SelectCommand
+        {
+            get => (ICommand?)GetValue(SelectCommandProperty);
+            set => SetValue(SelectCommandProperty, value);
+        }
+
+        private static void OnSelectCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var view = (HeroPortraitView)d;
+            if (view.PortraitButton == null)
+                return;
+
+            bool clickable = e.NewValue != null;
+            view.PortraitButton.Cursor = clickable ? Cursors.Hand : Cursors.Arrow;
+            view.PortraitButton.IsHitTestVisible = clickable;
         }
     }
 }
