@@ -43,6 +43,9 @@
     <None Include="..\..\..\unity\Assets\Resources\Data\JsonAI.json"
           Link="Content\AI\JsonAI.json"
           CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\unity\Assets\Resources\Data\Localization\Names.xml"
+          Link="Content\Names\Names.xml"
+          CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\..\..\unity\Assets\Resources\Data\Monsters\*.txt"
           Link="Content\Monsters\%(Filename)%(Extension)"
           CopyToOutputDirectory="PreserveNewest" />

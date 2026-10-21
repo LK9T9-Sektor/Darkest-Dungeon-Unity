@@ -43,13 +43,19 @@
                                             NextCommand="{Binding NextClassCommand}" />
 
                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding Stats.HeroName}" Foreground="#E8D9B0"
-                                   FontSize="22" FontWeight="Bold" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding HeroName}" Foreground="#E8D9B0" FontSize="22"
+                                       FontWeight="Bold" TextTrimming="CharacterEllipsis" />
+                            <Button Content="&#x21BB;" Width="22" Height="22" Margin="8,0,0,0" FontSize="12"
+                                    Style="{StaticResource HudButton}" ToolTip="Reroll name"
+                                    Command="{Binding RerollNameCommand}" />
+                        </StackPanel>
                         <TextBlock Text="{Binding Stats.HeroClass}" Foreground="#C8C0B0" FontSize="13" />
                     </StackPanel>
 
                     <Button x:Name="CloseButton" Grid.Column="3" Content="&#x2715;" Width="36" Height="36"
                             FontSize="16" Style="{StaticResource HudButton}" ToolTip="Close"
+                            Background="#C0392B" Foreground="#FFFFFF" BorderBrush="#E05A4A"
                             AutomationProperties.Name="Close hero editor"
                             Click="OnCloseClick" />
                 </Grid>
@@ -67,40 +73,7 @@
                         <views:HeroStatsView DataContext="{Binding Stats}" ShowHeader="False"
                                              ShowFullDetails="False" ShowEquipment="False" />
                         <views:HeroEquipmentView DataContext="{Binding Stats}" Margin="0,8,0,0" />
-
-                        <TextBlock Text="TRINKETS" Foreground="#8A7A5A" FontSize="12" FontWeight="Bold"
-                                   Margin="0,12,0,4" />
-                        <ItemsControl ItemsSource="{Binding TrinketSlots}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <UniformGrid Columns="1" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="0,2,0,0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <Button Content="&#x25C0;" Width="22" Height="22" FontSize="10"
-                                                Style="{StaticResource HudButton}" ToolTip="Previous trinket"
-                                                Command="{Binding PrevCommand}" />
-                                        <TextBlock Grid.Column="1" Text="{Binding Label}" FontSize="10"
-                                                   Foreground="#E8D9B0" HorizontalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding Details}"
-                                                   Margin="4,0" />
-                                        <Button Grid.Column="2" Content="&#x25B6;" Width="22" Height="22"
-                                                FontSize="10" Style="{StaticResource HudButton}"
-                                                ToolTip="Next trinket" Command="{Binding NextCommand}" />
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <Button Content="&#x21BB; Trinkets" Height="24" FontSize="11" Margin="0,4,0,0"
-                                HorizontalAlignment="Left" Style="{StaticResource HudButton}"
-                                ToolTip="Assign random trinkets" Command="{Binding RerollTrinketsCommand}" />
+                        <views:HeroTrinketsEditorView ItemsSource="{Binding TrinketSlots}" Margin="0,12,0,0" />
                     </StackPanel>
 
                     <!-- CENTER: reserved for later content; the guild art shows through. -->

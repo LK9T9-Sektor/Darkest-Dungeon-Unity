@@ -55,13 +55,13 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private string _protection = "10%";
 
-        /// <summary>Gets or sets the weapon level label.</summary>
+        /// <summary>Gets or sets the weapon level value shown in the equipment badge.</summary>
         [ObservableProperty]
-        private string _weaponLevel = "Lv. 1";
+        private string _weaponLevel = "1";
 
-        /// <summary>Gets or sets the armor level label.</summary>
+        /// <summary>Gets or sets the armor level value shown in the equipment badge.</summary>
         [ObservableProperty]
-        private string _armorLevel = "Lv. 1";
+        private string _armorLevel = "1";
 
         /// <summary>Gets or sets the label of the equipped trinket in the left slot.</summary>
         [ObservableProperty]

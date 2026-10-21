@@ -1,0 +1,24 @@
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.TrinketSlotView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Reusable single trinket slot: 72x144 image area, trinket label, styled tooltip and a per-slot
+         reroll button. The data context is a LobbyTrinketViewModel. -->
+    <Border Width="72" Height="144" Background="#1A150F" BorderBrush="#3A2E22"
+            BorderThickness="1" CornerRadius="4">
+        <Border.ToolTip>
+            <ToolTip>
+                <TextBlock Text="{Binding Details}" TextWrapping="Wrap" MaxWidth="280" />
+            </ToolTip>
+        </Border.ToolTip>
+
+        <Grid>
+            <TextBlock Text="{Binding Label}" Foreground="#E8D9B0" FontSize="11"
+                       TextWrapping="Wrap" TextAlignment="Center"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="6" />
+            <Button Content="&#x21BB;" Width="20" Height="20" FontSize="11" Margin="2"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Style="{StaticResource HudButton}" ToolTip="Reroll trinket"
+                    Command="{Binding RerollCommand}" />
+        </Grid>
+    </Border>
+</UserControl>

@@ -17,14 +17,17 @@
                         MouseRightButtonUp="OnSlotRightClick">
                     <StackPanel>
                         <views:HeroPortraitView Portrait="{Binding Portrait}"
-                                                Caption="{Binding ClassName}"
+                                                Caption="{Binding HeroName}"
                                                 PortraitSize="56"
                                                 ArrowSize="24"
                                                 ShowArrows="True"
                                                 PreviousCommand="{Binding PrevClassCommand}"
                                                 NextCommand="{Binding NextClassCommand}" />
+                        <TextBlock Text="{Binding ClassName}" FontSize="10" Foreground="#C8C0B0"
+                                   HorizontalAlignment="Center" TextAlignment="Center"
+                                   TextWrapping="Wrap" Margin="0,2,0,0" />
                         <TextBlock Text="RMB: skills" FontSize="10" Foreground="#8A7A5A"
-                                   HorizontalAlignment="Center" Margin="0,4,0,0" />
+                                   HorizontalAlignment="Center" Margin="0,2,0,0" />
                     </StackPanel>
                 </Border>
             </DataTemplate>

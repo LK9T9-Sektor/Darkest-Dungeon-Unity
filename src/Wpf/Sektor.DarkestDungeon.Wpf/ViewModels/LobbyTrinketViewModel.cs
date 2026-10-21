@@ -11,6 +11,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
     /// <summary>A single trinket slot in the lobby: cycles through the trinkets valid for the hero class.</summary>
     public partial class LobbyTrinketViewModel : ObservableObject
     {
+        private readonly Random rng = new Random();
         private IReadOnlyList<Trinket> pool;
         private int index = -1;
 
@@ -35,6 +36,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the command that clears the slot.</summary>
         public IRelayCommand ClearCommand { get; }
 
+        /// <summary>Gets the command that rerolls this slot to a random valid trinket.</summary>
+        public IRelayCommand RerollCommand { get; }
+
         /// <summary>Initializes a new instance of the <see cref="LobbyTrinketViewModel"/> class.</summary>
         /// <param name="pool">The trinkets valid for the current hero class.</param>
         public LobbyTrinketViewModel(IReadOnlyList<Trinket> pool)
@@ -43,6 +47,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             PrevCommand = new RelayCommand(Prev);
             NextCommand = new RelayCommand(Next);
             ClearCommand = new RelayCommand(Clear);
+            RerollCommand = new RelayCommand(Reroll);
             Apply();
         }
 
@@ -86,6 +91,22 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private void Clear()
         {
             index = -1;
+            Apply();
+        }
+
+        private void Reroll()
+        {
+            if (pool.Count == 0)
+            {
+                Clear();
+                return;
+            }
+
+            int next = rng.Next(pool.Count);
+            if (pool.Count > 1 && next == index)
+                next = (next + 1) % pool.Count;
+
+            index = next;
             Apply();
         }
 

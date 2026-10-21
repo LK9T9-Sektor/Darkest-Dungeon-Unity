@@ -34,6 +34,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private int _position;
 
+        /// <summary>Gets or sets the randomized hero name.</summary>
+        [ObservableProperty]
+        private string _heroName = "Hero";
+
         /// <summary>Gets or sets the selected class id.</summary>
         [ObservableProperty]
         private string _classId;
@@ -86,6 +90,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Gets the command that cycles to the next class.</summary>
         public IRelayCommand NextClassCommand { get; }
+
+        /// <summary>Gets the command that rerolls the hero name.</summary>
+        public IRelayCommand RerollNameCommand { get; }
 
         /// <summary>Gets the command that toggles an active combat skill.</summary>
         public IRelayCommand<LobbySkillViewModel> ToggleSkillCommand { get; }
@@ -147,9 +154,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             _classId = this.availableClasses[0];
             PrevClassCommand = new RelayCommand(PrevClass);
             NextClassCommand = new RelayCommand(NextClass);
+            RerollNameCommand = new RelayCommand(RerollName);
             ToggleSkillCommand = new RelayCommand<LobbySkillViewModel>(ToggleSkill);
             RerollQuirksCommand = new RelayCommand(RerollQuirks);
             RerollTrinketsCommand = new RelayCommand(RerollTrinkets);
+            RerollName();
             LoadClass();
         }
 
@@ -179,6 +188,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             ClassId = availableClasses[(index + 1) % availableClasses.Count];
             IsEmpty = false;
             LoadClass();
+        }
+
+        private void RerollName()
+        {
+            HeroName = Data.HeroNameCatalog.RandomName(rng) ?? "Hero";
+            Stats.HeroName = HeroName;
         }
 
         private void ToggleSkill(LobbySkillViewModel? skill)
@@ -310,7 +325,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         private void ApplyStats(HeroClass? heroClass)
         {
-            Stats.HeroName = "Hero";
+            Stats.HeroName = HeroName;
             Stats.HeroClass = heroClass == null ? string.Empty : Ui.DisplayNames.Class(heroClass.StringId);
             Stats.Rank = Position;
             if (heroClass == null)
@@ -332,8 +347,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             Stats.ResistDisease = ResistPct(heroClass, AttributeType.Disease);
             Stats.ResistDeathBlow = ResistPct(heroClass, AttributeType.DeathBlow);
             Stats.ResistTrap = ResistPct(heroClass, AttributeType.Trap);
-            Stats.WeaponLevel = "Lv. 1";
-            Stats.ArmorLevel = "Lv. 1";
+            Stats.WeaponLevel = "1";
+            Stats.ArmorLevel = "1";
         }
 
         private string BuildDetails(HeroClass? heroClass)

@@ -87,6 +87,29 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         }
 
         [Test]
+        public void TrinketSlot_Reroll_AssignsValidTrinket()
+        {
+            var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds);
+            slot.AssignClass("crusader");
+
+            slot.TrinketSlots[0].RerollCommand.Execute(null);
+
+            Assert.That(slot.TrinketSlots[0].TrinketId, Is.Not.Empty);
+        }
+
+        [Test]
+        public void Slot_RerollName_UpdatesNameAndStats()
+        {
+            var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds, null, null, 2);
+
+            slot.RerollNameCommand.Execute(null);
+
+            Assert.That(slot.HeroName, Is.Not.Empty);
+            Assert.That(slot.Stats.HeroName, Is.EqualTo(slot.HeroName));
+            Assert.That(slot.Position, Is.EqualTo(2));
+        }
+
+        [Test]
         public void Slot_RerollQuirks_ReplacesQuirks()
         {
             var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds);
