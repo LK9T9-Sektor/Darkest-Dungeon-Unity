@@ -39,6 +39,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- Header: title + close cross -->
@@ -51,7 +52,9 @@
                 Background="#0E0B08" BorderBrush="#3A2E22" BorderThickness="1">
             <views:SpineHeroControl ContentDirectory="{Binding ContentDirectory}"
                                     IsPaused="{Binding IsPaused}"
-                                    SpeedMultiplier="{Binding SpeedMultiplier}" />
+                                    SpeedMultiplier="{Binding SpeedMultiplier}"
+                                    Loop="{Binding IsAnimationLooping}"
+                                    AnimationCompletedCommand="{Binding SkillAnimationCompletedCommand}" />
         </Border>
 
         <!-- Selectors: selected hero icon, hero, animation set, playback speed. The trailing spacer
@@ -122,8 +125,32 @@
             </StackPanel>
         </Grid>
 
+        <!-- Ability preview: the selected hero's base-rank combat skills with their bundled icons and
+             the structured skill tooltip on hover. Clicking a skill plays its effect animation once and
+             returns to the previously selected animation set. -->
+        <Border Grid.Row="3" Margin="64,16,64,0" HorizontalAlignment="Center" Style="{StaticResource SelectorGroup}">
+            <StackPanel>
+                <TextBlock Text="SKILLS" Style="{StaticResource SelectorCaption}" />
+                <ItemsControl ItemsSource="{Binding Skills}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <views:SkillSquareView Margin="4,0" IconSize="72"
+                                                   AutomationProperties.Name="{Binding DisplayNameUpper}"
+                                                   SelectCommand="{Binding DataContext.SelectSkillCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                   CommandParameter="{Binding}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
         <!-- Controls -->
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,24">
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,24">
             <Button Content="{Binding PauseButtonText}" Width="140" Height="44" FontSize="16"
                     Style="{StaticResource HudButton}" Command="{Binding TogglePauseCommand}" />
             <Button Content="SCREENSHOT" Width="180" Height="44" FontSize="16" Margin="24,0,0,0"

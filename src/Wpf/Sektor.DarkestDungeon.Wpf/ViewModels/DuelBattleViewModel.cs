@@ -51,6 +51,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private readonly DuelController controller;
         private readonly IDuelRivalLink rivalLink;
         private readonly Action onLeave;
+        private readonly IHeroSkillCatalog? skillCatalog;
         private readonly DispatcherTimer popupTimer;
         private readonly System.Collections.Generic.List<PendingPopup> pendingPopups =
             new System.Collections.Generic.List<PendingPopup>();
@@ -245,11 +246,17 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <param name="controller">The duel controller.</param>
         /// <param name="rivalLink">The rival input channel (network or AI).</param>
         /// <param name="onLeave">Invoked when the player abandons the duel.</param>
-        public DuelBattleViewModel(DuelController controller, IDuelRivalLink rivalLink, Action onLeave)
+        /// <param name="skillCatalog">The catalog of skill icons (optional; null renders icon-less squares).</param>
+        public DuelBattleViewModel(
+            DuelController controller,
+            IDuelRivalLink rivalLink,
+            Action onLeave,
+            IHeroSkillCatalog? skillCatalog = null)
         {
             this.controller = controller;
             this.rivalLink = rivalLink;
             this.onLeave = onLeave;
+            this.skillCatalog = skillCatalog;
             SelectSkillCommand = new RelayCommand<DuelSkillViewModel>(SelectSkill);
             TargetCommand = new RelayCommand<DuelUnitViewModel>(SelectTarget);
             MoveCommand = new RelayCommand(SelectMove);
@@ -717,6 +724,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 {
                     IsUsable = localTurn && controller.IsSkillUsable(unit, skill),
                     Level = skill.Level,
+                    Icon = skillCatalog?.GetSkillIcon(unit.Character.Class, skill.Id),
                     BaseInfo = Ui.SkillDetails.BuildBaseInfo(skill),
                     EffectRows = Ui.SkillDetails.BuildEffectRows(skill),
                     Details = Ui.SkillDetails.Build(skill),

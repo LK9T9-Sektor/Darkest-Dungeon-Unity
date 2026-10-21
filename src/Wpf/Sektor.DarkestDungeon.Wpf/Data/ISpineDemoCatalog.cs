@@ -16,5 +16,11 @@ namespace Sektor.DarkestDungeon.Wpf.Data
         /// <param name="character">The hero name.</param>
         /// <param name="animation">The animation set name.</param>
         string GetContentDirectory(string character, string animation);
+
+        /// <summary>Finds the animation set of a hero whose skeleton declares one animation id.</summary>
+        /// <param name="character">The hero name.</param>
+        /// <param name="animationId">The skill art animation id ("smite", "zealous_accusation").</param>
+        /// <returns>The animation set name, or null when the hero has no set for this id.</returns>
+        string? FindAnimationSet(string character, string animationId);
     }
 }

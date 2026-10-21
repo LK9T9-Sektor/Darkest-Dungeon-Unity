@@ -54,6 +54,29 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(File.Exists(Path.Combine(directory, "crusader.sprite.idle.skel")), Is.True);
         }
 
+        /// <summary>Skill animation ids resolve by skeleton file name, including a legacy folder typo.</summary>
+        [Test]
+        public void FindAnimationSet_ResolvesEffectAndBaseSets()
+        {
+            var catalog = CreateCatalog();
+
+            Assert.That(catalog.FindAnimationSet("Crusader", "smite"), Is.EqualTo("Smite"));
+            Assert.That(catalog.FindAnimationSet("Crusader", "zealous_accusation"), Is.EqualTo("ZealosAccusation"));
+            Assert.That(catalog.FindAnimationSet("Crusader", "attack_sword"), Is.EqualTo("AttackSword"));
+            Assert.That(catalog.FindAnimationSet("Crusader", "no_such_animation"), Is.Null);
+            Assert.That(catalog.FindAnimationSet("NoSuchHero", "smite"), Is.Null);
+        }
+
+        /// <summary>The animation id lookup ignores case and reuses the cached result.</summary>
+        [Test]
+        public void FindAnimationSet_IsCaseInsensitiveAndCached()
+        {
+            var catalog = CreateCatalog();
+
+            Assert.That(catalog.FindAnimationSet("Crusader", "SMITE"), Is.EqualTo("Smite"));
+            Assert.That(catalog.FindAnimationSet("Crusader", "smite"), Is.EqualTo("Smite"));
+        }
+
         private static SpineDemoCatalog CreateCatalog()
             => new SpineDemoCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "Spine"));
     }

@@ -34,7 +34,8 @@
 
 Дополнительно в `Combat`: парсер легаси-контента героев `Character\HeroClassFileParser` +
 `HeroCatalog` — читают формат `Data/Heroes/Info` (базовый ранг прокачки: атрибуты оружия/брони,
-сопротивления, скилы уровня 0; эффекты скиллов резолвятся из `.bytes` в `CombatSkill.Effects`).
+сопротивления, скилы уровня 0; эффекты скиллов резолвятся из `.bytes` в `CombatSkill.Effects`) и
+секцию `art:` (иконка, базoвая анимация и `.fx`-эффект скилла).
 WPF-клиент линкует `.bytes`-файлы из unity-контента и грузит полный ростер (15 классов) на старте.
 Монстры кампании (M1) — `Character\Monster.cs` + `MonsterClassFileParser`/`MonsterCatalog`:
 читают `Data/Monsters/*.txt` (статы, `enemy_type`, резолв эффектов из `Effects.txt`, `battle_modifier`).

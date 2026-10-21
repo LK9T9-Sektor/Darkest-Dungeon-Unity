@@ -1,59 +1,63 @@
 # PLAN.md — активный план
 
-## Срез: иконки героев в WPF + карточка выбранного героя (SPINE TEST)
+## Срез: иконки способностей в WPF + превью скиллов на SPINE TEST
 
-Цель: доставить в WPF иконки всех 15 героев (roster-портреты A–D и гильдейские баннеры), показать
-иконку выбранного героя слева от блока селекторов на экране SPINE TEST через переиспользуемый
-`UserControl`.
+Цель: доставить в WPF иконки боевых способностей (72×72), показать их в строке «SKILLS» на
+SPINE TEST через переиспользуемый `SkillSquareView` (иконка + имя + структурированный тултип),
+проигрывать эффект скилла по клику один раз с возвратом предыдущей анимации и заполнить иконки
+в полосе способностей дуэли/PvE.
 
-Ветка: `core/hero-icons-wpf`.
+Ветка: `core/skill-icons-wpf` (от `core/hero-icons-wpf`).
 
 ### Шаги
 
-1. [x] `tools\hero-icons-content.ps1` — генератор `HeroIconsContent.props`: линкует
-   `unity\Assets\Resources\Data\Heroes\Sprites\<class_id>\<A-D>\<class_id>_portrait_roster.png` в
-   `Content\HeroIcons\<class_id>\portrait.<A-D>.png` и `<class_id>_guild_header.png` в
-   `Content\HeroIcons\<class_id>\header.png`; валидирует 4 портрета + баннер на героя и совпадение
-   набора героев со spine-набором (`unity\Assets\Sprites\Heroes`), иначе exit 1.
-2. [x] Сгенерировать `src\Wpf\Sektor.DarkestDungeon.Wpf\HeroIconsContent.props` (75 записей) и
-   импортировать его в `Sektor.DarkestDungeon.Wpf.csproj`.
-3. [x] `src\Wpf\...\Ui\HeroIds.cs` — `ToClassId` (`ManAtArms` → `man_at_arms`).
-4. [x] `src\Wpf\...\Data\IHeroIconCatalog.cs` + `Data\HeroIconCatalog.cs` — `ImageSource? GetPortrait(
-   classId, outfit)` по `Content\HeroIcons\<classId>\portrait.<OUTFIT>.png`, frozen `BitmapImage`,
-   кэш по пути, отсутствие файла/битый файл → `null`.
-5. [x] `src\Wpf\...\Views\HeroPortraitView.xaml(.cs)` — `UserControl`: DP `Portrait` (ImageSource),
-   `Caption` (string), `PortraitSize` (double, 96), плейсхолдер `?`, подпись под рамкой,
-   `BitmapScalingMode=HighQuality`.
-6. [x] `SpineDemoViewModel`: DI `IHeroIconCatalog`; `CurrentHeroClassId`, `CurrentHeroName`,
-   `CurrentHeroPortrait` (аутфит `A`), уведомления при смене героя. `MainWindow` создаёт каталог.
-7. [x] `SpineDemoView.xaml`: строка селекторов → `Grid` (карточка героя слева, селекторы по центру,
-   симметричный спейсер справа).
-8. [x] Тесты: `HeroIconCatalogTests` (15×4 + баннеры в output-контенте, unknown → null, кэш),
-   `HeroIdsTests`, `SpineDemoViewModelTests` (портрет следует за героем + change notification),
-   `ScreenSmokeTests` (`HeroPortraitView`).
-9. [x] Документация: `docs\mechanics\presentation\presentation_wpf.md`, `docs\TESTING.md`,
-   `docs\changelog\2026-10-21-hero-icons-wpf.md` + `00_index.md`.
+1. [x] Ядро: `HeroClassFileParser` читает `art:`-секцию (`CombatSkillPrefix`/`RiposteSkillPrefix`),
+   `.end` корректно завершает секции; `SkillArtInfo` — конструктор из словаря + `GetText`/`GetFlag`/
+   `GetNumber`; тесты парсера обновлены (71/71).
+2. [x] `tools\hero-icons-content.ps1` линкует `ability.<icon>.png` и валидирует art-иконки;
+   сгенерирован `HeroIconsContent.props` — 180 записей (75 портретов/баннеров + 105 иконок).
+3. [x] `Data\IHeroSkillCatalog` / `HeroSkillCatalog` / `HeroSkillInfo` — соединение распарсенных
+   скиллов, `SkillArtInfo` и иконок; `GetSkills`, `GetSkillIcon(classId, skillId)`.
+4. [x] `IHeroIconCatalog.GetAbilityIcon` + реализация (frozen-кэш, отсутствие файла → `null`).
+5. [x] `ISpineDemoCatalog.FindAnimationSet` + реализация: поиск сета по суффиксу
+   `.sprite.<anim>.skel` (лечит опечатку папки `ZealosAccusation`), кэш.
+6. [x] `SkillSquareView`: DP `IconSize` (по умолчанию 42; кнопка = размер + 8, корень = размер + 16,
+   нижний кламп 16), `HighQuality` для иконок.
+7. [x] `SpineDemoViewModel`: DI `IHeroSkillCatalog`, коллекция `Skills`, `SelectSkillCommand`,
+   one-shot превью эффекта (`Loop=false`) и восстановление предыдущего сета; фолбэк на базовую
+   позу для скиллов без `.fx`; отмена при ручной смене анимации/героя.
+8. [x] `SpineDemoView.xaml`: строка «SKILLS» (`WrapPanel`, `SkillSquareView IconSize="72"`),
+   привязки `Loop`/`AnimationCompletedCommand`; `DuelClasses.AllClasses`.
+9. [x] Дуэль/PvE: `DuelBattleViewModel`/`PveBattleViewModel` заполняют `DuelSkillViewModel.Icon`
+   через `IHeroSkillCatalog`; лобби получают каталог, `MainWindow` раздаёт общий экземпляр.
+10. [x] Тесты: `HeroSkillCatalogTests`, `SkillSquareViewTests`, расширены `HeroIconCatalogTests`,
+    `SpineDemoCatalogTests`, `SpineDemoViewModelTests`, фейки боевых VM; 154/154 зелёные.
+11. [x] Документация: `docs\mechanics\presentation\presentation_wpf.md`, `docs\TESTING.md`,
+    `docs\changelog\2026-10-21-skill-icons-wpf.md` + `00_index.md`.
+12. [x] Коммит и пуш ветки `core/skill-icons-wpf` (файлы Unity пользователя не трогаются).
 
 ### Затронутые файлы
 
-`tools\hero-icons-content.ps1`, `src\Wpf\Sektor.DarkestDungeon.Wpf\{HeroIconsContent.props,
-Sektor.DarkestDungeon.Wpf.csproj, Data\IHeroIconCatalog.cs, Data\HeroIconCatalog.cs, Ui\HeroIds.cs,
-Views\HeroPortraitView.xaml(.cs), Views\SpineDemoView.xaml, ViewModels\SpineDemoViewModel.cs,
-MainWindow.xaml.cs}`, `tests\Wpf\Sektor.DarkestDungeon.Wpf.Tests\{HeroIconCatalogTests.cs,
-HeroIdsTests.cs, SpineDemoViewModelTests.cs, ScreenSmokeTests.cs}`, `docs\...`.
+`src\Core\Sektor.DarkestDungeon.Core.Combat\{Character\HeroClassFileParser.cs,
+Mechanics\Skills\SkillArtInfo.cs}`, `tools\hero-icons-content.ps1`,
+`src\Wpf\Sektor.DarkestDungeon.Wpf\{HeroIconsContent.props, MainWindow.xaml.cs,
+Combat\DuelClasses.cs, Data\{IHeroIconCatalog,HeroIconCatalog,ISpineDemoCatalog,SpineDemoCatalog,
+IHeroSkillCatalog,HeroSkillCatalog,HeroSkillInfo}.cs, ViewModels\{SpineDemoViewModel,
+DuelBattleViewModel,PveBattleViewModel,DuelLobbyViewModel,SinglePlayerLobbyViewModel,
+PveLobbyViewModel}.cs, Views\{SpineDemoView.xaml, SkillSquareView.xaml(.cs)}}`,
+`tests\Core\...HeroClassFileParserTests.cs`, `tests\Wpf\Sektor.DarkestDungeon.Wpf.Tests\...`, `docs\...`.
 
 ### Критерии приёмки
 
-- `pwsh tools\hero-icons-content.ps1` → 75 записей, exit 0; повторный запуск даёт тот же файл.
-- В output WPF и тестов лежат портреты 15×4 и 15 баннеров.
-- SPINE TEST: слева от селекторов карточка с иконкой текущего героя и его именем; меняется при
-  листании ◀/▶.
-- `HeroPortraitView` — отдельный `UserControl` с DP, без привязки к демо-экрану.
-- Отсутствующий/битый файл иконки → `?`, без исключения и без падения экрана.
-- `dotnet test tests\Wpf\Sektor.DarkestDungeon.Wpf.Tests` зелёный; Unity не затронут.
+- `pwsh tools\hero-icons-content.ps1` → 180 записей, exit 0; 105/105 иконок существуют (72×72).
+- SPINE TEST: строка из 7 квадратов с иконками 72×72, именами и тултипом; клик играет эффект
+  один раз и возвращает предыдущий сет; у 9 скиллов без `.fx` играет базовая поза.
+- Дуэль/PvE: в полосе способностей видны иконки; неизвестный скилл → пустой квадрат без падения.
+- `dotnet test tests\Wpf\Sektor.DarkestDungeon.Wpf.Tests` — 154/154; core-тесты — 71/71.
+- Unity-файлы пользователя (`UpgradeButton.mat`, `HeroSlot.prefab`) не изменены.
 
 ### Временные артефакты
 
-- `C:\Users\lk9t9\AppData\Local\Temp\opencode\spine-demo.png` (39 500 Б) — рендер SPINE TEST для
-  проверки раскладки; `hero-card-placeholder.png` (2 381 Б) — проверка плейсхолдера `?`.
-  Удаляются по завершении; в репозиторий не входят. Генератор и props — постоянные файлы.
+- `tests\Wpf\Sektor.DarkestDungeon.Wpf.Tests\TempSpineRender.cs` и
+  `...\bin\Debug\net8.0-windows\spine-skills.png` — временный offscreen-рендер для визуальной
+  проверки строки SKILLS; удалены, в репозиторий не входят.

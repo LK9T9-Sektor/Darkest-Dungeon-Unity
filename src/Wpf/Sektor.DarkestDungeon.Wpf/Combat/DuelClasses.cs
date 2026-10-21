@@ -18,6 +18,23 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
         /// <summary>Gets all known class ids in stable order.</summary>
         public static IReadOnlyList<string> AllClassIds { get { return Catalog.ClassIds; } }
 
+        /// <summary>Gets all parsed hero classes in stable order.</summary>
+        public static IReadOnlyList<HeroClass> AllClasses
+        {
+            get
+            {
+                var classes = new List<HeroClass>(AllClassIds.Count);
+                foreach (string classId in AllClassIds)
+                {
+                    HeroClass? heroClass = Get(classId);
+                    if (heroClass != null)
+                        classes.Add(heroClass);
+                }
+
+                return classes;
+            }
+        }
+
         /// <summary>Gets a hero class by its string id.</summary>
         /// <param name="classId">The class id.</param>
         /// <returns>The hero class, or null if unknown.</returns>

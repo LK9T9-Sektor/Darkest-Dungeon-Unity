@@ -24,6 +24,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private readonly INavigationService navigation;
         private readonly IReadOnlyList<string> availableClasses;
         private readonly ILogger logger;
+        private readonly IHeroSkillCatalog skillCatalog;
         private DateTime? waitingSince;
         private bool started;
         private bool disposed;
@@ -69,11 +70,18 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <param name="transport">The duel transport.</param>
         /// <param name="availableClasses">The selectable hero class ids.</param>
         /// <param name="logger">The structural logger.</param>
-        public DuelLobbyViewModel(INavigationService navigation, ITransport transport, IReadOnlyList<string> availableClasses, ILogger logger)
+        /// <param name="skillCatalog">The catalog of hero skill icons for the battle tray.</param>
+        public DuelLobbyViewModel(
+            INavigationService navigation,
+            ITransport transport,
+            IReadOnlyList<string> availableClasses,
+            ILogger logger,
+            IHeroSkillCatalog skillCatalog)
         {
             this.navigation = navigation;
             this.availableClasses = availableClasses;
             this.logger = logger;
+            this.skillCatalog = skillCatalog;
             session = new DuelSessionManager(transport);
             for (int i = 0; i < 4; i++)
                 Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses));
@@ -188,7 +196,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             {
                 Dispose();
                 navigation.GoHome();
-            });
+            }, skillCatalog);
             Status = "Duel started. Round 1.";
             navigation.NavigateTo(battle);
         }

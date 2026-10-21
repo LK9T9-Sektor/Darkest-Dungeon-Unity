@@ -14,6 +14,7 @@ namespace Sektor.DarkestDungeon.Wpf.Data
     public sealed class HeroIconCatalog : IHeroIconCatalog
     {
         private const string PortraitFileNamePrefix = "portrait.";
+        private const string AbilityFileNamePrefix = "ability.";
         private const string ImageExtension = ".png";
 
         private readonly string rootDirectory;
@@ -33,6 +34,16 @@ namespace Sektor.DarkestDungeon.Wpf.Data
                 return null;
 
             string fileName = PortraitFileNamePrefix + outfit.Trim().ToUpperInvariant() + ImageExtension;
+            return Load(Path.Combine(rootDirectory, classId.Trim(), fileName));
+        }
+
+        /// <inheritdoc/>
+        public ImageSource? GetAbilityIcon(string classId, string iconId)
+        {
+            if (string.IsNullOrWhiteSpace(classId) || string.IsNullOrWhiteSpace(iconId))
+                return null;
+
+            string fileName = AbilityFileNamePrefix + iconId.Trim().ToLowerInvariant() + ImageExtension;
             return Load(Path.Combine(rootDirectory, classId.Trim(), fileName));
         }
 

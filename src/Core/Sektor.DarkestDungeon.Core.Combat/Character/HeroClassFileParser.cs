@@ -11,11 +11,15 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
     /// Parses legacy hero class definition files (Data/Heroes/Info format) into core hero classes.
     /// Loads the base upgrade rank only: level-0 weapon/armour stats and level-0 combat skills.
     /// Skill effects (<c>.effect</c> ids) are resolved from the supplied effects catalog.
+    /// The <c>art:</c> section supplies visual data (icon, base animation, effect animation ids).
     /// </summary>
     public static class HeroClassFileParser
     {
         private const string NamePrefix = "name";
+        private const string ArtSectionMarker = "art";
         private const string InfoSectionMarker = "info";
+        private const string CombatSkillPrefix = "combat_skill";
+        private const string RiposteSkillPrefix = "riposte_skill";
         private const string EndMarker = ".end";
 
         /// <summary>Parses a hero class definition file content.</summary>
@@ -32,6 +36,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
             bool hasWeapon = false;
             bool hasArmour = false;
             string name = null;
+            bool inArt = false;
             bool inInfo = false;
 
             foreach (var rawLine in content.Split('\n'))
@@ -40,6 +45,13 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
                 if (line.Length == 0)
                     continue;
 
+                if (line == EndMarker)
+                {
+                    inArt = false;
+                    inInfo = false;
+                    continue;
+                }
+
                 int colon = line.IndexOf(':');
                 if (colon <= 0)
                     continue;
@@ -47,19 +59,31 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
                 string prefix = line.Substring(0, colon).Trim().ToLowerInvariant();
                 var tokens = ParseTokens(line.Substring(colon + 1));
 
-                if (prefix == EndMarker)
+                if (prefix == ArtSectionMarker)
                 {
+                    inArt = true;
                     inInfo = false;
                     continue;
                 }
                 if (prefix == InfoSectionMarker)
                 {
+                    inArt = false;
                     inInfo = true;
                     continue;
                 }
-                if (prefix == NamePrefix && !inInfo)
+                if (prefix == NamePrefix && !inArt && !inInfo)
                 {
                     name = line.Substring(colon + 1).Trim().ToLowerInvariant();
+                    continue;
+                }
+                if (inArt)
+                {
+                    if (prefix == CombatSkillPrefix || prefix == RiposteSkillPrefix)
+                    {
+                        var art = new SkillArtInfo(tokens);
+                        if (!string.IsNullOrEmpty(art.SkillId))
+                            result.SkillArtInfo.Add(art);
+                    }
                     continue;
                 }
                 if (!inInfo)
@@ -78,11 +102,11 @@ namespace Sektor.DarkestDungeon.Core.Combat.Character
                         if (!hasArmour)
                             hasArmour = ApplyArmour(result, weaponStats, hasWeapon, tokens);
                         break;
-                    case "combat_skill":
+                    case CombatSkillPrefix:
                         float weaponAccuracy = hasWeapon ? GetOrZero(weaponStats, AttributeType.AttackRating) : 0f;
                         ApplyCombatSkill(result.CombatSkills, tokens, weaponAccuracy, effects);
                         break;
-                    case "riposte_skill":
+                    case RiposteSkillPrefix:
                         float riposteWeaponAccuracy = hasWeapon ? GetOrZero(weaponStats, AttributeType.AttackRating) : 0f;
                         var riposteSkills = new List<CombatSkill>();
                         ApplyCombatSkill(riposteSkills, tokens, riposteWeaponAccuracy, effects);

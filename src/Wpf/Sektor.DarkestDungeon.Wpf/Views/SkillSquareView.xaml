@@ -7,7 +7,7 @@
          IsSelected). The host may supply a SelectCommand to make the square a clickable button (skill
          tray); without one it renders as a read-only inspection square (character-info sheet, floating
          badge). -->
-    <StackPanel Width="58">
+    <StackPanel x:Name="RootPanel" Width="58">
         <Button x:Name="SkillButton" Width="50" Height="50" Padding="2"
                 HorizontalAlignment="Center"
                 ToolTipService.Placement="Top"
@@ -18,7 +18,8 @@
                 </ToolTip>
             </Button.ToolTip>
             <Grid>
-                <Image Source="{Binding Icon}" Stretch="UniformToFill" />
+                <Image Source="{Binding Icon}" Stretch="UniformToFill"
+                       RenderOptions.BitmapScalingMode="HighQuality" />
                 <Rectangle Fill="#404040"
                            Visibility="{Binding IsUsable, Converter={StaticResource InverseBoolToVisibility}}" />
             </Grid>

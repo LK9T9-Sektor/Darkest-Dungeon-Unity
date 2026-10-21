@@ -33,6 +33,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         private readonly DuelController controller;
         private readonly Action onLeave;
+        private readonly IHeroSkillCatalog? skillCatalog;
         private readonly DispatcherTimer popupTimer;
         private readonly List<(int CombatId, string Text)> pendingPopups = new List<(int CombatId, string Text)>();
         private readonly Dictionary<int, Queue<string>> popupQueues = new Dictionary<int, Queue<string>>();
@@ -168,10 +169,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Initializes a new instance of the <see cref="PveBattleViewModel"/> class.</summary>
         /// <param name="controller">The started duel controller (heroes vs monsters).</param>
         /// <param name="onLeave">Invoked when the player abandons the battle.</param>
-        public PveBattleViewModel(DuelController controller, Action onLeave)
+        /// <param name="skillCatalog">The catalog of skill icons (optional; null renders icon-less squares).</param>
+        public PveBattleViewModel(DuelController controller, Action onLeave, IHeroSkillCatalog? skillCatalog = null)
         {
             this.controller = controller;
             this.onLeave = onLeave;
+            this.skillCatalog = skillCatalog;
 
             SelectSkillCommand = new RelayCommand<DuelSkillViewModel>(SelectSkill);
             TargetCommand = new RelayCommand<DuelUnitViewModel>(SelectTarget);
@@ -401,6 +404,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 {
                     IsUsable = playerTurn && controller.IsSkillUsable(unit, skill),
                     Level = skill.Level,
+                    Icon = skillCatalog?.GetSkillIcon(unit.Character.Class, skill.Id),
                     BaseInfo = Ui.SkillDetails.BuildBaseInfo(skill),
                     EffectRows = Ui.SkillDetails.BuildEffectRows(skill),
                     Details = Ui.SkillDetails.Build(skill),

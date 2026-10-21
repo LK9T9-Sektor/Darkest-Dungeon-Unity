@@ -110,6 +110,8 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
 
             public string GetContentDirectory(string character, string animation)
                 => Path.Combine("root", character, animation);
+
+            public string? FindAnimationSet(string character, string animationId) => null;
         }
 
         private sealed class FakeLogger : ILogger

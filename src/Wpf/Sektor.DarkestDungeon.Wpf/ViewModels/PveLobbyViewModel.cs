@@ -26,6 +26,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private readonly INavigationService navigation;
         private readonly IReadOnlyList<string> availableClasses;
         private readonly ILogger logger;
+        private readonly IHeroSkillCatalog skillCatalog;
 
         /// <summary>Gets the four hero slots of the player's party.</summary>
         public ObservableCollection<HeroSlotViewModel> Slots { get; } = new ObservableCollection<HeroSlotViewModel>();
@@ -68,11 +69,17 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <param name="navigation">The navigation service.</param>
         /// <param name="availableClasses">The selectable hero class ids.</param>
         /// <param name="logger">The structural logger.</param>
-        public PveLobbyViewModel(INavigationService navigation, IReadOnlyList<string> availableClasses, ILogger logger)
+        /// <param name="skillCatalog">The catalog of hero skill icons for the battle tray.</param>
+        public PveLobbyViewModel(
+            INavigationService navigation,
+            IReadOnlyList<string> availableClasses,
+            ILogger logger,
+            IHeroSkillCatalog skillCatalog)
         {
             this.navigation = navigation;
             this.availableClasses = availableClasses;
             this.logger = logger;
+            this.skillCatalog = skillCatalog;
 
             for (int i = 0; i < 4; i++)
                 Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses));
@@ -150,7 +157,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 return;
             duel.StartBattle();
 
-            var battle = new PveBattleViewModel(duel, () => navigation.GoHome());
+            var battle = new PveBattleViewModel(duel, () => navigation.GoHome(), skillCatalog);
             navigation.NavigateTo(battle);
         }
 

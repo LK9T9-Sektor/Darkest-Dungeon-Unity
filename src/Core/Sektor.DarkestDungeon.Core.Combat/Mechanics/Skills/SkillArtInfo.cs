@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Globalization;
+
 using Sektor.DarkestDungeon.Core.Combat.Character;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics;
 using Sektor.DarkestDungeon.Core.Combat.Mechanics.AI;
@@ -52,6 +54,52 @@ namespace Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills
         public SkillArtInfo(List<string> data, bool isMonster)
         {
             LoadData(data, isMonster);
+        }
+
+        /// <summary>Initializes a new instance of the <see cref="SkillArtInfo"/> class from parsed content tokens.</summary>
+        /// <param name="tokens">The parsed <c>.key value</c> tokens (keys without the leading dot).</param>
+        public SkillArtInfo(IReadOnlyDictionary<string, string> tokens)
+        {
+            SkillId = GetText(tokens, "id");
+            AnimationId = GetText(tokens, "anim");
+            ArtId = GetText(tokens, "fx");
+            TargetFx = GetText(tokens, "targfx");
+            TargetChestFx = GetText(tokens, "targchestfx");
+            TargetHeadFx = GetText(tokens, "targheadfx");
+            IconId = GetText(tokens, "icon");
+            CanDisplaySelection = GetFlag(tokens, "can_display_selection");
+            AreaOffsetX = GetNumber(tokens, "area_pos_offset");
+            AreaOffsetY = GetNumber(tokens, "area_pos_offset#2");
+            TargetAreaOffsetX = GetNumber(tokens, "target_area_pos_offset");
+            TargetAreaOffsetY = GetNumber(tokens, "target_area_pos_offset#2");
+        }
+
+        private static string GetText(IReadOnlyDictionary<string, string> tokens, string key)
+        {
+            string value;
+            return tokens.TryGetValue(key, out value) ? value : null;
+        }
+
+        private static bool? GetFlag(IReadOnlyDictionary<string, string> tokens, string key)
+        {
+            string value;
+            if (!tokens.TryGetValue(key, out value))
+                return null;
+
+            bool parsed;
+            return bool.TryParse(value, out parsed) ? parsed : (bool?)null;
+        }
+
+        private static float GetNumber(IReadOnlyDictionary<string, string> tokens, string key)
+        {
+            string value;
+            if (!tokens.TryGetValue(key, out value))
+                return 0f;
+
+            int parsed;
+            return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out parsed)
+                ? parsed
+                : 0f;
         }
 
         private void LoadData(List<string> data, bool isMonster)

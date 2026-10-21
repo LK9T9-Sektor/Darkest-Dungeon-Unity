@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -10,6 +11,11 @@ namespace Sektor.DarkestDungeon.Wpf.Views
     /// tooltip on hover. Used in the bottom-left skill tray and in the character-info sheet.</summary>
     public partial class SkillSquareView : UserControl
     {
+        private const double DefaultIconSize = 42.0;
+        private const double IconChrome = 8.0;
+        private const double NameExtraWidth = 8.0;
+        private const double MinIconSize = 16.0;
+
         /// <summary>Identifies the <see cref="SelectCommand"/> dependency property.</summary>
         public static readonly DependencyProperty SelectCommandProperty =
             DependencyProperty.Register(
@@ -34,6 +40,14 @@ namespace Sektor.DarkestDungeon.Wpf.Views
                 typeof(SkillSquareView),
                 new PropertyMetadata(true, OnShowNameChanged));
 
+        /// <summary>Identifies the <see cref="IconSize"/> dependency property.</summary>
+        public static readonly DependencyProperty IconSizeProperty =
+            DependencyProperty.Register(
+                nameof(IconSize),
+                typeof(double),
+                typeof(SkillSquareView),
+                new PropertyMetadata(DefaultIconSize, OnIconSizeChanged));
+
         /// <summary>Gets or sets the command invoked when the skill square is clicked (tray only).</summary>
         public ICommand? SelectCommand
         {
@@ -56,10 +70,20 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             set { SetValue(ShowNameProperty, value); }
         }
 
+        /// <summary>Gets or sets the rendered icon area size in device independent pixels (default 42).
+        /// The square adds an 8 px frame around the image, so the default keeps the legacy 50 px tray
+        /// button, while 72 renders the bundled 72x72 ability icons 1:1.</summary>
+        public double IconSize
+        {
+            get { return (double)GetValue(IconSizeProperty); }
+            set { SetValue(IconSizeProperty, value); }
+        }
+
         /// <summary>Initializes a new instance of the <see cref="SkillSquareView"/> class.</summary>
         public SkillSquareView()
         {
             InitializeComponent();
+            ApplyIconSize();
             DataContextChanged += OnDataContextChanged;
         }
 
@@ -76,6 +100,19 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         private static void OnShowNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             ((SkillSquareView)d).WireNameVisibility();
+        }
+
+        private static void OnIconSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((SkillSquareView)d).ApplyIconSize();
+        }
+
+        private void ApplyIconSize()
+        {
+            double iconSize = Math.Max(MinIconSize, IconSize);
+            SkillButton.Width = iconSize + IconChrome;
+            SkillButton.Height = iconSize + IconChrome;
+            RootPanel.Width = iconSize + IconChrome + NameExtraWidth;
         }
 
         private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)

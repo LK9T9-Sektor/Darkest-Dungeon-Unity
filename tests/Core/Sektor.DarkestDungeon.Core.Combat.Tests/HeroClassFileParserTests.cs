@@ -18,7 +18,7 @@ namespace Sektor.DarkestDungeon.Core.Combat.Tests
 name: test_knight
 
 art:
-combat_skill: .id ""smite"" .icon ""one""
+combat_skill: .id ""smite"" .icon ""one"" .anim ""attack_sword"" .fx ""smite"" .targchestfx ""blood_splatter""
 .end
 
 info:
@@ -34,6 +34,12 @@ tag: .id ""religious""
 id_index: .index 7
 .end
 ";
+
+        private static string AddInfoLine(string line)
+        {
+            int end = Sample.LastIndexOf(".end", StringComparison.Ordinal);
+            return Sample.Substring(0, end) + line + "\n" + Sample.Substring(end);
+        }
 
         [Test]
         public void Parse_LoadsBaseRankStatsSkillsResistancesAndTags()
@@ -74,6 +80,13 @@ id_index: .index 7
             Assert.That(mend.Category, Is.EqualTo(SkillCategory.Heal));
             Assert.That(mend.Heal.MinAmount, Is.EqualTo(2));
             Assert.That(mend.Heal.MaxAmount, Is.EqualTo(3));
+
+            Assert.That(heroClass.SkillArtInfo.Count, Is.EqualTo(1));
+            var smiteArt = heroClass.SkillArtInfo.Single(art => art.SkillId == "smite");
+            Assert.That(smiteArt.IconId, Is.EqualTo("one"));
+            Assert.That(smiteArt.AnimationId, Is.EqualTo("attack_sword"));
+            Assert.That(smiteArt.ArtId, Is.EqualTo("smite"));
+            Assert.That(smiteArt.TargetChestFx, Is.EqualTo("blood_splatter"));
         }
 
         [Test]
@@ -104,11 +117,17 @@ id_index: .index 7
                 HeroClass heroClass;
                 Assert.That(catalog.TryGet(id, out heroClass), Is.True);
                 Assert.That(heroClass.CombatSkills.Count, Is.GreaterThan(0), id + " has no combat skills");
+                Assert.That(heroClass.SkillArtInfo, Is.Not.Empty, id + " has no skill art entries");
                 foreach (var skill in heroClass.CombatSkills)
                 {
                     totalSkills++;
                     if (skill.Effects.Count > 0)
                         skillsWithEffects++;
+
+                    var art = heroClass.SkillArtInfo.FirstOrDefault(entry => entry.SkillId == skill.Id);
+                    Assert.That(art, Is.Not.Null, id + "/" + skill.Id + " has no skill art entry");
+                    Assert.That(art.IconId, Is.Not.Null.And.Not.Empty, id + "/" + skill.Id + " has no icon id");
+                    Assert.That(art.AnimationId, Is.Not.Null.And.Not.Empty, id + "/" + skill.Id + " has no animation id");
                 }
             }
 
@@ -157,7 +176,7 @@ id_index: .index 7
             Assert.That(smite.Effects.Count, Is.EqualTo(0));
 
             var stunned = HeroClassFileParser.Parse(
-                Sample + "combat_skill: .id \"bash\" .level 0 .type \"melee\" .atk 85% .dmg -40% .launch 21 .target 12 .effect \"Stun 1\" \"Bleed 1\"",
+                AddInfoLine("combat_skill: .id \"bash\" .level 0 .type \"melee\" .atk 85% .dmg -40% .launch 21 .target 12 .effect \"Stun 1\" \"Bleed 1\""),
                 effects);
             var bash = stunned.CombatSkills.Single(skill => skill.Id == "bash");
             Assert.That(bash.Effects.Count, Is.EqualTo(2));
@@ -172,7 +191,7 @@ id_index: .index 7
             var heroClass = HeroClassFileParser.Parse(Sample, effects);
 
             var limited = HeroClassFileParser.Parse(
-                Sample + "combat_skill: .id \"bellow\" .level 0 .type \"melee\" .atk 85% .dmg -40% .launch 321 .target .is_crit_valid False .is_continue_turn true .per_turn_limit 1 .per_battle_limit 2",
+                AddInfoLine("combat_skill: .id \"bellow\" .level 0 .type \"melee\" .atk 85% .dmg -40% .launch 321 .target .is_crit_valid False .is_continue_turn true .per_turn_limit 1 .per_battle_limit 2"),
                 effects);
 
             var bellow = limited.CombatSkills.Single(skill => skill.Id == "bellow");
@@ -230,9 +249,8 @@ combat_skill: .id ""rage"" .level 0 .type ""melee"" .atk 85% .dmg 0% .crit 5% .l
         [Test]
         public void Parse_ReadsDeathsDoorBuffsAndRecoveryBuffs()
         {
-            var content = Sample + @"
-deaths_door: .buffs deathsdoorACCDebuff deathsdoorDMGLowDebuff .recovery_buffs mortalityACCDebuff .recovery_heart_attack_buffs heartattackACCDebuff
-";
+            var content = AddInfoLine(
+                "deaths_door: .buffs deathsdoorACCDebuff deathsdoorDMGLowDebuff .recovery_buffs mortalityACCDebuff .recovery_heart_attack_buffs heartattackACCDebuff");
             var heroClass = HeroClassFileParser.Parse(content);
 
             Assert.That(heroClass, Is.Not.Null);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Media;
 
@@ -11,7 +12,8 @@ using Sektor.DarkestDungeon.Wpf.Ui;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
-    /// <summary>Spine demo screen: switches heroes, animation sets and playback speed of the rendered skeleton.</summary>
+    /// <summary>Spine demo screen: switches heroes, animation sets and playback speed of the rendered
+    /// skeleton, and previews the hero's combat skills (icon + tooltip, click plays the effect once).</summary>
     public partial class SpineDemoViewModel : ObservableObject
     {
         private const string DefaultCharacter = "Crusader";
@@ -23,6 +25,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private readonly INavigationService navigation;
         private readonly ISpineDemoCatalog catalog;
         private readonly IHeroIconCatalog iconCatalog;
+        private readonly IHeroSkillCatalog skillCatalog;
+        private readonly List<HeroSkillInfo> skillInfos = new List<HeroSkillInfo>();
+
+        private string? animationBeforeSkill;
+        private bool applyingSkillAnimation;
 
         /// <summary>Gets or sets a value indicating whether the animation clock is paused.</summary>
         [ObservableProperty]
@@ -56,8 +63,16 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [NotifyPropertyChangedFor(nameof(SpeedText))]
         private double _speedMultiplier = MinSpeedMultiplier;
 
+        /// <summary>Gets or sets a value indicating whether a skill effect animation is playing once.</summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsAnimationLooping))]
+        private bool _isSkillPlaying;
+
         /// <summary>Gets the available hero names.</summary>
         public IReadOnlyList<string> Characters { get; }
+
+        /// <summary>Gets the base-rank combat skills of the selected hero with their bundled icons.</summary>
+        public ObservableCollection<DuelSkillViewModel> Skills { get; } = new ObservableCollection<DuelSkillViewModel>();
 
         /// <summary>Gets the content directory of the selected animation set, as bound by the hero control.</summary>
         public string ContentDirectory => catalog.GetContentDirectory(CurrentCharacter, CurrentAnimation);
@@ -79,6 +94,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Gets the playback speed shown as a percentage.</summary>
         public string SpeedText => $"{SpeedMultiplier * 100:0}%";
+
+        /// <summary>Gets a value indicating whether the stage loops the current animation
+        /// (false while a one-shot skill effect is playing).</summary>
+        public bool IsAnimationLooping => !IsSkillPlaying;
 
         /// <summary>Gets the command returning to the main menu.</summary>
         public IRelayCommand BackCommand { get; }
@@ -107,15 +126,27 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the command increasing the playback speed (wraps to the minimum).</summary>
         public IRelayCommand IncreaseSpeedCommand { get; }
 
+        /// <summary>Gets the command previewing a clicked skill (one-shot effect animation).</summary>
+        public IRelayCommand<DuelSkillViewModel?> SelectSkillCommand { get; }
+
+        /// <summary>Gets the command restoring the previous animation when a skill effect finishes.</summary>
+        public IRelayCommand<string?> SkillAnimationCompletedCommand { get; }
+
         /// <summary>Initializes a new instance of the <see cref="SpineDemoViewModel"/> class.</summary>
         /// <param name="navigation">The navigation service.</param>
         /// <param name="catalog">The catalog of heroes and animation sets to browse.</param>
-        /// <param name="iconCatalog">The catalog of hero portrait icons.</param>
-        public SpineDemoViewModel(INavigationService navigation, ISpineDemoCatalog catalog, IHeroIconCatalog iconCatalog)
+        /// <param name="iconCatalog">The catalog of hero portrait and ability icons.</param>
+        /// <param name="skillCatalog">The catalog of hero combat skills with their art.</param>
+        public SpineDemoViewModel(
+            INavigationService navigation,
+            ISpineDemoCatalog catalog,
+            IHeroIconCatalog iconCatalog,
+            IHeroSkillCatalog skillCatalog)
         {
             this.navigation = navigation;
             this.catalog = catalog;
             this.iconCatalog = iconCatalog;
+            this.skillCatalog = skillCatalog;
             Characters = catalog.GetCharacters();
 
             BackCommand = new RelayCommand(navigation.GoHome);
@@ -127,6 +158,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             NextAnimationCommand = new RelayCommand(() => SelectAnimation(1));
             DecreaseSpeedCommand = new RelayCommand(() => ShiftSpeed(-1));
             IncreaseSpeedCommand = new RelayCommand(() => ShiftSpeed(1));
+            SelectSkillCommand = new RelayCommand<DuelSkillViewModel?>(SelectSkill);
+            SkillAnimationCompletedCommand = new RelayCommand<string?>(CompleteSkillAnimation);
 
             int initial = IndexOf(Characters, DefaultCharacter);
             CurrentCharacter = Characters.Count > 0 ? Characters[initial < 0 ? 0 : initial] : string.Empty;
@@ -134,9 +167,17 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         partial void OnCurrentCharacterChanged(string value)
         {
+            CancelSkillPlayback();
             Animations = catalog.GetAnimations(value);
             if (IndexOf(Animations, CurrentAnimation) < 0)
                 CurrentAnimation = Animations.Count > 0 ? Animations[0] : string.Empty;
+            RebuildSkills();
+        }
+
+        partial void OnCurrentAnimationChanged(string value)
+        {
+            if (IsSkillPlaying && !applyingSkillAnimation)
+                CancelSkillPlayback();
         }
 
         private static int IndexOf(IReadOnlyList<string> items, string value)
@@ -179,6 +220,100 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 shifted = MaxSpeedMultiplier;
 
             SpeedMultiplier = shifted;
+        }
+
+        private void SelectSkill(DuelSkillViewModel? skill)
+        {
+            if (skill == null)
+                return;
+
+            foreach (var item in Skills)
+                item.IsSelected = ReferenceEquals(item, skill);
+
+            HeroSkillInfo? info = FindSkillInfo(skill.Id);
+            if (info == null)
+                return;
+
+            string? effectSet = info.EffectAnimationId == null
+                ? null
+                : catalog.FindAnimationSet(CurrentCharacter, info.EffectAnimationId);
+            if (effectSet != null)
+            {
+                if (!IsSkillPlaying)
+                    animationBeforeSkill = CurrentAnimation;
+
+                applyingSkillAnimation = true;
+                IsSkillPlaying = true;
+                CurrentAnimation = effectSet;
+                applyingSkillAnimation = false;
+                return;
+            }
+
+            // Some legacy skills have no .fx set: show the base attack pose instead of nothing.
+            string? poseSet = info.BaseAnimationId == null
+                ? null
+                : catalog.FindAnimationSet(CurrentCharacter, info.BaseAnimationId);
+            if (poseSet == null)
+                return;
+
+            CancelSkillPlayback();
+            applyingSkillAnimation = true;
+            CurrentAnimation = poseSet;
+            applyingSkillAnimation = false;
+        }
+
+        private void CompleteSkillAnimation(string? animationName)
+        {
+            if (!IsSkillPlaying)
+                return;
+
+            string? restore = animationBeforeSkill;
+            animationBeforeSkill = null;
+            IsSkillPlaying = false;
+            if (string.IsNullOrEmpty(restore) || IndexOf(Animations, restore) < 0)
+                return;
+
+            applyingSkillAnimation = true;
+            CurrentAnimation = restore;
+            applyingSkillAnimation = false;
+        }
+
+        private void CancelSkillPlayback()
+        {
+            animationBeforeSkill = null;
+            IsSkillPlaying = false;
+        }
+
+        private void RebuildSkills()
+        {
+            Skills.Clear();
+            skillInfos.Clear();
+
+            foreach (var info in skillCatalog.GetSkills(CurrentHeroClassId))
+            {
+                var skill = info.Skill;
+                Skills.Add(new DuelSkillViewModel(skill.Id, DisplayNames.Title(skill.Id), SkillToneClassifier.Classify(skill))
+                {
+                    Level = skill.Level,
+                    Icon = info.Icon,
+                    BaseInfo = SkillDetails.BuildBaseInfo(skill),
+                    EffectRows = SkillDetails.BuildEffectRows(skill),
+                    Details = SkillDetails.Build(skill),
+                    IsUsable = true,
+                });
+                skillInfos.Add(info);
+            }
+        }
+
+        private HeroSkillInfo? FindSkillInfo(string skillId)
+        {
+            foreach (var info in skillInfos)
+            {
+                if (string.Equals(info.Skill.Id, skillId, StringComparison.Ordinal))
+                    return info;
+            }
+
+            return null;
         }
 
         private void TogglePause() => IsPaused = !IsPaused;

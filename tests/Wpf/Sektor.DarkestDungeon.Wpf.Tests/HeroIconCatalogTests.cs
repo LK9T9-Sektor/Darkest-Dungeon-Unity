@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Threading;
+using System.Windows.Media.Imaging;
 
 using NUnit.Framework;
 
@@ -72,6 +73,50 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             var catalog = CreateCatalog();
 
             Assert.That(catalog.GetPortrait("crusader", "A"), Is.SameAs(catalog.GetPortrait("crusader", "A")));
+        }
+
+        /// <summary>Every bundled hero ships its seven ability icons and they load.</summary>
+        [Test]
+        public void GetAbilityIcon_EveryHeroHasSevenIcons()
+        {
+            string[] icons = { "one", "two", "three", "four", "five", "six", "seven" };
+            var catalog = CreateCatalog();
+
+            foreach (string classId in ClassIds)
+            {
+                foreach (string iconId in icons)
+                    Assert.That(catalog.GetAbilityIcon(classId, iconId), Is.Not.Null, $"{classId} ability {iconId}");
+            }
+        }
+
+        /// <summary>The ability icons keep their native 72x72 art size.</summary>
+        [Test]
+        public void GetAbilityIcon_IsNative72Square()
+        {
+            var image = (BitmapSource)CreateCatalog().GetAbilityIcon("crusader", "one")!;
+
+            Assert.That(image.PixelWidth, Is.EqualTo(72));
+            Assert.That(image.PixelHeight, Is.EqualTo(72));
+        }
+
+        /// <summary>An unknown hero or icon id yields null instead of throwing.</summary>
+        [Test]
+        public void GetAbilityIcon_UnknownHeroOrIcon_ReturnsNull()
+        {
+            var catalog = CreateCatalog();
+
+            Assert.That(catalog.GetAbilityIcon("unknown_hero", "one"), Is.Null);
+            Assert.That(catalog.GetAbilityIcon("crusader", "zero"), Is.Null);
+            Assert.That(catalog.GetAbilityIcon(string.Empty, "one"), Is.Null);
+        }
+
+        /// <summary>An ability icon is read once and reused by later calls.</summary>
+        [Test]
+        public void GetAbilityIcon_SecondCall_ReturnsCachedInstance()
+        {
+            var catalog = CreateCatalog();
+
+            Assert.That(catalog.GetAbilityIcon("crusader", "one"), Is.SameAs(catalog.GetAbilityIcon("crusader", "one")));
         }
 
         private static HeroIconCatalog CreateCatalog() => new HeroIconCatalog(ContentRoot());

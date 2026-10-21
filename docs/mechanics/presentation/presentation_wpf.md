@@ -11,7 +11,10 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 (Spine 2.1) — прототип Spine-рендера для карточек дуэли: стрелками листаются все 15 героев,
 наборы анимаций героя (`Skeleton\`, Idle первым) и скорость воспроизведения 100…1000%.
 Слева от блока селекторов показана карточка выбранного героя — переиспользуемый `HeroPortraitView`
-(roster-портрет аутфита `A` + читаемое имя); карточка меняется вместе с героем.
+(roster-портрет аутфита `A` + читаемое имя); карточка меняется вместе с героем. Под скелетом —
+строка «SKILLS»: базовые боевые скиллы героя (`SkillSquareView`, иконка 72×72, имя и
+структурированный тултип); клик проигрывает эффект скилла один раз и возвращает ранее выбранный
+набор анимаций.
 Экран `SpineBattleView` («АРЕНА 1×1» в меню) — чисто визуальная арена: слева Crusader, справа
 Highwayman, кнопка «АТАКА» проигрывает атаку как в Unity — слоями: base-слот принимает ударную
 позу `AttackSword` (заглушка с нулевой длительностью), поверх временно играет оверлей-скилл
@@ -54,10 +57,18 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   демо-экрана; `SpineDemoViewModel` получает каталог через конструктор.
 - Иконки героев: `Data/IHeroIconCatalog` / `Data/HeroIconCatalog` — `ImageSource? GetPortrait(
   classId, outfit)` по `Content\HeroIcons\<ClassId>\portrait.<Outfit>.png` (frozen `BitmapImage`,
-  кэш по пути, отсутствие/битый файл → `null`); `Ui/HeroIds.ToClassId` переводит имя папки героя
+  кэш по пути, отсутствие/битый файл → `null`); `GetAbilityIcon(classId, iconId)` читает
+  `ability.<id>.png` (72×72) для боевых скиллов; `Ui/HeroIds.ToClassId` переводит имя папки героя
   (`ManAtArms`) в class id (`man_at_arms`). Карточка — `Views/HeroPortraitView.xaml(.cs)`: DP
   `Portrait` (`ImageSource`), `Caption` (string), `PortraitSize` (double, 96), плейсхолдер `?`;
   контрол не знает про Spine/демо-экран и переиспользуется любым экраном.
+- Боевые скиллы героя: `Data/IHeroSkillCatalog` / `Data/HeroSkillCatalog` (`HeroSkillInfo`) —
+  соединяет распарсенные `HeroClass.CombatSkills` с `art:`-секцией (`SkillArtInfo`) и иконкой;
+  `GetSkills(classId)` — список для демо, `GetSkillIcon(classId, skillId)` — точечный поиск для
+  боевых экранов (дуэль/PvE заполняют `DuelSkillViewModel.Icon`).
+- `Views/SkillSquareView` — переиспользуемый квадрат скилла (иконка + имя + тултип); DP
+  `IconSize` (double, 42) задаёт область иконки, кнопка = `IconSize + 8`, корень = `IconSize + 16`
+  (72 → кнопка 80, корень 88). Без `SelectCommand` квадрат только для просмотра.
 
 ## 3. Порядок срабатывания (трассировка)
 
@@ -76,7 +87,11 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
    `CurrentHeroClassId` → `CurrentHeroName`/`CurrentHeroPortrait` (`NotifyPropertyChangedFor`),
    и карточка `HeroPortraitView` слева перерисовывается. Кнопка «SCREENSHOT» (`EventTrigger` →
    `SaveScreenshotAction`, Microsoft.Xaml.Behaviors) снимает текущее окно в `screenshots/` рядом
-    с exe; имя файла показывает VM (`ScreenshotStatus`).
+    с exe; имя файла показывает VM (`ScreenshotStatus`). Ниже — строка «SKILLS»
+   (`ItemsControl`/`WrapPanel`): VM собирает `Skills` из `IHeroSkillCatalog.GetSkills(
+   CurrentHeroClassId)` при смене героя. Клик (`SelectSkillCommand`) помечает квадрат и играет
+   `Effects\<skill>` как one-shot (`Loop=false`); команда завершения возвращает ранее выбранный
+   сет. Если у скилла нет `.fx`-сета, играет базовая поза (`anim`) в обычном цикле.
 7. Арена: меню → «АРЕНА 1×1» → `SpineBattleViewModel` (логгер пишет `arena: opened/attack started/
    attack completed` в `Logs\duel.log`). «АТАКА» (`AttackCommand`) меняет два directory атакующего
    в одном потоке: base-слот → `Crusader\AttackSword` (поза) и оверлей-слот → `Crusader\Smite`
@@ -149,6 +164,9 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 | Адаптивная раскладка | `MainWindow` | ресайз, без Viewbox |
 | Скорость Spine-демо | `SpineDemoViewModel` | 1.0…10.0 (шаг 0.5, wrap 100↔1000%); нижний кламп контрола 0.01…100 |
 | Портрет героя | `IHeroIconCatalog`, `HeroPortraitView` | аутфит `A`; отсутствующий/битый/неизвестный id → `null` → плейсхолдер `?`, исключения не летят |
+| Иконка скилла | `HeroSkillCatalog.GetSkillIcon`, `HeroIconCatalog.GetAbilityIcon` | нет класса/скилла/файла → `null` → квадрат без иконки |
+| Размер иконки скилла | `SkillSquareView.IconSize` | нижний кламп 16; кнопка = размер + 8, корень = размер + 16 |
+| Эффект скилла в демо | `SpineDemoViewModel` | нет `.fx`-сета → базовая поза в цикле; нет и позы → анимация не меняется |
 | Выбор захвата | `GameEventCaptureLocator`, env `DARKEST_CAPTURE_RUN` | env задаёт конкретный run; иначе новейший `<repo>/captures/run_*` с `manifest.json`, потом эталон `Content\Captures\Reference` |
 | Чтение захвата | `GameEventLogReader` | `SchemaVersion` = `1.0.0`/`1.1.0`; `Sequence` ровно 1..N; `Subsystem` = имени файла; allowlist-биндер |
 | Fallback формации | `CaptureUnitViewModel` | `Rank <= 0` → `index + 1`; `Size <= 0` → 1 |
@@ -249,6 +267,22 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   контент-каталоги — в snake_case (`man_at_arms`); конверсия только через `Ui\HeroIds.ToClassId`
   (не `ToLower`: иначе `ManAtArms` → `manatarms`). Новый герой без иконки не ломает экран:
   карточка показывает `?`.
+- **Скилл-эффект ищется по имени файла скелета, а не по папке** — папки `Effects\<Skill>` местами
+  содержат опечатки (`ZealosAccusation`); `SpineDemoCatalog.FindAnimationSet` матчит суффикс
+  `.sprite.<anim>.skel` и кэширует результат (регистронезависимо). Поэтому `art: anim` из контента
+  находит сет, даже если имя папки не совпадает с id.
+- **Не у всех скиллов есть `.fx`** — 96 из 105 базовых скиллов имеют `Effects`-сет; у девяти
+  (`abomination/manacles`, `bounty_hunter/come_hither` и `hook_and_slice`,
+  `grave_robber/flashing_daggers` и `thrown_dagger`, `plague_doctor/noxious_blast`,
+  `plague_grenade`, `blinding_gas`, `disorienting_blast`) его нет — демо играет базовую позу
+  (`attack_sword` и т.п.) в цикле, а не пустоту.
+- **One-shot превью и порядок свойств** — смена `Loop` или `ContentDirectory` перезапускает клип,
+  поэтому VM сначала выставляет `IsSkillPlaying` (→ `Loop=false`), затем меняет `ContentDirectory`;
+  завершение принимается только при `IsSkillPlaying`. Ручная смена анимации/героя во время
+  проигрывания отменяет отложенное восстановление (`OnCurrentAnimationChanged`/`CancelSkillPlayback`).
+- **`IconSize` — это область иконки, а не кнопки** — рамка `SkillSquareView` (border 2 + padding 2
+  с каждой стороны) добавляет 8 px, поэтому иконка 72 даёт кнопку 80 и корень 88; `IconSize` ниже
+  16 клампится. Иконки рендерятся с `BitmapScalingMode=HighQuality`.
 - **Карточка героя не должна ломать центровку селекторов** — строка селекторов — `Grid` с
   колонками `Auto|*|Auto`: слева `HeroPortraitView`, справа невидимый спейсер шириной
   `ActualWidth` карточки; без него группа селекторов уезжает вправо на ширину карточки. Сам
@@ -360,8 +394,10 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/SpineDemoContent.props` + `tools/spine-demo-content.ps1` (генератор контент-линков)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/HeroPortraitView.xaml(.cs)`, `Data/IHeroIconCatalog.cs`,
   `Data/HeroIconCatalog.cs`, `Ui/HeroIds.cs` (карточка героя и иконки)
+- `src/Wpf/Sektor.DarkestDungeon.Wpf/Data/IHeroSkillCatalog.cs`, `Data/HeroSkillCatalog.cs`,
+  `Data/HeroSkillInfo.cs`, `Views/SkillSquareView.xaml(.cs)` (список скиллов и переиспользуемый квадрат)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/HeroIconsContent.props` + `tools/hero-icons-content.ps1`
-  (генератор линков портретов/баннеров; 75 записей)
+  (генератор линков: 75 портретов/баннеров + 105 иконок способностей = 180 записей)
 - `docs/mechanics/presentation/spine_transparency_vertex_colors.md` (разбор дефекта vertex colors)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/DuelUnitCardView.xaml` (death's door pulse, «ТВОЙ ХОД»)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/DuelBattleView.cs` (превью), `DuelBattleViewModel.cs` (пак)

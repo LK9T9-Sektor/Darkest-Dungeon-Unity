@@ -6,6 +6,7 @@
 
 | Дата | Что | Файл |
 |---|---|---|
+| 2026-10-21 | WPF: иконки способностей на SPINE TEST и в полосе скиллов дуэли/PvE | `2026-10-21-skill-icons-wpf.md` |
 | 2026-10-21 | WPF: иконки всех 15 героев (портреты A–D + баннеры) и карточка выбранного героя на SPINE TEST | `2026-10-21-hero-icons-wpf.md` |
 | 2026-10-21 | Unity: убран отладочный бой с `ancestor_small_D` на входе в подземелье | `2026-10-21-dungeon-entrance-debug-encounter.md` |
 | 2026-10-21 | Unity/WPF: Death's Door в capture не считается смертью; выбор run для replay | `2026-10-21-capture-deaths-door-run-selection.md` |

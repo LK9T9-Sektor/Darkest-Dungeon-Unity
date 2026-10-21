@@ -9,8 +9,12 @@ namespace Sektor.DarkestDungeon.Wpf.Data
     public sealed class SpineDemoCatalog : ISpineDemoCatalog
     {
         private const string IdleAnimation = "Idle";
+        private const string SkeletonExtension = ".skel";
+        private const string SpriteMarker = ".sprite.";
+        private const string CacheKeySeparator = "|";
 
         private readonly string rootDirectory;
+        private readonly Dictionary<string, string?> animationSets = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>Initializes a new instance of the <see cref="SpineDemoCatalog"/> class.</summary>
         /// <param name="rootDirectory">The spine content root directory (contains one folder per hero).</param>
@@ -48,5 +52,43 @@ namespace Sektor.DarkestDungeon.Wpf.Data
         /// <inheritdoc/>
         public string GetContentDirectory(string character, string animation)
             => Path.Combine(rootDirectory, character, animation);
+
+        /// <inheritdoc/>
+        public string? FindAnimationSet(string character, string animationId)
+        {
+            if (string.IsNullOrWhiteSpace(character) || string.IsNullOrWhiteSpace(animationId))
+                return null;
+
+            string key = character + CacheKeySeparator + animationId;
+            string? cached;
+            if (animationSets.TryGetValue(key, out cached))
+                return cached;
+
+            string? found = null;
+            string characterDirectory = Path.Combine(rootDirectory, character);
+            if (Directory.Exists(characterDirectory))
+            {
+                // The skeleton file name carries the animation id (crusader.sprite.zealous_accusation.skel);
+                // the enclosing folder may differ (ZealosAccusation - a legacy content typo).
+                string suffix = SpriteMarker + animationId.Trim() + SkeletonExtension;
+                foreach (string setDirectory in Directory.GetDirectories(characterDirectory))
+                {
+                    foreach (string file in Directory.EnumerateFiles(setDirectory, "*" + SkeletonExtension))
+                    {
+                        if (Path.GetFileName(file).EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+                        {
+                            found = Path.GetFileName(setDirectory);
+                            break;
+                        }
+                    }
+
+                    if (found != null)
+                        break;
+                }
+            }
+
+            animationSets[key] = found;
+            return found;
+        }
     }
 }

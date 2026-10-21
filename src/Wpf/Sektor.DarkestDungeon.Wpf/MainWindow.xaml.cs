@@ -28,15 +28,18 @@ namespace Sektor.DarkestDungeon.Wpf
             var logger = CreateLogger();
 
             var shell = new ShellViewModel();
+            var iconCatalog = new HeroIconCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "HeroIcons"));
+            var skillCatalog = new HeroSkillCatalog(DuelClasses.AllClasses, iconCatalog);
             var menu = new MainMenuViewModel(
                 shell,
-                () => new DuelLobbyViewModel(shell, DuelTransportFactory.CreateSteamTransport(), DuelClasses.AllClassIds, logger),
-                () => new SinglePlayerLobbyViewModel(shell, DuelClasses.AllClassIds, logger),
-                () => new PveLobbyViewModel(shell, DuelClasses.AllClassIds, logger),
+                () => new DuelLobbyViewModel(shell, DuelTransportFactory.CreateSteamTransport(), DuelClasses.AllClassIds, logger, skillCatalog),
+                () => new SinglePlayerLobbyViewModel(shell, DuelClasses.AllClassIds, logger, skillCatalog),
+                () => new PveLobbyViewModel(shell, DuelClasses.AllClassIds, logger, skillCatalog),
                 () => new SpineDemoViewModel(
                     shell,
                     new SpineDemoCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "Spine")),
-                    new HeroIconCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "HeroIcons"))),
+                    iconCatalog,
+                    skillCatalog),
                 () => new SpineBattleViewModel(
                     shell,
                     new SpineDemoCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "Spine")),
