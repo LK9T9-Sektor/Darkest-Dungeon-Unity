@@ -108,8 +108,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets a value indicating whether the unit renders the monster/unknown card.</summary>
         public bool IsCard => !HasSpineContent;
 
-        /// <summary>Gets a value indicating whether the unit is out of hit points or was captured dead.</summary>
-        public bool IsDead => Hp <= 0 || capturedIsDead;
+        /// <summary>Gets a value indicating whether the capture recorded the unit as dead.</summary>
+        /// <remarks>
+        /// A hero at Death's Door has zero hit points but is still alive; older captures may also
+        /// have written <c>IsDead</c> for it, so <see cref="AtDeathsDoor"/> wins here.
+        /// </remarks>
+        public bool IsDead => capturedIsDead && !AtDeathsDoor;
 
         /// <summary>Gets a value indicating whether the capture recorded a stress pool.</summary>
         public bool HasStress => MaxStress > 0;
@@ -220,7 +224,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         partial void OnSizeChanged(int value) => OnPropertyChanged(nameof(FormationLabel));
 
-        partial void OnAtDeathsDoorChanged(bool value) => OnPropertyChanged(nameof(ConditionText));
+        partial void OnAtDeathsDoorChanged(bool value)
+        {
+            OnPropertyChanged(nameof(ConditionText));
+            OnPropertyChanged(nameof(IsDead));
+        }
 
         partial void OnIsAfflictedChanged(bool value) => OnPropertyChanged(nameof(ConditionText));
 

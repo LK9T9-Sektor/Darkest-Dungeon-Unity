@@ -93,6 +93,10 @@ Heart attack (стресс 200) — смерть на death's door или вхо
   а id в `JsonBuffs.json` смешанного регистра (`deathsdoorACCDebuff`).
 - **Герой не умирает на первый удар до 0** — входит в death's door (это ломало старые тесты,
   ожидавшие мгновенную смерть).
+- **Death's Door ≠ `IsDead` в захватах.** Герой с `Hp = 0` и `AtDeathsDoor = true` жив; в capture
+  `IsDead` должен быть `false` (пишется из `FormationUnitInfo.IsDead`). Старые записи могли
+  писать `IsDead = true` из-за проверки `CurrentHealth <= 0`; WPF считает такого героя живым,
+  пока `AtDeathsDoor` истинно.
 - **Бой может затянуться**, если герой на death's door выживает роллы, а ИИ не добивает
   (`FightSessionTests` с боссом-свинкой) — канон, не баг.
 - `MarkedForDeath` (от `.kill`/heart attack) — `RollSurvival` всегда смерть для помеченного.

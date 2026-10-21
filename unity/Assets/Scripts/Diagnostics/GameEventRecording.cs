@@ -1089,7 +1089,7 @@ public static class GameEventRecording
             stress,
             maxStress,
             deathsDoor != null && deathsDoor.IsApplied,
-            unit.CombatInfo.IsDead || character.CurrentHealth <= 0f,
+            unit.CombatInfo.IsDead,
             character.IsAfflicted,
             character.IsVirtued,
             ToStatuses(character),

@@ -145,7 +145,9 @@ manifest без `Kind` считается `raid`.
 - **`CombatantState`:** `Id`, `Name`, `Hp`, `MaxHp`, `IsEnemy`, `Icon`, `Skeleton`; в 1.1 —
   `Rank` (1..4; `0` = запись до 1.1), `Size` (1..4; `1` по умолчанию), `Stress`, `MaxStress`
   (`0` = неприменимо), `AtDeathsDoor`, `IsDead`, `IsAfflicted`, `IsVirtued`, `Statuses` и
-  `Buffs` (`null` = не захвачено).
+  `Buffs` (`null` = не захвачено). `IsDead` — фактическая смерть/труп, не Death's Door: при
+  `Hp = 0` и `AtDeathsDoor = true` он равен `false`. Ранние записи 1.1 могли писать `IsDead = true`
+  для Death's Door; потребитель должен отдавать приоритет `AtDeathsDoor`.
 - **`BattleState`:** `Round`, `Turn` (`"Hero"`/`"Monster"`; в Unity определяется по
   `Character.IsMonster`, а не по сломанному `Round.PreMonsterTurn`), `ActiveUnitId`,
   `OrderedUnitIds` (оставшийся порядок), `Surprise`, `Status`, `Retreat`.

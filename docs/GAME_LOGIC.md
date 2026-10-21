@@ -134,6 +134,15 @@ singleton `Instanse` (`:18`). Ссылки ниже — из этого файл
    (спавн отряда), `TorchMeter.Initialize(100)` (`:261`), затем `RoomLoadingEvent(StartingRoom, Entrance)`.
    Отряд размещается `Formations.TransferToRoom` внутри `RoomLoadingEvent` (`:703`).
 
+**Отладочный оверрайд стартовой комнаты (legacy).** Сцена `Dungeon` сериализует на
+`DungeonSceneManager` поля `startingMode`/`startingItems`. Для нового рейда
+`RaidSceneManager.Start` (`:247-254`) при `startingMode == EntranceEncounter` и непустом
+`startingItems` заменяет `CurrentRaid.Dungeon.StartingRoom.BattleEncounter` на
+`new BattleEncounter(startingItems)` и ставит `Type = AreaType.Battle`; поэтому бой на входе
+запускается не генератором и не сейвом. Штатные значения — `startingMode: 0` и
+`startingItems: []` (эталон — `DungeonMultiplayer.unity`). Старые сейвы, созданные до фикса,
+уже содержат encounter в `StartingRoom`; после фикса нужен новый рейд.
+
 ### 2.2 Основной цикл движения
 
 - Движение по коридору — `RaidPartyController.Update` (`RaidPartyController.cs:26-91`).

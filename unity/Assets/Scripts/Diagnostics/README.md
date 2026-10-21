@@ -118,6 +118,14 @@ layout-лист (CSV) рядом — авто, по смене разрешен�
   причины: `corridorStep`/`snuffed`/`torchUsed`/`modifier`).
 - **Id юнитов:** герой `hero_<RosterId>` (стабильно во всём рейде), монстр `monster_<CombatId>`
   (scope боя; battleStart-снапшот публикуется уже после присвоения CombatId).
+- **Частичная запись:** recorder стартует при загрузке raid-сцены. Если бой уже идёт (загрузка
+  in-raid save), capture начинается с середины; `manifest.Seed` обычно `null`, поэтому точное
+  повторение боя невозможно. `BattleEnded` публикуется только при нормальном выходе из
+  battle-loop (`RaidSceneManager.cs:2092`); при выходе в меню сцена выгружается, и запись может
+  закончиться без него.
+- **`IsDead` ≠ Death's Door:** `IsDead` — фактическая смерть (`FormationUnitInfo.IsDead`); герой
+  с `Hp = 0` на Death's Door остаётся живым (`AtDeathsDoor = true`). Старые записи могли писать
+  `IsDead = true` для 0 HP; WPF отдаёт приоритет `AtDeathsDoor`.
 - **Gotcha (измерено):** Unity 7 инжектит глобальные using'и и её сборки содержат типы-двойники
   наших DTO (глобальный `StateSnapshot`, `Unity.VectorGraphics.SceneNode`, `UnityEngine.AnimationRef`,
   а в Assets есть свой глобальный `SceneSnapshot` от дампера) — в `GameEventRecording.cs` все типы

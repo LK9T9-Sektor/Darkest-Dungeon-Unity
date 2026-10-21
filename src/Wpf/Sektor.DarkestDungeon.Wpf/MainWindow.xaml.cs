@@ -14,6 +14,8 @@ namespace Sektor.DarkestDungeon.Wpf
     /// <summary>Main window hosting all screens via shell navigation.</summary>
     public partial class MainWindow : Window
     {
+        private const string _captureRunEnvironmentVariable = "DARKEST_CAPTURE_RUN";
+
         /// <summary>Initializes a new instance of the <see cref="MainWindow"/> class.</summary>
         public MainWindow()
         {
@@ -58,6 +60,10 @@ namespace Sektor.DarkestDungeon.Wpf
 
         private static string ResolveCaptureReplayDirectory()
         {
+            string? overrideDirectory = Environment.GetEnvironmentVariable(_captureRunEnvironmentVariable);
+            if (!string.IsNullOrWhiteSpace(overrideDirectory))
+                return Path.GetFullPath(overrideDirectory.Trim().Trim('"'));
+
             string reference = Path.Combine(AppContext.BaseDirectory, "Content", "Captures", "Reference");
             return GameEventCaptureLocator.ResolveReplayDirectory(
                 AppContext.BaseDirectory,

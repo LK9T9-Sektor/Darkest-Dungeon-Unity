@@ -17,7 +17,7 @@ namespace Sektor.DarkestDungeon.Core.GameEvents
     /// <param name="Stress">Current stress.</param>
     /// <param name="MaxStress">Maximum stress, or <c>0</c> when not applicable.</param>
     /// <param name="AtDeathsDoor">Whether the unit is at Death's Door.</param>
-    /// <param name="IsDead">Whether the unit is dead or a corpse.</param>
+    /// <param name="IsDead">Whether the unit is dead or a corpse; a hero at Death's Door is alive.</param>
     /// <param name="IsAfflicted">Whether the unit is afflicted.</param>
     /// <param name="IsVirtued">Whether the unit is virtued.</param>
     /// <param name="Statuses">Active status effects, or <c>null</c> when not captured.</param>

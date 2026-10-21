@@ -79,7 +79,8 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
    с текстом `-6`; `IsAttacking=false` разблокирует кнопку (`NotifyCanExecuteChangedFor`).
 8. Захват: арена → «ВОСПРОИЗВЕСТИ ЗАХВАТ» → `SpineBattleViewModel.CaptureReplayCommand` →
    `MainWindow` через `GameEventCaptureLocator` выбирает самый свежий `<repo>/captures/run_*`
-   (если записей нет — эталон `Content\Captures\Reference`) и создаёт `CaptureReplayViewModel`
+   (env `DARKEST_CAPTURE_RUN` переопределяет путь; если записей нет — эталон
+   `Content\Captures\Reference`) и создаёт `CaptureReplayViewModel`
    с `GameEventLogReader`, этим путём и `DispatcherReplayPacer`. Конструктор читает захват
    (`Result`: ошибка → `ErrorText`/«Захват недоступен», без исключения), строит таймлайн из
    подписей и сразу запускает `StartReplay`.
@@ -137,7 +138,7 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 | Ввод только на своём ходу | `IsLocalTurn` | иначе игнор |
 | Адаптивная раскладка | `MainWindow` | ресайз, без Viewbox |
 | Скорость Spine-демо | `SpineDemoViewModel` | 1.0…10.0 (шаг 0.5, wrap 100↔1000%); нижний кламп контрола 0.01…100 |
-| Выбор захвата | `GameEventCaptureLocator` | новейший `<repo>/captures/run_*` с `manifest.json`; иначе эталон `Content\Captures\Reference` |
+| Выбор захвата | `GameEventCaptureLocator`, env `DARKEST_CAPTURE_RUN` | env задаёт конкретный run; иначе новейший `<repo>/captures/run_*` с `manifest.json`, потом эталон `Content\Captures\Reference` |
 | Чтение захвата | `GameEventLogReader` | `SchemaVersion` = `1.0.0`/`1.1.0`; `Sequence` ровно 1..N; `Subsystem` = имени файла; allowlist-биндер |
 | Fallback формации | `CaptureUnitViewModel` | `Rank <= 0` → `index + 1`; `Size <= 0` → 1 |
 | Захват без Spine-клипа | `CaptureReplayViewModel` | idle-сет, иначе карточка; атака завершается по фолбэку 900 мс |
@@ -261,9 +262,15 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 - **Захваты — общая папка репозитория** — Unity-редактор пишет в `<repo>/captures/run_*`
   (собранная игра без репозитория — fallback `persistentDataPath/Replays`); WPF берёт самый
   свежий `run_*` при открытии экрана; battle replay берёт только `Kind = raid`, estate replay —
-  только `Kind = estate`. Папка gitignored; копировать файлы вручную не нужно. Пустые слоты
-  формации (без `Character`) в снапшот не попадают. Захват, который ещё пишется,
-  лучше не открывать: reader может увидеть неполный хвост.
+  только `Kind = estate`. Env `DARKEST_CAPTURE_RUN` (абсолютный или относительный путь) задаёт
+  конкретный run для отладки и переопределяет выбор «самого свежего». Папка gitignored;
+  копировать файлы вручную не нужно. Пустые слоты формации (без `Character`) в снапшот не
+  попадают. Захват, который ещё пишется, лучше не открывать: reader может увидеть неполный хвост.
+- **Capture — replay, а не повторная симуляция** — `manifest.Seed` может быть `null`, запись
+  может начаться с середины боя (recorder стартует при загрузке сцены) и оборваться без
+  `BattleEnded` при выходе в меню; `BattleWinner` тогда остаётся `"—"`. Герой на Death's Door
+  (`Hp = 0`, `AtDeathsDoor = true`) не считается мёртвым, даже если старый capture записал
+  `IsDead = true`.
 - **Таймлайн отмечает текущий момент** — `CurrentEntry` — последнее применённое событие; при
   пошаговом темпе каждая строка остаётся текущей ~100 мс, атака — ~1.2 с. `ListBox`
   `SelectedItem` привязан one-way, code-behind скроллит выбранную строку в видимую область.

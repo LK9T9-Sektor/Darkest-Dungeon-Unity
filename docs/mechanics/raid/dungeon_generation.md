@@ -108,6 +108,9 @@
 - **Порядок вызовов RNG критичен** для детерминизма по сиду: `GenerateRooms` → `ForceBorderRooms`
   → `ForceHallConnection` → `MarkEntrance` → `Populate*` → `Load*Enviroment`. Менять порядок —
   менять карту для того же сида.
+- **Бой на входе — не генератор.** `MarkEntrance` только помечает стартовую комнату; encounter в
+  ней появляется позже из legacy-полей сцены `Dungeon` (`startingMode`/`startingItems`) в
+  `RaidSceneManager.Start` (см. `GAME_LOGIC.md` §2.1). Чинить нужно сцену, а не `DungeonGenerator`.
 - **`ForceHallConnection` — пустышка (недоделка Unity-оригинала, перенесена 1-в-1):**
   - работает только «каркас»: включаются коридоры, оба конца которых — существующие комнаты
     (`RoomsExist`); результат — минимальный связный граф;
