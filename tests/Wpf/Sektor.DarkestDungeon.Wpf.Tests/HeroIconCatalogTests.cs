@@ -46,6 +46,26 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                 Assert.That(File.Exists(Path.Combine(root, classId, "header.png")), Is.True, $"{classId} header");
         }
 
+        /// <summary>Every bundled hero loads its guild header art for the editor overlay.</summary>
+        [Test]
+        public void GetHeader_EveryHero_Loads()
+        {
+            var catalog = CreateCatalog();
+
+            foreach (string classId in ClassIds)
+                Assert.That(catalog.GetHeader(classId), Is.Not.Null, classId);
+        }
+
+        /// <summary>An unknown hero yields null instead of throwing.</summary>
+        [Test]
+        public void GetHeader_UnknownHero_ReturnsNull()
+        {
+            var catalog = CreateCatalog();
+
+            Assert.That(catalog.GetHeader("unknown_hero"), Is.Null);
+            Assert.That(catalog.GetHeader(string.Empty), Is.Null);
+        }
+
         /// <summary>An unknown hero or outfit yields null instead of throwing.</summary>
         [Test]
         public void GetPortrait_UnknownHeroOrOutfit_ReturnsNull()

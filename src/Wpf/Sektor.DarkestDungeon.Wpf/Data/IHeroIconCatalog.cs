@@ -11,6 +11,11 @@ namespace Sektor.DarkestDungeon.Wpf.Data
         /// <returns>The frozen portrait image, or null when the hero/outfit has no bundled portrait.</returns>
         ImageSource? GetPortrait(string classId, string outfit);
 
+        /// <summary>Gets the guild header art of one hero class.</summary>
+        /// <param name="classId">The snake_case hero class id ("man_at_arms").</param>
+        /// <returns>The frozen header image, or null when the hero has no bundled header.</returns>
+        ImageSource? GetHeader(string classId);
+
         /// <summary>Gets the combat skill icon of one hero.</summary>
         /// <param name="classId">The snake_case hero class id ("man_at_arms").</param>
         /// <param name="iconId">The skill art icon id ("one".."seven").</param>

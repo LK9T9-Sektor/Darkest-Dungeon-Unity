@@ -15,6 +15,7 @@ namespace Sektor.DarkestDungeon.Wpf.Data
     {
         private const string PortraitFileNamePrefix = "portrait.";
         private const string AbilityFileNamePrefix = "ability.";
+        private const string HeaderFileName = "header.png";
         private const string ImageExtension = ".png";
 
         private readonly string rootDirectory;
@@ -35,6 +36,15 @@ namespace Sektor.DarkestDungeon.Wpf.Data
 
             string fileName = PortraitFileNamePrefix + outfit.Trim().ToUpperInvariant() + ImageExtension;
             return Load(Path.Combine(rootDirectory, classId.Trim(), fileName));
+        }
+
+        /// <inheritdoc/>
+        public ImageSource? GetHeader(string classId)
+        {
+            if (string.IsNullOrWhiteSpace(classId))
+                return null;
+
+            return Load(Path.Combine(rootDirectory, classId.Trim(), HeaderFileName));
         }
 
         /// <inheritdoc/>

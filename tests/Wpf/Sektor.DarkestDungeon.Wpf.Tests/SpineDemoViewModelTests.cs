@@ -292,6 +292,9 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             public ImageSource? GetPortrait(string classId, string outfit)
                 => portraits.TryGetValue(classId, out ImageSource? image) ? image : null;
 
+            public ImageSource? GetHeader(string classId)
+                => portraits.TryGetValue(classId, out ImageSource? image) ? image : null;
+
             public ImageSource? GetAbilityIcon(string classId, string iconId)
                 => portraits.TryGetValue(classId, out ImageSource? image) ? image : null;
 

@@ -16,6 +16,10 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 (`SkillSquareView`, иконка 72×72, имя и структурированный тултип); клик проигрывает эффект скилла
 один раз и возвращает ранее выбранный набор анимаций. Ниже — селекторы `ANIMATION`/`SPEED`, а
 `Pause`/`Screenshot` со строкой статуса стоят справа в той же нижней строке.
+Лобби VS AI / мультиплеера / PvE: отряд — четыре компактные карточки `HeroPortraitView`
+(портрет 56, имя, стрелки ◀/▶); ПКМ по карточке открывает `HeroEditorOverlayView` поверх панели
+отряда: гильд-баннер `header.png`, `HeroStatsView`, `AbilityRowView`, квирки/тринкеты. Выбранные
+скиллы сразу уходят в `DuelHeroPick`/`HeroFightUnitSpec`.
 Экран `SpineBattleView` («АРЕНА 1×1» в меню) — чисто визуальная арена: слева Crusader, справа
 Highwayman, кнопка «АТАКА» проигрывает атаку как в Unity — слоями: base-слот принимает ударную
 позу `AttackSword` (заглушка с нулевой длительностью), поверх временно играет оверлей-скилл
@@ -58,13 +62,14 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   демо-экрана; `SpineDemoViewModel` получает каталог через конструктор.
 - Иконки героев: `Data/IHeroIconCatalog` / `Data/HeroIconCatalog` — `ImageSource? GetPortrait(
   classId, outfit)` по `Content\HeroIcons\<ClassId>\portrait.<Outfit>.png` (frozen `BitmapImage`,
-  кэш по пути, отсутствие/битый файл → `null`); `GetAbilityIcon(classId, iconId)` читает
-  `ability.<id>.png` (72×72) для боевых скиллов; `Ui/HeroIds.ToClassId` переводит имя папки героя
-  (`ManAtArms`) в class id (`man_at_arms`). Карточка — `Views/HeroPortraitView.xaml(.cs)`: DP
-  `Portrait` (`ImageSource`), `Caption` (string), `PortraitSize` (double, 96), `ShowArrows`
-  (bool, false), `PreviousCommand`/`NextCommand` (класс-циклинг), `SelectCommand` (клик по
-  портрету; null — карточка read-only), плейсхолдер `?`; контрол не знает про Spine/демо-экран и
-  переиспользуется любым экраном: SPINE TEST показывает стрелки, бой — нет.
+  кэш по пути, отсутствие/битый файл → `null`); `GetHeader(classId)` читает `header.png`;
+  `GetAbilityIcon(classId, iconId)` читает `ability.<id>.png` (72×72) для боевых скиллов;
+  `Ui/HeroIds.ToClassId` переводит имя папки героя (`ManAtArms`) в class id (`man_at_arms`).
+  Карточка — `Views/HeroPortraitView.xaml(.cs)`: DP `Portrait` (`ImageSource`), `Caption`
+  (string), `PortraitSize` (double, 96), `ArrowSize` (double, 40), `ShowArrows` (bool, false),
+  `PreviousCommand`/`NextCommand` (класс-циклинг), `SelectCommand` (клик по портрету; null —
+  карточка read-only), плейсхолдер `?`; контрол не знает про Spine/демо-экран и переиспользуется
+  любым экраном: SPINE TEST показывает стрелки, бой — нет.
 - Боевые скиллы героя: `Data/IHeroSkillCatalog` / `Data/HeroSkillCatalog` (`HeroSkillInfo`) —
   соединяет распарсенные `HeroClass.CombatSkills` с `art:`-секцией (`SkillArtInfo`) и иконкой;
   `GetSkills(classId)` — список для демо, `GetSkillIcon(classId, skillId)` — точечный поиск для
@@ -73,7 +78,11 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   `IconSize` (double, 42) задаёт область иконки, кнопка = `IconSize + 8`, корень = `IconSize + 16`
   (72 → кнопка 80, корень 88). Без `SelectCommand` квадрат только для просмотра.
 - `Views/AbilityRowView` — общий ряд квадратов скиллов (`ItemsSource`, `SelectCommand`, `IconSize`,
-  `ShowNames`): на SPINE TEST показывает превью всех скиллов, в слотах лобби — выбор активных.
+  `ShowNames`): на SPINE TEST показывает превью всех скиллов, в оверлее лобби — выбор активных.
+- `Views/HeroEditorOverlayView` — модальный редактор героя (ПКМ по слоту): `Header` гильд-баннер,
+  `HeroPortraitView` со стрелками, `HeroStatsView`, `AbilityRowView`, квирки/тринкеты. Хостится в
+  `PartySelectionView` (overlay host в star-row), а не в `HeroSlotsPanel` — тот content-sized.
+  Слот поднимает событие `HeroSlotEditRequestedEventArgs`.
 - `ViewModels/ISkillTileViewModel` — общий контракт `Icon`/`DisplayNameUpper`/`IsUsable`/
   `IsSelected` для `DuelSkillViewModel` и `LobbySkillViewModel`; `SkillSquareView` по нему
   включает/выключает кликабельный квадрат и обновляет `IsEnabled` по `PropertyChanged`.
@@ -86,9 +95,11 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 ## 3. Порядок срабатывания (трассировка)
 
 1. Запуск → `MainWindow` (адаптивная раскладка, `*`-колонки) → меню.
-2. Лобби: выбор классов/квирков/скиллов (`DuelHeroPick`), «Start Battle». Скиллы в слоте —
+2. Лобби: выбор классов/квирков/скиллов (`DuelHeroPick`), «Start Battle». В оверлее скиллы —
    `AbilityRowView`; `LobbySkillViewModel.IsUsable` true у выбранных и у свободных слотов, false при
-   лимите; Abomination (`CanSelectCombatSkills=false`) — все выбраны, клики игнорируются.
+   лимите; Abomination (`CanSelectCombatSkills=false`) — все выбраны, клики игнорируются. ПКМ по
+   компактной карточке поднимает `HeroEditorOverlayView` поверх панели отряда; в нём меняются класс,
+   активные скиллы, квирки и тринкеты.
 3. Бой: `DuelController.StartDuel(hostPicks, clientPicks, seed, isHost)` + `StartBattle`.
 4. Ход: `DuelBattleViewModel` читает `IsLocalTurn`, применяет вводы (`ExecuteLocalSkill`), ИИ —
    `AiRivalLink` → `DuelAi.ChooseAction` → `ApplyRemoteSkill`; мультиплеер — `NetworkRivalLink`.
@@ -180,7 +191,8 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 | Адаптивная раскладка | `MainWindow` | ресайз, без Viewbox |
 | Скорость Spine-демо | `SpineDemoViewModel` | 1.0…10.0 (шаг 0.5, wrap 100↔1000%); нижний кламп контрола 0.01…100 |
 | Портрет героя | `IHeroIconCatalog`, `HeroPortraitView` | аутфит `A`; опциональные стрелки `◀`/`▶` и клик по портрету через DP; отсутствующий/битый/неизвестный id → `null` → плейсхолдер `?`, исключения не летят |
-| Ряд скиллов лобби | `AbilityRowView`, `LobbySkillViewModel` | `IconSize=30`, имена скрыты; выбранные подсвечены, при лимите 4 невыбранные серые; Abomination — все 7 выбраны и `SkillsLocked` |
+| Ряд скиллов в оверлее | `AbilityRowView`, `LobbySkillViewModel` | `IconSize=48`, имена скрыты; выбранные подсвечены, при лимите 4 невыбранные серые; Abomination — все 7 выбраны и `SkillsLocked` |
+| Оверлей героя | `PartySelectionView`, `HeroEditorOverlayView` | ПКМ по слоту; гильд-баннер `GetHeader`, портрет со стрелками, статы, `AbilityRowView` (48), квирки/тринкеты; закрытие — крестик, Esc или клик по затемнению |
 | Иконка скилла | `HeroSkillCatalog.GetSkillIcon`, `HeroIconCatalog.GetAbilityIcon` | нет класса/скилла/файла → `null` → квадрат без иконки |
 | Размер иконки скилла | `SkillSquareView.IconSize` | нижний кламп 16; кнопка = размер + 8, корень = размер + 16 |
 | Эффект скилла в демо | `SpineDemoViewModel` | нет `.fx`-сета → базовая поза в цикле; нет и позы → анимация не меняется |
@@ -278,8 +290,8 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   `portrait.<A-D>.png` (roster-портрет 85×85) и `header.png` (guild-баннер 716×632). Записи
   генерирует `tools\hero-icons-content.ps1` в `HeroIconsContent.props` (75 записей: 15 героев ×
   4 аутфита + баннер) и падает с exit 1, если у героя нет портрета/баннера или spine-герой
-  (`unity\Assets\Sprites\Heroes`) не имеет папки иконок. `header.png` доставлен, но пока не
-  потребляется — задел под будущие экраны.
+  (`unity\Assets\Sprites\Heroes`) не имеет папки иконок. `header.png` читается через
+  `IHeroIconCatalog.GetHeader` и показывается в `HeroEditorOverlayView`.
 - **Class id, а не имя папки** — spine-папки героев в PascalCase (`ManAtArms`), иконки и
   контент-каталоги — в snake_case (`man_at_arms`); конверсия только через `Ui\HeroIds.ToClassId`
   (не `ToLower`: иначе `ManAtArms` → `manatarms`). Новый герой без иконки не ломает экран:
@@ -315,6 +327,10 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   `skill_selection: .can_select_combat_skills false .number_of_selected_combat_skills_max 7`;
   `HeroSlotViewModel` блокирует `ToggleSkill`, оставляет все 7 выбранными и показывает
   `SkillsLocked`. Любой другой класс с тем же флагом получит то же поведение.
+- **Оверлей живёт в `PartySelectionView`, не в `HeroSlotsPanel`** — `HeroSlotsPanel` лежит в
+  `StackPanel` и имеет content-sized высоту (одна строка слотов); оверлей внутри него обрезался бы
+  по высоте слотов. `PartySelectionView` — `Grid` в star-row, поэтому overlay host получает высоту
+  всей панели отряда.
 - **Неймспейс `Sektor.Spine.Skia`** — квалифицированные ссылки `Spine.X` запрещены
   (shadowing сегментом `.Spine`): только `using Spine;` и простые имена.
 - **One-shot анимация (арена)** — `SpinePlayer.Play(name, loop: false)` ведёт флаг
@@ -423,9 +439,10 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   `Data/HeroIconCatalog.cs`, `Ui/HeroIds.cs` (карточка героя и иконки)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Data/IHeroSkillCatalog.cs`, `Data/HeroSkillCatalog.cs`,
   `Data/HeroSkillInfo.cs`, `Views/SkillSquareView.xaml(.cs)` (список скиллов и переиспользуемый квадрат)
-- `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/AbilityRowView.xaml(.cs)`, `Views/HeroSlotsPanel.xaml`,
-  `ViewModels/ISkillTileViewModel.cs`, `ViewModels/LobbySkillViewModel.cs`,
-  `ViewModels/HeroSlotViewModel.cs` (ряд скиллов и выбор в лобби)
+- `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/AbilityRowView.xaml(.cs)`, `Views/HeroSlotsPanel.xaml(.cs)`,
+  `Views/PartySelectionView.xaml(.cs)`, `Views/HeroEditorOverlayView.xaml(.cs)`,
+  `Views/HeroSlotEditRequestedEventArgs.cs`, `ViewModels/ISkillTileViewModel.cs`,
+  `ViewModels/LobbySkillViewModel.cs`, `ViewModels/HeroSlotViewModel.cs` (ряд скиллов, слоты и оверлей)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/HeroIconsContent.props` + `tools/hero-icons-content.ps1`
   (генератор линков: 75 портретов/баннеров + 105 иконок способностей = 180 записей)
 - `docs/mechanics/presentation/spine_transparency_vertex_colors.md` (разбор дефекта vertex colors)

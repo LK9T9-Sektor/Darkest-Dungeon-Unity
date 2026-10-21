@@ -57,6 +57,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private ImageSource? _portrait;
 
+        /// <summary>Gets or sets the guild header art of the selected class.</summary>
+        [ObservableProperty]
+        private ImageSource? _header;
+
         /// <summary>Gets or sets the quirk summary text ("+tough, -fragile").</summary>
         [ObservableProperty]
         private string _quirkSummary = string.Empty;
@@ -223,6 +227,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 ? heroClass.NumberOfSelectedCombatSkills
                 : 4;
             Portrait = iconCatalog?.GetPortrait(ClassId, PortraitOutfit);
+            Header = iconCatalog?.GetHeader(ClassId);
 
             Skills.Clear();
             var skillInfos = skillCatalog?.GetSkills(ClassId);

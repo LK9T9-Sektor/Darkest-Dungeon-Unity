@@ -39,6 +39,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(HeroPortraitView),
             new PropertyMetadata(false));
 
+        /// <summary>Identifies the <see cref="ArrowSize"/> dependency property.</summary>
+        public static readonly DependencyProperty ArrowSizeProperty = DependencyProperty.Register(
+            nameof(ArrowSize),
+            typeof(double),
+            typeof(HeroPortraitView),
+            new PropertyMetadata(40.0));
+
         /// <summary>Identifies the <see cref="PreviousCommand"/> dependency property.</summary>
         public static readonly DependencyProperty PreviousCommandProperty = DependencyProperty.Register(
             nameof(PreviousCommand),
@@ -93,6 +100,14 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             get => (bool)GetValue(ShowArrowsProperty);
             set => SetValue(ShowArrowsProperty, value);
+        }
+
+        /// <summary>Gets or sets the width and height of the class-cycling arrow buttons in device
+        /// independent pixels (default 40).</summary>
+        public double ArrowSize
+        {
+            get => (double)GetValue(ArrowSizeProperty);
+            set => SetValue(ArrowSizeProperty, value);
         }
 
         /// <summary>Gets or sets the command that cycles to the previous hero (the left arrow).</summary>

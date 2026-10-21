@@ -80,6 +80,19 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(next.Visibility, Is.EqualTo(Visibility.Visible));
         }
 
+        /// <summary>The configurable arrow size applies to both class-cycling buttons.</summary>
+        [Test]
+        public void ArrowSize_AppliesToBothArrows()
+        {
+            var view = new HeroPortraitView { ShowArrows = true, ArrowSize = 24 };
+            Layout(view);
+
+            Button previous = (Button)view.FindName("PreviousButton");
+            Button next = (Button)view.FindName("NextButton");
+            Assert.That(previous.Width, Is.EqualTo(24));
+            Assert.That(next.Width, Is.EqualTo(24));
+        }
+
         /// <summary>The portrait click is enabled only when the host supplies a command.</summary>
         [Test]
         public void PortraitClick_IsEnabledOnlyWithSelectCommand()
