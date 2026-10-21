@@ -1,0 +1,48 @@
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.HeroPortraitView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="HeroCard">
+    <!-- Reusable hero card: roster portrait in the dark DD frame with the hero name under it.
+         Portrait/Caption/PortraitSize are dependency properties, so any screen can host the card
+         in its own layout; a missing portrait falls back to the "?" placeholder. -->
+    <StackPanel VerticalAlignment="Center">
+        <Border x:Name="PortraitFrame"
+                Width="{Binding PortraitSize, ElementName=HeroCard}"
+                Height="{Binding PortraitSize, ElementName=HeroCard}"
+                Background="#5A4A3A" BorderBrush="#3A2E22" BorderThickness="1"
+                CornerRadius="6" ClipToBounds="True">
+            <Grid>
+                <Image Source="{Binding Portrait, ElementName=HeroCard}" Stretch="UniformToFill"
+                       RenderOptions.BitmapScalingMode="HighQuality" />
+                <TextBlock Text="?" Foreground="#E8D9B0" FontSize="36"
+                           HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Portrait, ElementName=HeroCard}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+        </Border>
+
+        <TextBlock Text="{Binding Caption, ElementName=HeroCard}" Foreground="#E8D9B0"
+                   FontSize="13" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap"
+                   MaxWidth="{Binding PortraitSize, ElementName=HeroCard}" Margin="0,6,0,0">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Visibility" Value="Visible" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Caption, ElementName=HeroCard}" Value="">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+    </StackPanel>
+</UserControl>

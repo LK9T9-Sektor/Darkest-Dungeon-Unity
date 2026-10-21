@@ -35,7 +35,8 @@ namespace Sektor.DarkestDungeon.Wpf
                 () => new PveLobbyViewModel(shell, DuelClasses.AllClassIds, logger),
                 () => new SpineDemoViewModel(
                     shell,
-                    new SpineDemoCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "Spine"))),
+                    new SpineDemoCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "Spine")),
+                    new HeroIconCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "HeroIcons"))),
                 () => new SpineBattleViewModel(
                     shell,
                     new SpineDemoCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "Spine")),

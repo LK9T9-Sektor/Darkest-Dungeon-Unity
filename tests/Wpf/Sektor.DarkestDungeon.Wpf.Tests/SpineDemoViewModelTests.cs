@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 using NUnit.Framework;
 
@@ -17,7 +19,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         [Test]
         public void ScreenshotSavedCommand_WithPath_ShowsFileName()
         {
-            var viewModel = new SpineDemoViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog());
+            var viewModel = new SpineDemoViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog(), new FakeHeroIconCatalog());
 
             viewModel.ScreenshotSavedCommand.Execute(@"C:\shots\screenshot-2026-10-19_12-00-00-000.png");
 
@@ -28,7 +30,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         [Test]
         public void ScreenshotSavedCommand_WithoutPath_ReportsFailure()
         {
-            var viewModel = new SpineDemoViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog());
+            var viewModel = new SpineDemoViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog(), new FakeHeroIconCatalog());
 
             viewModel.ScreenshotSavedCommand.Execute(null);
 
@@ -39,7 +41,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         [Test]
         public void Constructor_SelectsDefaultHeroAndIdleAnimation()
         {
-            var viewModel = new SpineDemoViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog());
+            var viewModel = new SpineDemoViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog(), new FakeHeroIconCatalog());
 
             Assert.That(viewModel.CurrentCharacter, Is.EqualTo("Crusader"));
             Assert.That(viewModel.CurrentAnimation, Is.EqualTo("Idle"));
@@ -51,7 +53,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         [Test]
         public void CharacterCommands_CycleWithWrap()
         {
-            var viewModel = new SpineDemoViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog());
+            var viewModel = new SpineDemoViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog(), new FakeHeroIconCatalog());
 
             viewModel.NextCharacterCommand.Execute(null);
             Assert.That(viewModel.CurrentCharacter, Is.EqualTo("Hellion"));
@@ -68,7 +70,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         [Test]
         public void AnimationCommands_CycleWithWrap()
         {
-            var viewModel = new SpineDemoViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog());
+            var viewModel = new SpineDemoViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog(), new FakeHeroIconCatalog());
 
             viewModel.NextAnimationCommand.Execute(null);
             Assert.That(viewModel.CurrentAnimation, Is.EqualTo("Walk"));
@@ -84,7 +86,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         [Test]
         public void CharacterSwitch_KeepsKnownAnimation_ResetsUnknownOne()
         {
-            var viewModel = new SpineDemoViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog());
+            var viewModel = new SpineDemoViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog(), new FakeHeroIconCatalog());
 
             viewModel.NextAnimationCommand.Execute(null);
             Assert.That(viewModel.CurrentAnimation, Is.EqualTo("Walk"));
@@ -102,7 +104,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         [Test]
         public void SpeedCommands_StepAndWrap()
         {
-            var viewModel = new SpineDemoViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog());
+            var viewModel = new SpineDemoViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog(), new FakeHeroIconCatalog());
             Assert.That(viewModel.SpeedText, Is.EqualTo("100%"));
 
             for (int i = 0; i < 18; i++)
@@ -116,6 +118,51 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
 
             viewModel.DecreaseSpeedCommand.Execute(null);
             Assert.That(viewModel.SpeedMultiplier, Is.EqualTo(10.0).Within(1e-9));
+        }
+
+        /// <summary>The portrait shown next to the selectors follows the selected hero.</summary>
+        [Test]
+        public void CurrentHeroPortrait_TracksSelectedHero()
+        {
+            var icons = new FakeHeroIconCatalog();
+            var viewModel = new SpineDemoViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog(), icons);
+
+            Assert.That(viewModel.CurrentHeroPortrait, Is.SameAs(icons.Portrait("crusader")));
+
+            viewModel.NextCharacterCommand.Execute(null);
+
+            Assert.That(viewModel.CurrentHeroPortrait, Is.SameAs(icons.Portrait("hellion")));
+        }
+
+        /// <summary>The hero card falls back to the placeholder text when no icon is bundled.</summary>
+        [Test]
+        public void CurrentHeroPortrait_WithoutBundledIcon_IsNull()
+        {
+            var viewModel = new SpineDemoViewModel(
+                new FakeNavigationService(),
+                new FakeSpineDemoCatalog(),
+                new FakeHeroIconCatalog());
+
+            viewModel.NextCharacterCommand.Execute(null);
+            viewModel.NextCharacterCommand.Execute(null);
+
+            Assert.That(viewModel.CurrentCharacter, Is.EqualTo("Vestal"));
+            Assert.That(viewModel.CurrentHeroPortrait, Is.Null);
+        }
+
+        /// <summary>Switching the hero refreshes the icon and the readable name of the hero card.</summary>
+        [Test]
+        public void CharacterSwitch_NotifiesHeroCardBindings()
+        {
+            var viewModel = new SpineDemoViewModel(new FakeNavigationService(), new FakeSpineDemoCatalog(), new FakeHeroIconCatalog());
+            var changed = new List<string?>();
+            viewModel.PropertyChanged += (_, args) => changed.Add(args.PropertyName);
+
+            viewModel.NextCharacterCommand.Execute(null);
+
+            Assert.That(changed, Does.Contain(nameof(SpineDemoViewModel.CurrentHeroPortrait)));
+            Assert.That(changed, Does.Contain(nameof(SpineDemoViewModel.CurrentHeroName)));
+            Assert.That(viewModel.CurrentHeroName, Is.EqualTo("Hellion"));
         }
 
         private sealed class FakeSpineDemoCatalog : ISpineDemoCatalog
@@ -136,6 +183,23 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
 
             public string GetContentDirectory(string character, string animation)
                 => Path.Combine("root", character, animation);
+        }
+
+        private sealed class FakeHeroIconCatalog : IHeroIconCatalog
+        {
+            private readonly Dictionary<string, ImageSource> portraits = new Dictionary<string, ImageSource>
+            {
+                { "crusader", CreateImage() },
+                { "hellion", CreateImage() },
+            };
+
+            public ImageSource Portrait(string classId) => portraits[classId];
+
+            public ImageSource? GetPortrait(string classId, string outfit)
+                => portraits.TryGetValue(classId, out ImageSource? image) ? image : null;
+
+            private static ImageSource CreateImage()
+                => BitmapSource.Create(1, 1, 96, 96, PixelFormats.Bgra32, null, new byte[4], 4);
         }
 
         private sealed class FakeNavigationService : INavigationService

@@ -10,6 +10,8 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 Отдельный демо-экран `SpineDemoView` («SPINE TEST» в меню) играет скелетную анимацию героя
 (Spine 2.1) — прототип Spine-рендера для карточек дуэли: стрелками листаются все 15 героев,
 наборы анимаций героя (`Skeleton\`, Idle первым) и скорость воспроизведения 100…1000%.
+Слева от блока селекторов показана карточка выбранного героя — переиспользуемый `HeroPortraitView`
+(roster-портрет аутфита `A` + читаемое имя); карточка меняется вместе с героем.
 Экран `SpineBattleView` («АРЕНА 1×1» в меню) — чисто визуальная арена: слева Crusader, справа
 Highwayman, кнопка «АТАКА» проигрывает атаку как в Unity — слоями: base-слот принимает ударную
 позу `AttackSword` (заглушка с нулевой длительностью), поверх временно играет оверлей-скилл
@@ -50,6 +52,12 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 - `Data/DuelContent` — реализация `IDuelContent` поверх каталогов.
 - `Data/SpineDemoCatalog` (реализация `ISpineDemoCatalog`) — герои/анимации/пути контента
   демо-экрана; `SpineDemoViewModel` получает каталог через конструктор.
+- Иконки героев: `Data/IHeroIconCatalog` / `Data/HeroIconCatalog` — `ImageSource? GetPortrait(
+  classId, outfit)` по `Content\HeroIcons\<ClassId>\portrait.<Outfit>.png` (frozen `BitmapImage`,
+  кэш по пути, отсутствие/битый файл → `null`); `Ui/HeroIds.ToClassId` переводит имя папки героя
+  (`ManAtArms`) в class id (`man_at_arms`). Карточка — `Views/HeroPortraitView.xaml(.cs)`: DP
+  `Portrait` (`ImageSource`), `Caption` (string), `PortraitSize` (double, 96), плейсхолдер `?`;
+  контрол не знает про Spine/демо-экран и переиспользуется любым экраном.
 
 ## 3. Порядок срабатывания (трассировка)
 
@@ -64,7 +72,9 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
    грузит `SpineContent` и играет первую анимацию сета. Селекторы (кнопки ◀/▶ с
    `AutomationProperties.Name`) листают героя/анимацию/скорость: VM меняет `ContentDirectory`
    (перезагрузка сета) и `SpeedMultiplier` → `SpinePlayer.TimeScale` (`AnimationState.TimeScale`,
-   float). Кадры считаются в `CompositionTarget.Rendering`. Кнопка «SCREENSHOT» (`EventTrigger` →
+   float). Кадры считаются в `CompositionTarget.Rendering`. Смена героя также пересчитывает
+   `CurrentHeroClassId` → `CurrentHeroName`/`CurrentHeroPortrait` (`NotifyPropertyChangedFor`),
+   и карточка `HeroPortraitView` слева перерисовывается. Кнопка «SCREENSHOT» (`EventTrigger` →
    `SaveScreenshotAction`, Microsoft.Xaml.Behaviors) снимает текущее окно в `screenshots/` рядом
     с exe; имя файла показывает VM (`ScreenshotStatus`).
 7. Арена: меню → «АРЕНА 1×1» → `SpineBattleViewModel` (логгер пишет `arena: opened/attack started/
@@ -138,6 +148,7 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 | Ввод только на своём ходу | `IsLocalTurn` | иначе игнор |
 | Адаптивная раскладка | `MainWindow` | ресайз, без Viewbox |
 | Скорость Spine-демо | `SpineDemoViewModel` | 1.0…10.0 (шаг 0.5, wrap 100↔1000%); нижний кламп контрола 0.01…100 |
+| Портрет героя | `IHeroIconCatalog`, `HeroPortraitView` | аутфит `A`; отсутствующий/битый/неизвестный id → `null` → плейсхолдер `?`, исключения не летят |
 | Выбор захвата | `GameEventCaptureLocator`, env `DARKEST_CAPTURE_RUN` | env задаёт конкретный run; иначе новейший `<repo>/captures/run_*` с `manifest.json`, потом эталон `Content\Captures\Reference` |
 | Чтение захвата | `GameEventLogReader` | `SchemaVersion` = `1.0.0`/`1.1.0`; `Sequence` ровно 1..N; `Subsystem` = имени файла; allowlist-биндер |
 | Fallback формации | `CaptureUnitViewModel` | `Rank <= 0` → `index + 1`; `Size <= 0` → 1 |
@@ -228,6 +239,21 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   иначе текстура не найдётся. Записи генерирует `tools\spine-demo-content.ps1` в
   `SpineDemoContent.props` (1005 записей / 335 сетов: `<Hero>\Skeleton\<Set>` + `<Hero>\Effects\<Skill>` —
   руками csproj не правится; Effects-сеты содержат страницу-текстуру рядом со скелетом, базовые — в `Outfits\A`).
+- **Иконки героев — отдельный контент-набор** — раскладка `Content\HeroIcons\<ClassId>\`:
+  `portrait.<A-D>.png` (roster-портрет 85×85) и `header.png` (guild-баннер 716×632). Записи
+  генерирует `tools\hero-icons-content.ps1` в `HeroIconsContent.props` (75 записей: 15 героев ×
+  4 аутфита + баннер) и падает с exit 1, если у героя нет портрета/баннера или spine-герой
+  (`unity\Assets\Sprites\Heroes`) не имеет папки иконок. `header.png` доставлен, но пока не
+  потребляется — задел под будущие экраны.
+- **Class id, а не имя папки** — spine-папки героев в PascalCase (`ManAtArms`), иконки и
+  контент-каталоги — в snake_case (`man_at_arms`); конверсия только через `Ui\HeroIds.ToClassId`
+  (не `ToLower`: иначе `ManAtArms` → `manatarms`). Новый герой без иконки не ломает экран:
+  карточка показывает `?`.
+- **Карточка героя не должна ломать центровку селекторов** — строка селекторов — `Grid` с
+  колонками `Auto|*|Auto`: слева `HeroPortraitView`, справа невидимый спейсер шириной
+  `ActualWidth` карточки; без него группа селекторов уезжает вправо на ширину карточки. Сам
+  `UserControl` при Measure/Arrange растягивается на всё предложенное пространство, поэтому его
+  `ActualWidth` — не размер портрета: реальная рамка — `PortraitFrame` (`PortraitSize`).
 - **Неймспейс `Sektor.Spine.Skia`** — квалифицированные ссылки `Spine.X` запрещены
   (shadowing сегментом `.Spine`): только `using Spine;` и простые имена.
 - **One-shot анимация (арена)** — `SpinePlayer.Play(name, loop: false)` ведёт флаг
@@ -332,6 +358,10 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Behaviors/` (`SaveScreenshotAction`, `MarkEventHandledAction`)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Data/SpineDemoCatalog.cs`, `Data/ISpineDemoCatalog.cs` (герои/анимации демо)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/SpineDemoContent.props` + `tools/spine-demo-content.ps1` (генератор контент-линков)
+- `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/HeroPortraitView.xaml(.cs)`, `Data/IHeroIconCatalog.cs`,
+  `Data/HeroIconCatalog.cs`, `Ui/HeroIds.cs` (карточка героя и иконки)
+- `src/Wpf/Sektor.DarkestDungeon.Wpf/HeroIconsContent.props` + `tools/hero-icons-content.ps1`
+  (генератор линков портретов/баннеров; 75 записей)
 - `docs/mechanics/presentation/spine_transparency_vertex_colors.md` (разбор дефекта vertex colors)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/DuelUnitCardView.xaml` (death's door pulse, «ТВОЙ ХОД»)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/DuelBattleView.cs` (превью), `DuelBattleViewModel.cs` (пак)

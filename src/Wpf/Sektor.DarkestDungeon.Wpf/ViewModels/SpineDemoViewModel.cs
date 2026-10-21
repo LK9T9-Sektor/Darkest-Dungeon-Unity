@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows.Media;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Sektor.DarkestDungeon.Wpf.Data;
 using Sektor.DarkestDungeon.Wpf.Navigation;
+using Sektor.DarkestDungeon.Wpf.Ui;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
@@ -13,12 +15,14 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
     public partial class SpineDemoViewModel : ObservableObject
     {
         private const string DefaultCharacter = "Crusader";
+        private const string PortraitOutfit = "A";
         private const double MinSpeedMultiplier = 1.0;
         private const double MaxSpeedMultiplier = 10.0;
         private const double SpeedStep = 0.5;
 
         private readonly INavigationService navigation;
         private readonly ISpineDemoCatalog catalog;
+        private readonly IHeroIconCatalog iconCatalog;
 
         /// <summary>Gets or sets a value indicating whether the animation clock is paused.</summary>
         [ObservableProperty]
@@ -33,6 +37,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(ContentDirectory))]
         [NotifyPropertyChangedFor(nameof(ScreenTitle))]
+        [NotifyPropertyChangedFor(nameof(CurrentHeroClassId))]
+        [NotifyPropertyChangedFor(nameof(CurrentHeroName))]
+        [NotifyPropertyChangedFor(nameof(CurrentHeroPortrait))]
         private string _currentCharacter = string.Empty;
 
         /// <summary>Gets the animation sets of the selected hero; the idle set comes first.</summary>
@@ -54,6 +61,15 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Gets the content directory of the selected animation set, as bound by the hero control.</summary>
         public string ContentDirectory => catalog.GetContentDirectory(CurrentCharacter, CurrentAnimation);
+
+        /// <summary>Gets the snake_case class id of the selected hero.</summary>
+        public string CurrentHeroClassId => HeroIds.ToClassId(CurrentCharacter);
+
+        /// <summary>Gets the readable name of the selected hero.</summary>
+        public string CurrentHeroName => DisplayNames.Class(CurrentHeroClassId);
+
+        /// <summary>Gets the roster portrait of the selected hero, or null when no icon is bundled.</summary>
+        public ImageSource? CurrentHeroPortrait => iconCatalog.GetPortrait(CurrentHeroClassId, PortraitOutfit);
 
         /// <summary>Gets the screen title including the selected hero.</summary>
         public string ScreenTitle => $"SPINE TEST \u2014 {CurrentCharacter.ToUpperInvariant()}";
@@ -94,10 +110,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Initializes a new instance of the <see cref="SpineDemoViewModel"/> class.</summary>
         /// <param name="navigation">The navigation service.</param>
         /// <param name="catalog">The catalog of heroes and animation sets to browse.</param>
-        public SpineDemoViewModel(INavigationService navigation, ISpineDemoCatalog catalog)
+        /// <param name="iconCatalog">The catalog of hero portrait icons.</param>
+        public SpineDemoViewModel(INavigationService navigation, ISpineDemoCatalog catalog, IHeroIconCatalog iconCatalog)
         {
             this.navigation = navigation;
             this.catalog = catalog;
+            this.iconCatalog = iconCatalog;
             Characters = catalog.GetCharacters();
 
             BackCommand = new RelayCommand(navigation.GoHome);

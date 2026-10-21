@@ -54,6 +54,11 @@
        tools\spine-demo-content.ps1 after hero sprites change. -->
   <Import Project="SpineDemoContent.props" />
 
+  <!-- Hero icons: roster portraits of outfits A-D and the guild header banner of all 15 heroes,
+       linked from unity assets as Content\HeroIcons\<ClassId>\portrait.<A-D>.png / header.png.
+       Regenerate the props with tools\hero-icons-content.ps1 after hero sprites change. -->
+  <Import Project="HeroIconsContent.props" />
+
   <!-- Reference Unity capture (manifest + JSONL) consumed by the capture replay screen. -->
   <ItemGroup>
     <None Include="..\..\..\docs\spec_game_events\examples\*"

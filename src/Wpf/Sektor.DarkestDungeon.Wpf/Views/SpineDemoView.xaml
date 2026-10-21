@@ -54,56 +54,73 @@
                                     SpeedMultiplier="{Binding SpeedMultiplier}" />
         </Border>
 
-        <!-- Selectors: hero, animation set, playback speed -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
-            <Border Style="{StaticResource SelectorGroup}">
-                <StackPanel>
-                    <TextBlock Text="CHARACTER" Style="{StaticResource SelectorCaption}" />
-                    <StackPanel Orientation="Horizontal">
-                        <Button Style="{StaticResource SelectorArrow}" Content="&#x25C0;"
-                                AutomationProperties.Name="Previous hero"
-                                Command="{Binding PreviousCharacterCommand}" ToolTip="Previous hero" />
-                        <TextBlock Style="{StaticResource SelectorValue}" MinWidth="130"
-                                   Text="{Binding CurrentCharacter}" />
-                        <Button Style="{StaticResource SelectorArrow}" Content="&#x25B6;"
-                                AutomationProperties.Name="Next hero"
-                                Command="{Binding NextCharacterCommand}" ToolTip="Next hero" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
+        <!-- Selectors: selected hero icon, hero, animation set, playback speed. The trailing spacer
+             mirrors the hero card so the selector group stays centered in the window. -->
+        <Grid Grid.Row="2" Margin="64,16,64,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
-            <Border Style="{StaticResource SelectorGroup}">
-                <StackPanel>
-                    <TextBlock Text="ANIMATION" Style="{StaticResource SelectorCaption}" />
-                    <StackPanel Orientation="Horizontal">
-                        <Button Style="{StaticResource SelectorArrow}" Content="&#x25C0;"
-                                AutomationProperties.Name="Previous animation"
-                                Command="{Binding PreviousAnimationCommand}" ToolTip="Previous animation" />
-                        <TextBlock Style="{StaticResource SelectorValue}" MinWidth="150"
-                                   Text="{Binding CurrentAnimation}" />
-                        <Button Style="{StaticResource SelectorArrow}" Content="&#x25B6;"
-                                AutomationProperties.Name="Next animation"
-                                Command="{Binding NextAnimationCommand}" ToolTip="Next animation" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
+            <views:HeroPortraitView x:Name="SelectedHeroCard" Grid.Column="0"
+                                    VerticalAlignment="Center" Margin="0,0,24,0"
+                                    AutomationProperties.Name="Selected hero"
+                                    Portrait="{Binding CurrentHeroPortrait}"
+                                    Caption="{Binding CurrentHeroName}" />
+            <Border Grid.Column="2" Width="{Binding ActualWidth, ElementName=SelectedHeroCard}"
+                    Margin="24,0,0,0" IsHitTestVisible="False" />
 
-            <Border Style="{StaticResource SelectorGroup}" Margin="0">
-                <StackPanel>
-                    <TextBlock Text="SPEED" Style="{StaticResource SelectorCaption}" />
-                    <StackPanel Orientation="Horizontal">
-                        <Button Style="{StaticResource SelectorArrow}" Content="&#x25C0;"
-                                AutomationProperties.Name="Slower"
-                                Command="{Binding DecreaseSpeedCommand}" ToolTip="Slower (down to 100%)" />
-                        <TextBlock Style="{StaticResource SelectorValue}" MinWidth="70"
-                                   Text="{Binding SpeedText}" />
-                        <Button Style="{StaticResource SelectorArrow}" Content="&#x25B6;"
-                                AutomationProperties.Name="Faster"
-                                Command="{Binding IncreaseSpeedCommand}" ToolTip="Faster (up to 1000%)" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border Style="{StaticResource SelectorGroup}">
+                    <StackPanel>
+                        <TextBlock Text="CHARACTER" Style="{StaticResource SelectorCaption}" />
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource SelectorArrow}" Content="&#x25C0;"
+                                    AutomationProperties.Name="Previous hero"
+                                    Command="{Binding PreviousCharacterCommand}" ToolTip="Previous hero" />
+                            <TextBlock Style="{StaticResource SelectorValue}" MinWidth="130"
+                                       Text="{Binding CurrentCharacter}" />
+                            <Button Style="{StaticResource SelectorArrow}" Content="&#x25B6;"
+                                    AutomationProperties.Name="Next hero"
+                                    Command="{Binding NextCharacterCommand}" ToolTip="Next hero" />
+                        </StackPanel>
                     </StackPanel>
-                </StackPanel>
-            </Border>
-        </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource SelectorGroup}">
+                    <StackPanel>
+                        <TextBlock Text="ANIMATION" Style="{StaticResource SelectorCaption}" />
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource SelectorArrow}" Content="&#x25C0;"
+                                    AutomationProperties.Name="Previous animation"
+                                    Command="{Binding PreviousAnimationCommand}" ToolTip="Previous animation" />
+                            <TextBlock Style="{StaticResource SelectorValue}" MinWidth="150"
+                                       Text="{Binding CurrentAnimation}" />
+                            <Button Style="{StaticResource SelectorArrow}" Content="&#x25B6;"
+                                    AutomationProperties.Name="Next animation"
+                                    Command="{Binding NextAnimationCommand}" ToolTip="Next animation" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource SelectorGroup}" Margin="0">
+                    <StackPanel>
+                        <TextBlock Text="SPEED" Style="{StaticResource SelectorCaption}" />
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource SelectorArrow}" Content="&#x25C0;"
+                                    AutomationProperties.Name="Slower"
+                                    Command="{Binding DecreaseSpeedCommand}" ToolTip="Slower (down to 100%)" />
+                            <TextBlock Style="{StaticResource SelectorValue}" MinWidth="70"
+                                       Text="{Binding SpeedText}" />
+                            <Button Style="{StaticResource SelectorArrow}" Content="&#x25B6;"
+                                    AutomationProperties.Name="Faster"
+                                    Command="{Binding IncreaseSpeedCommand}" ToolTip="Faster (up to 1000%)" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
 
         <!-- Controls -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,24">
