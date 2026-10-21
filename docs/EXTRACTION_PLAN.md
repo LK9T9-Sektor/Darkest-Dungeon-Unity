@@ -149,7 +149,9 @@ repo/
 ## 5. Инструменты
 
 - `tools\*.ps1` получают параметр `-ProjectPath` (по умолчанию `unity\`): compile-check, сборка, запуск,
-  провижнинг.
+  провижнинг; исключение — `unity-deliver-libs.ps1`, он всегда доставляет в оба проекта.
+- `unity-deliver-libs.ps1` собирает все библиотеки с `CoreUnityPluginFolders` и через их
+  PostBuild доставляет DLL/PDB в `Assets\Plugins\Internal` обоих проектов; проверяет хэши.
 - `unity-provision-plugins.ps1` собирает ядро и доставляет DLL/PDB в `Assets\Plugins\Internal` обоих
   проектов; фасады .NET Standard — только для 2017-редактора.
 - `sync-assets.ps1` — зеркалит общие ресурсы в оба проекта (см. `FEATURE_SHARED_ASSETS.md`).

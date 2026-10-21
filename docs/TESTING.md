@@ -14,8 +14,9 @@
 ## Как запустить
 
 - Активная версия: `unity\` (Unity 7 — 7000.0.0a10, URP). Легаси: `unity-2017\` (Unity 2017.4).
-- Плагины ядра (gitignored): `pwsh tools\unity-compile-check.ps1 -ProjectPath unity -Provision`
-  (собирает Lan + Content + Ui и доставляет DLL/PDB в `Assets\Plugins\Internal`).
+- Плагины ядра (gitignored): `pwsh tools\unity-deliver-libs.ps1` собирает и доставляет все
+  managed-библиотеки в оба проекта (Unity должен быть закрыт); `unity-compile-check.ps1 -Provision`
+  собирает минимальный набор Lan + Content + Ui.
 - Локальный `steam_appid.txt` создаётся автоматически; для Photon нужен AppID из
   `PhotonServerSettings.asset` и доступ к облаку Photon.
 - Запуск: открыть проект в редакторе и нажать Play, либо `pwsh tools\unity-dev-run.ps1`.

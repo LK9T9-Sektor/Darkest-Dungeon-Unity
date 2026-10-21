@@ -95,7 +95,7 @@ Path 'traits[0].reaction_act_outs[0].chance'
   провиженинга Unity 2017.4 — они дублируют `Editor\Data\UnityReferenceAssemblies\unity-4.8-api\Facades`
   Unity 7. Удалены; в папке обязаны оставаться только `Sektor.*` DLL/PDB (см. `COMPABILITY.md` §4).
 - Инструменты: `tools\unity-compile-check.ps1`, `unity-build-game.ps1`, `unity-provision-plugins.ps1`,
-  `unity-generate-battle-test-scene.ps1` → редактор 7000.0.0a10 (коммит `93802d1`).
+  `unity-deliver-libs.ps1`, `unity-generate-battle-test-scene.ps1` → редактор 7000.0.0a10 (коммит `93802d1`).
 - **Render Pipeline Converter не запускался** (отложено решением пользователя): материалы на built-in
   Standard-шейдере (`CoridorWall*.mat`, `Text-Title-Standard.mat` и др.) не конвертированы — под URP
   ожидаемо рисуются некорректно; визуально не проверялись. После прогона — отдельный коммит, см.
