@@ -80,21 +80,9 @@
                     Style="{StaticResource SelectorGroup}">
                 <StackPanel>
                     <TextBlock Text="SKILLS" Style="{StaticResource SelectorCaption}" />
-                    <ItemsControl ItemsSource="{Binding Skills}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <views:SkillSquareView Margin="4,0" IconSize="72"
-                                                       AutomationProperties.Name="{Binding DisplayNameUpper}"
-                                                       SelectCommand="{Binding DataContext.SelectSkillCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                       CommandParameter="{Binding}" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                    <views:AbilityRowView ItemsSource="{Binding Skills}"
+                                          SelectCommand="{Binding SelectSkillCommand}"
+                                          IconSize="72" />
                 </StackPanel>
             </Border>
         </Grid>

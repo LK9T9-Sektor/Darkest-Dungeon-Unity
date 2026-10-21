@@ -29,6 +29,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         public void Slot_ToggleSkill_RespectsMaxActive()
         {
             var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds);
+            slot.AssignClass("crusader");
             var active = slot.Skills.Where(skill => skill.IsActive).ToList();
             var inactive = slot.Skills.Where(skill => !skill.IsActive).FirstOrDefault();
             if (inactive == null)
@@ -45,6 +46,39 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
 
             slot.ToggleSkillCommand.Execute(inactive);
             Assert.That(slot.Skills.Count(skill => skill.IsActive), Is.EqualTo(slot.MaxActiveSkills));
+        }
+
+        [Test]
+        public void Slot_SkillAvailabilityTracksMaxActive()
+        {
+            var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds);
+            slot.AssignClass("crusader");
+
+            Assert.That(slot.CanSelectSkills, Is.True);
+            Assert.That(slot.Skills.Count(skill => skill.IsActive), Is.EqualTo(slot.MaxActiveSkills));
+            Assert.That(slot.Skills.Where(skill => !skill.IsActive).All(skill => !skill.IsUsable), Is.True);
+
+            slot.ToggleSkillCommand.Execute(slot.Skills.First(skill => skill.IsActive));
+
+            Assert.That(slot.Skills.Where(skill => !skill.IsActive).All(skill => skill.IsUsable), Is.True);
+        }
+
+        [Test]
+        public void Slot_AbominationSkillsAreLockedAndAllSelected()
+        {
+            var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds);
+            slot.AssignClass("abomination");
+
+            Assert.That(slot.CanSelectSkills, Is.False);
+            Assert.That(slot.SkillsLocked, Is.True);
+            Assert.That(slot.Skills, Is.Not.Empty);
+            Assert.That(slot.Skills.All(skill => skill.IsActive), Is.True);
+            Assert.That(slot.SelectedSkillIds.Count, Is.EqualTo(slot.Skills.Count));
+
+            var before = slot.SelectedSkillIds.ToList();
+            slot.ToggleSkillCommand.Execute(slot.Skills[0]);
+
+            Assert.That(slot.SelectedSkillIds, Is.EqualTo(before));
         }
 
         [Test]

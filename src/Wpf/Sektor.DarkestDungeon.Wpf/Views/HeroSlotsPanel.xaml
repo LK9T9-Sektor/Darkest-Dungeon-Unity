@@ -23,7 +23,18 @@
                             <Grid>
                                 <Image Source="{Binding Portrait}" Stretch="UniformToFill" />
                                 <TextBlock Text="?" Foreground="#E8D9B0" FontSize="36"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                           HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Portrait}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </Grid>
                         </Border>
 
@@ -39,35 +50,16 @@
                         <!-- Stats panel (reused from the battle HUD) -->
                         <views:HeroStatsView DataContext="{Binding Stats}" ShowFullDetails="False" Margin="0,8,0,0" />
 
-                        <!-- Active skill toggles, all class skills (no Move/Pass) -->
-                        <ItemsControl ItemsSource="{Binding Skills}" Margin="0,10,0,0">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Button Content="{Binding Name}" Width="58" Height="26" FontSize="9" Margin="2"
-                                            ToolTip="{Binding Details}"
-                                            Command="{Binding DataContext.ToggleSkillCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                            CommandParameter="{Binding}">
-                                        <Button.Style>
-                                            <Style TargetType="Button" BasedOn="{StaticResource HudButton}">
-                                                <Setter Property="Foreground" Value="#777" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                                        <Setter Property="Foreground" Value="#E8D9B0" />
-                                                        <Setter Property="BorderBrush" Value="#8A6A3A" />
-                                                        <Setter Property="Background" Value="#3A3022" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                    </Button>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        <!-- Active skill toggles: icon squares; selected skills stay lit, unavailable slots
+                             grey out at the class limit. -->
+                        <views:AbilityRowView ItemsSource="{Binding Skills}"
+                                              SelectCommand="{Binding ToggleSkillCommand}"
+                                              IconSize="30"
+                                              ShowNames="False"
+                                              Margin="0,10,0,0" />
+                        <TextBlock Text="skills locked" FontSize="10" Foreground="#C8A060"
+                                   HorizontalAlignment="Center" Margin="0,4,0,0"
+                                   Visibility="{Binding SkillsLocked, Converter={StaticResource BoolToVisibility}}" />
 
                         <!-- Quirks + reroll -->
                         <StackPanel Orientation="Horizontal" Margin="0,12,0,0">

@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,6 +16,8 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         private const double IconChrome = 8.0;
         private const double NameExtraWidth = 8.0;
         private const double MinIconSize = 16.0;
+
+        private INotifyPropertyChanged? observedTile;
 
         /// <summary>Identifies the <see cref="SelectCommand"/> dependency property.</summary>
         public static readonly DependencyProperty SelectCommandProperty =
@@ -85,6 +88,8 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             InitializeComponent();
             ApplyIconSize();
             DataContextChanged += OnDataContextChanged;
+            Loaded += OnLoaded;
+            Unloaded += OnUnloaded;
         }
 
         private static void OnSelectCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -117,7 +122,36 @@ namespace Sektor.DarkestDungeon.Wpf.Views
 
         private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
+            if (IsLoaded)
+                ObserveTile(e.NewValue);
             WireButton();
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            ObserveTile(DataContext);
+            WireButton();
+        }
+
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            ObserveTile(null);
+        }
+
+        private void ObserveTile(object? dataContext)
+        {
+            if (observedTile != null)
+                observedTile.PropertyChanged -= OnTilePropertyChanged;
+
+            observedTile = dataContext as INotifyPropertyChanged;
+            if (observedTile != null)
+                observedTile.PropertyChanged += OnTilePropertyChanged;
+        }
+
+        private void OnTilePropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ISkillTileViewModel.IsUsable))
+                WireButton();
         }
 
         private void WireNameVisibility()
@@ -130,12 +164,15 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             // Without a SelectCommand the square renders as a read-only inspection slot
             // (character-info sheet, floating badge); with one it acts as the clickable skill tray
             // button. Read-only slots stay hit-testable (and enabled) so their hover tooltip works,
-            // but carry no command, so a click does nothing.
+            // but carry no command, so a click does nothing. Clickable slots follow the shared
+            // ISkillTileViewModel availability flag, and are refreshed when the item raises
+            // PropertyChanged for IsUsable (e.g. a lobby slot reaching its skill limit).
             SkillButton.Command = SelectCommand;
             SkillButton.CommandParameter = CommandParameter;
             bool clickable = SelectCommand != null;
+            bool usable = DataContext is ISkillTileViewModel tile && tile.IsUsable;
             SkillButton.IsHitTestVisible = true;
-            SkillButton.IsEnabled = clickable ? (DataContext is DuelSkillViewModel skill && skill.IsUsable) : true;
+            SkillButton.IsEnabled = !clickable || usable;
             WireNameVisibility();
         }
     }

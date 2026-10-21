@@ -42,20 +42,22 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <param name="availableClasses">The selectable hero class ids.</param>
         /// <param name="logger">The structural logger.</param>
         /// <param name="skillCatalog">The catalog of hero skill icons for the battle tray.</param>
+        /// <param name="iconCatalog">The catalog of hero portraits for the lobby slots.</param>
         public SinglePlayerLobbyViewModel(
             INavigationService navigation,
             IReadOnlyList<string> availableClasses,
             ILogger logger,
-            IHeroSkillCatalog skillCatalog)
+            IHeroSkillCatalog skillCatalog,
+            IHeroIconCatalog iconCatalog)
         {
             this.navigation = navigation;
             this.availableClasses = availableClasses;
             this.logger = logger;
             this.skillCatalog = skillCatalog;
             for (int i = 0; i < 4; i++)
-                Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses));
+                Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses, iconCatalog, skillCatalog));
             for (int i = 0; i < 4; i++)
-                AiSlots.Add(new HeroSlotViewModel(i * 10 + 101, availableClasses));
+                AiSlots.Add(new HeroSlotViewModel(i * 10 + 101, availableClasses, iconCatalog, skillCatalog));
 
             RandomizeRivalCommand = new RelayCommand(RandomizeRival);
             StartCommand = new RelayCommand(Start);

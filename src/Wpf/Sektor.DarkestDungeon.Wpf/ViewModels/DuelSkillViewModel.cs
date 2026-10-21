@@ -6,7 +6,7 @@ using Sektor.DarkestDungeon.Wpf.Ui;
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
     /// <summary>A skill button in the live duel battle view.</summary>
-    public partial class DuelSkillViewModel : ObservableObject
+    public partial class DuelSkillViewModel : ObservableObject, ISkillTileViewModel
     {
         /// <summary>Gets the skill id.</summary>
         public string Id { get; }

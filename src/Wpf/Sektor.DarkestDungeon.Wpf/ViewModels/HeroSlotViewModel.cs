@@ -20,8 +20,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
     public partial class HeroSlotViewModel : ObservableObject
     {
         private const int TrinketSlotCount = 2;
+        private const string PortraitOutfit = "A";
 
         private readonly IReadOnlyList<string> availableClasses;
+        private readonly IHeroIconCatalog? iconCatalog;
+        private readonly IHeroSkillCatalog? skillCatalog;
         private readonly Random rng = new Random();
 
         /// <summary>Gets the deterministic seed of this slot.</summary>
@@ -39,11 +42,18 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private int _maxActiveSkills = 4;
 
+        /// <summary>Gets or sets a value indicating whether the player may choose the active combat skills.</summary>
+        [ObservableProperty]
+        private bool _canSelectSkills;
+
+        /// <summary>Gets a value indicating whether the class locks the skill selection (e.g. Abomination).</summary>
+        public bool SkillsLocked { get { return !CanSelectSkills; } }
+
         /// <summary>Gets or sets the tooltip details (stats, skills, quirks).</summary>
         [ObservableProperty]
         private string _details = string.Empty;
 
-        /// <summary>Gets or sets the portrait image (null until one is provided).</summary>
+        /// <summary>Gets or sets the roster portrait image of the selected class.</summary>
         [ObservableProperty]
         private ImageSource? _portrait;
 
@@ -99,9 +109,17 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Initializes a new instance of the <see cref="HeroSlotViewModel"/> class.</summary>
         /// <param name="seed">The deterministic seed.</param>
         /// <param name="availableClasses">The selectable class ids.</param>
-        public HeroSlotViewModel(int seed, IReadOnlyList<string> availableClasses)
+        /// <param name="iconCatalog">The catalog of hero portraits, or null when icons are not available.</param>
+        /// <param name="skillCatalog">The catalog of combat skill icons and art, or null when icons are not available.</param>
+        public HeroSlotViewModel(
+            int seed,
+            IReadOnlyList<string> availableClasses,
+            IHeroIconCatalog? iconCatalog = null,
+            IHeroSkillCatalog? skillCatalog = null)
         {
             this.availableClasses = availableClasses;
+            this.iconCatalog = iconCatalog;
+            this.skillCatalog = skillCatalog;
             Seed = seed;
             _classId = this.availableClasses[0];
             PrevClassCommand = new RelayCommand(PrevClass);
@@ -142,16 +160,21 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         private void ToggleSkill(LobbySkillViewModel? skill)
         {
-            if (skill == null)
+            if (skill == null || !CanSelectSkills)
                 return;
+
             if (skill.IsActive)
             {
                 skill.IsActive = false;
+                RefreshSkillAvailability();
                 return;
             }
+
             if (Skills.Count(active => active.IsActive) >= MaxActiveSkills)
                 return;
+
             skill.IsActive = true;
+            RefreshSkillAvailability();
         }
 
         private void RerollQuirks()
@@ -195,24 +218,43 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private void LoadClass()
         {
             var heroClass = DuelClasses.Get(ClassId);
+            CanSelectSkills = heroClass != null && heroClass.CanSelectCombatSkills;
             MaxActiveSkills = heroClass != null && heroClass.NumberOfSelectedCombatSkills > 0
                 ? heroClass.NumberOfSelectedCombatSkills
                 : 4;
+            Portrait = iconCatalog?.GetPortrait(ClassId, PortraitOutfit);
 
             Skills.Clear();
-            var allSkills = heroClass?.CombatSkills ?? new List<CombatSkill>();
-            for (int i = 0; i < allSkills.Count; i++)
+            var skillInfos = skillCatalog?.GetSkills(ClassId);
+            if (skillInfos != null && skillInfos.Count > 0)
             {
-                Skills.Add(new LobbySkillViewModel(allSkills[i].Id, i < MaxActiveSkills)
+                for (int i = 0; i < skillInfos.Count; i++)
                 {
-                    Details = Ui.SkillDetails.Build(allSkills[i]),
-                });
+                    var info = skillInfos[i];
+                    Skills.Add(new LobbySkillViewModel(info.Skill, i < MaxActiveSkills, info.Icon));
+                }
             }
+            else
+            {
+                var allSkills = heroClass?.CombatSkills ?? new List<CombatSkill>();
+                for (int i = 0; i < allSkills.Count; i++)
+                    Skills.Add(new LobbySkillViewModel(allSkills[i], i < MaxActiveSkills, null));
+            }
+
+            RefreshSkillAvailability();
 
             ReloadTrinkets();
             Details = BuildDetails(heroClass);
             ApplyStats(heroClass);
             RerollQuirks();
+        }
+
+        private void RefreshSkillAvailability()
+        {
+            int activeCount = Skills.Count(skill => skill.IsActive);
+            bool canSelectMore = CanSelectSkills && activeCount < MaxActiveSkills;
+            foreach (var skill in Skills)
+                skill.IsUsable = skill.IsActive || canSelectMore;
         }
 
         private void ReloadTrinkets()
@@ -295,6 +337,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                     return i;
             }
             return -1;
+        }
+
+        partial void OnCanSelectSkillsChanged(bool value)
+        {
+            OnPropertyChanged(nameof(SkillsLocked));
         }
 
         partial void OnClassIdChanged(string value)

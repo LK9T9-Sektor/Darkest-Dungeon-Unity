@@ -9,7 +9,7 @@
 ## Срезы
 
 - [x] Срез 1. Переиспользуемая карточка героя со стрелками + раскладка SPINE TEST.
-- [ ] Срез 2. Переиспользуемый ряд абилок + правило Abomination (`can_select_combat_skills`) +
+- [x] Срез 2. Переиспользуемый ряд абилок + правило Abomination (`can_select_combat_skills`) +
       иконки способностей в слотах лобби.
 - [ ] Срез 3. Компактные слоты лобби + `HeroEditorOverlayView` поверх панели отряда (портрет,
       гильд-баннер, статы, ряд абилок, квирки/тринкеты).
@@ -46,12 +46,21 @@
 
 **Проверка:** сборка WPF + `dotnet test` — 156/156; визуальная проверка экрана — за пользователем.
 
-## Срезы 2–4 (кратко)
+## Срез 2 (выполнен, ожидает проверки)
 
-- **Срез 2:** `AbilityRowView` (`ItemsSource`, `SelectCommand`, `IconSize`, `ShowNames`); иконки и
-  структурированный тултип в `LobbySkillViewModel`; `HeroSlotViewModel` получает каталоги и
-  проверку `CanSelectCombatSkills`; при 4 выбранных невыбранные скиллы недоступны; у Abomination
-  все 7 выбраны и не снимаются.
+- `AbilityRowView` (`ItemsSource`, `SelectCommand`, `IconSize`, `ShowNames`) — общий ряд скиллов
+  для SPINE TEST и лобби; `ISkillTileViewModel` — общий контракт для `DuelSkillViewModel` и
+  `LobbySkillViewModel`.
+- `LobbySkillViewModel` получил иконку, читаемое имя, `Level`/`BaseInfo`/`EffectRows` и состояние
+  `IsSelected`/`IsUsable`; `HeroSlotViewModel` получает `IHeroIconCatalog`/`IHeroSkillCatalog`,
+  заполняет портрет и иконки, берёт `CanSelectSkills` из `HeroClass.CanSelectCombatSkills`.
+- При 4 выбранных невыбранные скиллы серые и не выбираются; снятие одного снова делает их
+  доступными. У Abomination все 7 выбраны, клики игнорируются, в слоте видна подпись
+  `skills locked`.
+- Проверка: сборка WPF + `dotnet test` — 161/161; визуальная проверка — за пользователем.
+
+## Срезы 3–4 (кратко)
+
 - **Срез 3:** слот лобби сокращается до карточки героя со стрелками; клик по портрету открывает
   `HeroEditorOverlayView` поверх панели отряда (общий для VS AI, мультиплеера и PvE); в оверлее —
   гильд-баннер `header.png`, портрет/имя, статы, ряд абилок, квирки/тринкеты; изменения сразу

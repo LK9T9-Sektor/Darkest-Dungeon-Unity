@@ -72,11 +72,23 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 - `Views/SkillSquareView` — переиспользуемый квадрат скилла (иконка + имя + тултип); DP
   `IconSize` (double, 42) задаёт область иконки, кнопка = `IconSize + 8`, корень = `IconSize + 16`
   (72 → кнопка 80, корень 88). Без `SelectCommand` квадрат только для просмотра.
+- `Views/AbilityRowView` — общий ряд квадратов скиллов (`ItemsSource`, `SelectCommand`, `IconSize`,
+  `ShowNames`): на SPINE TEST показывает превью всех скиллов, в слотах лобби — выбор активных.
+- `ViewModels/ISkillTileViewModel` — общий контракт `Icon`/`DisplayNameUpper`/`IsUsable`/
+  `IsSelected` для `DuelSkillViewModel` и `LobbySkillViewModel`; `SkillSquareView` по нему
+  включает/выключает кликабельный квадрат и обновляет `IsEnabled` по `PropertyChanged`.
+- `HeroSlotViewModel` получает `IHeroIconCatalog`/`IHeroSkillCatalog` через конструктор: заполняет
+  `Portrait` (аутфит `A`) и `LobbySkillViewModel` (иконка, тултип, `Level`/`BaseInfo`/`EffectRows`);
+  `CanSelectSkills` берётся из `HeroClass.CanSelectCombatSkills`, `MaxActiveSkills` — из
+  `NumberOfSelectedCombatSkills`. При лимите 4 невыбранные скиллы получают `IsUsable=false`
+  (серые); у Abomination все 7 выбраны и `SkillsLocked=true`.
 
 ## 3. Порядок срабатывания (трассировка)
 
 1. Запуск → `MainWindow` (адаптивная раскладка, `*`-колонки) → меню.
-2. Лобби: выбор классов/квирков/скиллов (`DuelHeroPick`), «Start Battle».
+2. Лобби: выбор классов/квирков/скиллов (`DuelHeroPick`), «Start Battle». Скиллы в слоте —
+   `AbilityRowView`; `LobbySkillViewModel.IsUsable` true у выбранных и у свободных слотов, false при
+   лимите; Abomination (`CanSelectCombatSkills=false`) — все выбраны, клики игнорируются.
 3. Бой: `DuelController.StartDuel(hostPicks, clientPicks, seed, isHost)` + `StartBattle`.
 4. Ход: `DuelBattleViewModel` читает `IsLocalTurn`, применяет вводы (`ExecuteLocalSkill`), ИИ —
    `AiRivalLink` → `DuelAi.ChooseAction` → `ApplyRemoteSkill`; мультиплеер — `NetworkRivalLink`.
@@ -168,6 +180,7 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 | Адаптивная раскладка | `MainWindow` | ресайз, без Viewbox |
 | Скорость Spine-демо | `SpineDemoViewModel` | 1.0…10.0 (шаг 0.5, wrap 100↔1000%); нижний кламп контрола 0.01…100 |
 | Портрет героя | `IHeroIconCatalog`, `HeroPortraitView` | аутфит `A`; опциональные стрелки `◀`/`▶` и клик по портрету через DP; отсутствующий/битый/неизвестный id → `null` → плейсхолдер `?`, исключения не летят |
+| Ряд скиллов лобби | `AbilityRowView`, `LobbySkillViewModel` | `IconSize=30`, имена скрыты; выбранные подсвечены, при лимите 4 невыбранные серые; Abomination — все 7 выбраны и `SkillsLocked` |
 | Иконка скилла | `HeroSkillCatalog.GetSkillIcon`, `HeroIconCatalog.GetAbilityIcon` | нет класса/скилла/файла → `null` → квадрат без иконки |
 | Размер иконки скилла | `SkillSquareView.IconSize` | нижний кламп 16; кнопка = размер + 8, корень = размер + 16 |
 | Эффект скилла в демо | `SpineDemoViewModel` | нет `.fx`-сета → базовая поза в цикле; нет и позы → анимация не меняется |
@@ -293,6 +306,15 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   `SelectCommand` (иначе `IsHitTestVisible=false` и курсор-стрелка); выключенные стрелки
   `Collapsed`, поэтому колонки `Auto` не занимают место. Реальная рамка портрета — `PortraitFrame`
   (`PortraitSize`), а не весь `UserControl` (он растягивается на предложенное пространство).
+- **`IsUsable` в лобби — «можно кликнуть сейчас», а не «доступен в бою»** — выбранные скиллы
+  всегда `true` (клик снимает выбор); невыбранные — `true`, пока `activeCount < MaxActiveSkills`;
+  при лимите 4 они получают `false` и сереют. `SkillSquareView` пересчитывает `IsEnabled` по
+  `PropertyChanged.IsUsable`, поэтому после снятия одного скилла остальные снова становятся
+  кликабельными без пересборки ряда.
+- **Abomination — правило из контента, не хардкод класса** — `HeroClassFileParser` читает
+  `skill_selection: .can_select_combat_skills false .number_of_selected_combat_skills_max 7`;
+  `HeroSlotViewModel` блокирует `ToggleSkill`, оставляет все 7 выбранными и показывает
+  `SkillsLocked`. Любой другой класс с тем же флагом получит то же поведение.
 - **Неймспейс `Sektor.Spine.Skia`** — квалифицированные ссылки `Spine.X` запрещены
   (shadowing сегментом `.Spine`): только `using Spine;` и простые имена.
 - **One-shot анимация (арена)** — `SpinePlayer.Play(name, loop: false)` ведёт флаг
@@ -401,6 +423,9 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   `Data/HeroIconCatalog.cs`, `Ui/HeroIds.cs` (карточка героя и иконки)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Data/IHeroSkillCatalog.cs`, `Data/HeroSkillCatalog.cs`,
   `Data/HeroSkillInfo.cs`, `Views/SkillSquareView.xaml(.cs)` (список скиллов и переиспользуемый квадрат)
+- `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/AbilityRowView.xaml(.cs)`, `Views/HeroSlotsPanel.xaml`,
+  `ViewModels/ISkillTileViewModel.cs`, `ViewModels/LobbySkillViewModel.cs`,
+  `ViewModels/HeroSlotViewModel.cs` (ряд скиллов и выбор в лобби)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/HeroIconsContent.props` + `tools/hero-icons-content.ps1`
   (генератор линков: 75 портретов/баннеров + 105 иконок способностей = 180 записей)
 - `docs/mechanics/presentation/spine_transparency_vertex_colors.md` (разбор дефекта vertex colors)
