@@ -1,0 +1,11 @@
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.LobbyHeroEditorHost"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views"
+             Visibility="Collapsed" Focusable="True" PreviewKeyDown="OnPreviewKeyDown">
+    <!-- Full-window modal host for the hero loadout editor: dim backdrop + reusable overlay. -->
+    <Grid>
+        <Border Background="#B0000000" MouseLeftButtonUp="OnBackdropClick" />
+        <views:HeroEditorOverlayView x:Name="Editor" CloseRequested="OnCloseRequested" />
+    </Grid>
+</UserControl>

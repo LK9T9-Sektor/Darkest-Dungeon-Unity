@@ -42,8 +42,9 @@
         <Setter Property="MaxWidth" Value="420" />
     </Style>
 
-    <!-- Combat skill square chrome: usable = golden frame, unusable = gray frame + gray shading;
-         the inner area only hosts the icon image. Bound to a DuelSkillViewModel (IsUsable/IsSelected). -->
+    <!-- Combat skill square chrome: battle usable = golden frame; loadout selected = orange frame;
+         loadout unselected = grey frame; unusable = grey frame. The icon stays visible under a
+         semi-transparent mask. Bound to an ISkillTileViewModel (IsUsable/IsSelected/IsLoadout). -->
     <ControlTemplate x:Key="SkillButtonTemplate" TargetType="Button">
         <Border x:Name="Chrome" Background="#2A2218" BorderBrush="#D9B46A" BorderThickness="2"
                 CornerRadius="4" Padding="2">
@@ -55,9 +56,17 @@
                 <Setter TargetName="Chrome" Property="BorderBrush" Value="#6A6A6A" />
             </DataTrigger>
             <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                <Setter TargetName="Chrome" Property="Background" Value="#3A3022" />
-                <Setter TargetName="Chrome" Property="BorderBrush" Value="#E8D9B0" />
+                <Setter TargetName="Chrome" Property="Background" Value="#3A2A18" />
+                <Setter TargetName="Chrome" Property="BorderBrush" Value="#D98A3A" />
             </DataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding IsLoadout}" Value="True" />
+                    <Condition Binding="{Binding IsSelected}" Value="False" />
+                </MultiDataTrigger.Conditions>
+                <Setter TargetName="Chrome" Property="Background" Value="#202020" />
+                <Setter TargetName="Chrome" Property="BorderBrush" Value="#6A6A6A" />
+            </MultiDataTrigger>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter TargetName="Chrome" Property="BorderBrush" Value="#E8D9B0" />
             </Trigger>

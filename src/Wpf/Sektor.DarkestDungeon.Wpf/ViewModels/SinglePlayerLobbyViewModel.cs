@@ -55,9 +55,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             this.logger = logger;
             this.skillCatalog = skillCatalog;
             for (int i = 0; i < 4; i++)
-                Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses, iconCatalog, skillCatalog));
+                Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses, iconCatalog, skillCatalog, i + 1));
             for (int i = 0; i < 4; i++)
-                AiSlots.Add(new HeroSlotViewModel(i * 10 + 101, availableClasses, iconCatalog, skillCatalog));
+                AiSlots.Add(new HeroSlotViewModel(i * 10 + 101, availableClasses, iconCatalog, skillCatalog, i + 1));
 
             RandomizeRivalCommand = new RelayCommand(RandomizeRival);
             StartCommand = new RelayCommand(Start);

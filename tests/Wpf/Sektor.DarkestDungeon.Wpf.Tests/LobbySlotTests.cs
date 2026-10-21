@@ -55,12 +55,16 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             slot.AssignClass("crusader");
 
             Assert.That(slot.CanSelectSkills, Is.True);
+            Assert.That(slot.Stats.ResistStun, Is.GreaterThan(0));
             Assert.That(slot.Skills.Count(skill => skill.IsActive), Is.EqualTo(slot.MaxActiveSkills));
             Assert.That(slot.Skills.Where(skill => !skill.IsActive).All(skill => !skill.IsUsable), Is.True);
+            Assert.That(slot.Skills.All(skill => skill.IsLoadout), Is.True);
+            Assert.That(slot.Skills.All(skill => skill.IsMasked == !skill.IsActive), Is.True);
 
             slot.ToggleSkillCommand.Execute(slot.Skills.First(skill => skill.IsActive));
 
             Assert.That(slot.Skills.Where(skill => !skill.IsActive).All(skill => skill.IsUsable), Is.True);
+            Assert.That(slot.Skills.All(skill => skill.IsMasked == !skill.IsActive), Is.True);
         }
 
         [Test]
@@ -73,6 +77,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(slot.SkillsLocked, Is.True);
             Assert.That(slot.Skills, Is.Not.Empty);
             Assert.That(slot.Skills.All(skill => skill.IsActive), Is.True);
+            Assert.That(slot.Skills.All(skill => !skill.IsMasked), Is.True);
             Assert.That(slot.SelectedSkillIds.Count, Is.EqualTo(slot.Skills.Count));
 
             var before = slot.SelectedSkillIds.ToList();

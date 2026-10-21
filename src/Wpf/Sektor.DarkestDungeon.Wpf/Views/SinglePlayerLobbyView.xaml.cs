@@ -10,5 +10,10 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             InitializeComponent();
         }
+
+        private void OnSlotEditRequested(object? sender, HeroSlotEditRequestedEventArgs e)
+        {
+            HeroEditor.Open(e.Slot);
+        }
     }
 }

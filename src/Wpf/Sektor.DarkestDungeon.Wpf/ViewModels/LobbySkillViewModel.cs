@@ -48,6 +48,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets a value indicating whether the skill is selected/active.</summary>
         public bool IsSelected { get { return IsActive; } }
 
+        /// <summary>Gets a value indicating whether this is a pre-battle loadout tile (always true for lobby skills).</summary>
+        public bool IsLoadout { get { return true; } }
+
+        /// <summary>Gets a value indicating whether the icon should be dimmed (unselected lobby skills).</summary>
+        public bool IsMasked { get { return !IsSelected; } }
+
         /// <summary>Initializes a new instance of the <see cref="LobbySkillViewModel"/> class.</summary>
         /// <param name="skill">The combat skill from the parsed content.</param>
         /// <param name="isActive">Whether the skill starts active.</param>
@@ -67,6 +73,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         partial void OnIsActiveChanged(bool value)
         {
             OnPropertyChanged(nameof(IsSelected));
+            OnPropertyChanged(nameof(IsMasked));
         }
     }
 }

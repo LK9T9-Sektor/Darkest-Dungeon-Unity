@@ -15,6 +15,26 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
     [Apartment(ApartmentState.STA)]
     public class HeroEditorOverlayViewTests
     {
+        /// <summary>The full-window host opens the editor and collapses again on close.</summary>
+        [Test]
+        public void Host_OpensEditorAndClosesOnButton()
+        {
+            EnsureApplication();
+            var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds);
+            var host = new LobbyHeroEditorHost();
+
+            host.Open(slot);
+
+            var editor = (HeroEditorOverlayView)host.FindName("Editor");
+            Assert.That(host.Visibility, Is.EqualTo(Visibility.Visible));
+            Assert.That(editor.DataContext, Is.SameAs(slot));
+
+            var close = (Button)editor.FindName("CloseButton");
+            close.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+
+            Assert.That(host.Visibility, Is.EqualTo(Visibility.Collapsed));
+        }
+
         /// <summary>The close button raises the host-facing close event.</summary>
         [Test]
         public void CloseButton_RaisesCloseRequested()

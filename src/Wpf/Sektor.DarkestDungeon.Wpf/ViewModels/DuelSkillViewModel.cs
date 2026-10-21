@@ -45,6 +45,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private bool _isSelected;
 
+        /// <summary>Gets a value indicating whether this is a pre-battle loadout tile (false for the battle tray).</summary>
+        public bool IsLoadout { get { return false; } }
+
+        /// <summary>Gets a value indicating whether the icon should be dimmed as unusable.</summary>
+        public bool IsMasked { get { return !IsUsable; } }
+
         /// <summary>Initializes a new instance of the <see cref="DuelSkillViewModel"/> class.</summary>
         /// <param name="id">The skill id.</param>
         /// <param name="displayName">The display name.</param>
@@ -54,6 +60,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             Id = id;
             DisplayName = displayName;
             Tone = tone;
+        }
+
+        partial void OnIsUsableChanged(bool value)
+        {
+            OnPropertyChanged(nameof(IsMasked));
         }
     }
 }

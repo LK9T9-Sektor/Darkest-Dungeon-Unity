@@ -30,6 +30,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the deterministic seed of this slot.</summary>
         public int Seed { get; }
 
+        /// <summary>Gets or sets the 1-based formation position of this slot.</summary>
+        [ObservableProperty]
+        private int _position;
+
         /// <summary>Gets or sets the selected class id.</summary>
         [ObservableProperty]
         private string _classId;
@@ -104,6 +108,18 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             get { return Quirks.Select(quirk => quirk.Id).ToList(); }
         }
 
+        /// <summary>Gets the positive quirks shown in the editor's left quirk column.</summary>
+        public IReadOnlyList<Quirk> PositiveQuirks
+        {
+            get { return Quirks.Where(quirk => quirk.IsPositive).ToList(); }
+        }
+
+        /// <summary>Gets the negative quirks shown in the editor's right quirk column.</summary>
+        public IReadOnlyList<Quirk> NegativeQuirks
+        {
+            get { return Quirks.Where(quirk => !quirk.IsPositive).ToList(); }
+        }
+
         /// <summary>Gets the ids of the equipped trinkets.</summary>
         public IReadOnlyList<string> SelectedTrinketIds
         {
@@ -115,16 +131,19 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <param name="availableClasses">The selectable class ids.</param>
         /// <param name="iconCatalog">The catalog of hero portraits, or null when icons are not available.</param>
         /// <param name="skillCatalog">The catalog of combat skill icons and art, or null when icons are not available.</param>
+        /// <param name="position">The 1-based formation position of this slot.</param>
         public HeroSlotViewModel(
             int seed,
             IReadOnlyList<string> availableClasses,
             IHeroIconCatalog? iconCatalog = null,
-            IHeroSkillCatalog? skillCatalog = null)
+            IHeroSkillCatalog? skillCatalog = null,
+            int position = 0)
         {
             this.availableClasses = availableClasses;
             this.iconCatalog = iconCatalog;
             this.skillCatalog = skillCatalog;
             Seed = seed;
+            Position = position;
             _classId = this.availableClasses[0];
             PrevClassCommand = new RelayCommand(PrevClass);
             NextClassCommand = new RelayCommand(NextClass);
@@ -189,6 +208,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             QuirkSummary = Quirks.Count == 0
                 ? "no quirks"
                 : string.Join(", ", Quirks.Select(q => (q.IsPositive ? "+" : "-") + q.Id));
+            OnPropertyChanged(nameof(PositiveQuirks));
+            OnPropertyChanged(nameof(NegativeQuirks));
         }
 
         private void AddRandomQuirk(List<Quirk> pool)
@@ -291,6 +312,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         {
             Stats.HeroName = "Hero";
             Stats.HeroClass = heroClass == null ? string.Empty : Ui.DisplayNames.Class(heroClass.StringId);
+            Stats.Rank = Position;
             if (heroClass == null)
                 return;
 
@@ -302,6 +324,14 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             Stats.Crit = Pct(heroClass, AttributeType.CritChance) + "%";
             Stats.Dodge = Pct(heroClass, AttributeType.DefenseRating).ToString();
             Stats.Protection = Pct(heroClass, AttributeType.ProtectionRating) + "%";
+            Stats.ResistStun = ResistPct(heroClass, AttributeType.Stun);
+            Stats.ResistBlight = ResistPct(heroClass, AttributeType.Poison);
+            Stats.ResistBleed = ResistPct(heroClass, AttributeType.Bleed);
+            Stats.ResistDebuff = ResistPct(heroClass, AttributeType.Debuff);
+            Stats.ResistMove = ResistPct(heroClass, AttributeType.Move);
+            Stats.ResistDisease = ResistPct(heroClass, AttributeType.Disease);
+            Stats.ResistDeathBlow = ResistPct(heroClass, AttributeType.DeathBlow);
+            Stats.ResistTrap = ResistPct(heroClass, AttributeType.Trap);
             Stats.WeaponLevel = "Lv. 1";
             Stats.ArmorLevel = "Lv. 1";
         }
@@ -332,6 +362,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         {
             float value;
             return heroClass.Attributes.TryGetValue(type, out value) ? (int)(value * 100) : 0;
+        }
+
+        private static int ResistPct(HeroClass heroClass, AttributeType type)
+        {
+            float value;
+            return heroClass.Resistances.TryGetValue(type, out value) ? (int)(value * 100) : 0;
         }
 
         private int IndexOf(string classId)

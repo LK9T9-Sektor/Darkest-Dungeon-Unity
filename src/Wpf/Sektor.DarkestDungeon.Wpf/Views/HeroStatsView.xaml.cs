@@ -43,6 +43,21 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             set { SetValue(ShowHeaderProperty, value); }
         }
 
+        /// <summary>Identifies the <see cref="ShowEquipment"/> dependency property.</summary>
+        public static readonly DependencyProperty ShowEquipmentProperty =
+            DependencyProperty.Register(
+                nameof(ShowEquipment),
+                typeof(bool),
+                typeof(HeroStatsView),
+                new PropertyMetadata(true));
+
+        /// <summary>Gets or sets a value indicating whether the compact weapon/armor row is shown.</summary>
+        public bool ShowEquipment
+        {
+            get { return (bool)GetValue(ShowEquipmentProperty); }
+            set { SetValue(ShowEquipmentProperty, value); }
+        }
+
         /// <summary>Initializes a new instance of the <see cref="HeroStatsView"/> class.</summary>
         public HeroStatsView()
         {

@@ -16,5 +16,13 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Gets a value indicating whether the skill is selected/active.</summary>
         bool IsSelected { get; }
+
+        /// <summary>Gets a value indicating whether the tile belongs to the pre-battle loadout
+        /// (selected = orange, unselected = grey) rather than the battle tray.</summary>
+        bool IsLoadout { get; }
+
+        /// <summary>Gets a value indicating whether a grey mask should dim the icon: loadout
+        /// unselected skills and battle-unusable skills.</summary>
+        bool IsMasked { get; }
     }
 }

@@ -2,12 +2,10 @@ using System;
 using System.Collections;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 
 namespace Sektor.DarkestDungeon.Wpf.Views
 {
-    /// <summary>Reusable party selection panel: player label, four editable hero slots and the modal
-    /// hero loadout editor opened from a slot.</summary>
+    /// <summary>Reusable party selection panel: player label and four compact hero slots.</summary>
     public partial class PartySelectionView : UserControl
     {
         /// <summary>Identifies the <see cref="PlayerLabel"/> dependency property.</summary>
@@ -23,6 +21,9 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(IEnumerable),
             typeof(PartySelectionView),
             new PropertyMetadata(null));
+
+        /// <summary>Raised when a hero slot requests the loadout editor.</summary>
+        public event EventHandler<HeroSlotEditRequestedEventArgs>? SlotEditRequested;
 
         /// <summary>Gets or sets the player label ("#1 Player", "#2 AI").</summary>
         public string PlayerLabel
@@ -46,35 +47,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
 
         private void OnSlotEditRequested(object? sender, HeroSlotEditRequestedEventArgs e)
         {
-            Editor.DataContext = e.Slot;
-            EditorHost.Visibility = Visibility.Visible;
-            EditorHost.Focus();
-        }
-
-        private void OnEditorCloseRequested(object? sender, EventArgs e)
-        {
-            CloseEditor();
-        }
-
-        private void OnEditorBackdropClick(object sender, MouseButtonEventArgs e)
-        {
-            CloseEditor();
-            e.Handled = true;
-        }
-
-        private void OnEditorPreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Escape)
-            {
-                CloseEditor();
-                e.Handled = true;
-            }
-        }
-
-        private void CloseEditor()
-        {
-            EditorHost.Visibility = Visibility.Collapsed;
-            Editor.DataContext = null;
+            SlotEditRequested?.Invoke(this, e);
         }
     }
 }

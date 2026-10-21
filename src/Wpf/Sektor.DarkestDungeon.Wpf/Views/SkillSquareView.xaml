@@ -11,6 +11,7 @@
         <Button x:Name="SkillButton" Width="50" Height="50" Padding="2"
                 HorizontalAlignment="Center"
                 ToolTipService.Placement="Top"
+                ToolTipService.ShowOnDisabled="True"
                 Template="{StaticResource SkillButtonTemplate}">
             <Button.ToolTip>
                 <ToolTip DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
@@ -20,8 +21,8 @@
             <Grid>
                 <Image Source="{Binding Icon}" Stretch="UniformToFill"
                        RenderOptions.BitmapScalingMode="HighQuality" />
-                <Rectangle Fill="#404040"
-                           Visibility="{Binding IsUsable, Converter={StaticResource InverseBoolToVisibility}}" />
+                <Rectangle Fill="#B0606060"
+                           Visibility="{Binding IsMasked, Converter={StaticResource BoolToVisibility}}" />
             </Grid>
         </Button>
         <TextBlock x:Name="NameLabel" Text="{Binding DisplayNameUpper}" FontSize="8" Height="20"

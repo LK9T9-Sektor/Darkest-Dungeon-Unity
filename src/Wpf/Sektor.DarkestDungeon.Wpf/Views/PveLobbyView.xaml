@@ -24,7 +24,7 @@
             </Grid.ColumnDefinitions>
 
             <views:PartySelectionView Grid.Column="0" PlayerLabel="#1 Heroes" Slots="{Binding Slots}"
-                                      Margin="0,0,12,0" />
+                                      SlotEditRequested="OnSlotEditRequested" Margin="0,0,12,0" />
 
             <!-- Monster side: a compact picker cycling monster classes -->
             <Border Grid.Column="1" Margin="12,0,0,0" Style="{StaticResource OverlayPanel}"
@@ -94,5 +94,7 @@
                     Style="{StaticResource HudButton}" Command="{Binding StartCommand}"
                     IsEnabled="{Binding CanStart}" />
         </StackPanel>
+
+        <views:LobbyHeroEditorHost x:Name="HeroEditor" Grid.RowSpan="3" />
     </Grid>
 </UserControl>

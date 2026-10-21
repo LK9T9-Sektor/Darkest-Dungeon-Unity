@@ -19,7 +19,7 @@
 
         <!-- Player party -->
         <views:PartySelectionView Grid.Row="1" PlayerLabel="#1 Player" Slots="{Binding Slots}"
-                                  Margin="0,16,0,0" />
+                                  SlotEditRequested="OnSlotEditRequested" Margin="0,16,0,0" />
 
         <!-- Connection / second player status -->
         <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,12,0,0">
@@ -41,5 +41,7 @@
             <Button Content="Copy ID" Width="100" Height="38" Margin="8,0,0,0" FontSize="15"
                     Style="{StaticResource HudButton}" Command="{Binding CopyIdCommand}" />
         </StackPanel>
+
+        <views:LobbyHeroEditorHost x:Name="HeroEditor" Grid.RowSpan="4" />
     </Grid>
 </views:PumpableScreenBase>

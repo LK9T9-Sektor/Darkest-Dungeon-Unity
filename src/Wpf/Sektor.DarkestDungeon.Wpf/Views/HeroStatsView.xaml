@@ -126,7 +126,9 @@
         </Grid>
 
         <!-- Equipment: one compact row -->
-        <Grid Grid.Row="2" Margin="0,8,0,0">
+        <Grid Grid.Row="2" Margin="0,8,0,0"
+              Visibility="{Binding ShowEquipment, RelativeSource={RelativeSource AncestorType=UserControl},
+                           Converter={StaticResource BoolToVisibility}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />

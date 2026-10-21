@@ -84,7 +84,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             this.skillCatalog = skillCatalog;
 
             for (int i = 0; i < 4; i++)
-                Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses, iconCatalog, skillCatalog));
+                Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses, iconCatalog, skillCatalog, i + 1));
 
             var monsters = DuelContent.MonsterCatalog;
             var ids = monsters.Ids;
