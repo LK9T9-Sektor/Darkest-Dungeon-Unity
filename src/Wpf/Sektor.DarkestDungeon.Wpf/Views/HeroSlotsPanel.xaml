@@ -31,6 +31,7 @@
                                                     PortraitSize="56"
                                                     ArrowSize="24"
                                                     ShowArrows="True"
+                                                    IsMirrored="{Binding IsMirrored, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     PreviousCommand="{Binding PrevClassCommand}"
                                                     NextCommand="{Binding NextClassCommand}" />
                             <TextBlock Text="{Binding ClassName}" FontSize="10" Foreground="#C8C0B0"

@@ -85,6 +85,24 @@
 - **Unit info overlay** — `UnitInfoOverlayView` is the single sheet for lobby loadouts and battle inspection. Behaviour comes from polymorphic capabilities in `UnitInfoViewModelBase` (`HeroSlotViewModel`, `BattleHeroInfoViewModel`, `BattleMonsterInfoViewModel`), never from a mode branch in the view. Battle heroes may rename and change skin; skills/camping are read-only; class arrows, position, bottom portrait and trinket reroll are hidden. Battle monsters are fully read-only. Battle stats come from the live `DuelUnitViewModel`, not from class defaults; missing Spine content falls back to the portrait. Do not reintroduce the removed `StatsOverlay`.
 - **Close buttons** — the red X chrome is the shared `CloseButton` style. Screens choose their own size and placement; rounded overlays keep the button inside the panel below the corner radius.
 
+### VII. Reusable Components & Boolean Flags
+
+- **Parameterize, don't duplicate** — when one presentation control differs only by one independent
+  presentation axis, parameterize it instead of creating a second copy.
+- **Boolean flag** is allowed only when all of these hold:
+  1. exactly two states;
+  2. it is a presentation/configuration property, not a business rule;
+  3. it is an independent axis, not a mode switch;
+  4. the name describes the state (`IsReversedSlots`, `ShowPosition`), not an action (`Reverse`);
+  5. it has a safe default;
+  6. the caller owns the policy; the control must not know "left team", "right team", or game rules.
+- **Boolean blindness** — do not add parallel booleans that can contradict each other. If flags interact
+  or there are more than two states, the variation is no longer a boolean.
+- **More than two states or behavior** — use a strategy or polymorphic type (or a data resource), never
+  an enum/switch as a behavior selector.
+- The default must preserve the existing behavior; side-specific values are set at the composition root
+  (the screen's view/view model), not inside the reusable control.
+
 ---
 
 ## 📚 Documentation: Required Reading & Maintenance

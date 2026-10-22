@@ -79,6 +79,7 @@
             <Grid Grid.Row="1" Margin="0,8,0,8" MinHeight="120">
                 <views:SpineHeroControl ContentDirectory="{Binding ContentDirectory, ElementName=Root}"
                                         Loop="{Binding Loop, ElementName=Root}"
+                                        IsMirrored="{Binding IsMirrored, ElementName=Root}"
                                         AnimationCompletedCommand="{Binding AnimationCompletedCommand, ElementName=Root}"
                                         Visibility="{Binding HasSpineContent, ElementName=Root, Converter={StaticResource BoolToVisibility}}" />
                 <Border BorderBrush="#4A3A2E" BorderThickness="1" CornerRadius="6"

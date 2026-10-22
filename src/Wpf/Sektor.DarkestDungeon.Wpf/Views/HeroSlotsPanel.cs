@@ -21,6 +21,20 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(HeroSlotsPanel),
             new PropertyMetadata(null, OnSlotsChanged));
 
+        /// <summary>Identifies the <see cref="IsReversedSlots"/> dependency property.</summary>
+        public static readonly DependencyProperty IsReversedSlotsProperty = DependencyProperty.Register(
+            nameof(IsReversedSlots),
+            typeof(bool),
+            typeof(HeroSlotsPanel),
+            new PropertyMetadata(true, OnIsReversedSlotsChanged));
+
+        /// <summary>Identifies the <see cref="IsMirrored"/> dependency property.</summary>
+        public static readonly DependencyProperty IsMirroredProperty = DependencyProperty.Register(
+            nameof(IsMirrored),
+            typeof(bool),
+            typeof(HeroSlotsPanel),
+            new PropertyMetadata(false));
+
         /// <summary>Raised when the user right-clicks a hero slot.</summary>
         public event EventHandler<HeroSlotEditRequestedEventArgs>? SlotEditRequested;
 
@@ -37,9 +51,29 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             set { SetValue(SlotsProperty, value); }
         }
 
+        /// <summary>Gets or sets a value indicating whether slots are shown in descending position order.</summary>
+        public bool IsReversedSlots
+        {
+            get { return (bool)GetValue(IsReversedSlotsProperty); }
+            set { SetValue(IsReversedSlotsProperty, value); }
+        }
+
+        /// <summary>Gets or sets a value indicating whether the hero portrait art is mirrored horizontally.</summary>
+        public bool IsMirrored
+        {
+            get { return (bool)GetValue(IsMirroredProperty); }
+            set { SetValue(IsMirroredProperty, value); }
+        }
+
         private static void OnSlotsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             ((HeroSlotsPanel)d).ApplySlots(e.NewValue as IEnumerable);
+        }
+
+        private static void OnIsReversedSlotsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var panel = (HeroSlotsPanel)d;
+            panel.ApplySlots(panel.Slots);
         }
 
         private void ApplySlots(IEnumerable? slots)
@@ -59,7 +93,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
                 view.SortDescriptions.Clear();
                 view.SortDescriptions.Add(new SortDescription(
                     nameof(HeroSlotViewModel.Position),
-                    ListSortDirection.Descending));
+                    IsReversedSlots ? ListSortDirection.Descending : ListSortDirection.Ascending));
             }
 
             SlotsItems.ItemsSource = view;

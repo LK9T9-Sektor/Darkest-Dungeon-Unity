@@ -88,6 +88,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(HeroPortraitView),
             new PropertyMetadata(false));
 
+        /// <summary>Identifies the <see cref="IsMirrored"/> dependency property.</summary>
+        public static readonly DependencyProperty IsMirroredProperty = DependencyProperty.Register(
+            nameof(IsMirrored),
+            typeof(bool),
+            typeof(HeroPortraitView),
+            new PropertyMetadata(false));
+
         /// <summary>Initializes a new instance of the <see cref="HeroPortraitView"/> class.</summary>
         public HeroPortraitView()
         {
@@ -173,6 +180,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             get => (bool)GetValue(ShowFrameProperty);
             set => SetValue(ShowFrameProperty, value);
+        }
+
+        /// <summary>Gets or sets a value indicating whether the portrait art is mirrored horizontally.</summary>
+        public bool IsMirrored
+        {
+            get => (bool)GetValue(IsMirroredProperty);
+            set => SetValue(IsMirroredProperty, value);
         }
 
         private static void OnSelectCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

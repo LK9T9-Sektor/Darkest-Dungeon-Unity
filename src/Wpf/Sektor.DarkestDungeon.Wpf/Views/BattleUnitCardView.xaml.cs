@@ -107,6 +107,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(BattleUnitCardView),
             new PropertyMetadata(false));
 
+        /// <summary>Identifies the <see cref="IsMirrored"/> dependency property.</summary>
+        public static readonly DependencyProperty IsMirroredProperty = DependencyProperty.Register(
+            nameof(IsMirrored),
+            typeof(bool),
+            typeof(BattleUnitCardView),
+            new PropertyMetadata(false));
+
         /// <summary>Identifies the <see cref="InfoCommand"/> dependency property.</summary>
         public static readonly DependencyProperty InfoCommandProperty = DependencyProperty.Register(
             nameof(InfoCommand),
@@ -222,6 +229,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             get { return (bool)GetValue(IsDeadProperty); }
             set { SetValue(IsDeadProperty, value); }
+        }
+
+        /// <summary>Gets or sets a value indicating whether the Spine art is mirrored horizontally.</summary>
+        public bool IsMirrored
+        {
+            get { return (bool)GetValue(IsMirroredProperty); }
+            set { SetValue(IsMirroredProperty, value); }
         }
 
         /// <summary>Gets or sets the command opening the buff/debuff table.</summary>

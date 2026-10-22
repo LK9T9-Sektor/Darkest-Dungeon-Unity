@@ -62,6 +62,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(SpineHeroControl),
             new PropertyMetadata(0.0, OnBottomInsetChanged));
 
+        /// <summary>Identifies the <see cref="IsMirrored"/> dependency property.</summary>
+        public static readonly DependencyProperty IsMirroredProperty = DependencyProperty.Register(
+            nameof(IsMirrored),
+            typeof(bool),
+            typeof(SpineHeroControl),
+            new PropertyMetadata(false, OnIsMirroredChanged));
+
         private const float MaxFrameSeconds = 0.1f;
         private const float MinSpeedMultiplier = 0.01f;
         private const float MaxSpeedMultiplier = 100f;
@@ -137,6 +144,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             set => SetValue(BottomInsetProperty, value);
         }
 
+        /// <summary>Gets or sets a value indicating whether the rendered skeleton is mirrored horizontally.</summary>
+        public bool IsMirrored
+        {
+            get => (bool)GetValue(IsMirroredProperty);
+            set => SetValue(IsMirroredProperty, value);
+        }
+
         /// <inheritdoc/>
         protected override void OnPaintSurface(SKPaintSurfaceEventArgs e)
         {
@@ -164,7 +178,18 @@ namespace Sektor.DarkestDungeon.Wpf.Views
 
             float originX = (width * 0.5f) - (bounds.CenterX * scale);
             float originY = (contentHeight * 0.5f) + (bounds.CenterY * scale);
+
+            if (IsMirrored)
+            {
+                canvas.Save();
+                canvas.Translate(width, 0);
+                canvas.Scale(-1, 1);
+            }
+
             renderer.Render(canvas, player.Skeleton, scale, originX, originY);
+
+            if (IsMirrored)
+                canvas.Restore();
         }
 
         private static void OnContentPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -174,6 +199,9 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             => ((SpineHeroControl)d).ApplyTimeScale();
 
         private static void OnBottomInsetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+            => ((SpineHeroControl)d).InvalidateVisual();
+
+        private static void OnIsMirroredChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
             => ((SpineHeroControl)d).InvalidateVisual();
 
         private void OnLoaded(object sender, RoutedEventArgs e)

@@ -32,6 +32,7 @@
                                                        Loop="{Binding Loop}"
                                                        Skeleton="{Binding Skeleton}"
                                                        IsEnemy="{Binding IsEnemy}"
+                                                       IsMirrored="{Binding IsEnemy}"
                                                        IsAttacker="{Binding IsCurrent}"
                                                        IsTarget="{Binding IsTarget}"
                                                        IsDead="{Binding IsDead}"

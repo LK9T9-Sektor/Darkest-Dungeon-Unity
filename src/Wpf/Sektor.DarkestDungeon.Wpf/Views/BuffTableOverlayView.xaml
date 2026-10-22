@@ -50,6 +50,7 @@
                 <views:HeroPortraitView Grid.Column="0"
                                         Portrait="{Binding Portrait}"
                                         PortraitSize="56"
+                                        IsMirrored="{Binding IsEnemy}"
                                         ShowArrows="False"
                                         VerticalAlignment="Top"
                                         Margin="0,0,12,0" />

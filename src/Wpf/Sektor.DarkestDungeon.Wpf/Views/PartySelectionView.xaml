@@ -8,6 +8,8 @@
             <TextBlock Text="{Binding PlayerLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
                        Foreground="#E8D9B0" FontSize="22" FontWeight="Bold" Margin="2,0,0,10" />
             <views:HeroSlotsPanel Slots="{Binding Slots, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  IsReversedSlots="{Binding IsReversedSlots, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  IsMirrored="{Binding IsMirrored, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   SlotEditRequested="OnSlotEditRequested" />
         </StackPanel>
     </Border>
