@@ -5,7 +5,7 @@ using Sektor.DarkestDungeon.Wpf.Networking;
 
 namespace Sektor.DarkestDungeon.Wpf.Combat
 {
-    /// <summary>Automatically plays the rival side for local duels against AI via the core <see cref="DuelAi"/>.
+    /// <summary>Automatically plays the rival side for local duels against AI via the core <see cref="FallbackDuelAi"/>.
     /// Acting is immediate: the duel view model owns the reveal/swap timing, so this link just emits the
     /// chosen action once per rival turn instead of pacing it itself.</summary>
     public sealed class AiRivalLink : IDuelRivalLink
@@ -13,7 +13,7 @@ namespace Sektor.DarkestDungeon.Wpf.Combat
         private const int TickMilliseconds = 100;
 
         private readonly DispatcherTimer timer;
-        private readonly DuelAi ai = new DuelAi();
+        private readonly FallbackDuelAi ai = new FallbackDuelAi();
         private DuelController? controller;
         private int lastActedCombatId;
 

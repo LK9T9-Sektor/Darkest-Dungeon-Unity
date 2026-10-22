@@ -16,7 +16,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Fight
     {
         private readonly IDuelContent content;
         private readonly int seed;
-        private readonly DuelAi rivalAi = new DuelAi();
+        private readonly FallbackDuelAi rivalAi = new FallbackDuelAi();
         private bool started;
 
         /// <summary>Initializes a new instance of the <see cref="FightSession"/> class.</summary>

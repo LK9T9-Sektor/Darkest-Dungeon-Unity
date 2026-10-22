@@ -10,7 +10,7 @@ using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 namespace Sektor.DarkestDungeon.Core.Duel.Tests
 {
     [TestFixture]
-    public class DuelAiTests
+    public class FallbackDuelAiTests
     {
         private static DuelHeroPick[] Picks(string classId)
         {
@@ -28,7 +28,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Tests
         {
             int sessionSeed = 123456;
             var content = new TestDuelContent();
-            var ai = new DuelAi();
+            var ai = new FallbackDuelAi();
 
             var host = new DuelController(content);
             host.StartDuel(Picks("crusader"), Picks("highwayman"), sessionSeed, isHost: true);

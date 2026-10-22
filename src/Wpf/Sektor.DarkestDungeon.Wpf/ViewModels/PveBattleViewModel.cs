@@ -293,7 +293,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 return DuelPayload.PassAction();
             }
 
-            return new DuelAi().ChooseAction(controller);
+            return new FallbackDuelAi().ChooseAction(controller);
         }
 
         private void ApplyPayload(string payload)

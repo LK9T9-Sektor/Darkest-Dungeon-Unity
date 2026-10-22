@@ -29,6 +29,25 @@ namespace Sektor.DarkestDungeon.Core.Duel.Mechanics
         /// <returns>True if the move was performed.</returns>
         public bool TryMove(ICombatUnit unit, int newRank)
         {
+            if (!CanMove(unit, newRank))
+                return false;
+
+            var party = unit.Team == Team.Heroes ? heroParty : monsterParty;
+            int fromIndex = party.Units.IndexOf(unit);
+            int toIndex = party.Units.FindIndex(candidate => candidate.Rank == newRank);
+            var swap = party.Units[fromIndex];
+            party.Units[fromIndex] = party.Units[toIndex];
+            party.Units[toIndex] = swap;
+            party.RecalculateRanks();
+            return true;
+        }
+
+        /// <summary>Checks whether a unit can swap into the destination rank without mutating the formation.</summary>
+        /// <param name="unit">The moving unit.</param>
+        /// <param name="newRank">The destination rank (must be adjacent).</param>
+        /// <returns>True when the move is legal.</returns>
+        public bool CanMove(ICombatUnit unit, int newRank)
+        {
             if (unit == null || unit.CombatInfo.IsImmobilized)
                 return false;
 
@@ -38,14 +57,7 @@ namespace Sektor.DarkestDungeon.Core.Duel.Mechanics
 
             int fromIndex = party.Units.IndexOf(unit);
             int toIndex = party.Units.FindIndex(candidate => candidate.Rank == newRank);
-            if (fromIndex < 0 || toIndex < 0)
-                return false;
-
-            var swap = party.Units[fromIndex];
-            party.Units[fromIndex] = party.Units[toIndex];
-            party.Units[toIndex] = swap;
-            party.RecalculateRanks();
-            return true;
+            return fromIndex >= 0 && toIndex >= 0;
         }
     }
 }

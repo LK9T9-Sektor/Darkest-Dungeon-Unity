@@ -392,6 +392,22 @@ namespace Sektor.DarkestDungeon.Core.Duel
             return DuelPayload.MoveAction(newRank);
         }
 
+        /// <summary>Gets a legal adjacent rank for the unit, or null when it cannot move.</summary>
+        /// <param name="unit">The unit to move.</param>
+        /// <returns>The destination rank, or null.</returns>
+        public int? GetLegalMoveRank(ICombatUnit unit)
+        {
+            if (unit == null)
+                return null;
+
+            if (turnMover.CanMove(unit, unit.Rank - 1))
+                return unit.Rank - 1;
+            if (turnMover.CanMove(unit, unit.Rank + 1))
+                return unit.Rank + 1;
+
+            return null;
+        }
+
         /// <summary>Completes the current turn and advances to the next unit or round.</summary>
         public void CompleteTurn()
         {
