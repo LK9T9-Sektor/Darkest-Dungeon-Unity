@@ -1,12 +1,10 @@
-<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.HeroEditorOverlayView"
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.UnitInfoOverlayView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views">
-    <!-- Wide pre-battle hero sheet, modelled on the Darkest Dungeon guild banner: close flush in the
-         top-right corner, reroll/name/class on the left, the bordered class-card with the formation
-         position on the right. The body is a four-column table: standing Idle hero, quirks/base stats
-         across the middle columns, equipment/trinkets below them, and skills/camping/resistances/
-         diseases in the right column. -->
+    <!-- Shared unit-info sheet, modelled on the Darkest Dungeon guild banner. The same layout serves
+         the lobby loadout editor and the battle inspection sheet; polymorphic capabilities decide
+         which identity, class/position, skill and trinket controls are visible or editable. -->
     <Border x:Name="EditorPanel" Style="{StaticResource OverlayPanel}" Margin="12" MaxWidth="1240" MaxHeight="760"
             Background="#E6000000" Padding="0" VerticalAlignment="Center" ClipToBounds="True">
         <Grid>
@@ -36,6 +34,8 @@
                                                 ClassName="{Binding Stats.HeroClass}"
                                                 IsEditing="{Binding IsEditingName}"
                                                 MaxNameLength="{Binding MaxHeroNameLength}"
+                                                CanEditName="{Binding CanEditName}"
+                                                CanRerollName="{Binding CanRerollName}"
                                                 EditCommand="{Binding EditNameCommand}"
                                                 RerollCommand="{Binding RerollNameCommand}" />
                     </Grid>
@@ -46,7 +46,7 @@
                         FontSize="15" Style="{StaticResource CloseButton}" ToolTip="Close"
                         HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,0,0"
                         Panel.ZIndex="10"
-                        AutomationProperties.Name="Close hero editor"
+                        AutomationProperties.Name="Close unit info"
                         Click="OnCloseClick" />
 
                 <!-- Table-like body. The ScrollViewer keeps the minimum-size window usable; at the
@@ -101,6 +101,11 @@
                                                              Portrait="{Binding Portrait}"
                                                              Position="{Binding Position}"
                                                              SkinId="{Binding SkinId}"
+                                                             ShowSkin="{Binding CanChangeSkin}"
+                                                             ShowPortrait="{Binding ShowPortrait}"
+                                                             ShowClassSwitcher="{Binding ShowClassSwitcher}"
+                                                             ShowPosition="{Binding ShowPosition}"
+                                                             Visibility="{Binding ShowCharacterControls, Converter={StaticResource BoolToVisibility}}"
                                                              PreviousCommand="{Binding PrevClassCommand}"
                                                              NextCommand="{Binding NextClassCommand}"
                                                              SelectSkinCommand="{Binding NextSkinCommand}" />
@@ -183,6 +188,7 @@
                         <!-- TRINKETS: bottom-right middle column. -->
                         <views:HeroTrinketsEditorView x:Name="TrinketsSection" Grid.Row="3" Grid.Column="2"
                                                       Margin="0,0,4,0" VerticalAlignment="Bottom"
+                                                      ShowReroll="{Binding CanRerollTrinkets}"
                                                       ItemsSource="{Binding TrinketSlots}" />
 
                         <!-- COLUMN 4: skills, camping skills, resistances, diseases. -->
@@ -194,6 +200,7 @@
                                 <views:SkillScrollView x:Name="SkillsScroller"
                                                        ItemsSource="{Binding Skills}"
                                                        SelectCommand="{Binding ToggleSkillCommand}"
+                                                       IsReadOnly="{Binding IsSkillSelectionReadOnly}"
                                                        IconSize="48" ShowNames="False" ShowLevels="True"
                                                        MaxRows="1" />
                             </StackPanel>
@@ -207,6 +214,7 @@
                                 <views:SkillScrollView x:Name="CampingScroller"
                                                        ItemsSource="{Binding CampingSkills}"
                                                        SelectCommand="{Binding ToggleCampingSkillCommand}"
+                                                       IsReadOnly="{Binding IsCampingSelectionReadOnly}"
                                                        IconSize="48" ShowNames="False" ShowLevels="False"
                                                        MaxRows="1" />
                             </StackPanel>

@@ -28,7 +28,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.DoesNotThrow(() => _ = new SpineDemoView());
             Assert.DoesNotThrow(() => _ = new HeroPortraitView());
             Assert.DoesNotThrow(() => _ = new AbilityRowView());
-            Assert.DoesNotThrow(() => _ = new HeroEditorOverlayView());
+            Assert.DoesNotThrow(() => _ = new UnitInfoOverlayView());
             Assert.DoesNotThrow(() => _ = new LobbyHeroEditorHost());
             Assert.DoesNotThrow(() => _ = new SpineBattleView());
             Assert.DoesNotThrow(() => _ = new CaptureReplayView());

@@ -15,7 +15,8 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <views:TrinketSlotView Margin="1,0" HorizontalAlignment="Center" />
+                        <views:TrinketSlotView Margin="1,0" HorizontalAlignment="Center"
+                                              ShowReroll="{Binding ShowReroll, RelativeSource={RelativeSource AncestorType=views:HeroTrinketsEditorView}}" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

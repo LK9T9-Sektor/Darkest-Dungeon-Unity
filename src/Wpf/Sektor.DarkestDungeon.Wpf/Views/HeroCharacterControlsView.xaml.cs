@@ -32,6 +32,22 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         public static readonly DependencyProperty SelectSkinCommandProperty = DependencyProperty.Register(
             nameof(SelectSkinCommand), typeof(ICommand), typeof(HeroCharacterControlsView), new PropertyMetadata(null));
 
+        /// <summary>Identifies the <see cref="ShowSkin"/> dependency property.</summary>
+        public static readonly DependencyProperty ShowSkinProperty = DependencyProperty.Register(
+            nameof(ShowSkin), typeof(bool), typeof(HeroCharacterControlsView), new PropertyMetadata(true));
+
+        /// <summary>Identifies the <see cref="ShowPortrait"/> dependency property.</summary>
+        public static readonly DependencyProperty ShowPortraitProperty = DependencyProperty.Register(
+            nameof(ShowPortrait), typeof(bool), typeof(HeroCharacterControlsView), new PropertyMetadata(true));
+
+        /// <summary>Identifies the <see cref="ShowClassSwitcher"/> dependency property.</summary>
+        public static readonly DependencyProperty ShowClassSwitcherProperty = DependencyProperty.Register(
+            nameof(ShowClassSwitcher), typeof(bool), typeof(HeroCharacterControlsView), new PropertyMetadata(true));
+
+        /// <summary>Identifies the <see cref="ShowPosition"/> dependency property.</summary>
+        public static readonly DependencyProperty ShowPositionProperty = DependencyProperty.Register(
+            nameof(ShowPosition), typeof(bool), typeof(HeroCharacterControlsView), new PropertyMetadata(true));
+
         /// <summary>Initializes a new instance of the <see cref="HeroCharacterControlsView"/> class.</summary>
         public HeroCharacterControlsView()
         {
@@ -78,6 +94,34 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             get => (ICommand?)GetValue(SelectSkinCommandProperty);
             set => SetValue(SelectSkinCommandProperty, value);
+        }
+
+        /// <summary>Gets or sets a value indicating whether the skin button is shown.</summary>
+        public bool ShowSkin
+        {
+            get => (bool)GetValue(ShowSkinProperty);
+            set => SetValue(ShowSkinProperty, value);
+        }
+
+        /// <summary>Gets or sets a value indicating whether the portrait/switcher group is shown.</summary>
+        public bool ShowPortrait
+        {
+            get => (bool)GetValue(ShowPortraitProperty);
+            set => SetValue(ShowPortraitProperty, value);
+        }
+
+        /// <summary>Gets or sets a value indicating whether the class arrows are shown.</summary>
+        public bool ShowClassSwitcher
+        {
+            get => (bool)GetValue(ShowClassSwitcherProperty);
+            set => SetValue(ShowClassSwitcherProperty, value);
+        }
+
+        /// <summary>Gets or sets a value indicating whether the formation position is shown.</summary>
+        public bool ShowPosition
+        {
+            get => (bool)GetValue(ShowPositionProperty);
+            set => SetValue(ShowPositionProperty, value);
         }
     }
 }

@@ -19,6 +19,7 @@
                                        IconSize="{Binding IconSize, RelativeSource={RelativeSource AncestorType={x:Type views:AbilityRowView}}}"
                                        ShowName="{Binding ShowNames, RelativeSource={RelativeSource AncestorType={x:Type views:AbilityRowView}}}"
                                        ShowLevel="{Binding ShowLevels, RelativeSource={RelativeSource AncestorType={x:Type views:AbilityRowView}}}"
+                                       IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType={x:Type views:AbilityRowView}}}"
                                        SelectCommand="{Binding SelectCommand, RelativeSource={RelativeSource AncestorType={x:Type views:AbilityRowView}}}"
                                        CommandParameter="{Binding}" />
             </DataTemplate>

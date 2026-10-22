@@ -58,6 +58,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(SkillScrollView),
             new PropertyMetadata(2, OnLayoutPropertyChanged));
 
+        /// <summary>Identifies the <see cref="IsReadOnly"/> dependency property.</summary>
+        public static readonly DependencyProperty IsReadOnlyProperty = DependencyProperty.Register(
+            nameof(IsReadOnly),
+            typeof(bool),
+            typeof(SkillScrollView),
+            new PropertyMetadata(false));
+
         /// <summary>Initializes a new instance of the <see cref="SkillScrollView"/> class.</summary>
         public SkillScrollView()
         {
@@ -105,6 +112,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             get => (int)GetValue(MaxRowsProperty);
             set => SetValue(MaxRowsProperty, value);
+        }
+
+        /// <summary>Gets or sets a value indicating whether the tiles ignore their selection command.</summary>
+        public bool IsReadOnly
+        {
+            get => (bool)GetValue(IsReadOnlyProperty);
+            set => SetValue(IsReadOnlyProperty, value);
         }
 
         private static void OnLayoutPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

@@ -13,6 +13,7 @@
                   Focusable="False">
         <views:AbilityRowView ItemsSource="{Binding ItemsSource, ElementName=Root}"
                               SelectCommand="{Binding SelectCommand, ElementName=Root}"
+                              IsReadOnly="{Binding IsReadOnly, ElementName=Root}"
                               IconSize="{Binding IconSize, ElementName=Root}"
                               ShowNames="{Binding ShowNames, ElementName=Root}"
                               ShowLevels="{Binding ShowLevels, ElementName=Root}" />

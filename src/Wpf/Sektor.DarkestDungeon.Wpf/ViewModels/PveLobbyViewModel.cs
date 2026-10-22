@@ -27,6 +27,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private readonly IReadOnlyList<string> availableClasses;
         private readonly ILogger logger;
         private readonly IHeroSkillCatalog skillCatalog;
+        private readonly IHeroIconCatalog iconCatalog;
+        private readonly ISpineDemoCatalog? spineCatalog;
 
         /// <summary>Gets the four hero slots of the player's party.</summary>
         public ObservableCollection<HeroSlotViewModel> Slots { get; } = new ObservableCollection<HeroSlotViewModel>();
@@ -84,6 +86,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             this.availableClasses = availableClasses;
             this.logger = logger;
             this.skillCatalog = skillCatalog;
+            this.iconCatalog = iconCatalog;
+            this.spineCatalog = spineCatalog;
 
             for (int i = 0; i < 4; i++)
                 Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses, iconCatalog, skillCatalog, i + 1, spineCatalog));
@@ -161,7 +165,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 return;
             duel.StartBattle();
 
-            var battle = new PveBattleViewModel(duel, () => navigation.GoHome(), skillCatalog);
+            var battle = new PveBattleViewModel(duel, () => navigation.GoHome(), skillCatalog, iconCatalog, spineCatalog);
             navigation.NavigateTo(battle);
         }
 

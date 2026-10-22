@@ -229,6 +229,9 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(view.StatsTarget.HitPoints, Is.EqualTo(card.HpCurrent + " / " + card.HpMax));
             Assert.That(view.StatsTarget.ResistStun, Is.EqualTo(card.ResistStun));
             Assert.That(view.StatsTarget.ResistDeathBlow, Is.EqualTo(card.ResistDeathBlow));
+            Assert.That(view.InspectionSheet, Is.Not.Null);
+            Assert.That(view.InspectionSheet!.HeroName, Is.EqualTo(card.Name));
+            Assert.That(view.InspectionSheet.Stats.ResistStun, Is.EqualTo(card.ResistStun));
 
             view.CloseStatsCommand.Execute(null);
 

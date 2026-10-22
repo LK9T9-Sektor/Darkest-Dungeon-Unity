@@ -17,7 +17,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
     /// <summary>Verifies the reusable hero loadout overlay actions.</summary>
     [TestFixture]
     [Apartment(ApartmentState.STA)]
-    public class HeroEditorOverlayViewTests
+    public class UnitInfoOverlayViewTests
     {
         /// <summary>The full-window host opens the editor and collapses again on close.</summary>
         [Test]
@@ -29,7 +29,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
 
             host.Open(slot);
 
-            var editor = (HeroEditorOverlayView)host.FindName("Editor");
+            var editor = (UnitInfoOverlayView)host.FindName("Editor");
             Assert.That(host.Visibility, Is.EqualTo(Visibility.Visible));
             Assert.That(editor.DataContext, Is.SameAs(slot));
 
@@ -44,7 +44,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         public void CloseButton_RaisesCloseRequested()
         {
             EnsureApplication();
-            var view = new HeroEditorOverlayView
+            var view = new UnitInfoOverlayView
             {
                 DataContext = new HeroSlotViewModel(1, DuelClasses.AllClassIds),
             };
@@ -65,7 +65,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         {
             EnsureApplication();
             var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds, position: 1);
-            var overlay = new HeroEditorOverlayView { DataContext = slot };
+            var overlay = new UnitInfoOverlayView { DataContext = slot };
             var host = new Grid { Width = 1280, Height = 800 };
             host.Children.Add(overlay);
             host.Measure(new Size(1280, 800));
@@ -126,12 +126,49 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             TestContext.WriteLine("Hero editor preview: " + path);
         }
 
+        /// <summary>Battle sheets keep name/skin but disable the loadout chrome.</summary>
+        [Test]
+        public void BattleSheet_DisablesSelectionChrome()
+        {
+            EnsureApplication();
+            var unit = new DuelUnitViewModel(1, 1, 1, "Reynauld", "Crusader")
+            {
+                IsHero = true,
+                ClassId = "crusader",
+            };
+            var stats = new HeroStatsViewModel();
+            stats.Apply(unit, new System.Collections.Generic.List<DuelSkillViewModel>());
+            var sheet = BattleUnitInfoViewModel.Create(unit, stats, null, null, null);
+            Assert.That(sheet, Is.Not.Null);
+
+            var overlay = new UnitInfoOverlayView { DataContext = sheet };
+            var host = new Grid { Width = 1280, Height = 800 };
+            host.Children.Add(overlay);
+            host.Measure(new Size(1280, 800));
+            host.Arrange(new Rect(0, 0, 1280, 800));
+            host.UpdateLayout();
+
+            var controls = (HeroCharacterControlsView)overlay.FindName("CharacterControls");
+            var skills = (SkillScrollView)overlay.FindName("SkillsScroller");
+            var camping = (SkillScrollView)overlay.FindName("CampingScroller");
+            var trinkets = (HeroTrinketsEditorView)overlay.FindName("TrinketsSection");
+
+            Assert.That(controls.Visibility, Is.EqualTo(Visibility.Visible));
+            Assert.That(controls.ShowPortrait, Is.False);
+            Assert.That(controls.ShowSkin, Is.True);
+            Assert.That(controls.ShowClassSwitcher, Is.False);
+            Assert.That(controls.ShowPosition, Is.False);
+            Assert.That(skills.IsReadOnly, Is.True);
+            Assert.That(camping.IsReadOnly, Is.True);
+            Assert.That(trinkets.ShowReroll, Is.False);
+        }
+
         /// <summary>The minimum window still keeps all seven skills in one row.</summary>
         [Test]
         public void MinimumWindow_KeepsSevenSkillsInOneRow()
         {
             EnsureApplication();
-            var overlay = new HeroEditorOverlayView
+            var overlay = new UnitInfoOverlayView
             {
                 DataContext = new HeroSlotViewModel(1, DuelClasses.AllClassIds, position: 1),
             };
@@ -157,7 +194,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             var spineCatalog = new SpineDemoCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "Spine"));
             var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds, spineCatalog: spineCatalog);
             slot.AssignClass("abomination");
-            var overlay = new HeroEditorOverlayView { DataContext = slot };
+            var overlay = new UnitInfoOverlayView { DataContext = slot };
 
             Layout(overlay);
 

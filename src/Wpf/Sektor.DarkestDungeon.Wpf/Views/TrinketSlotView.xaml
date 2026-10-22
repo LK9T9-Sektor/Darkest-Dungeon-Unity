@@ -1,12 +1,13 @@
 <UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.TrinketSlotView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root">
     <!-- Reusable single trinket slot sized like the equipment slot (96x144 total): a 72x144 image
          area with the trinket label/tooltip and the reroll button outside it at the top-right. -->
     <Grid Width="96" Height="144">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="72" />
-            <ColumnDefinition Width="24" />
+            <ColumnDefinition x:Name="RerollColumn" Width="24" />
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0" Width="72" Height="144" Background="#1A150F" BorderBrush="#3A2E22"
@@ -25,6 +26,7 @@
         <Button Grid.Column="1" Content="&#x21BB;" Width="20" Height="20" FontSize="11"
                 Margin="2,2,0,0" HorizontalAlignment="Center" VerticalAlignment="Top"
                 Style="{StaticResource HudButton}" ToolTip="Reroll trinket"
-                Command="{Binding RerollCommand}" />
+                Command="{Binding RerollCommand}"
+                Visibility="{Binding ShowReroll, ElementName=Root, Converter={StaticResource BoolToVisibility}}" />
     </Grid>
 </UserControl>

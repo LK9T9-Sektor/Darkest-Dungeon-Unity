@@ -59,6 +59,14 @@ namespace Sektor.DarkestDungeon.Wpf.Views
                 typeof(SkillSquareView),
                 new PropertyMetadata(false, OnShowLevelChanged));
 
+        /// <summary>Identifies the <see cref="IsReadOnly"/> dependency property.</summary>
+        public static readonly DependencyProperty IsReadOnlyProperty =
+            DependencyProperty.Register(
+                nameof(IsReadOnly),
+                typeof(bool),
+                typeof(SkillSquareView),
+                new PropertyMetadata(false, OnIsReadOnlyChanged));
+
         /// <summary>Gets or sets the command invoked when the skill square is clicked (tray only).</summary>
         public ICommand? SelectCommand
         {
@@ -98,6 +106,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             set { SetValue(ShowLevelProperty, value); }
         }
 
+        /// <summary>Gets or sets a value indicating whether the tile ignores its selection command.</summary>
+        public bool IsReadOnly
+        {
+            get { return (bool)GetValue(IsReadOnlyProperty); }
+            set { SetValue(IsReadOnlyProperty, value); }
+        }
+
         /// <summary>Initializes a new instance of the <see cref="SkillSquareView"/> class.</summary>
         public SkillSquareView()
         {
@@ -133,6 +148,11 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         private static void OnShowLevelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             ((SkillSquareView)d).WireLevelVisibility();
+        }
+
+        private static void OnIsReadOnlyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((SkillSquareView)d).WireButton();
         }
 
         private void ApplyIconSize()
@@ -195,9 +215,9 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             // but carry no command, so a click does nothing. Clickable slots follow the shared
             // ISkillTileViewModel availability flag, and are refreshed when the item raises
             // PropertyChanged for IsUsable (e.g. a lobby slot reaching its skill limit).
-            SkillButton.Command = SelectCommand;
+            SkillButton.Command = IsReadOnly ? null : SelectCommand;
             SkillButton.CommandParameter = CommandParameter;
-            bool clickable = SelectCommand != null;
+            bool clickable = !IsReadOnly && SelectCommand != null;
             bool usable = DataContext is ISkillTileViewModel tile && tile.IsUsable;
             SkillButton.IsHitTestVisible = true;
             SkillButton.IsEnabled = !clickable || usable;

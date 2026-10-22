@@ -10,15 +10,18 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Column="0" Width="24" VerticalAlignment="Center" Margin="0,0,10,0">
+        <StackPanel Grid.Column="0" Width="24" VerticalAlignment="Center" Margin="0,0,10,0"
+                    Visibility="{Binding CanEditName, ElementName=Root, Converter={StaticResource BoolToVisibility}}">
             <Button Content="&#x270E;" Width="24" Height="24" FontSize="12"
                     Style="{StaticResource HudButton}" ToolTip="Edit name"
                     AutomationProperties.Name="Edit hero name"
-                    Command="{Binding EditCommand, ElementName=Root}" />
+                    Command="{Binding EditCommand, ElementName=Root}"
+                    Visibility="{Binding CanEditName, ElementName=Root, Converter={StaticResource BoolToVisibility}}" />
             <Button Content="&#x21BB;" Width="24" Height="24" FontSize="13" Margin="0,4,0,0"
                     Style="{StaticResource HudButton}" ToolTip="Reroll name"
                     AutomationProperties.Name="Reroll hero name"
-                    Command="{Binding RerollCommand, ElementName=Root}" />
+                    Command="{Binding RerollCommand, ElementName=Root}"
+                    Visibility="{Binding CanRerollName, ElementName=Root, Converter={StaticResource BoolToVisibility}}" />
         </StackPanel>
 
         <Grid Grid.Column="1" VerticalAlignment="Center" Margin="0,0,12,0">

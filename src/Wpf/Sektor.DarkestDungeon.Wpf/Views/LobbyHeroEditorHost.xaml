@@ -6,6 +6,6 @@
     <!-- Full-window modal host for the hero loadout editor: dim backdrop + reusable overlay. -->
     <Grid>
         <Border Background="#B0000000" MouseLeftButtonUp="OnBackdropClick" />
-        <views:HeroEditorOverlayView x:Name="Editor" CloseRequested="OnCloseRequested" />
+        <views:UnitInfoOverlayView x:Name="Editor" CloseRequested="OnCloseRequested" />
     </Grid>
 </UserControl>

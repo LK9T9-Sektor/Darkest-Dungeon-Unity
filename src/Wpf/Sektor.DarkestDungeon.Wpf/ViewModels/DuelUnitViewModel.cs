@@ -22,11 +22,25 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the card width in pixels scaled by the occupied ranks (185 per rank).</summary>
         public double CardWidth { get { return 185 * Size; } }
 
-        /// <summary>Gets the display name.</summary>
-        public string Name { get; }
+        /// <summary>Gets or sets the display name. The name can be changed locally from the info sheet
+        /// without affecting combat.</summary>
+        [ObservableProperty]
+        private string _name = string.Empty;
 
         /// <summary>Gets the class label.</summary>
         public string ClassName { get; }
+
+        /// <summary>Gets or sets the snake_case class id used to resolve portraits and Spine content.</summary>
+        public string ClassId { get; set; } = string.Empty;
+
+        /// <summary>Gets or sets a value indicating whether the unit is a hero (as opposed to a monster).</summary>
+        public bool IsHero { get; set; }
+
+        /// <summary>Gets or sets the quirk ids of the unit.</summary>
+        public List<string> QuirkIds { get; set; } = new List<string>();
+
+        /// <summary>Gets or sets the equipped trinket ids of the unit.</summary>
+        public List<string> EquippedTrinketIds { get; set; } = new List<string>();
 
         /// <summary>Gets or sets the current hit points.</summary>
         [ObservableProperty]

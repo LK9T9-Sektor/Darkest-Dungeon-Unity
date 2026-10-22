@@ -44,6 +44,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(AbilityRowView),
             new PropertyMetadata(false));
 
+        /// <summary>Identifies the <see cref="IsReadOnly"/> dependency property.</summary>
+        public static readonly DependencyProperty IsReadOnlyProperty = DependencyProperty.Register(
+            nameof(IsReadOnly),
+            typeof(bool),
+            typeof(AbilityRowView),
+            new PropertyMetadata(false));
+
         /// <summary>Initializes a new instance of the <see cref="AbilityRowView"/> class.</summary>
         public AbilityRowView()
         {
@@ -83,6 +90,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             get => (bool)GetValue(ShowLevelsProperty);
             set => SetValue(ShowLevelsProperty, value);
+        }
+
+        /// <summary>Gets or sets a value indicating whether the row ignores its selection command.</summary>
+        public bool IsReadOnly
+        {
+            get => (bool)GetValue(IsReadOnlyProperty);
+            set => SetValue(IsReadOnlyProperty, value);
         }
     }
 }

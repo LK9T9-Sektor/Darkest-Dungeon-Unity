@@ -19,12 +19,39 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
     /// <summary>A single hero slot in a lobby: class cycling, combat and camping skill selection,
     /// trait reroll, trinket slots and the Idle Spine content of the current class.</summary>
-    public partial class HeroSlotViewModel : ObservableObject
+    public partial class HeroSlotViewModel : UnitInfoViewModelBase
     {
         private const int TrinketSlotCount = 2;
         private const int CampingSkillLimit = 4;
         private const int QuirkVisibleRows = 5;
         private const string PortraitOutfit = "A";
+
+        /// <inheritdoc/>
+        public override bool CanEditName { get { return true; } }
+
+        /// <inheritdoc/>
+        public override bool CanRerollName { get { return true; } }
+
+        /// <inheritdoc/>
+        public override bool CanEditSkills { get { return CanSelectSkills; } }
+
+        /// <inheritdoc/>
+        public override bool CanEditCampingSkills { get { return true; } }
+
+        /// <inheritdoc/>
+        public override bool CanChangeSkin { get { return true; } }
+
+        /// <inheritdoc/>
+        public override bool CanRerollTrinkets { get { return true; } }
+
+        /// <inheritdoc/>
+        public override bool ShowPortrait { get { return true; } }
+
+        /// <inheritdoc/>
+        public override bool ShowClassSwitcher { get { return true; } }
+
+        /// <inheritdoc/>
+        public override bool ShowPosition { get { return true; } }
 
         private readonly IReadOnlyList<string> availableClasses;
         private readonly IHeroIconCatalog? iconCatalog;
@@ -570,6 +597,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         partial void OnCanSelectSkillsChanged(bool value)
         {
             OnPropertyChanged(nameof(SkillsLocked));
+            OnPropertyChanged(nameof(CanEditSkills));
+            OnPropertyChanged(nameof(IsSkillSelectionReadOnly));
         }
 
         partial void OnClassIdChanged(string value)

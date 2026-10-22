@@ -223,16 +223,12 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(moveCenterY, Is.EqualTo(skillsCenterY).Within(12), "MOVE is on the skills row.");
             Assert.That(passCenterY, Is.EqualTo(skillsCenterY).Within(12), "PASS is on the skills row.");
 
-            // The right-click stat sheet is centered on the whole window with an opaque background.
-            Grid overlay = (Grid)duelView.FindName("StatsOverlay");
-            var overlayBorder = (Border)overlay.Children[0];
-            var overlayBrush = (SolidColorBrush)overlayBorder.Background;
-            Assert.That(overlay.HorizontalAlignment, Is.EqualTo(HorizontalAlignment.Center));
-            Assert.That(overlay.VerticalAlignment, Is.EqualTo(VerticalAlignment.Center));
-            Assert.That(overlayBrush.Color, Is.EqualTo(Color.FromRgb(0x0C, 0x0A, 0x08)));
-            Assert.That(overlayBrush.Color.A, Is.EqualTo(255), "The overlay background must be opaque.");
-            Assert.That(CenterX(duelView, overlay), Is.EqualTo(WindowWidth / 2.0).Within(4));
-            Assert.That(CenterY(duelView, overlay), Is.EqualTo(WindowHeight / 2.0).Within(4));
+            // The right-click sheet now reuses the shared unit-info overlay.
+            Grid overlay = (Grid)duelView.FindName("UnitInfoOverlay");
+            Assert.That(overlay.Visibility, Is.EqualTo(Visibility.Visible));
+            UnitInfoOverlayView? infoOverlay = FindVisualChildren<UnitInfoOverlayView>(overlay).FirstOrDefault();
+            Assert.That(infoOverlay, Is.Not.Null, "The battle stats sheet must use UnitInfoOverlayView.");
+            Assert.That(infoOverlay!.DataContext, Is.SameAs(view.InspectionSheet));
 
             DumpLayout(duelView, Path.Combine(Path.GetTempPath(), "duel-layout.txt"));
 

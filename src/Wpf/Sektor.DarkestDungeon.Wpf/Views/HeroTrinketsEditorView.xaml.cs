@@ -14,6 +14,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(HeroTrinketsEditorView),
             new PropertyMetadata(null));
 
+        /// <summary>Identifies the <see cref="ShowReroll"/> dependency property.</summary>
+        public static readonly DependencyProperty ShowRerollProperty = DependencyProperty.Register(
+            nameof(ShowReroll),
+            typeof(bool),
+            typeof(HeroTrinketsEditorView),
+            new PropertyMetadata(true));
+
         /// <summary>Initializes a new instance of the <see cref="HeroTrinketsEditorView"/> class.</summary>
         public HeroTrinketsEditorView()
         {
@@ -25,6 +32,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             get => (IEnumerable?)GetValue(ItemsSourceProperty);
             set => SetValue(ItemsSourceProperty, value);
+        }
+
+        /// <summary>Gets or sets a value indicating whether each slot shows its reroll button.</summary>
+        public bool ShowReroll
+        {
+            get => (bool)GetValue(ShowRerollProperty);
+            set => SetValue(ShowRerollProperty, value);
         }
     }
 }

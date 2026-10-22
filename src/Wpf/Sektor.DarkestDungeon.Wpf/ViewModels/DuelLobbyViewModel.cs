@@ -25,6 +25,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private readonly IReadOnlyList<string> availableClasses;
         private readonly ILogger logger;
         private readonly IHeroSkillCatalog skillCatalog;
+        private readonly IHeroIconCatalog iconCatalog;
+        private readonly ISpineDemoCatalog? spineCatalog;
         private DateTime? waitingSince;
         private bool started;
         private bool disposed;
@@ -86,6 +88,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             this.availableClasses = availableClasses;
             this.logger = logger;
             this.skillCatalog = skillCatalog;
+            this.iconCatalog = iconCatalog;
+            this.spineCatalog = spineCatalog;
             session = new DuelSessionManager(transport);
             for (int i = 0; i < 4; i++)
                 Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses, iconCatalog, skillCatalog, i + 1, spineCatalog));
@@ -200,7 +204,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             {
                 Dispose();
                 navigation.GoHome();
-            }, skillCatalog);
+            }, skillCatalog, iconCatalog, spineCatalog);
             Status = "Duel started. Round 1.";
             navigation.NavigateTo(battle);
         }

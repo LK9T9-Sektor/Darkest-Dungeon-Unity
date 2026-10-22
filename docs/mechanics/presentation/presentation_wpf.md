@@ -17,10 +17,11 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 один раз и возвращает ранее выбранный набор анимаций. Ниже — селекторы `ANIMATION`/`SPEED`, а
 `Pause`/`Screenshot` со строкой статуса стоят справа в той же нижней строке.
 Лобби VS AI / мультиплеера / PvE: отряд — четыре компактные карточки `HeroPortraitView`
-(портрет 56, имя, стрелки ◀/▶); ПКМ по карточке открывает full-window `HeroEditorOverlayView`
+(портрет 56, имя, стрелки ◀/▶); ПКМ по карточке открывает full-window `UnitInfoOverlayView`
 (хост `LobbyHeroEditorHost`): гильд-баннер `header.png` фоном, шапка позиция/иконка/имя с reroll/
 класс/X (красный), слева статы/оружие/тринкеты, справа `AbilityRowView`, квирки и резисты. Выбранные
-скиллы сразу уходят в `DuelHeroPick`/`HeroFightUnitSpec`.
+скиллы сразу уходят в `DuelHeroPick`/`HeroFightUnitSpec`. В бою VS AI/PvE тот же оверлей открывается
+по ПКМ по юниту и показывает живые статы; это окно информации, а не редактор загрузки.
 Экран `SpineBattleView` («АРЕНА 1×1» в меню) — чисто визуальная арена: слева Crusader, справа
 Highwayman, кнопка «АТАКА» проигрывает атаку как в Unity — слоями: base-слот принимает ударную
 позу `AttackSword` (заглушка с нулевой длительностью), поверх временно играет оверлей-скилл
@@ -86,11 +87,14 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 - `Views/LobbyHeroEditorHost` — full-window host модального редактора героя; лежит в корневом
   `Grid` экрана лобби поверх всех рядов (в VS AI — один хост на две панели отряда). Открывается
   через `Open(slot)` из события `PartySelectionView.SlotEditRequested`.
-- `Views/HeroEditorOverlayView` — широкий редактор героя (ПКМ по слоту): фоновая гильд-картинка
-  `Header` (top-left, не листается), шапка только с `HeroIdentityView` и кнопкой закрытия внутри
-  скруглённой панели; портрет/стрелки/позиция/скин вынесены вниз в `HeroCharacterControlsView`, Idle
-  расположен выше них; тело из четырёх строк, нижний ряд `EQUIPMENT`/`TRINKETS`/`DISEASES` прижат к низу,
-  высота панели по контенту. Слот поднимает `HeroSlotEditRequestedEventArgs`.
+- `Views/UnitInfoOverlayView` — общий лист информации о юните: в лобби редактор загрузки героя
+  (ПКМ по слоту), в бою — окно по ПКМ. Фоновая гильд-картинка `Header` (top-left, не листается),
+  шапка с `HeroIdentityView` и кнопкой закрытия внутри скруглённой панели; портрет/стрелки/позиция/скин
+  вынесены вниз в `HeroCharacterControlsView`, Idle выше; тело из четырёх строк, нижний ряд
+  `EQUIPMENT`/`TRINKETS`/`DISEASES` прижат к низу, высота панели по контенту. В бою доступны имя и скин
+  героя, а скиллы/лагерные скиллы read-only; стрелки класса, позиция, портрет и reroll тринькетов скрыты.
+  Слот лобби поднимает `HeroSlotEditRequestedEventArgs`. Правила лобби/боя и capability-таблица —
+  в `unit_info_overlay.md`.
 - `Styles/Hud.xaml` → `SectionPanel` — общая рамка секций; `CloseButton` — общий красный стиль X
   (размер/отступ задаёт экран); шапка оверлея имеет нижнюю линию 2 px, как боевой `UnitHeaderView`.
 - `Views/EquipmentSlotView` — переиспользуемый слот экипировки 96×144: слева рамка 22×52 с глифом
@@ -218,13 +222,14 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 | Адаптивная раскладка | `MainWindow` | ресайз, без Viewbox |
 | Скорость Spine-демо | `SpineDemoViewModel` | 1.0…10.0 (шаг 0.5, wrap 100↔1000%); нижний кламп контрола 0.01…100 |
 | Портрет героя | `IHeroIconCatalog`, `HeroPortraitView` | аутфит `A`; опциональные стрелки `◀`/`▶` и клик по портрету через DP; отсутствующий/битый/неизвестный id → `null` → плейсхолдер `?`, исключения не летят |
-| Имя героя | `HeroNameCatalog`, `HeroIdentityView`, `HeroSlotViewModel` | английский пул `Names.xml`; случайное при создании слота, reroll и inline-редактирование (лимит 24, 24 точки-хинта не входят в имя); нет файла/пула → `Hero` |
+| Имя героя | `HeroNameCatalog`, `HeroIdentityView`, `HeroSlotViewModel`, `BattleHeroInfoViewModel` | английский пул `Names.xml`; случайное при создании слота, reroll и inline-редактирование (лимит 24, 24 точки-хинта не входят в имя); в бою имя меняется только у героев и не влияет на статы; нет файла/пула → `Hero` |
 | Экипировка | `EquipmentSlotView`, `HeroEquipmentView` | слот 96×144: слева рамка 22×52 с глифом меча/щита и уровнем, справа изображение 72×144; картинка или `?` |
-| Тринкеты | `TrinketSlotView`, `HeroTrinketsEditorView` | слот 96×144: изображение 72×144 и кнопка reroll 20×20 справа сверху вне изображения; две колонки, tooltip; пул фильтруется по классу |
-| Ряд скиллов в оверлее | `AbilityRowView`, `LobbySkillViewModel` | `IconSize=48`, имена скрыты; при `ShowName=false` корень плитки 56 px, поэтому все 7 скиллов (и 7 лагерных) помещаются в один ряд; выбранные с золотой рамкой, невыбранные серые + маска; Abomination — все 7 выбраны, `SkillsLocked` без отдельной подписи |
+| Тринкеты | `TrinketSlotView`, `HeroTrinketsEditorView` | слот 96×144: изображение 72×144 и кнопка reroll 20×20 справа сверху вне изображения (в бою скрыта); две колонки, tooltip; пул фильтруется по классу |
+| Ряд скиллов в оверлее | `AbilityRowView`, `ISkillTileViewModel` | `IconSize=48`, имена скрыты; при `ShowName=false` корень плитки 56 px, поэтому все 7 скиллов (и 7 лагерных) помещаются в один ряд; выбранные с золотой рамкой, невыбранные серые + маска; в бою `IsReadOnly=true`, команды выбора не срабатывают; Abomination — все 7 выбраны, `SkillsLocked` без отдельной подписи |
 | Квирки | `QuirkRowViewModel`, `QuirkIconCatalog` | две цветные колонки (positive/negative) без заголовков, 5 строк в каждой даже при нехватке данных; в строке `[замок 14×14][имя]`; иконка `Sprites/Shared/Quirk/lockquirk.png`; положительный квирк помечен locked в лобби-моке |
 | Уровень героя | `HeroLevelView` | переиспользуемый медальон: чёрная закруглённая рамка, круг и число; DP `Level` |
-| Оверлей героя | `LobbyHeroEditorHost`, `HeroEditorOverlayView` | ПКМ по слоту; full-window: `HeroIdentityView` в шапке, медальон уровня/Idle слева, внизу `HeroCharacterControlsView` (скин/портрет/класс/позиция), `QUIRKS`+`BASE STATS` и `EQUIPMENT`/`TRINKETS` в середине, `SKILLS`/`CAMPING SKILLS`/`RESISTANCES`/`DISEASES` справа; нижний ряд прижат к низу; закрытие — X внутри скругления, Esc или клик по затемнению |
+| Оверлей юнита | `LobbyHeroEditorHost`, `UnitInfoOverlayView` | ПКМ по слоту в лобби или по юниту в бою; full-window: `HeroIdentityView` в шапке, медальон уровня/Idle слева, внизу `HeroCharacterControlsView` (скин/портрет/класс/позиция), `QUIRKS`+`BASE STATS` и `EQUIPMENT`/`TRINKETS` в середине, `SKILLS`/`CAMPING SKILLS`/`RESISTANCES`/`DISEASES` справа; нижний ряд прижат к низу; закрытие — X, Esc или клик по затемнению |
+| Боевой лист | `BattleUnitInfoViewModel`, `BattleHeroInfoViewModel`, `BattleMonsterInfoViewModel` | адаптер живого `DuelUnitViewModel`: все статы/сопротивления/HP/стресс, текущие скиллы, лагерные скиллы класса, квирки/тринькеты при наличии, 3 пустых disease-слота; герой — имя/скин, монстр — read-only; при отсутствии Spine — portrait fallback |
 | Списки с default | `BoundedScrollView` | 5 строк quirks в каждой колонке, 4×2 stats, 4×2 resistances, 3 строки diseases (как Quirks/Base Stats, без заливки и рамок); default резервирует пустые строки/высоту, затем вертикальный скролл; skills/camping — 1 ряд по 7 плиток |
 | Иконка скилла | `HeroSkillCatalog.GetSkillIcon`, `HeroIconCatalog.GetAbilityIcon` | нет класса/скилла/файла → `null` → квадрат без иконки |
 | Размер иконки скилла | `SkillSquareView.IconSize` | нижний кламп 16; кнопка = размер + 8, корень = размер + 16 |
@@ -324,7 +329,7 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   генерирует `tools\hero-icons-content.ps1` в `HeroIconsContent.props` (75 записей: 15 героев ×
   4 аутфита + баннер) и падает с exit 1, если у героя нет портрета/баннера или spine-герой
   (`unity\Assets\Sprites\Heroes`) не имеет папки иконок. `header.png` читается через
-  `IHeroIconCatalog.GetHeader` и показывается в `HeroEditorOverlayView`.
+  `IHeroIconCatalog.GetHeader` и показывается в `UnitInfoOverlayView`.
 - **Class id, а не имя папки** — spine-папки героев в PascalCase (`ManAtArms`), иконки и
   контент-каталоги — в snake_case (`man_at_arms`); конверсия только через `Ui\HeroIds.ToClassId`
   (не `ToLower`: иначе `ManAtArms` → `manatarms`). Новый герой без иконки не ломает экран:
@@ -500,9 +505,10 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   `Views/HeroTrinketsView.xaml` (переиспользуемые слоты экипировки/тринькетов)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/AbilityRowView.xaml(.cs)`, `Views/HeroSlotsPanel.xaml(.cs)`,
   `Views/PartySelectionView.xaml(.cs)`, `Views/LobbyHeroEditorHost.xaml(.cs)`,
-  `Views/HeroEditorOverlayView.xaml(.cs)`, `Views/HeroSlotEditRequestedEventArgs.cs`,
+  `Views/UnitInfoOverlayView.xaml(.cs)`, `Views/HeroSlotEditRequestedEventArgs.cs`,
   `ViewModels/ISkillTileViewModel.cs`, `ViewModels/LobbySkillViewModel.cs`,
-  `ViewModels/HeroSlotViewModel.cs` (ряд скиллов, слоты и оверлей)
+  `ViewModels/HeroSlotViewModel.cs`, `ViewModels/UnitInfoViewModelBase.cs`,
+  `ViewModels/BattleUnitInfoViewModel.cs` (ряд скиллов, слоты и общий оверлей)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/HeroIconsContent.props` + `tools/hero-icons-content.ps1`
   (генератор линков: 75 портретов/баннеров + 105 иконок способностей = 180 записей)
 - `docs/mechanics/presentation/spine_transparency_vertex_colors.md` (разбор дефекта vertex colors)

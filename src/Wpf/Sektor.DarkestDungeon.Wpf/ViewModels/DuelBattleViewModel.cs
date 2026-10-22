@@ -52,6 +52,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private readonly IDuelRivalLink rivalLink;
         private readonly Action onLeave;
         private readonly IHeroSkillCatalog? skillCatalog;
+        private readonly IHeroIconCatalog? iconCatalog;
+        private readonly ISpineDemoCatalog? spineCatalog;
         private readonly DispatcherTimer popupTimer;
         private readonly System.Collections.Generic.List<PendingPopup> pendingPopups =
             new System.Collections.Generic.List<PendingPopup>();
@@ -157,6 +159,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the stat sheet shown when a unit is right-clicked.</summary>
         public HeroStatsViewModel StatsTarget { get; } = new HeroStatsViewModel();
 
+        /// <summary>Gets or sets the unit sheet shown by the info overlay.</summary>
+        [ObservableProperty]
+        private BattleUnitInfoViewModel? _inspectionSheet;
+
         /// <summary>Gets or sets a value indicating whether the stats sheet overlay is visible.</summary>
         [ObservableProperty]
         private bool _isStatsVisible;
@@ -251,12 +257,16 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             DuelController controller,
             IDuelRivalLink rivalLink,
             Action onLeave,
-            IHeroSkillCatalog? skillCatalog = null)
+            IHeroSkillCatalog? skillCatalog = null,
+            IHeroIconCatalog? iconCatalog = null,
+            ISpineDemoCatalog? spineCatalog = null)
         {
             this.controller = controller;
             this.rivalLink = rivalLink;
             this.onLeave = onLeave;
             this.skillCatalog = skillCatalog;
+            this.iconCatalog = iconCatalog;
+            this.spineCatalog = spineCatalog;
             SelectSkillCommand = new RelayCommand<DuelSkillViewModel>(SelectSkill);
             TargetCommand = new RelayCommand<DuelUnitViewModel>(SelectTarget);
             MoveCommand = new RelayCommand(SelectMove);
@@ -798,6 +808,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             }
 
             StatsTarget.Apply(unit, skills);
+            InspectionSheet = BattleUnitInfoViewModel.Create(unit, StatsTarget, iconCatalog, skillCatalog, spineCatalog);
             IsStatsVisible = true;
         }
 
@@ -1032,6 +1043,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 Ui.DisplayNames.Class(character.Class))
             {
                 IsEnemy = isEnemy,
+                IsHero = character is Hero,
+                ClassId = character.Class,
                 IsOnDeathsDoor = character.AtDeathsDoor,
                 HpCurrent = (int)hp.CurrentValue,
                 HpMax = (int)hp.ModifiedValue,
@@ -1060,6 +1073,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                     ? string.Join(", ", heroWithQuirks.Quirks.Select(quirkId =>
                         (QuirkCatalog.Get(quirkId)?.IsPositive == true ? "+" : "-") + quirkId))
                     : "none",
+                QuirkIds = character is Hero heroWithQuirkIds
+                    ? new List<string>(heroWithQuirkIds.Quirks)
+                    : new List<string>(),
+                EquippedTrinketIds = character is Hero heroWithTrinkets
+                    ? new List<string>(heroWithTrinkets.EquippedTrinketIds)
+                    : new List<string>(),
             };
         }
 

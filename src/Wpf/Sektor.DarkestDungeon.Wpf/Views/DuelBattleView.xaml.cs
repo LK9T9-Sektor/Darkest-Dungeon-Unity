@@ -23,6 +23,32 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         private const double ArrowHeadSpread = 7;
         private const int MaxSkillArrows = 4;
 
+        private void OnStatsCloseRequested(object? sender, EventArgs e)
+        {
+            CloseStats();
+        }
+
+        private void OnStatsBackdropClick(object sender, MouseButtonEventArgs e)
+        {
+            CloseStats();
+            e.Handled = true;
+        }
+
+        private void OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape && UnitInfoOverlay.Visibility == Visibility.Visible)
+            {
+                CloseStats();
+                e.Handled = true;
+            }
+        }
+
+        private void CloseStats()
+        {
+            if (DataContext is IDuelBattleViewData viewModel)
+                viewModel.CloseStatsCommand.Execute(null);
+        }
+
         /// <summary>Shows the target arrows for the hovered card, or hides them when invalid.</summary>
         /// <param name="target">The hovered unit card.</param>
         internal void ShowArrowFor(DuelUnitViewModel target)

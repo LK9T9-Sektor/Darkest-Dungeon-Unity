@@ -53,6 +53,20 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(HeroIdentityView),
             new PropertyMetadata(null));
 
+        /// <summary>Identifies the <see cref="CanEditName"/> dependency property.</summary>
+        public static readonly DependencyProperty CanEditNameProperty = DependencyProperty.Register(
+            nameof(CanEditName),
+            typeof(bool),
+            typeof(HeroIdentityView),
+            new PropertyMetadata(true, OnCanEditNameChanged));
+
+        /// <summary>Identifies the <see cref="CanRerollName"/> dependency property.</summary>
+        public static readonly DependencyProperty CanRerollNameProperty = DependencyProperty.Register(
+            nameof(CanRerollName),
+            typeof(bool),
+            typeof(HeroIdentityView),
+            new PropertyMetadata(true));
+
         private string editStartName = string.Empty;
 
         /// <summary>Initializes a new instance of the <see cref="HeroIdentityView"/> class.</summary>
@@ -104,7 +118,26 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             set => SetValue(RerollCommandProperty, value);
         }
 
+        /// <summary>Gets or sets a value indicating whether the name can be edited.</summary>
+        public bool CanEditName
+        {
+            get => (bool)GetValue(CanEditNameProperty);
+            set => SetValue(CanEditNameProperty, value);
+        }
+
+        /// <summary>Gets or sets a value indicating whether the name can be rerolled.</summary>
+        public bool CanRerollName
+        {
+            get => (bool)GetValue(CanRerollNameProperty);
+            set => SetValue(CanRerollNameProperty, value);
+        }
+
         private static void OnIsEditingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((HeroIdentityView)d).UpdateEditingState();
+        }
+
+        private static void OnCanEditNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             ((HeroIdentityView)d).UpdateEditingState();
         }
@@ -122,7 +155,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
 
         private void UpdateEditingState()
         {
-            bool editing = IsEditing;
+            bool editing = IsEditing && CanEditName;
             if (editing && !EditPanel.IsVisible)
                 editStartName = HeroName;
 

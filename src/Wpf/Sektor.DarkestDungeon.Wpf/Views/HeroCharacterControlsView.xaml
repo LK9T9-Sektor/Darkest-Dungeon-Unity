@@ -13,15 +13,19 @@
 
         <views:HeroSkinView Grid.Column="0" Margin="0,0,8,0" VerticalAlignment="Center"
                             SkinId="{Binding SkinId, ElementName=Root}"
-                            SelectCommand="{Binding SelectSkinCommand, ElementName=Root}" />
+                            SelectCommand="{Binding SelectSkinCommand, ElementName=Root}"
+                            Visibility="{Binding ShowSkin, ElementName=Root, Converter={StaticResource BoolToVisibility}}" />
 
         <views:HeroPortraitView Grid.Column="1"
                                 Portrait="{Binding Portrait, ElementName=Root}"
                                 Caption=""
                                 Position="{Binding Position, ElementName=Root}"
-                                ShowPosition="True" ShowFrame="True"
-                                PortraitSize="44" ArrowSize="18" ShowArrows="True"
+                                ShowPosition="{Binding ShowPosition, ElementName=Root}"
+                                ShowFrame="True"
+                                PortraitSize="44" ArrowSize="18"
+                                ShowArrows="{Binding ShowClassSwitcher, ElementName=Root}"
                                 PreviousCommand="{Binding PreviousCommand, ElementName=Root}"
-                                NextCommand="{Binding NextCommand, ElementName=Root}" />
+                                NextCommand="{Binding NextCommand, ElementName=Root}"
+                                Visibility="{Binding ShowPortrait, ElementName=Root, Converter={StaticResource BoolToVisibility}}" />
     </Grid>
 </UserControl>

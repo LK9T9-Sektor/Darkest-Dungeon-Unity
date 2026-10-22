@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CommunityToolkit.Mvvm.Input;
 using Sektor.DarkestDungeon.Wpf.Ui;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
@@ -39,6 +40,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Gets the monster side unit cards.</summary>
         IEnumerable<DuelUnitViewModel> Monsters { get; }
+
+        /// <summary>Gets the command that closes the unit-info overlay.</summary>
+        IRelayCommand CloseStatsCommand { get; }
 
         /// <summary>Whether the hovered unit can show the attack arrow.</summary>
         /// <param name="target">The hovered unit card.</param>
