@@ -54,6 +54,21 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private int _stress;
 
+        /// <summary>Gets or sets the maximum stress.</summary>
+        [ObservableProperty]
+        private int _maxStress = 100;
+
+        /// <summary>Gets or sets the Spine content directory shown by the unit card.</summary>
+        [ObservableProperty]
+        private string _contentDirectory = string.Empty;
+
+        /// <summary>Gets or sets a value indicating whether the Spine animation loops.</summary>
+        [ObservableProperty]
+        private bool _loop = true;
+
+        /// <summary>Gets or sets the skeleton id shown by the fallback card.</summary>
+        public string Skeleton { get; set; } = string.Empty;
+
         /// <summary>Gets or sets the speed value.</summary>
         [ObservableProperty]
         private int _speed;
@@ -175,6 +190,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the stress value text.</summary>
         public string StressText { get { return Stress.ToString(); } }
 
+        /// <summary>Gets a value indicating whether the unit is dead (outside Death's Door).</summary>
+        public bool IsDead { get { return HpCurrent <= 0 && !IsOnDeathsDoor; } }
+
         /// <summary>Gets or sets the total number of actions per round (1 unless an ability grants more).</summary>
         [ObservableProperty]
         private int _actionsTotal = 1;
@@ -245,7 +263,13 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         partial void OnHpCurrentChanged(int value)
         {
             OnPropertyChanged(nameof(HpRatio));
+            OnPropertyChanged(nameof(IsDead));
             UpdateBars();
+        }
+
+        partial void OnIsOnDeathsDoorChanged(bool value)
+        {
+            OnPropertyChanged(nameof(IsDead));
         }
 
         partial void OnHpMaxChanged(int value)

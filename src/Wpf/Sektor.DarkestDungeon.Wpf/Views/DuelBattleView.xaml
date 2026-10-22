@@ -22,7 +22,20 @@
                                                            CommandParameter="{Binding}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
-                            <views:DuelUnitCardView DataContext="{Binding}" />
+                            <views:BattleUnitCardView Width="{Binding CardWidth}" Height="330"
+                                                       Rank="{Binding Rank}"
+                                                       Hp="{Binding HpCurrent}"
+                                                       MaxHp="{Binding HpMax}"
+                                                       Stress="{Binding Stress}"
+                                                       MaxStress="{Binding MaxStress}"
+                                                       ContentDirectory="{Binding ContentDirectory}"
+                                                       Loop="{Binding Loop}"
+                                                       Skeleton="{Binding Skeleton}"
+                                                       IsEnemy="{Binding IsEnemy}"
+                                                       IsAttacker="{Binding IsCurrent}"
+                                                       IsTarget="{Binding IsTarget}"
+                                                       IsDead="{Binding IsDead}"
+                                                       InfoCommand="{Binding DataContext.ToggleBuffTableCommand, RelativeSource={RelativeSource AncestorType=views:DuelBattleView}}" />
                         </Button>
                     </ControlTemplate>
                 </ContentControl.Template>

@@ -290,7 +290,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             return rows;
         }
 
-        private static string ResolveIdleContentDirectory(ISpineDemoCatalog? spineCatalog, string classId)
+        internal static string ResolveIdleContentDirectory(ISpineDemoCatalog? spineCatalog, string classId)
         {
             if (spineCatalog == null)
                 return string.Empty;

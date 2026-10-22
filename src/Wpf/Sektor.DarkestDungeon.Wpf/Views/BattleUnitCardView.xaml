@@ -53,9 +53,11 @@
                 </StackPanel>
                 <Button Grid.Column="2" Content="i" FontWeight="Bold" FontSize="14"
                         HorizontalAlignment="Right" VerticalAlignment="Center"
-                        ToolTip="Buffs and debuffs"
+                        ToolTip="Right-click: buffs and debuffs"
                         AutomationProperties.Name="Buffs and debuffs"
-                        Command="{Binding InfoCommand, ElementName=Root}">
+                        Command="{Binding InfoCommand, ElementName=Root}"
+                        CommandParameter="{Binding}"
+                        PreviewMouseRightButtonDown="OnInfoRightClick">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource HudButton}">
                             <Setter Property="Width" Value="30" />

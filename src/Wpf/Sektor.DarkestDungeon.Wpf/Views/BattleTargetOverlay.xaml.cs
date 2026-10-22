@@ -334,15 +334,15 @@ namespace Sektor.DarkestDungeon.Wpf.Views
                 .Transform(new Point(element.RenderSize.Width / 2, element.RenderSize.Height / 2));
         }
 
-        private DuelUnitCardView? FindActorCard()
+        private BattleUnitCardView? FindActorCard()
         {
-            return FindVisualChildren<DuelUnitCardView>(CardsRoot ?? Parent)
+            return FindVisualChildren<BattleUnitCardView>(CardsRoot ?? Parent)
                 .FirstOrDefault(card => card.DataContext is DuelUnitViewModel unit && unit.IsCurrent);
         }
 
-        private DuelUnitCardView? FindCard(int combatId)
+        private BattleUnitCardView? FindCard(int combatId)
         {
-            return FindVisualChildren<DuelUnitCardView>(CardsRoot ?? Parent)
+            return FindVisualChildren<BattleUnitCardView>(CardsRoot ?? Parent)
                 .FirstOrDefault(card => card.DataContext is DuelUnitViewModel unit && unit.CombatId == combatId);
         }
 

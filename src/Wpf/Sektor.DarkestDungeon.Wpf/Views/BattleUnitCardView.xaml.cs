@@ -238,6 +238,19 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             set { SetValue(AnimationCompletedCommandProperty, value); }
         }
 
+        private void OnInfoRightClick(object sender, MouseButtonEventArgs e)
+        {
+            if (InfoCommand == null)
+                return;
+
+            object? parameter = (sender as Button)?.CommandParameter;
+            if (InfoCommand.CanExecute(parameter))
+            {
+                InfoCommand.Execute(parameter);
+                e.Handled = true;
+            }
+        }
+
         private static void OnBarValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             ((BattleUnitCardView)d).RebuildBars();

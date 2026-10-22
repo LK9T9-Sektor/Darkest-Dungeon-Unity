@@ -194,7 +194,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
 
             // Cards render tall and are never flattened (the regression this suite guards against is
             // the star portrait row collapsing to its content height when measured unbounded).
-            List<DuelUnitCardView> cards = new List<DuelUnitCardView>(FindVisualChildren<DuelUnitCardView>(duelView));
+            List<BattleUnitCardView> cards = new List<BattleUnitCardView>(FindVisualChildren<BattleUnitCardView>(duelView));
             Assert.That(cards.Count, Is.EqualTo(8), "One card per unit.");
             foreach (var card in cards)
             {
@@ -560,7 +560,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                     Assert.That(head.Points.Count, Is.EqualTo(3));
                     Assert.That(reverse.Points.Count, Is.EqualTo(3));
 
-                    var actorCard = FindVisualChildren<DuelUnitCardView>(duelView)
+                    var actorCard = FindVisualChildren<BattleUnitCardView>(duelView)
                         .First(card => card.DataContext is DuelUnitViewModel unit && unit.IsCurrent);
                     var layer = (Canvas)overlay.FindName("TargetLayer");
                     Point actorCenter = actorCard.TransformToVisual(layer)
