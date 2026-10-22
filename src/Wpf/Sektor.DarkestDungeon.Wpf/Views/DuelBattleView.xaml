@@ -72,7 +72,7 @@
                  bottom edge with a small offset -->
             <Viewbox Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Bottom"
                      Margin="24,0,24,12" ClipToBounds="True">
-                <Grid>
+                <Grid x:Name="BattleField">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="54" />
                         <RowDefinition Height="Auto" />
@@ -113,44 +113,12 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-<!-- Target layer: the selected-skill badge floats above the acting card; the hover line
-                     runs from the badge (or the actor card top in move mode) to the hovered target
-                     card and ends in an arrowhead. Positions are computed in code-behind against this
-                     Canvas (pure math), so nothing is recreated at runtime. The drawn lines/arrows are
-                     individually inert (IsHitTestVisible=False) so they never block card clicks, while
-                     the badge stays hoverable to fire its skill tooltip. -->
-<Canvas x:Name="TargetLayer" Grid.RowSpan="2" Grid.ColumnSpan="3" Panel.ZIndex="10">
-                        <views:SkillSquareView x:Name="SkillBadge" ShowName="False"
-                                               Visibility="Collapsed" />
-
-                        <!-- Move swap arrow: a straight line between the two card centers with an
-                             arrowhead at each end (⇄), because moving exchanges ranks. -->
-                        <Line x:Name="ArrowLine" Stroke="#D9B46A" StrokeThickness="3"
-                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" Visibility="Collapsed"
-                              IsHitTestVisible="False" />
-                        <Polygon x:Name="ArrowHead" Fill="#D9B46A" Visibility="Collapsed" IsHitTestVisible="False" />
-                        <Polygon x:Name="ArrowHeadReverse" Fill="#D9B46A" Visibility="Collapsed" IsHitTestVisible="False" />
-
-                        <!-- Skill elbow arrows: from the actor card top edge up to the skill badge,
-                             out of its left/right edge horizontally, then down into the target top
-                             edge. One arrow per target (up to four), colored by the skill tone. -->
-                        <Path x:Name="SkillArrow1" StrokeLineJoin="Round" StrokeStartLineCap="Round"
-                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed"
-                              IsHitTestVisible="False" />
-                        <Polygon x:Name="SkillArrowHead1" Visibility="Collapsed" IsHitTestVisible="False" />
-                        <Path x:Name="SkillArrow2" StrokeLineJoin="Round" StrokeStartLineCap="Round"
-                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed"
-                              IsHitTestVisible="False" />
-                        <Polygon x:Name="SkillArrowHead2" Visibility="Collapsed" IsHitTestVisible="False" />
-                        <Path x:Name="SkillArrow3" StrokeLineJoin="Round" StrokeStartLineCap="Round"
-                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed"
-                              IsHitTestVisible="False" />
-                        <Polygon x:Name="SkillArrowHead3" Visibility="Collapsed" IsHitTestVisible="False" />
-                        <Path x:Name="SkillArrow4" StrokeLineJoin="Round" StrokeStartLineCap="Round"
-                              StrokeEndLineCap="Round" StrokeThickness="3" Visibility="Collapsed"
-                              IsHitTestVisible="False" />
-                        <Polygon x:Name="SkillArrowHead4" Visibility="Collapsed" IsHitTestVisible="False" />
-                    </Canvas>
+                    <!-- Target layer: the selected-skill badge floats above the acting card; the hover line
+                         runs from the badge (or the actor card top in move mode) to the hovered target
+                         card and ends in an arrowhead. All drawing lives in BattleTargetOverlay. -->
+                    <views:BattleTargetOverlay x:Name="TargetOverlay"
+                                               Grid.RowSpan="2" Grid.ColumnSpan="3" Panel.ZIndex="10"
+                                               CardsRoot="{Binding ElementName=BattleField}" />
                 </Grid>
             </Viewbox>
 

@@ -292,7 +292,12 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             duelView.UpdateLayout();
 
             validTarget = target!;
-            return (Canvas)duelView.FindName("TargetLayer");
+            return (Canvas)FindTargetOverlay(duelView).FindName("TargetLayer");
+        }
+
+        private static BattleTargetOverlay FindTargetOverlay(DuelBattleView duelView)
+        {
+            return FindVisualChildren<BattleTargetOverlay>(duelView).Single();
         }
 
         /// <summary>The hover arrow is a badge + elbow path + arrowhead computed by math: the badge
@@ -311,10 +316,11 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                     DuelBattleViewModel view;
                     DuelUnitViewModel target;
                     BuildArrowOverlay(out duelView, out view, out target);
+                    BattleTargetOverlay overlay = FindTargetOverlay(duelView);
 
-                    var path = (ShapePath)duelView.FindName("SkillArrow1");
-                    var head = (Polygon)duelView.FindName("SkillArrowHead1");
-                    var badge = (FrameworkElement)duelView.FindName("SkillBadge");
+                    var path = (ShapePath)overlay.FindName("SkillArrow1");
+                    var head = (Polygon)overlay.FindName("SkillArrowHead1");
+                    var badge = (FrameworkElement)overlay.FindName("SkillBadge");
                     Assert.That(path, Is.Not.Null);
                     Assert.That(head, Is.Not.Null);
                     Assert.That(badge, Is.Not.Null);
@@ -322,7 +328,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                         "The drawn skill arrows must never intercept card clicks.");
                     Assert.That(head.IsHitTestVisible, Is.False,
                         "The drawn arrowheads must never intercept card clicks.");
-                    Assert.That(((System.Windows.Shapes.Line)duelView.FindName("ArrowLine")).IsHitTestVisible, Is.False,
+                    Assert.That(((System.Windows.Shapes.Line)overlay.FindName("ArrowLine")).IsHitTestVisible, Is.False,
                         "The drawn move line must never intercept card clicks.");
 
                     Assert.That(path.Visibility, Is.EqualTo(Visibility.Collapsed), "The skill arrows start hidden.");
@@ -347,7 +353,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                     int validTargets = view.Heroes.Concat(view.Monsters).Count(card => card.IsTarget && !card.IsCurrent);
                     int visibleArrows = 0;
                     for (int i = 1; i <= 4; i++)
-                        if (((ShapePath)duelView.FindName("SkillArrow" + i)).Visibility == Visibility.Visible)
+                        if (((ShapePath)overlay.FindName("SkillArrow" + i)).Visibility == Visibility.Visible)
                             visibleArrows++;
                     Assert.That(visibleArrows, Is.EqualTo(view.SelectedSkillIsMultiTarget ? validTargets : 1),
                         "AOE/party skills draw one elbow arrow to every valid target; single-target skills only to the hovered one.");
@@ -536,10 +542,11 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                     duelView.Measure(new Size(WindowWidth, WindowHeight));
                     duelView.Arrange(new Rect(new Size(WindowWidth, WindowHeight)));
                     duelView.UpdateLayout();
+                    BattleTargetOverlay overlay = FindTargetOverlay(duelView);
 
-                    var line = (Line)duelView.FindName("ArrowLine");
-                    var head = (Polygon)duelView.FindName("ArrowHead");
-                    var reverse = (Polygon)duelView.FindName("ArrowHeadReverse");
+                    var line = (Line)overlay.FindName("ArrowLine");
+                    var head = (Polygon)overlay.FindName("ArrowHead");
+                    var reverse = (Polygon)overlay.FindName("ArrowHeadReverse");
                     Assert.That(line, Is.Not.Null);
                     Assert.That(head, Is.Not.Null);
                     Assert.That(reverse, Is.Not.Null);
@@ -555,7 +562,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
 
                     var actorCard = FindVisualChildren<DuelUnitCardView>(duelView)
                         .First(card => card.DataContext is DuelUnitViewModel unit && unit.IsCurrent);
-                    var layer = (Canvas)duelView.FindName("TargetLayer");
+                    var layer = (Canvas)overlay.FindName("TargetLayer");
                     Point actorCenter = actorCard.TransformToVisual(layer)
                         .Transform(new Point(actorCard.RenderSize.Width / 2, actorCard.RenderSize.Height / 2));
 
@@ -618,8 +625,9 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                     duelView.Measure(new Size(WindowWidth, WindowHeight));
                     duelView.Arrange(new Rect(new Size(WindowWidth, WindowHeight)));
                     duelView.UpdateLayout();
+                    BattleTargetOverlay overlay = FindTargetOverlay(duelView);
 
-                    var badge = (FrameworkElement)duelView.FindName("SkillBadge");
+                    var badge = (FrameworkElement)overlay.FindName("SkillBadge");
                     Assert.That(badge, Is.Not.Null);
 
                     duelView.ShowArrowFor(target!);
@@ -629,7 +637,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                     Assert.That(badge.Visibility, Is.EqualTo(Visibility.Visible), "The badge is visible while a skill is selected.");
                     Assert.That(top, Is.GreaterThanOrEqualTo(0),
                         $"The badge top must not go above the canvas (was {top:0.0}); it would be clipped.");
-                    Assert.That(top + badge.ActualHeight, Is.LessThanOrEqualTo(duelView.FindName("TargetLayer") is Canvas layer
+                    Assert.That(top + badge.ActualHeight, Is.LessThanOrEqualTo(overlay.FindName("TargetLayer") is Canvas layer
                         ? layer.ActualHeight + 0.5 : double.MaxValue), "The badge bottom stays within the canvas.");
                     Assert.That(badge.IsHitTestVisible, Is.True,
                         "The badge opts back into hit testing so hovering it fires the skill tooltip.");
