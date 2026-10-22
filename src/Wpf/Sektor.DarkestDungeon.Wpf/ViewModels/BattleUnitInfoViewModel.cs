@@ -24,6 +24,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private const string PortraitOutfit = "A";
         private const int QuirkVisibleRows = 5;
         private const int DiseaseSlotCount = 3;
+        private const int SkillSlotCount = 7;
 
         private readonly Random rng = new Random();
         private readonly DuelUnitViewModel unit;
@@ -64,11 +65,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the Idle Spine content directory, or an empty string when unavailable.</summary>
         public string IdleContentDirectory { get; }
 
-        /// <summary>Gets the live combat skills shown in the sheet.</summary>
-        public ObservableCollection<DuelSkillViewModel> Skills { get; } = new ObservableCollection<DuelSkillViewModel>();
+        /// <summary>Gets the class combat skills shown in the sheet, padded to seven slots.</summary>
+        public ObservableCollection<ISkillTileViewModel> Skills { get; } = new ObservableCollection<ISkillTileViewModel>();
 
-        /// <summary>Gets the class camping skills shown in the sheet.</summary>
-        public ObservableCollection<LobbyCampingSkillViewModel> CampingSkills { get; } = new ObservableCollection<LobbyCampingSkillViewModel>();
+        /// <summary>Gets the class camping skills shown in the sheet, padded to seven slots.</summary>
+        public ObservableCollection<ISkillTileViewModel> CampingSkills { get; } = new ObservableCollection<ISkillTileViewModel>();
 
         /// <summary>Gets the quirk rows, including reserved empty rows.</summary>
         public ObservableCollection<QuirkRowViewModel> QuirkRows { get; } = new ObservableCollection<QuirkRowViewModel>();
@@ -211,55 +212,47 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         private void BuildSkills(DuelUnitViewModel unit, IHeroSkillCatalog? skillCatalog)
         {
-            foreach (var skill in unit.CombatSkills)
+            var selectedIds = new HashSet<string>(
+                unit.CombatSkills.Select(skill => skill.Id),
+                StringComparer.Ordinal);
+            var classSkills = skillCatalog?.GetSkills(unit.ClassId);
+            if (classSkills != null && classSkills.Count > 0)
             {
-                Skills.Add(new DuelSkillViewModel(
-                    skill.Id,
-                    DisplayNames.Title(skill.Id),
-                    SkillToneClassifier.Classify(skill))
+                foreach (var info in classSkills)
                 {
-                    IsUsable = true,
-                    IsSelected = true,
-                    Level = skill.Level > 0 ? skill.Level : 1,
-                    BaseInfo = SkillDetails.BuildBaseInfo(skill),
-                    EffectRows = SkillDetails.BuildEffectRows(skill),
-                    Details = SkillDetails.Build(skill),
-                    Icon = skillCatalog?.GetSkillIcon(unit.ClassId, skill.Id),
-                });
+                    bool isSelected = selectedIds.Count == 0 || selectedIds.Contains(info.Skill.Id);
+                    Skills.Add(new LobbySkillViewModel(info.Skill, isSelected, info.Icon));
+                }
+            }
+            else
+            {
+                foreach (var skill in unit.CombatSkills)
+                {
+                    Skills.Add(new LobbySkillViewModel(
+                        skill,
+                        isActive: true,
+                        skillCatalog?.GetSkillIcon(unit.ClassId, skill.Id)));
+                }
             }
 
-            if (Skills.Count > 0 || skillCatalog == null)
-                return;
-
-            foreach (var info in skillCatalog.GetSkills(unit.ClassId))
-            {
-                var skill = info.Skill;
-                Skills.Add(new DuelSkillViewModel(
-                    skill.Id,
-                    DisplayNames.Title(skill.Id),
-                    SkillToneClassifier.Classify(skill))
-                {
-                    IsUsable = true,
-                    IsSelected = true,
-                    Level = skill.Level > 0 ? skill.Level : 1,
-                    BaseInfo = SkillDetails.BuildBaseInfo(skill),
-                    EffectRows = SkillDetails.BuildEffectRows(skill),
-                    Details = SkillDetails.Build(skill),
-                    Icon = info.Icon,
-                });
-            }
+            while (Skills.Count < SkillSlotCount)
+                Skills.Add(EmptySkillTileViewModel.Instance);
         }
 
         private void BuildCampingSkills(string classId)
         {
             var camping = CampingSkillCatalog.GetForClass(classId);
-            foreach (var skill in camping)
+            for (int i = 0; i < camping.Count; i++)
             {
+                var skill = camping[i];
                 CampingSkills.Add(new LobbyCampingSkillViewModel(
                     skill,
-                    isActive: true,
+                    isActive: i < 4,
                     CampingSkillCatalog.GetIcon(skill.Id)));
             }
+
+            while (CampingSkills.Count < SkillSlotCount)
+                CampingSkills.Add(EmptySkillTileViewModel.Instance);
         }
 
         private void BuildQuirks(DuelUnitViewModel unit)
