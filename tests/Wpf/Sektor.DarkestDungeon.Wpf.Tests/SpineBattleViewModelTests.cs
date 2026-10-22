@@ -24,7 +24,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(viewModel.TargetContentDirectory, Is.EqualTo(Path.Combine("root", "Highwayman", "Idle")));
             Assert.That(viewModel.AttackerLoop, Is.True);
             Assert.That(viewModel.IsAttacking, Is.False);
-            Assert.That(viewModel.ScreenTitle, Is.EqualTo("АРЕНА 1×1"));
+            Assert.That(viewModel.ScreenTitle, Is.EqualTo("РЕПЛЕЙ"));
         }
 
         /// <summary>Attacking swaps the attacker to the pose set and starts the skill-effect overlay.</summary>

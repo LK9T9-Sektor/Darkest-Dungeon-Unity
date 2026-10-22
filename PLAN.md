@@ -30,7 +30,7 @@
   - [x] Capture Replay: вынесен отдельный бар; `PanelCaption`/`PanelValue` перенесены в `Hud.xaml`.
   - [ ] Бой: подключить после появления `SceneName`/`RoomName`/`Round`/`Turn`/`Gold` в battle VM;
     верхний `TorchView` пока остаётся.
-- [ ] 3. `BuffTableOverlayView`: вынести inline-таблицу из `DuelBattleView`, добавить
+- [x] 3. `BuffTableOverlayView`: вынести inline-таблицу из `DuelBattleView`, добавить
   портрет, позицию, имя и класс через существующие контролы без стрелок.
 - [ ] 4. `BattleUnitCardView` (Size = 1): новая карточка, первым делом в Capture Replay.
 - [ ] 5. `BattleTargetOverlay`: вынести `TargetLayer` из `DuelBattleView` без изменения
