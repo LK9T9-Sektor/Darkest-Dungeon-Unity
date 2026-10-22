@@ -27,7 +27,7 @@ public class CoreBattleDriver : MonoBehaviour
     [SerializeField]
     private Transform fieldRoot;
 
-    private readonly DuelAi _ai = new DuelAi();
+    private readonly FallbackDuelAi _ai = new FallbackDuelAi();
 
     private DuelController _duel;
     private BattleTestConfig _config;
