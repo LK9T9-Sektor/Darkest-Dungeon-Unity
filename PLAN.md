@@ -27,7 +27,9 @@
   - `HeroSlotsPanel` сортирует отображение по `Position` по убыванию, не меняя порядок `Slots`.
   - `ToPicks` и ранги остаются `1..4`.
 - [ ] 2. `BattleSceneBarView`: сцена/комната/раунд/ход/факел/золото из `InfoCellView`.
-  - Сначала Capture Replay, затем бой; верхний `TorchView` пока остаётся.
+  - [x] Capture Replay: вынесен отдельный бар; `PanelCaption`/`PanelValue` перенесены в `Hud.xaml`.
+  - [ ] Бой: подключить после появления `SceneName`/`RoomName`/`Round`/`Turn`/`Gold` в battle VM;
+    верхний `TorchView` пока остаётся.
 - [ ] 3. `BuffTableOverlayView`: вынести inline-таблицу из `DuelBattleView`, добавить
   портрет, позицию, имя и класс через существующие контролы без стрелок.
 - [ ] 4. `BattleUnitCardView` (Size = 1): новая карточка, первым делом в Capture Replay.

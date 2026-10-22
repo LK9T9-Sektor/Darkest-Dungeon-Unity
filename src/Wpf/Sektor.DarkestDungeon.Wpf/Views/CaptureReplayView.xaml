@@ -4,17 +4,6 @@
              xmlns:vm="clr-namespace:Sektor.DarkestDungeon.Wpf.ViewModels"
              xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views">
     <UserControl.Resources>
-        <Style x:Key="PanelCaption" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#8A7A5A" />
-            <Setter Property="FontSize" Value="11" />
-            <Setter Property="FontWeight" Value="Bold" />
-        </Style>
-        <Style x:Key="PanelValue" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#E8D9B0" />
-            <Setter Property="FontSize" Value="15" />
-            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-        </Style>
-
         <!-- One combatant in the formation: idle spine clip or a monster card, with attack/target frames. -->
         <DataTemplate x:Key="UnitTemplate" DataType="{x:Type vm:CaptureUnitViewModel}">
             <Border Margin="6" Padding="8" CornerRadius="8" BorderThickness="2">
@@ -127,38 +116,14 @@
                                 Subtitle="{Binding CaptureSubtitle}"
                                 CloseCommand="{Binding BackCommand}" />
 
-        <!-- Scene/room/torch/gold strip -->
-        <Border Grid.Row="1" Margin="48,12,48,0" Padding="14,10" Style="{StaticResource OverlayPanel}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="СЦЕНА" Style="{StaticResource PanelCaption}" VerticalAlignment="Center" />
-                    <TextBlock Text="{Binding SceneName}" Style="{StaticResource PanelValue}" Margin="8,0,24,0" />
-                    <TextBlock Text="КОМНАТА" Style="{StaticResource PanelCaption}" VerticalAlignment="Center" />
-                    <TextBlock Text="{Binding RoomName}" Style="{StaticResource PanelValue}" Margin="8,0,4,0" />
-                    <TextBlock Text="{Binding RoomType}" Foreground="#8A7A5A" FontSize="11"
-                               VerticalAlignment="Center" Margin="0,2,0,0" />
-                    <TextBlock Text="РАУНД" Style="{StaticResource PanelCaption}" VerticalAlignment="Center"
-                               Margin="20,0,0,0" />
-                    <TextBlock Text="{Binding Round}" Style="{StaticResource PanelValue}" Margin="6,0,16,0" />
-                    <TextBlock Text="ХОД" Style="{StaticResource PanelCaption}" VerticalAlignment="Center" />
-                    <TextBlock Text="{Binding Turn}" Style="{StaticResource PanelValue}" Margin="6,0,0,0" />
-                </StackPanel>
-
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="ФАКЕЛ" Style="{StaticResource PanelCaption}" VerticalAlignment="Center" />
-                    <ProgressBar Minimum="0" Maximum="100" Value="{Binding Torch}"
-                                 Width="160" Height="10" Margin="10,0" />
-                    <TextBlock Text="{Binding Torch}" Style="{StaticResource PanelValue}" Margin="0,0,24,0" />
-                    <TextBlock Text="ЗОЛОТО" Style="{StaticResource PanelCaption}" VerticalAlignment="Center" />
-                    <TextBlock Text="{Binding Gold}" Style="{StaticResource PanelValue}" Margin="8,0,0,0" />
-                </StackPanel>
-            </Grid>
-        </Border>
+        <views:BattleSceneBarView Grid.Row="1" Margin="48,12,48,0"
+                                  Scene="{Binding SceneName}"
+                                  Room="{Binding RoomName}"
+                                  RoomType="{Binding RoomType}"
+                                  Round="{Binding Round}"
+                                  Turn="{Binding Turn}"
+                                  Torch="{Binding Torch}"
+                                  Gold="{Binding Gold}" />
 
         <!-- Battlefield: heroes (rank 4..1) left, monsters (rank 1..n) right -->
         <Border Grid.Row="2" Margin="48,16,48,0"

@@ -45,10 +45,10 @@
                     <Button Content="SPINE TEST" Width="200" Height="58" FontSize="20"
                             Margin="0,0,36,0" Style="{StaticResource HudButton}"
                             Command="{Binding SpineTestCommand}" />
-                    <Button Content="АРЕНА 1×1" Width="170" Height="58" FontSize="20"
+                    <Button Content="РЕПЛЕЙ" Width="170" Height="58" FontSize="20"
                             Margin="0,0,36,0" Style="{StaticResource HudButton}"
                             Command="{Binding SpineBattleCommand}"
-                            ToolTip="Visual 1x1 arena: one-shot attack animation with damage feedback" />
+                            ToolTip="Replay: one-shot attack animation with damage feedback" />
                     <Button Content="ИМЕНИЕ (ЗАХВАТ)" Width="230" Height="58" FontSize="20"
                             Style="{StaticResource HudButton}"
                             Command="{Binding EstateReplayCommand}"

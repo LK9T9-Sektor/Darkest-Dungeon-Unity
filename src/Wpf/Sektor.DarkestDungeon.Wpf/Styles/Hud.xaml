@@ -10,6 +10,18 @@
     <!-- Top offsets of the floating top bars -->
     <Thickness x:Key="TopBarOffset">0,12,0,0</Thickness>
 
+    <!-- Shared compact caption/value typography for info bars -->
+    <Style x:Key="PanelCaption" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="#8A7A5A" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="Bold" />
+    </Style>
+    <Style x:Key="PanelValue" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="#E8D9B0" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+
     <!-- Common area background: top (quest/torch/turn order) and bottom (raid info) bars -->
     <SolidColorBrush x:Key="AreaBackground" Color="#C8000000" />
 

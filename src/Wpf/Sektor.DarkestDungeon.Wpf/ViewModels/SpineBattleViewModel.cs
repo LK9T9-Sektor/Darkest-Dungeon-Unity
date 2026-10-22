@@ -78,7 +78,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private bool _isAttacking;
 
         /// <summary>Gets the screen title.</summary>
-        public string ScreenTitle => "АРЕНА 1×1";
+        public string ScreenTitle => "РЕПЛЕЙ";
 
         /// <summary>Gets the attacker slot name.</summary>
         public string AttackerName => AttackerHero.ToUpperInvariant();
