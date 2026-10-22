@@ -5,7 +5,8 @@
              x:Name="Root">
     <!-- Reusable skill grid with a bounded number of visible rows. The inner AbilityRowView is the
          single source of skill-square chrome; this control only adds the row cap and the vertical
-         scroller. An empty list keeps one row of height. -->
+         scroller. An empty list keeps one row of height, and ReservedSlots reserves width for a
+         fixed number of tiles without adding placeholder items. -->
     <ScrollViewer x:Name="Scroller"
                   VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled"

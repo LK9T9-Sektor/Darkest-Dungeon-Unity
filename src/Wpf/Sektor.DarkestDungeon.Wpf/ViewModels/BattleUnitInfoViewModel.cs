@@ -24,7 +24,6 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private const string PortraitOutfit = "A";
         private const int QuirkVisibleRows = 5;
         private const int DiseaseSlotCount = 3;
-        private const int SkillSlotCount = 7;
 
         private readonly Random rng = new Random();
         private readonly DuelUnitViewModel unit;
@@ -65,10 +64,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the Idle Spine content directory, or an empty string when unavailable.</summary>
         public string IdleContentDirectory { get; }
 
-        /// <summary>Gets the class combat skills shown in the sheet, padded to seven slots.</summary>
+        /// <summary>Gets the class combat skills shown in the sheet.</summary>
         public ObservableCollection<ISkillTileViewModel> Skills { get; } = new ObservableCollection<ISkillTileViewModel>();
 
-        /// <summary>Gets the class camping skills shown in the sheet, padded to seven slots.</summary>
+        /// <summary>Gets the class camping skills shown in the sheet.</summary>
         public ObservableCollection<ISkillTileViewModel> CampingSkills { get; } = new ObservableCollection<ISkillTileViewModel>();
 
         /// <summary>Gets the quirk rows, including reserved empty rows.</summary>
@@ -234,9 +233,6 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                         skillCatalog?.GetSkillIcon(unit.ClassId, skill.Id)));
                 }
             }
-
-            while (Skills.Count < SkillSlotCount)
-                Skills.Add(EmptySkillTileViewModel.Instance);
         }
 
         private void BuildCampingSkills(string classId)
@@ -250,9 +246,6 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                     isActive: i < 4,
                     CampingSkillCatalog.GetIcon(skill.Id)));
             }
-
-            while (CampingSkills.Count < SkillSlotCount)
-                CampingSkills.Add(EmptySkillTileViewModel.Instance);
         }
 
         private void BuildQuirks(DuelUnitViewModel unit)

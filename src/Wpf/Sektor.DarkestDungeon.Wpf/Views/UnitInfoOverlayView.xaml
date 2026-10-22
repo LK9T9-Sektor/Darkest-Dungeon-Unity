@@ -202,7 +202,7 @@
                                                        SelectCommand="{Binding ToggleSkillCommand}"
                                                        IsReadOnly="{Binding IsSkillSelectionReadOnly}"
                                                        IconSize="48" ShowNames="False" ShowLevels="True"
-                                                       MaxRows="1" />
+                                                       MaxRows="1" ReservedSlots="7" />
                             </StackPanel>
                         </Border>
 
@@ -216,7 +216,7 @@
                                                        SelectCommand="{Binding ToggleCampingSkillCommand}"
                                                        IsReadOnly="{Binding IsCampingSelectionReadOnly}"
                                                        IconSize="48" ShowNames="False" ShowLevels="False"
-                                                       MaxRows="1" />
+                                                       MaxRows="1" ReservedSlots="7" />
                             </StackPanel>
                         </Border>
 

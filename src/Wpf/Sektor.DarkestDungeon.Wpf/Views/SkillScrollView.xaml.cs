@@ -8,10 +8,14 @@ namespace Sektor.DarkestDungeon.Wpf.Views
 {
     /// <summary>Reusable skill grid that shows at most <see cref="MaxRows"/> rows and scrolls
     /// vertically when the items do not fit. An empty list still occupies one row so the hosting
-    /// section keeps a stable height. The item chrome is delegated to <see cref="AbilityRowView"/>.</summary>
+    /// section keeps a stable height, and <see cref="ReservedSlots"/> can reserve width for a fixed
+    /// number of tiles without adding placeholder items. The item chrome is delegated to
+    /// <see cref="AbilityRowView"/>.</summary>
     public partial class SkillScrollView : UserControl
     {
         private const double IconChrome = 8.0;
+        private const double NameExtraWidth = 8.0;
+        private const double SlotMargin = 4.0;
         private const double NameRowHeight = 22.0;
         private const double LevelRowHeight = 18.0;
         private const double MinIconSize = 16.0;
@@ -57,6 +61,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(int),
             typeof(SkillScrollView),
             new PropertyMetadata(2, OnLayoutPropertyChanged));
+
+        /// <summary>Identifies the <see cref="ReservedSlots"/> dependency property.</summary>
+        public static readonly DependencyProperty ReservedSlotsProperty = DependencyProperty.Register(
+            nameof(ReservedSlots),
+            typeof(int),
+            typeof(SkillScrollView),
+            new PropertyMetadata(0, OnLayoutPropertyChanged));
 
         /// <summary>Identifies the <see cref="IsReadOnly"/> dependency property.</summary>
         public static readonly DependencyProperty IsReadOnlyProperty = DependencyProperty.Register(
@@ -114,6 +125,14 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             set => SetValue(MaxRowsProperty, value);
         }
 
+        /// <summary>Gets or sets the number of tile widths kept free even when fewer items are shown.
+        /// Zero keeps the natural content width.</summary>
+        public int ReservedSlots
+        {
+            get => (int)GetValue(ReservedSlotsProperty);
+            set => SetValue(ReservedSlotsProperty, value);
+        }
+
         /// <summary>Gets or sets a value indicating whether the tiles ignore their selection command.</summary>
         public bool IsReadOnly
         {
@@ -131,15 +150,22 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             if (Scroller == null)
                 return;
 
-            double rowHeight = Math.Max(MinIconSize, IconSize) + IconChrome;
+            double iconSize = Math.Max(MinIconSize, IconSize);
+            double rowHeight = iconSize + IconChrome;
             if (ShowNames)
                 rowHeight += NameRowHeight;
             if (ShowLevels)
                 rowHeight += LevelRowHeight;
 
+            double slotWidth = iconSize + IconChrome + SlotMargin;
+            if (ShowNames)
+                slotWidth += NameExtraWidth;
+
             int rows = Math.Max(1, MaxRows);
+            int reservedSlots = Math.Max(0, ReservedSlots);
             Scroller.MinHeight = rowHeight;
             Scroller.MaxHeight = rowHeight * rows;
+            Scroller.MinWidth = slotWidth * reservedSlots;
         }
     }
 }
