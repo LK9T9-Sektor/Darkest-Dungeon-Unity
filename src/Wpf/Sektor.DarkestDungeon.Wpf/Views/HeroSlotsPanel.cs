@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 
 using Sektor.DarkestDungeon.Wpf.ViewModels;
@@ -17,7 +19,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             nameof(Slots),
             typeof(IEnumerable),
             typeof(HeroSlotsPanel),
-            new PropertyMetadata(null));
+            new PropertyMetadata(null, OnSlotsChanged));
 
         /// <summary>Raised when the user right-clicks a hero slot.</summary>
         public event EventHandler<HeroSlotEditRequestedEventArgs>? SlotEditRequested;
@@ -33,6 +35,34 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             get { return (IEnumerable)GetValue(SlotsProperty); }
             set { SetValue(SlotsProperty, value); }
+        }
+
+        private static void OnSlotsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((HeroSlotsPanel)d).ApplySlots(e.NewValue as IEnumerable);
+        }
+
+        private void ApplySlots(IEnumerable? slots)
+        {
+            if (SlotsItems == null)
+                return;
+
+            if (slots == null)
+            {
+                SlotsItems.ItemsSource = null;
+                return;
+            }
+
+            ICollectionView view = CollectionViewSource.GetDefaultView(slots);
+            if (view.CanSort)
+            {
+                view.SortDescriptions.Clear();
+                view.SortDescriptions.Add(new SortDescription(
+                    nameof(HeroSlotViewModel.Position),
+                    ListSortDirection.Descending));
+            }
+
+            SlotsItems.ItemsSource = view;
         }
 
         private void OnSlotRightClick(object sender, MouseButtonEventArgs e)
