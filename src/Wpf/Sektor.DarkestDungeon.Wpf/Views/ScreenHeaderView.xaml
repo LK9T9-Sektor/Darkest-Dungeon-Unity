@@ -12,7 +12,7 @@
 
             <!-- Close (back) cross, pinned to the top-left corner of the control -->
             <Button Content="&#x2715;" Width="34" Height="34" FontSize="16" FontWeight="Bold"
-                    Foreground="#C0392B" Style="{StaticResource HudButton}" ToolTip="Close"
+                    Style="{StaticResource CloseButton}" ToolTip="Close"
                     VerticalAlignment="Top" HorizontalAlignment="Left"
                     Command="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
 

@@ -23,6 +23,19 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(content.DefaultAnimationName, Is.EqualTo("idle"));
         }
 
+        /// <summary>The Abomination Idle set uses the same lowercase animation name as the overlay.</summary>
+        [Test]
+        public void AbominationIdle_LoadsLowercaseIdleAnimation()
+        {
+            string directory = Path.Combine(AppContext.BaseDirectory, "Content", "Spine", "Abomination", "Idle");
+            using var content = new SpineSkeletonLoader().Load(
+                Path.Combine(directory, "abomination.sprite.idle.skel"),
+                Path.Combine(directory, "abomination.sprite.idle.atlas"));
+
+            Assert.That(content.SkeletonData.FindAnimation("idle"), Is.Not.Null);
+            Assert.That(content.DefaultAnimationName, Is.EqualTo("idle"));
+        }
+
         /// <summary>Playing a known animation succeeds; an unknown name is rejected.</summary>
         [Test]
         public void Player_PlaysIdle_AndRejectsUnknownAnimation()

@@ -4,13 +4,16 @@ using System.Windows.Data;
 
 namespace Sektor.DarkestDungeon.Wpf.Converters
 {
-    /// <summary>Converts an empty string (or null) to <see cref="Visibility.Collapsed"/>.</summary>
+    /// <summary>Converts an empty string (or null) to <see cref="Visibility.Collapsed"/>. Pass
+    /// <c>Invert</c> as the converter parameter to show the element for an empty value instead.</summary>
     public sealed class StringToVisibilityConverter : IValueConverter
     {
         /// <inheritdoc />
         public object Convert(object value, System.Type targetType, object parameter, CultureInfo culture)
         {
-            return string.IsNullOrEmpty(value as string) ? Visibility.Collapsed : Visibility.Visible;
+            bool hasText = !string.IsNullOrEmpty(value as string);
+            bool invert = string.Equals(parameter as string, "Invert", System.StringComparison.OrdinalIgnoreCase);
+            return hasText != invert ? Visibility.Visible : Visibility.Collapsed;
         }
 
         /// <inheritdoc />

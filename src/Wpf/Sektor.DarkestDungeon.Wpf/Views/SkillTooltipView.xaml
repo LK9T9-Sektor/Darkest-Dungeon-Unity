@@ -16,13 +16,34 @@
                 </Grid.ColumnDefinitions>
                 <Border Width="26" Height="24" Background="#3A3022" BorderBrush="#6A5A3A" BorderThickness="1"
                         CornerRadius="4" VerticalAlignment="Center">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Visible" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Level}" Value="0">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
                     <TextBlock Text="{Binding Level}" Foreground="#E8D9B0" FontSize="13" FontWeight="Bold"
                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>
                 <TextBlock Grid.Column="1" Text="{Binding DisplayName}" Foreground="#E8D9B0" FontSize="16"
                            FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap"
                            HorizontalAlignment="Center" Margin="8,0" />
-                <Border Grid.Column="2" Width="26" />
+                <Border Grid.Column="2" Width="26">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Visible" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Level}" Value="0">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
             </Grid>
 
             <!-- SEPARATOR -->

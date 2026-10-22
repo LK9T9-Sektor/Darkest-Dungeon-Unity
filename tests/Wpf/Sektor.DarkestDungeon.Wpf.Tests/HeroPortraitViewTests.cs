@@ -93,6 +93,26 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(next.Width, Is.EqualTo(24));
         }
 
+        /// <summary>The optional frame groups the arrows and the bare formation position.</summary>
+        [Test]
+        public void FrameAndPosition_AreShownOnDemand()
+        {
+            var view = new HeroPortraitView
+            {
+                ShowFrame = true,
+                ShowPosition = true,
+                Position = 3,
+            };
+
+            Layout(view);
+
+            Border frame = (Border)view.FindName("GroupFrame");
+            TextBlock position = FindChildren<TextBlock>(view).Single(block => block.Text == "3");
+            Assert.That(frame.BorderThickness, Is.EqualTo(new Thickness(1)));
+            Assert.That(position.Visibility, Is.EqualTo(Visibility.Visible));
+            Assert.That(position.Text, Does.Not.StartWith("#"));
+        }
+
         /// <summary>The portrait click is enabled only when the host supplies a command.</summary>
         [Test]
         public void PortraitClick_IsEnabledOnlyWithSelectCommand()

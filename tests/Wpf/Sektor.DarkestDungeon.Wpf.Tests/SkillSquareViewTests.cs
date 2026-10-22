@@ -52,6 +52,33 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(Root(view).Width, Is.EqualTo(32));
         }
 
+        /// <summary>Hiding the name removes its extra width so seven tiles fit in one row.</summary>
+        [Test]
+        public void ShowNameFalse_RemovesNameColumnWidth()
+        {
+            EnsureApplication();
+            var view = new SkillSquareView { IconSize = 52, ShowName = false };
+
+            Assert.That(Root(view).Width, Is.EqualTo(60));
+        }
+
+        /// <summary>The optional level label is hidden by default and shown by ShowLevel.</summary>
+        [Test]
+        public void ShowLevel_TogglesLevelLabel()
+        {
+            EnsureApplication();
+            var view = new SkillSquareView();
+            var label = (TextBlock)view.FindName("LevelLabel");
+
+            Assert.That(label.Visibility, Is.EqualTo(Visibility.Collapsed));
+
+            view.ShowLevel = true;
+            Assert.That(label.Visibility, Is.EqualTo(Visibility.Visible));
+
+            view.ShowLevel = false;
+            Assert.That(label.Visibility, Is.EqualTo(Visibility.Collapsed));
+        }
+
         /// <summary>Clickable tiles follow IsUsable changes raised by the lobby view model.</summary>
         [Test]
         public void IsUsable_Change_UpdatesButtonEnabledState()

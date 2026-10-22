@@ -38,6 +38,11 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.DoesNotThrow(() => _ = new EquipmentSlotView());
             Assert.DoesNotThrow(() => _ = new TrinketSlotView());
             Assert.DoesNotThrow(() => _ = new HeroTrinketsEditorView());
+            Assert.DoesNotThrow(() => _ = new HeroIdentityView());
+            Assert.DoesNotThrow(() => _ = new HeroSkinView());
+            Assert.DoesNotThrow(() => _ = new HeroCharacterControlsView());
+            Assert.DoesNotThrow(() => _ = new BoundedScrollView());
+            Assert.DoesNotThrow(() => _ = new HeroLevelView());
             Assert.DoesNotThrow(() => _ = new ScreenHeaderView { Title = "T", CloseCommand = null });
         }
     }

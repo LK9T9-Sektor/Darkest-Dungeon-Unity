@@ -1,0 +1,27 @@
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.HeroCharacterControlsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views"
+             x:Name="Root">
+    <!-- Reusable bottom-left hero controls: portrait with class arrows and position, plus the skin
+         selector. Lives below the Idle animation so the character's feet stay visible. -->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <views:HeroSkinView Grid.Column="0" Margin="0,0,8,0" VerticalAlignment="Center"
+                            SkinId="{Binding SkinId, ElementName=Root}"
+                            SelectCommand="{Binding SelectSkinCommand, ElementName=Root}" />
+
+        <views:HeroPortraitView Grid.Column="1"
+                                Portrait="{Binding Portrait, ElementName=Root}"
+                                Caption=""
+                                Position="{Binding Position, ElementName=Root}"
+                                ShowPosition="True" ShowFrame="True"
+                                PortraitSize="44" ArrowSize="18" ShowArrows="True"
+                                PreviousCommand="{Binding PreviousCommand, ElementName=Root}"
+                                NextCommand="{Binding NextCommand, ElementName=Root}" />
+    </Grid>
+</UserControl>

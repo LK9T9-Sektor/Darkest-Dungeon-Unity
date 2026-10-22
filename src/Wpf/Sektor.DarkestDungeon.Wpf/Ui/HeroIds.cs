@@ -29,5 +29,31 @@ namespace Sektor.DarkestDungeon.Wpf.Ui
 
             return builder.ToString();
         }
+
+        /// <summary>Converts a snake_case class id to its Spine/icon folder name ("man_at_arms" to
+        /// "ManAtArms"). Already PascalCase ids are returned unchanged.</summary>
+        /// <param name="classId">The snake_case class id (or an already PascalCase folder name).</param>
+        /// <returns>The PascalCase folder name; empty for empty input.</returns>
+        public static string ToFolderName(string classId)
+        {
+            if (string.IsNullOrEmpty(classId))
+                return string.Empty;
+
+            var builder = new StringBuilder(classId.Length);
+            bool upper = true;
+            foreach (char current in classId)
+            {
+                if (current == '_')
+                {
+                    upper = true;
+                    continue;
+                }
+
+                builder.Append(upper ? char.ToUpperInvariant(current) : current);
+                upper = false;
+            }
+
+            return builder.ToString();
+        }
     }
 }

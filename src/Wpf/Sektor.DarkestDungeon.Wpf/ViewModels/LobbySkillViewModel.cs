@@ -24,7 +24,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the bundled ability icon, or null when no icon is delivered.</summary>
         public ImageSource? Icon { get; }
 
-        /// <summary>Gets the skill level shown in the tooltip badge.</summary>
+        /// <summary>Gets the skill level shown in the tooltip badge and under the icon. Base content
+        /// stores level 0, which is presented as the first level (1).</summary>
         public int Level { get; }
 
         /// <summary>Gets the base info (damage/heal, accuracy, crit, ranks) for the tooltip.</summary>
@@ -62,7 +63,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         {
             Id = skill.Id;
             Name = DisplayNames.Title(skill.Id);
-            Level = skill.Level;
+            Level = skill.Level > 0 ? skill.Level : 1;
             BaseInfo = SkillDetails.BuildBaseInfo(skill);
             EffectRows = SkillDetails.BuildEffectRows(skill);
             Details = SkillDetails.Build(skill);

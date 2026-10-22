@@ -8,12 +8,31 @@
          card: Spine Test shows the arrows, the battle HUD can hide them. Without a SelectCommand the
          portrait is read-only. -->
     <StackPanel VerticalAlignment="Center">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+        <Border x:Name="GroupFrame">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="BorderBrush" Value="Transparent" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="CornerRadius" Value="6" />
+                    <Setter Property="Padding" Value="0" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ShowFrame, ElementName=HeroCard}" Value="True">
+                            <Setter Property="Background" Value="#331A150F" />
+                            <Setter Property="BorderBrush" Value="#3A2E22" />
+                            <Setter Property="BorderThickness" Value="1" />
+                            <Setter Property="Padding" Value="6,2" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
             <!-- Previous class -->
             <Button x:Name="PreviousButton" Grid.Column="0" Content="&#x25C0;"
@@ -74,7 +93,15 @@
                     ToolTip="Next hero"
                     Command="{Binding NextCommand, ElementName=HeroCard}"
                     Visibility="{Binding ShowArrows, ElementName=HeroCard, Converter={StaticResource BoolToVisibility}}" />
+
+            <!-- Formation position, shown inside the bordered group next to the arrows. -->
+            <TextBlock Grid.Column="3" Text="{Binding Position, ElementName=HeroCard}"
+                       Foreground="#F0C070" FontSize="18" FontWeight="Bold"
+                       MinWidth="20" TextAlignment="Center" VerticalAlignment="Center"
+                       Margin="8,0,0,0" ToolTip="Position"
+                       Visibility="{Binding ShowPosition, ElementName=HeroCard, Converter={StaticResource BoolToVisibility}}" />
         </Grid>
+        </Border>
 
         <TextBlock Text="{Binding Caption, ElementName=HeroCard}" Foreground="#E8D9B0"
                    FontSize="13" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap"

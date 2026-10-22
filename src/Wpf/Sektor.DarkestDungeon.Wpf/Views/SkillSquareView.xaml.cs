@@ -51,6 +51,14 @@ namespace Sektor.DarkestDungeon.Wpf.Views
                 typeof(SkillSquareView),
                 new PropertyMetadata(DefaultIconSize, OnIconSizeChanged));
 
+        /// <summary>Identifies the <see cref="ShowLevel"/> dependency property.</summary>
+        public static readonly DependencyProperty ShowLevelProperty =
+            DependencyProperty.Register(
+                nameof(ShowLevel),
+                typeof(bool),
+                typeof(SkillSquareView),
+                new PropertyMetadata(false, OnShowLevelChanged));
+
         /// <summary>Gets or sets the command invoked when the skill square is clicked (tray only).</summary>
         public ICommand? SelectCommand
         {
@@ -82,6 +90,14 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             set { SetValue(IconSizeProperty, value); }
         }
 
+        /// <summary>Gets or sets a value indicating whether the skill level number is shown under the
+        /// icon (default false). The level is read from the bound tile's <c>Level</c> property.</summary>
+        public bool ShowLevel
+        {
+            get { return (bool)GetValue(ShowLevelProperty); }
+            set { SetValue(ShowLevelProperty, value); }
+        }
+
         /// <summary>Initializes a new instance of the <see cref="SkillSquareView"/> class.</summary>
         public SkillSquareView()
         {
@@ -104,7 +120,9 @@ namespace Sektor.DarkestDungeon.Wpf.Views
 
         private static void OnShowNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            ((SkillSquareView)d).WireNameVisibility();
+            var view = (SkillSquareView)d;
+            view.WireNameVisibility();
+            view.ApplyIconSize();
         }
 
         private static void OnIconSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -112,12 +130,17 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             ((SkillSquareView)d).ApplyIconSize();
         }
 
+        private static void OnShowLevelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((SkillSquareView)d).WireLevelVisibility();
+        }
+
         private void ApplyIconSize()
         {
             double iconSize = Math.Max(MinIconSize, IconSize);
             SkillButton.Width = iconSize + IconChrome;
             SkillButton.Height = iconSize + IconChrome;
-            RootPanel.Width = iconSize + IconChrome + NameExtraWidth;
+            RootPanel.Width = iconSize + IconChrome + (ShowName ? NameExtraWidth : 0);
         }
 
         private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -159,6 +182,11 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             NameLabel.Visibility = ShowName ? Visibility.Visible : Visibility.Collapsed;
         }
 
+        private void WireLevelVisibility()
+        {
+            LevelLabel.Visibility = ShowLevel ? Visibility.Visible : Visibility.Collapsed;
+        }
+
         private void WireButton()
         {
             // Without a SelectCommand the square renders as a read-only inspection slot
@@ -174,6 +202,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             SkillButton.IsHitTestVisible = true;
             SkillButton.IsEnabled = !clickable || usable;
             WireNameVisibility();
+            WireLevelVisibility();
         }
     }
 }

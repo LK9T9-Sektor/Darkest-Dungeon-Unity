@@ -55,6 +55,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(SpineHeroControl),
             new PropertyMetadata(1.0, OnSpeedMultiplierChanged));
 
+        /// <summary>Identifies the <see cref="BottomInset"/> dependency property.</summary>
+        public static readonly DependencyProperty BottomInsetProperty = DependencyProperty.Register(
+            nameof(BottomInset),
+            typeof(double),
+            typeof(SpineHeroControl),
+            new PropertyMetadata(0.0, OnBottomInsetChanged));
+
         private const float MaxFrameSeconds = 0.1f;
         private const float MinSpeedMultiplier = 0.01f;
         private const float MaxSpeedMultiplier = 100f;
@@ -123,6 +130,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             set => SetValue(SpeedMultiplierProperty, value);
         }
 
+        /// <summary>Gets or sets the bottom inset reserved by the renderer.</summary>
+        public double BottomInset
+        {
+            get => (double)GetValue(BottomInsetProperty);
+            set => SetValue(BottomInsetProperty, value);
+        }
+
         /// <inheritdoc/>
         protected override void OnPaintSurface(SKPaintSurfaceEventArgs e)
         {
@@ -142,9 +156,14 @@ namespace Sektor.DarkestDungeon.Wpf.Views
 
             float width = e.Info.Width;
             float height = e.Info.Height;
-            float scale = Math.Min(width / bounds.Width, height / bounds.Height) * 0.92f;
+            float contentHeight = Math.Max(1f, height - (float)BottomInset);
+            float scale = contentHeight / bounds.Height * 0.92f;
+            float requiredWidth = bounds.Width * scale;
+            if (requiredWidth > width)
+                scale = width / bounds.Width * 0.92f;
+
             float originX = (width * 0.5f) - (bounds.CenterX * scale);
-            float originY = (height * 0.5f) + (bounds.CenterY * scale);
+            float originY = (contentHeight * 0.5f) + (bounds.CenterY * scale);
             renderer.Render(canvas, player.Skeleton, scale, originX, originY);
         }
 
@@ -153,6 +172,9 @@ namespace Sektor.DarkestDungeon.Wpf.Views
 
         private static void OnSpeedMultiplierChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
             => ((SpineHeroControl)d).ApplyTimeScale();
+
+        private static void OnBottomInsetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+            => ((SpineHeroControl)d).InvalidateVisual();
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {

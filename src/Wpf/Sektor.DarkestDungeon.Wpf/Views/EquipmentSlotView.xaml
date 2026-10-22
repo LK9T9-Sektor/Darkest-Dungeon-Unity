@@ -2,24 +2,28 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Name="Root">
-    <!-- Reusable equipment slot: weapon/armor glyph + rounded level badge on top, tall image
-         placeholder below. Sized after the Unity CharacterWindow equipment slot (72x144). -->
-    <StackPanel Width="72">
-        <Grid Height="28">
-            <TextBlock Text="{Binding Glyph, ElementName=Root}" FontFamily="Segoe UI Symbol"
-                       FontSize="18" Foreground="#E8D9B0" VerticalAlignment="Center" />
-            <Border Width="24" Height="24" Background="#3A2A18" BorderBrush="#D98A3A"
-                    BorderThickness="1" CornerRadius="5" HorizontalAlignment="Right"
-                    VerticalAlignment="Center">
-                <TextBlock Text="{Binding Level, ElementName=Root}" Foreground="#F0C070"
-                           FontSize="12" FontWeight="Bold"
-                           HorizontalAlignment="Center" VerticalAlignment="Center" />
-            </Border>
-        </Grid>
+    <!-- Reusable equipment slot sized to match the trinket slot (96x144 total). The weapon/armor
+         glyph and its level are outside the 72x144 image area: a bordered strip on the left with the
+         glyph above the level. The extra width keeps equipment and trinket panels aligned. -->
+    <Grid Width="96" Height="144">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="24" />
+            <ColumnDefinition Width="72" />
+        </Grid.ColumnDefinitions>
 
-        <Border Width="72" Height="144" Margin="0,4,0,0" Background="#1A150F"
-                BorderBrush="#3A2E22" BorderThickness="1" CornerRadius="4"
-                ToolTip="{Binding Tooltip, ElementName=Root}">
+        <Border Grid.Column="0" Width="22" Height="52" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Background="#1A150F" BorderBrush="#3A2E22" BorderThickness="1" CornerRadius="4"
+                Padding="1" ToolTip="{Binding Tooltip, ElementName=Root}">
+            <StackPanel VerticalAlignment="Top" Margin="0,2,0,0">
+                <TextBlock Text="{Binding Glyph, ElementName=Root}" FontFamily="Segoe UI Symbol"
+                           FontSize="16" Foreground="#E8D9B0" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding Level, ElementName=Root}" Foreground="#F0C070"
+                           FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,2,0,0" />
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Column="1" Width="72" Height="144" Background="#1A150F" BorderBrush="#3A2E22"
+                BorderThickness="1" CornerRadius="4" ToolTip="{Binding Tooltip, ElementName=Root}">
             <Grid>
                 <Image Source="{Binding Image, ElementName=Root}" Stretch="Uniform" Margin="4" />
                 <TextBlock Text="?" Foreground="#6A5A3A" FontSize="26"
@@ -37,5 +41,5 @@
                 </TextBlock>
             </Grid>
         </Border>
-    </StackPanel>
+    </Grid>
 </UserControl>

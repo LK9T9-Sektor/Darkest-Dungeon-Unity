@@ -3,18 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views">
     <!-- Equipment control: weapon and armor slots side by side, each a reusable EquipmentSlotView
-         with a glyph, rounded level badge and a 72x144 image placeholder. -->
-    <Border Style="{StaticResource SectionPanel}">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <views:EquipmentSlotView Grid.Column="0" Glyph="&#x2694;" Level="{Binding WeaponLevel}"
-                                     Tooltip="Weapon" Margin="0,0,4,0" />
-            <views:EquipmentSlotView Grid.Column="1" Glyph="&#x26E8;" Level="{Binding ArmorLevel}"
-                                     Tooltip="Armor" Margin="4,0,0,0" />
-        </Grid>
+         with a centered glyph, a plain level number and a 72x144 image placeholder. -->
+    <Border Style="{StaticResource SectionPanel}" Padding="6,4">
+        <StackPanel>
+            <views:SectionHeaderView Text="EQUIPMENT" />
+            <UniformGrid Columns="2">
+                <views:EquipmentSlotView Glyph="&#x2694;" Level="{Binding WeaponLevel}"
+                                         Tooltip="Weapon" Margin="1,0" HorizontalAlignment="Center" />
+                <views:EquipmentSlotView Glyph="&#x26E8;" Level="{Binding ArmorLevel}"
+                                         Tooltip="Armor" Margin="1,0" HorizontalAlignment="Center" />
+            </UniformGrid>
+        </StackPanel>
     </Border>
 </UserControl>

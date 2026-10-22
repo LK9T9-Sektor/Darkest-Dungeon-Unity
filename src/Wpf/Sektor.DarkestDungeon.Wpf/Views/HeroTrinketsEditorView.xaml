@@ -4,10 +4,9 @@
              xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views"
              x:Name="Root">
     <!-- Reusable two-slot trinket editor with the TRINKETS heading. Each slot rerolls independently. -->
-    <Border Style="{StaticResource SectionPanel}">
+    <Border Style="{StaticResource SectionPanel}" Padding="6,4">
         <StackPanel>
-            <TextBlock Text="TRINKETS" Foreground="#8A7A5A" FontSize="12" FontWeight="Bold"
-                       Margin="0,0,0,4" />
+            <views:SectionHeaderView Text="TRINKETS" />
             <ItemsControl ItemsSource="{Binding ItemsSource, ElementName=Root}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -16,7 +15,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <views:TrinketSlotView Margin="2,0" />
+                        <views:TrinketSlotView Margin="1,0" HorizontalAlignment="Center" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

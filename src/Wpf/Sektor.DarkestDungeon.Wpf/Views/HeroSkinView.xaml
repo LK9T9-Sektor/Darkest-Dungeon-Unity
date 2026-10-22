@@ -1,0 +1,22 @@
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.HeroSkinView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root">
+    <!-- Foundation skin selector: a square palette button with the current skin id. Only one
+         outfit is available today; the command is wired so later skins can cycle without changing
+         the overlay layout. -->
+    <Button Width="44" Height="44" Style="{StaticResource HudButton}" ToolTip="Change skin"
+            AutomationProperties.Name="Change hero skin"
+            Command="{Binding SelectCommand, ElementName=Root}">
+        <Grid>
+            <TextBlock Text="&#x25D0;" FontSize="22" Foreground="#E8D9B0"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <Border Background="#D9000000" BorderBrush="#3A2E22" BorderThickness="1"
+                    CornerRadius="6" Padding="3,0" HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom" Margin="0,0,1,1">
+                <TextBlock Text="{Binding SkinId, ElementName=Root}" Foreground="#F0C070"
+                           FontSize="10" FontWeight="Bold" />
+            </Border>
+        </Grid>
+    </Button>
+</UserControl>

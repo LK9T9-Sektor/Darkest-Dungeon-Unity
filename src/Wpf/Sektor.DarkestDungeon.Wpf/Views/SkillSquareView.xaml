@@ -28,5 +28,8 @@
         <TextBlock x:Name="NameLabel" Text="{Binding DisplayNameUpper}" FontSize="8" Height="20"
                    Foreground="#C8C0B0" TextAlignment="Center" TextWrapping="Wrap"
                    TextTrimming="CharacterEllipsis" Margin="0,2,0,0" />
+        <TextBlock x:Name="LevelLabel" Text="{Binding Level}" FontSize="11" Height="16"
+                   Foreground="#E8D9B0" FontWeight="Bold" TextAlignment="Center"
+                   Margin="0,2,0,0" Visibility="Collapsed" />
     </StackPanel>
 </UserControl>

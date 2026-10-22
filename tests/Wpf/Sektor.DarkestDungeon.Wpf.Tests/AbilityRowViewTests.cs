@@ -42,6 +42,27 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(squares.All(square => square.ShowName == false), Is.True);
         }
 
+        /// <summary>The row forwards the level flag to every skill square.</summary>
+        [Test]
+        public void ShowLevels_IsForwardedToSkillSquares()
+        {
+            var view = new AbilityRowView
+            {
+                ItemsSource = new List<DuelSkillViewModel>
+                {
+                    new DuelSkillViewModel("smite", "Smite", SkillTone.Attack),
+                },
+                IconSize = 32,
+                ShowNames = false,
+                ShowLevels = true,
+            };
+
+            Layout(view);
+
+            var square = FindChildren<SkillSquareView>(view).Single();
+            Assert.That(square.ShowLevel, Is.True);
+        }
+
         /// <summary>The row forwards its select command to every skill square.</summary>
         [Test]
         public void SelectCommand_IsForwardedToSkillSquares()

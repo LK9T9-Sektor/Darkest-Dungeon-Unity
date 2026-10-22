@@ -87,18 +87,27 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   `Grid` экрана лобби поверх всех рядов (в VS AI — один хост на две панели отряда). Открывается
   через `Open(slot)` из события `PartySelectionView.SlotEditRequested`.
 - `Views/HeroEditorOverlayView` — широкий редактор героя (ПКМ по слоту): фоновая гильд-картинка
-  `Header` (top-left, не листается), шапка `#позиция / иконка со стрелками / имя с reroll / класс / X`
-  (X с красным фоном), слева `HeroStatsView` + `HeroEquipmentView` + `HeroTrinketsEditorView`,
-  справа `AbilityRowView`, квирки в две колонки и таблица резистов. Слот поднимает
-  `HeroSlotEditRequestedEventArgs`.
-- `Styles/Hud.xaml` → `SectionPanel` — общая рамка секций (скиллы, квирки, резисты, экипировка,
-  тринькеты); шапка оверлея имеет нижнюю линию 2 px, как боевой `UnitHeaderView`.
-- `Views/EquipmentSlotView` — переиспользуемый слот экипировки: глиф (мечи/щит), квадратный
-  бейдж уровня без префикса `Lv.`, ниже placeholder 72×144 (размер слота из Unity `CharacterWindow`).
-  `Views/HeroEquipmentView` — два таких слота (weapon/armor) рядом.
-- `Views/TrinketSlotView` — переиспользуемый слот тринькета 72×144 с tooltip и собственной
-  reroll-кнопкой; `Views/HeroTrinketsEditorView` — два слота в ряд + заголовок `TRINKETS`.
-  `Views/HeroTrinketsView` остаётся read-only вариантом для боевого стат-листа.
+  `Header` (top-left, не листается), шапка только с `HeroIdentityView` и кнопкой закрытия внутри
+  скруглённой панели; портрет/стрелки/позиция/скин вынесены вниз в `HeroCharacterControlsView`, Idle
+  расположен выше них; тело из четырёх строк, нижний ряд `EQUIPMENT`/`TRINKETS`/`DISEASES` прижат к низу,
+  высота панели по контенту. Слот поднимает `HeroSlotEditRequestedEventArgs`.
+- `Styles/Hud.xaml` → `SectionPanel` — общая рамка секций; `CloseButton` — общий красный стиль X
+  (размер/отступ задаёт экран); шапка оверлея имеет нижнюю линию 2 px, как боевой `UnitHeaderView`.
+- `Views/EquipmentSlotView` — переиспользуемый слот экипировки 96×144: слева рамка 22×52 с глифом
+  (мечи/щит) и уровнем без префикса `Lv.`, справа изображение 72×144 (размер из Unity
+  `CharacterWindow`). `Views/HeroEquipmentView` — два таких слота (weapon/armor) рядом.
+- `Views/TrinketSlotView` — переиспользуемый слот тринькета 96×144: изображение 72×144 с tooltip и
+  отдельная reroll-кнопка справа сверху; `Views/HeroTrinketsEditorView` — два слота в ряд + заголовок
+  `TRINKETS`. `Views/HeroTrinketsView` остаётся read-only вариантом для боевого стат-листа.
+- `Views/HeroIdentityView` — две кнопки (карандаш/reroll), имя и класс; inline-редактирование имени
+  (лимит 24, 24 точки-хинта не входят в значение, Enter/потеря фокуса — сохранить, Esc — отмена).
+  `Views/HeroCharacterControlsView` — скин, портрет, стрелки класса и позиция внизу. `Views/HeroSkinView` —
+  квадратная кнопка с глифом и `SkinId`; `Views/HeroLevelView` — медальон уровня.
+- `Views/BoundedScrollView` — общий список с `DefaultRows`/`MaxRows`/`RowHeight`. Default резервирует
+  пустые строки/высоту; используется для quirks (5 строк в каждой колонке), stats (4×2), resistances (4×2),
+  diseases (3 строки, как Quirks/Base Stats — без заливки и рамок). При превышении — вертикальный скролл. `ViewModels/QuirkRowViewModel` + разметка
+  квирков дают строку `[LockIcon][DisplayName]`; `SpineHeroControl` масштабирует Idle по высоте с
+  `BottomInset`, ширина ограничивает только при нехватке места.
 - `ViewModels/ISkillTileViewModel` — общий контракт `Icon`/`DisplayNameUpper`/`IsUsable`/
   `IsSelected`/`IsLoadout`/`IsMasked` для `DuelSkillViewModel` и `LobbySkillViewModel`;
   `SkillSquareView` по нему включает/выключает кликабельный квадрат, пересчитывает `IsEnabled`
@@ -107,7 +116,8 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   `Portrait` (аутфит `A`), `Header`, `HeroName` и `LobbySkillViewModel` (иконка, тултип,
   `Level`/`BaseInfo`/`EffectRows`); `CanSelectSkills` берётся из `HeroClass.CanSelectCombatSkills`,
   `MaxActiveSkills` — из `NumberOfSelectedCombatSkills`. При лимите 4 невыбранные скиллы получают
-  `IsUsable=false` (серые); у Abomination все 7 выбраны и `SkillsLocked=true`.
+  `IsUsable=false` (серые); у Abomination все 7 выбраны, выбор заблокирован (`SkillsLocked=true`),
+  отдельная подпись при этом не показывается.
 
 ## 3. Порядок срабатывания (трассировка)
 
@@ -208,11 +218,14 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 | Адаптивная раскладка | `MainWindow` | ресайз, без Viewbox |
 | Скорость Spine-демо | `SpineDemoViewModel` | 1.0…10.0 (шаг 0.5, wrap 100↔1000%); нижний кламп контрола 0.01…100 |
 | Портрет героя | `IHeroIconCatalog`, `HeroPortraitView` | аутфит `A`; опциональные стрелки `◀`/`▶` и клик по портрету через DP; отсутствующий/битый/неизвестный id → `null` → плейсхолдер `?`, исключения не летят |
-| Имя героя | `HeroNameCatalog`, `HeroSlotViewModel` | английский пул `Names.xml`; случайное при создании слота, reroll-кнопка; нет файла/пула → `Hero` |
-| Экипировка | `EquipmentSlotView`, `HeroEquipmentView` | слот 72×144; квадратный бейдж уровня без `Lv.`; глифы мечей/щита; картинка или `?` |
-| Тринкеты | `TrinketSlotView`, `HeroTrinketsEditorView` | слот 72×144, две колонки, tooltip и отдельный reroll у каждого; пул фильтруется по классу |
-| Ряд скиллов в оверлее | `AbilityRowView`, `LobbySkillViewModel` | `IconSize=56`, имена скрыты; выбранные оранжевые, невыбранные серые + маска; при лимите 4 невыбранные не кликаются; Abomination — все 7 выбраны и `SkillsLocked` |
-| Оверлей героя | `LobbyHeroEditorHost`, `HeroEditorOverlayView` | ПКМ по слоту; full-window, гильд-картинка фоном top-left, шапка `#позиция/иконка/имя/класс/X`, слева статы/оружие/тринкеты, справа `AbilityRowView` (56), квирки в две колонки и резисты; закрытие — крестик, Esc или клик по затемнению |
+| Имя героя | `HeroNameCatalog`, `HeroIdentityView`, `HeroSlotViewModel` | английский пул `Names.xml`; случайное при создании слота, reroll и inline-редактирование (лимит 24, 24 точки-хинта не входят в имя); нет файла/пула → `Hero` |
+| Экипировка | `EquipmentSlotView`, `HeroEquipmentView` | слот 96×144: слева рамка 22×52 с глифом меча/щита и уровнем, справа изображение 72×144; картинка или `?` |
+| Тринкеты | `TrinketSlotView`, `HeroTrinketsEditorView` | слот 96×144: изображение 72×144 и кнопка reroll 20×20 справа сверху вне изображения; две колонки, tooltip; пул фильтруется по классу |
+| Ряд скиллов в оверлее | `AbilityRowView`, `LobbySkillViewModel` | `IconSize=48`, имена скрыты; при `ShowName=false` корень плитки 56 px, поэтому все 7 скиллов (и 7 лагерных) помещаются в один ряд; выбранные с золотой рамкой, невыбранные серые + маска; Abomination — все 7 выбраны, `SkillsLocked` без отдельной подписи |
+| Квирки | `QuirkRowViewModel`, `QuirkIconCatalog` | две цветные колонки (positive/negative) без заголовков, 5 строк в каждой даже при нехватке данных; в строке `[замок 14×14][имя]`; иконка `Sprites/Shared/Quirk/lockquirk.png`; положительный квирк помечен locked в лобби-моке |
+| Уровень героя | `HeroLevelView` | переиспользуемый медальон: чёрная закруглённая рамка, круг и число; DP `Level` |
+| Оверлей героя | `LobbyHeroEditorHost`, `HeroEditorOverlayView` | ПКМ по слоту; full-window: `HeroIdentityView` в шапке, медальон уровня/Idle слева, внизу `HeroCharacterControlsView` (скин/портрет/класс/позиция), `QUIRKS`+`BASE STATS` и `EQUIPMENT`/`TRINKETS` в середине, `SKILLS`/`CAMPING SKILLS`/`RESISTANCES`/`DISEASES` справа; нижний ряд прижат к низу; закрытие — X внутри скругления, Esc или клик по затемнению |
+| Списки с default | `BoundedScrollView` | 5 строк quirks в каждой колонке, 4×2 stats, 4×2 resistances, 3 строки diseases (как Quirks/Base Stats, без заливки и рамок); default резервирует пустые строки/высоту, затем вертикальный скролл; skills/camping — 1 ряд по 7 плиток |
 | Иконка скилла | `HeroSkillCatalog.GetSkillIcon`, `HeroIconCatalog.GetAbilityIcon` | нет класса/скилла/файла → `null` → квадрат без иконки |
 | Размер иконки скилла | `SkillSquareView.IconSize` | нижний кламп 16; кнопка = размер + 8, корень = размер + 16 |
 | Эффект скилла в демо | `SpineDemoViewModel` | нет `.fx`-сета → базовая поза в цикле; нет и позы → анимация не меняется |
@@ -350,15 +363,24 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   на `SkillSquareView` сохраняет тултип и на недоступных/read-only квадратах.
 - **Abomination — правило из контента, не хардкод класса** — `HeroClassFileParser` читает
   `skill_selection: .can_select_combat_skills false .number_of_selected_combat_skills_max 7`;
-  `HeroSlotViewModel` блокирует `ToggleSkill`, оставляет все 7 выбранными и показывает
-  `SkillsLocked`. Любой другой класс с тем же флагом получит то же поведение.
+  `HeroSlotViewModel` блокирует `ToggleSkill`, оставляет все 7 выбранными и держит
+  `SkillsLocked=true`; отдельной подписи в оверлее нет. Любой другой класс с тем же флагом получит
+  то же поведение.
 - **Имена не фиксированные** — Unity генерирует их из `Names.xml` (`hero_name_0..555`, `StageCoach`/
   `DarkestPhotonLauncher`); WPF берёт английский пул через `HeroNameCatalog`. Имя создаётся вместе со
   слотом и сохраняется при смене класса; меняется только кнопкой reroll (`RerollNameCommand`).
-- **Экипировка и тринькеты — 72×144** — размер взят из `CharacterWindow.prefab` (EquipmentPanel и
-  Left/RightTrinketSlot). `EquipmentSlotView`/`TrinketSlotView` — отдельные переиспользуемые слоты;
-  `HeroEquipmentView`/`HeroTrinketsEditorView` только раскладывают их (weapon/armor, два тринькета +
-  `TRINKETS`). Боевой `HeroTrinketsView` — read-only вариант тех же 72×144 слотов.
+- **Экипировка и тринькеты — 96×144** — изображение внутри остаётся 72×144 (размер взят из
+  `CharacterWindow.prefab`). У экипировки слева отдельная рамка 22×52 с глифом и уровнем, у тринькета
+  справа сверху отдельная кнопка reroll; поэтому `EquipmentSlotView` и `TrinketSlotView` одной ширины.
+  `HeroEquipmentView`/`HeroTrinketsEditorView` раскладывают по два слота в одинаковых узких панелях
+  (weapon/armor, два тринькета + `TRINKETS`). Боевой `HeroTrinketsView` — read-only вариант тех же слотов.
+- **Квирки и уровень** — `QuirkRowViewModel` даёт строку `[LockIcon][DisplayName]`; `QuirkIconCatalog`
+  грузит `lockquirk.png` из `Content\Quirks`. `HeroLevelView` — переиспользуемый медальон с DP `Level`,
+  стоит над Idle-персонажем. Положительный квирк в лобби-моке помечается locked; отрицательные строки
+  поддерживают тот же флаг.
+- **Семь скиллов в один ряд** — `SkillSquareView` при `ShowName=false` больше не резервирует ширину
+  под имя (56 px при `IconSize=48`), а правая колонка оверлея расширена: все 7 боевых и 7 лагерных
+  плиток помещаются в один ряд.
 - **Оверлей живёт в `LobbyHeroEditorHost` на уровне экрана, не в `HeroSlotsPanel`/`PartySelectionView`**
   — `HeroSlotsPanel` content-sized, а панель отряда в VS AI занимает только половину окна; широкий
   оверлей там был бы обрезан. Хост лежит в корневом `Grid` экрана лобби и растягивается на всё окно;

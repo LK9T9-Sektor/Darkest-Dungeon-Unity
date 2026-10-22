@@ -5,7 +5,8 @@ using System.Windows.Input;
 
 namespace Sektor.DarkestDungeon.Wpf.Views
 {
-    /// <summary>Reusable row of skill squares with an optional selection command and configurable icon size.</summary>
+    /// <summary>Reusable row of skill squares with an optional selection command, configurable icon
+    /// size, and optional name/level labels.</summary>
     public partial class AbilityRowView : UserControl
     {
         /// <summary>Identifies the <see cref="ItemsSource"/> dependency property.</summary>
@@ -35,6 +36,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(bool),
             typeof(AbilityRowView),
             new PropertyMetadata(true));
+
+        /// <summary>Identifies the <see cref="ShowLevels"/> dependency property.</summary>
+        public static readonly DependencyProperty ShowLevelsProperty = DependencyProperty.Register(
+            nameof(ShowLevels),
+            typeof(bool),
+            typeof(AbilityRowView),
+            new PropertyMetadata(false));
 
         /// <summary>Initializes a new instance of the <see cref="AbilityRowView"/> class.</summary>
         public AbilityRowView()
@@ -68,6 +76,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             get => (bool)GetValue(ShowNamesProperty);
             set => SetValue(ShowNamesProperty, value);
+        }
+
+        /// <summary>Gets or sets a value indicating whether the skill level number is shown under each icon.</summary>
+        public bool ShowLevels
+        {
+            get => (bool)GetValue(ShowLevelsProperty);
+            set => SetValue(ShowLevelsProperty, value);
         }
     }
 }

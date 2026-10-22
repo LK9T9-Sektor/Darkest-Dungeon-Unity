@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Media;
@@ -16,15 +17,19 @@ using Sektor.DarkestDungeon.Wpf.Data;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
-    /// <summary>A single hero slot in a lobby: class cycling, active skill selection, trait reroll and trinket slots.</summary>
+    /// <summary>A single hero slot in a lobby: class cycling, combat and camping skill selection,
+    /// trait reroll, trinket slots and the Idle Spine content of the current class.</summary>
     public partial class HeroSlotViewModel : ObservableObject
     {
         private const int TrinketSlotCount = 2;
+        private const int CampingSkillLimit = 4;
+        private const int QuirkVisibleRows = 5;
         private const string PortraitOutfit = "A";
 
         private readonly IReadOnlyList<string> availableClasses;
         private readonly IHeroIconCatalog? iconCatalog;
         private readonly IHeroSkillCatalog? skillCatalog;
+        private readonly ISpineDemoCatalog? spineCatalog;
         private readonly Random rng = new Random();
 
         /// <summary>Gets the deterministic seed of this slot.</summary>
@@ -34,9 +39,26 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private int _position;
 
+        /// <summary>Gets the hero level shown in the editor level medallion.</summary>
+        public int Level { get; } = 1;
+
+        /// <summary>Gets or sets the current skin id shown by the skin selector.</summary>
+        [ObservableProperty]
+        private int _skinId = 1;
+
+        /// <summary>Gets the number of implemented skins (one until outfit switching is wired).</summary>
+        public int SkinCount { get; } = 1;
+
+        /// <summary>Gets the maximum hero-name length accepted by the editor.</summary>
+        public int MaxHeroNameLength { get; } = 24;
+
         /// <summary>Gets or sets the randomized hero name.</summary>
         [ObservableProperty]
         private string _heroName = "Hero";
+
+        /// <summary>Gets or sets a value indicating whether the name is being edited.</summary>
+        [ObservableProperty]
+        private bool _isEditingName;
 
         /// <summary>Gets or sets the selected class id.</summary>
         [ObservableProperty]
@@ -49,6 +71,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets or sets the maximum number of active combat skills.</summary>
         [ObservableProperty]
         private int _maxActiveSkills = 4;
+
+        /// <summary>Gets the maximum number of selected camping skills (four).</summary>
+        public int MaxCampingSkills { get { return CampingSkillLimit; } }
 
         /// <summary>Gets or sets a value indicating whether the player may choose the active combat skills.</summary>
         [ObservableProperty]
@@ -69,6 +94,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private ImageSource? _header;
 
+        /// <summary>Gets or sets the Spine Idle content directory of the selected class; empty when
+        /// the content is not available.</summary>
+        [ObservableProperty]
+        private string _idleContentDirectory = string.Empty;
+
         /// <summary>Gets or sets the quirk summary text ("+tough, -fragile").</summary>
         [ObservableProperty]
         private string _quirkSummary = string.Empty;
@@ -76,8 +106,22 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the combat skill toggles.</summary>
         public ObservableCollection<LobbySkillViewModel> Skills { get; } = new ObservableCollection<LobbySkillViewModel>();
 
+        /// <summary>Gets the camping skill toggles (at most four selected).</summary>
+        public ObservableCollection<LobbyCampingSkillViewModel> CampingSkills { get; } = new ObservableCollection<LobbyCampingSkillViewModel>();
+
         /// <summary>Gets the rolled quirks.</summary>
         public ObservableCollection<Quirk> Quirks { get; } = new ObservableCollection<Quirk>();
+
+        /// <summary>Gets the quirk rows shown by the editor, including their lock state.</summary>
+        public ObservableCollection<QuirkRowViewModel> QuirkRows { get; } = new ObservableCollection<QuirkRowViewModel>();
+
+        /// <summary>Gets the fixed three disease slots; unused slots are empty placeholders.</summary>
+        public ObservableCollection<DiseaseRowViewModel> Diseases { get; } = new ObservableCollection<DiseaseRowViewModel>
+        {
+            new DiseaseRowViewModel(string.Empty),
+            new DiseaseRowViewModel(string.Empty),
+            new DiseaseRowViewModel(string.Empty),
+        };
 
         /// <summary>Gets the two trinket slots (left then right).</summary>
         public ObservableCollection<LobbyTrinketViewModel> TrinketSlots { get; } = new ObservableCollection<LobbyTrinketViewModel>();
@@ -94,8 +138,17 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the command that rerolls the hero name.</summary>
         public IRelayCommand RerollNameCommand { get; }
 
+        /// <summary>Gets the command that starts inline hero-name editing.</summary>
+        public IRelayCommand EditNameCommand { get; }
+
+        /// <summary>Gets the command that advances to the next skin when more than one exists.</summary>
+        public IRelayCommand NextSkinCommand { get; }
+
         /// <summary>Gets the command that toggles an active combat skill.</summary>
         public IRelayCommand<LobbySkillViewModel> ToggleSkillCommand { get; }
+
+        /// <summary>Gets the command that toggles a selected camping skill.</summary>
+        public IRelayCommand<LobbyCampingSkillViewModel> ToggleCampingSkillCommand { get; }
 
         /// <summary>Gets the command that rerolls the hero's quirks.</summary>
         public IRelayCommand RerollQuirksCommand { get; }
@@ -109,22 +162,36 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             get { return Skills.Where(skill => skill.IsActive).Select(skill => skill.Id).ToList(); }
         }
 
+        /// <summary>Gets the ids of the selected camping skills.</summary>
+        public IReadOnlyList<string> SelectedCampingSkillIds
+        {
+            get { return CampingSkills.Where(skill => skill.IsActive).Select(skill => skill.Id).ToList(); }
+        }
+
         /// <summary>Gets the ids of the chosen quirks.</summary>
         public IReadOnlyList<string> SelectedQuirkIds
         {
             get { return Quirks.Select(quirk => quirk.Id).ToList(); }
         }
 
-        /// <summary>Gets the positive quirks shown in the editor's left quirk column.</summary>
-        public IReadOnlyList<Quirk> PositiveQuirks
+        /// <summary>Gets the positive quirk rows shown in the editor's left quirk column.</summary>
+        public IReadOnlyList<QuirkRowViewModel> PositiveQuirks
         {
-            get { return Quirks.Where(quirk => quirk.IsPositive).ToList(); }
+            get { return PaddedQuirks(isPositive: true); }
         }
 
-        /// <summary>Gets the negative quirks shown in the editor's right quirk column.</summary>
-        public IReadOnlyList<Quirk> NegativeQuirks
+        /// <summary>Gets the negative quirk rows shown in the editor's right quirk column.</summary>
+        public IReadOnlyList<QuirkRowViewModel> NegativeQuirks
         {
-            get { return Quirks.Where(quirk => !quirk.IsPositive).ToList(); }
+            get { return PaddedQuirks(isPositive: false); }
+        }
+
+        private IReadOnlyList<QuirkRowViewModel> PaddedQuirks(bool isPositive)
+        {
+            var rows = QuirkRows.Where(quirk => quirk.IsPositive == isPositive).ToList();
+            while (rows.Count < QuirkVisibleRows)
+                rows.Add(QuirkRowViewModel.Empty(isPositive));
+            return rows;
         }
 
         /// <summary>Gets the ids of the equipped trinkets.</summary>
@@ -139,23 +206,29 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <param name="iconCatalog">The catalog of hero portraits, or null when icons are not available.</param>
         /// <param name="skillCatalog">The catalog of combat skill icons and art, or null when icons are not available.</param>
         /// <param name="position">The 1-based formation position of this slot.</param>
+        /// <param name="spineCatalog">The Spine content catalog, or null when the Idle animation is not available.</param>
         public HeroSlotViewModel(
             int seed,
             IReadOnlyList<string> availableClasses,
             IHeroIconCatalog? iconCatalog = null,
             IHeroSkillCatalog? skillCatalog = null,
-            int position = 0)
+            int position = 0,
+            ISpineDemoCatalog? spineCatalog = null)
         {
             this.availableClasses = availableClasses;
             this.iconCatalog = iconCatalog;
             this.skillCatalog = skillCatalog;
+            this.spineCatalog = spineCatalog;
             Seed = seed;
             Position = position;
             _classId = this.availableClasses[0];
             PrevClassCommand = new RelayCommand(PrevClass);
             NextClassCommand = new RelayCommand(NextClass);
             RerollNameCommand = new RelayCommand(RerollName);
+            EditNameCommand = new RelayCommand(BeginEditName);
+            NextSkinCommand = new RelayCommand(NextSkin);
             ToggleSkillCommand = new RelayCommand<LobbySkillViewModel>(ToggleSkill);
+            ToggleCampingSkillCommand = new RelayCommand<LobbyCampingSkillViewModel>(ToggleCampingSkill);
             RerollQuirksCommand = new RelayCommand(RerollQuirks);
             RerollTrinketsCommand = new RelayCommand(RerollTrinkets);
             RerollName();
@@ -192,8 +265,42 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         private void RerollName()
         {
+            IsEditingName = false;
             HeroName = Data.HeroNameCatalog.RandomName(rng) ?? "Hero";
-            Stats.HeroName = HeroName;
+        }
+
+        private void BeginEditName()
+        {
+            IsEditingName = true;
+        }
+
+        private void NormalizeHeroName()
+        {
+            string name = (HeroName ?? string.Empty).Trim();
+            if (name.Length == 0)
+                name = "Hero";
+            if (name.Length > MaxHeroNameLength)
+                name = name.Substring(0, MaxHeroNameLength);
+            HeroName = name;
+            Stats.HeroName = name;
+        }
+
+        private void NextSkin()
+        {
+            if (SkinCount <= 1)
+                return;
+            SkinId = SkinId >= SkinCount ? 1 : SkinId + 1;
+        }
+
+        partial void OnHeroNameChanged(string value)
+        {
+            Stats.HeroName = value;
+        }
+
+        partial void OnIsEditingNameChanged(bool value)
+        {
+            if (!value)
+                NormalizeHeroName();
         }
 
         private void ToggleSkill(LobbySkillViewModel? skill)
@@ -215,6 +322,25 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             RefreshSkillAvailability();
         }
 
+        private void ToggleCampingSkill(LobbyCampingSkillViewModel? skill)
+        {
+            if (skill == null)
+                return;
+
+            if (skill.IsActive)
+            {
+                skill.IsActive = false;
+                RefreshCampingSkillAvailability();
+                return;
+            }
+
+            if (CampingSkills.Count(active => active.IsActive) >= MaxCampingSkills)
+                return;
+
+            skill.IsActive = true;
+            RefreshCampingSkillAvailability();
+        }
+
         private void RerollQuirks()
         {
             Quirks.Clear();
@@ -223,6 +349,13 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             QuirkSummary = Quirks.Count == 0
                 ? "no quirks"
                 : string.Join(", ", Quirks.Select(q => (q.IsPositive ? "+" : "-") + q.Id));
+
+            // The lobby has no save-backed lock flags yet: keep the rolled positive quirk as the
+            // innate locked one so the editor shows both lock states. Negative rows support the
+            // same flag when a save supplies it.
+            QuirkRows.Clear();
+            foreach (Quirk quirk in Quirks)
+                QuirkRows.Add(new QuirkRowViewModel(quirk, isLocked: quirk.IsPositive));
             OnPropertyChanged(nameof(PositiveQuirks));
             OnPropertyChanged(nameof(NegativeQuirks));
         }
@@ -283,6 +416,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             }
 
             RefreshSkillAvailability();
+            LoadCampingSkills();
+            IdleContentDirectory = ResolveIdleContentDirectory();
 
             ReloadTrinkets();
             Details = BuildDetails(heroClass);
@@ -296,6 +431,43 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             bool canSelectMore = CanSelectSkills && activeCount < MaxActiveSkills;
             foreach (var skill in Skills)
                 skill.IsUsable = skill.IsActive || canSelectMore;
+        }
+
+        private void LoadCampingSkills()
+        {
+            CampingSkills.Clear();
+            var campingSkills = Data.CampingSkillCatalog.GetForClass(ClassId);
+            for (int i = 0; i < campingSkills.Count; i++)
+            {
+                var skill = campingSkills[i];
+                CampingSkills.Add(new LobbyCampingSkillViewModel(
+                    skill,
+                    i < MaxCampingSkills,
+                    Data.CampingSkillCatalog.GetIcon(skill.Id)));
+            }
+
+            RefreshCampingSkillAvailability();
+        }
+
+        private void RefreshCampingSkillAvailability()
+        {
+            int activeCount = CampingSkills.Count(skill => skill.IsActive);
+            bool canSelectMore = activeCount < MaxCampingSkills;
+            foreach (var skill in CampingSkills)
+                skill.IsUsable = skill.IsActive || canSelectMore;
+        }
+
+        private string ResolveIdleContentDirectory()
+        {
+            if (spineCatalog == null)
+                return string.Empty;
+
+            string heroFolder = Ui.HeroIds.ToFolderName(ClassId);
+            if (string.IsNullOrEmpty(heroFolder))
+                return string.Empty;
+
+            string directory = spineCatalog.GetContentDirectory(heroFolder, "Idle");
+            return Directory.Exists(directory) ? directory : string.Empty;
         }
 
         private void ReloadTrinkets()

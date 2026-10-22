@@ -46,7 +46,7 @@
 
             <!-- CLOSE BUTTON (only when a close command is provided) -->
             <Button x:Name="CloseButton" Grid.Column="2" Content="&#x2715;" Width="28" Height="28"
-                    FontWeight="Bold" Style="{StaticResource HudButton}" VerticalAlignment="Center"
+                    FontWeight="Bold" Style="{StaticResource CloseButton}" VerticalAlignment="Center"
                     Command="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
         </Grid>
     </Border>

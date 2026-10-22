@@ -42,5 +42,22 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         {
             Assert.That(HeroIds.ToClassId(string.Empty), Is.EqualTo(string.Empty));
         }
+
+        /// <summary>A snake_case class id maps back to the Spine/icon folder name.</summary>
+        [TestCase("crusader", "Crusader")]
+        [TestCase("man_at_arms", "ManAtArms")]
+        [TestCase("grave_robber", "GraveRobber")]
+        [TestCase("plague_doctor", "PlagueDoctor")]
+        public void ToFolderName_ClassId_ReturnsPascalCaseFolder(string classId, string expected)
+        {
+            Assert.That(HeroIds.ToFolderName(classId), Is.EqualTo(expected));
+        }
+
+        /// <summary>An empty class id yields an empty folder name.</summary>
+        [Test]
+        public void ToFolderName_EmptyClassId_ReturnsEmpty()
+        {
+            Assert.That(HeroIds.ToFolderName(string.Empty), Is.EqualTo(string.Empty));
+        }
     }
 }

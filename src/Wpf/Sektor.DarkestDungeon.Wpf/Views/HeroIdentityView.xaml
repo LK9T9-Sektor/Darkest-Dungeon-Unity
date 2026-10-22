@@ -1,0 +1,46 @@
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.HeroIdentityView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root">
+    <!-- Reusable hero identity block: edit/reroll buttons stacked on the left, name and class on
+         the right. In edit mode the name becomes a single-line TextBox. -->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0" Width="24" VerticalAlignment="Center" Margin="0,0,10,0">
+            <Button Content="&#x270E;" Width="24" Height="24" FontSize="12"
+                    Style="{StaticResource HudButton}" ToolTip="Edit name"
+                    AutomationProperties.Name="Edit hero name"
+                    Command="{Binding EditCommand, ElementName=Root}" />
+            <Button Content="&#x21BB;" Width="24" Height="24" FontSize="13" Margin="0,4,0,0"
+                    Style="{StaticResource HudButton}" ToolTip="Reroll name"
+                    AutomationProperties.Name="Reroll hero name"
+                    Command="{Binding RerollCommand, ElementName=Root}" />
+        </StackPanel>
+
+        <Grid Grid.Column="1" VerticalAlignment="Center" Margin="0,0,12,0">
+            <StackPanel x:Name="DisplayPanel">
+                <TextBlock Text="{Binding HeroName, ElementName=Root}" Foreground="#E8D9B0" FontSize="22"
+                           FontWeight="Bold" TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding ClassName, ElementName=Root}" Foreground="#C8C0B0" FontSize="13" />
+            </StackPanel>
+
+            <StackPanel x:Name="EditPanel" Visibility="Collapsed">
+                <Grid Width="280">
+                    <TextBlock x:Name="NameHint" Text="........................" FontFamily="Consolas"
+                               FontSize="18" Foreground="#3A2E22" VerticalAlignment="Center"
+                               Margin="2,0,0,0" IsHitTestVisible="False" />
+                    <TextBox x:Name="NameBox" MaxLength="{Binding MaxNameLength, ElementName=Root}"
+                             Text="{Binding HeroName, ElementName=Root, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Foreground="#E8D9B0" Background="Transparent" BorderThickness="0"
+                             FontFamily="Consolas" FontSize="18" Padding="1,0"
+                             KeyDown="OnNameKeyDown" LostFocus="OnNameLostFocus" />
+                </Grid>
+                <TextBlock Text="{Binding ClassName, ElementName=Root}" Foreground="#C8C0B0" FontSize="13" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

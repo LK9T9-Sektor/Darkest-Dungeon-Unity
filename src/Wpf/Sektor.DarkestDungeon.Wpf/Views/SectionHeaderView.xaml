@@ -1,0 +1,11 @@
+<UserControl x:Class="Sektor.DarkestDungeon.Wpf.Views.SectionHeaderView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root">
+    <!-- Reusable section heading: centered caption with a bottom separator. The host supplies only
+         the text; the heading chrome never lives in the individual views. -->
+    <Border BorderBrush="#3A2E22" BorderThickness="0,0,0,1" Padding="0,0,0,4" Margin="0,0,0,6">
+        <TextBlock Text="{Binding Text, ElementName=Root}" Foreground="#8A7A5A" FontSize="12"
+                   FontWeight="Bold" TextAlignment="Center" HorizontalAlignment="Stretch" />
+    </Border>
+</UserControl>

@@ -37,7 +37,8 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             set { SetValue(GlyphProperty, value); }
         }
 
-        /// <summary>Gets or sets the equipment level shown in the rounded badge (without an "Lv." prefix).</summary>
+        /// <summary>Gets or sets the equipment level shown as a plain number next to the glyph
+        /// (without an "Lv." prefix).</summary>
         public string Level
         {
             get { return (string)GetValue(LevelProperty); }

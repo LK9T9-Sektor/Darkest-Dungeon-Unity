@@ -31,6 +31,14 @@
         <Setter Property="Foreground" Value="{x:Static ui:UiBrushes.Label}" />
     </Style>
 
+    <!-- Shared close-button chrome: red square with a white X. Screens choose their own size and
+         placement (screen headers, unit headers, rounded overlays). -->
+    <Style x:Key="CloseButton" TargetType="Button" BasedOn="{StaticResource HudButton}">
+        <Setter Property="Background" Value="#C0392B" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+        <Setter Property="BorderBrush" Value="#E05A4A" />
+    </Style>
+
     <!-- Bordered section chrome for grouped controls inside a larger panel (skills, quirks,
          resistances, equipment, trinkets). -->
     <Style x:Key="SectionPanel" TargetType="Border">
@@ -52,9 +60,9 @@
         <Setter Property="MaxWidth" Value="420" />
     </Style>
 
-    <!-- Combat skill square chrome: battle usable = golden frame; loadout selected = orange frame;
-         loadout unselected = grey frame; unusable = grey frame. The icon stays visible under a
-         semi-transparent mask. Bound to an ISkillTileViewModel (IsUsable/IsSelected/IsLoadout). -->
+    <!-- Combat skill square chrome: usable/selected = golden frame; loadout unselected = grey frame;
+         unusable = grey frame. The icon stays visible under a semi-transparent mask. Bound to an
+         ISkillTileViewModel (IsUsable/IsSelected/IsLoadout). -->
     <ControlTemplate x:Key="SkillButtonTemplate" TargetType="Button">
         <Border x:Name="Chrome" Background="#2A2218" BorderBrush="#D9B46A" BorderThickness="2"
                 CornerRadius="4" Padding="2">
@@ -67,7 +75,7 @@
             </DataTrigger>
             <DataTrigger Binding="{Binding IsSelected}" Value="True">
                 <Setter TargetName="Chrome" Property="Background" Value="#3A2A18" />
-                <Setter TargetName="Chrome" Property="BorderBrush" Value="#D98A3A" />
+                <Setter TargetName="Chrome" Property="BorderBrush" Value="#D9B46A" />
             </DataTrigger>
             <MultiDataTrigger>
                 <MultiDataTrigger.Conditions>

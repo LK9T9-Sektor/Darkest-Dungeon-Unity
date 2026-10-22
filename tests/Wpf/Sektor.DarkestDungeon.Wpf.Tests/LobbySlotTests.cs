@@ -1,8 +1,11 @@
+using System;
+using System.IO;
 using System.Linq;
 
 using NUnit.Framework;
 
 using Sektor.DarkestDungeon.Wpf.Combat;
+using Sektor.DarkestDungeon.Wpf.Data;
 using Sektor.DarkestDungeon.Wpf.ViewModels;
 
 namespace Sektor.DarkestDungeon.Wpf.Tests
@@ -18,6 +21,7 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(slot.Skills.Count, Is.GreaterThan(0));
             Assert.That(slot.MaxActiveSkills, Is.GreaterThan(0));
             Assert.That(slot.Skills.Count(skill => skill.IsActive), Is.EqualTo(slot.MaxActiveSkills));
+            Assert.That(slot.Skills.All(skill => skill.Level >= 1), Is.True, "base skills must show level 1, not 0");
             Assert.That(slot.SelectedSkillIds.Count, Is.EqualTo(slot.MaxActiveSkills));
             Assert.That(slot.Quirks.Count, Is.EqualTo(2));
             Assert.That(slot.QuirkSummary, Is.Not.Empty);
@@ -123,6 +127,58 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
         }
 
         [Test]
+        public void Slot_QuirkRowsCarryLockStateAndReadableName()
+        {
+            var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds);
+
+            Assert.That(slot.PositiveQuirks, Has.Count.EqualTo(5));
+            Assert.That(slot.NegativeQuirks, Has.Count.EqualTo(5));
+            var positive = slot.PositiveQuirks.First(quirk => quirk.DisplayName.Length > 0);
+            var negative = slot.NegativeQuirks.First(quirk => quirk.DisplayName.Length > 0);
+
+            Assert.That(positive.IsLocked, Is.True);
+            Assert.That(positive.LockIcon, Is.Not.Null);
+            Assert.That(negative.IsLocked, Is.False);
+            Assert.That(negative.LockIcon, Is.Null);
+            Assert.That(positive.DisplayName, Does.Not.Contain("_"));
+            Assert.That(negative.DisplayName, Does.Not.Contain("_"));
+        }
+
+        [Test]
+        public void Slot_NameEditing_ClampsToConfiguredLimit()
+        {
+            var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds);
+
+            slot.EditNameCommand.Execute(null);
+            Assert.That(slot.IsEditingName, Is.True);
+
+            slot.HeroName = new string('A', 40);
+            slot.IsEditingName = false;
+
+            Assert.That(slot.HeroName.Length, Is.EqualTo(slot.MaxHeroNameLength));
+            Assert.That(slot.Stats.HeroName, Is.EqualTo(slot.HeroName));
+        }
+
+        [Test]
+        public void Slot_HasFixedThreeDiseaseSlots()
+        {
+            var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds);
+
+            Assert.That(slot.Diseases, Has.Count.EqualTo(3));
+            Assert.That(slot.Diseases.All(disease => disease.IsEmpty), Is.True);
+        }
+
+        [Test]
+        public void Slot_SkinSelector_StartsAtFirstSkin()
+        {
+            var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds);
+
+            Assert.That(slot.SkinId, Is.EqualTo(1));
+            slot.NextSkinCommand.Execute(null);
+            Assert.That(slot.SkinId, Is.EqualTo(1), "only one skin is implemented so far");
+        }
+
+        [Test]
         public void Slot_LoadsTwoTrinketSlots()
         {
             var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds);
@@ -156,6 +212,54 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             vestal.AssignClass("vestal");
             vestal.TrinketSlots[0].Select("sacred_scroll");
             Assert.That(vestal.SelectedTrinketIds, Contains.Item("sacred_scroll"));
+        }
+
+        [Test]
+        public void Slot_LoadsCampingSkillsAndRespectsMaxSelected()
+        {
+            var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds);
+            slot.AssignClass("crusader");
+
+            Assert.That(slot.CampingSkills, Is.Not.Empty);
+            Assert.That(slot.CampingSkills.Count, Is.GreaterThan(slot.MaxCampingSkills));
+            Assert.That(slot.CampingSkills.Count(skill => skill.IsActive), Is.EqualTo(slot.MaxCampingSkills));
+            Assert.That(slot.SelectedCampingSkillIds.Count, Is.EqualTo(slot.MaxCampingSkills));
+            Assert.That(slot.CampingSkills.All(skill => skill.Level == 0), Is.True);
+            Assert.That(slot.CampingSkills.All(skill => skill.IsLoadout), Is.True);
+            Assert.That(slot.CampingSkills.All(skill => skill.IsMasked == !skill.IsActive), Is.True);
+
+            var inactive = slot.CampingSkills.First(skill => !skill.IsActive);
+            slot.ToggleCampingSkillCommand.Execute(inactive);
+            Assert.That(slot.CampingSkills.Count(skill => skill.IsActive), Is.EqualTo(slot.MaxCampingSkills),
+                "A fifth camping skill must not be selectable.");
+
+            var active = slot.CampingSkills.First(skill => skill.IsActive);
+            slot.ToggleCampingSkillCommand.Execute(active);
+            Assert.That(slot.CampingSkills.Count(skill => skill.IsActive), Is.EqualTo(slot.MaxCampingSkills - 1));
+            Assert.That(slot.CampingSkills.Where(skill => !skill.IsActive).All(skill => skill.IsUsable), Is.True);
+
+            slot.ToggleCampingSkillCommand.Execute(inactive);
+            Assert.That(slot.CampingSkills.Count(skill => skill.IsActive), Is.EqualTo(slot.MaxCampingSkills));
+        }
+
+        [Test]
+        public void Slot_ResolvesIdleContentForCurrentClass()
+        {
+            var catalog = new SpineDemoCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "Spine"));
+            var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds, spineCatalog: catalog);
+
+            slot.AssignClass("crusader");
+
+            Assert.That(slot.IdleContentDirectory, Does.EndWith(Path.Combine("Crusader", "Idle")));
+            Assert.That(Directory.Exists(slot.IdleContentDirectory), Is.True);
+        }
+
+        [Test]
+        public void Slot_WithoutSpineCatalog_HasNoIdleDirectory()
+        {
+            var slot = new HeroSlotViewModel(1, DuelClasses.AllClassIds);
+
+            Assert.That(slot.IdleContentDirectory, Is.Empty);
         }
     }
 }

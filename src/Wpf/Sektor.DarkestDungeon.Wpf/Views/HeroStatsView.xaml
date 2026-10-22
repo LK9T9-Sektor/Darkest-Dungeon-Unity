@@ -159,8 +159,8 @@
         </Grid>
 
         <!-- All combat skills, each a reusable skill square with a structured tooltip -->
-        <TextBlock Grid.Row="3" Text="SKILLS" Style="{StaticResource DetailSection}" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="14"
-                   FontWeight="Bold" Margin="0,10,0,0" />
+        <views:SectionHeaderView Grid.Row="3" Text="SKILLS" Style="{StaticResource DetailSection}"
+                                 Margin="0,10,0,0" />
         <ItemsControl Grid.Row="4" ItemsSource="{Binding Skills}" Style="{StaticResource DetailSection}" Margin="0,2,0,0">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -175,8 +175,8 @@
         </ItemsControl>
 
         <!-- All resistances, aligned in two column-pairs (label right-aligned value) -->
-        <TextBlock Grid.Row="5" Text="RESISTANCES" Style="{StaticResource DetailSection}" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="14"
-                   FontWeight="Bold" Margin="0,10,0,0" />
+        <views:SectionHeaderView Grid.Row="5" Text="RESISTANCES" Style="{StaticResource DetailSection}"
+                                 Margin="0,10,0,0" />
         <Grid Grid.Row="6" Style="{StaticResource DetailSection}" Margin="0,2,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -256,8 +256,8 @@
         </Grid>
 
         <!-- Quirks -->
-        <TextBlock Grid.Row="7" Text="QUIRKS" Style="{StaticResource DetailSection}" Foreground="{x:Static ui:UiBrushes.Label}" FontSize="14"
-                   FontWeight="Bold" Margin="0,10,0,0" />
+        <views:SectionHeaderView Grid.Row="7" Text="QUIRKS" Style="{StaticResource DetailSection}"
+                                 Margin="0,10,0,0" />
         <TextBlock Grid.Row="8" Text="{Binding QuirksText}" Style="{StaticResource DetailSection}" Foreground="#C8C0B0" FontSize="13"
                    TextWrapping="Wrap" />
     </Grid>

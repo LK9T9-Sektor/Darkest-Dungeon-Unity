@@ -72,13 +72,15 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <param name="logger">The structural logger.</param>
         /// <param name="skillCatalog">The catalog of hero skill icons for the battle tray.</param>
         /// <param name="iconCatalog">The catalog of hero portraits for the lobby slots.</param>
+        /// <param name="spineCatalog">The Spine content catalog for the hero editor Idle animation.</param>
         public DuelLobbyViewModel(
             INavigationService navigation,
             ITransport transport,
             IReadOnlyList<string> availableClasses,
             ILogger logger,
             IHeroSkillCatalog skillCatalog,
-            IHeroIconCatalog iconCatalog)
+            IHeroIconCatalog iconCatalog,
+            ISpineDemoCatalog? spineCatalog = null)
         {
             this.navigation = navigation;
             this.availableClasses = availableClasses;
@@ -86,7 +88,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             this.skillCatalog = skillCatalog;
             session = new DuelSessionManager(transport);
             for (int i = 0; i < 4; i++)
-                Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses, iconCatalog, skillCatalog, i + 1));
+                Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses, iconCatalog, skillCatalog, i + 1, spineCatalog));
             AssignDistinct(Slots);
 
             session.SessionReady += OnSessionReady;
