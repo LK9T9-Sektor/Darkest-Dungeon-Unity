@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 using Sektor.DarkestDungeon.Core.Common;
 using Sektor.DarkestDungeon.Core.Duel;
 using Sektor.DarkestDungeon.Core.Duel.Fight;
@@ -163,9 +164,16 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             duel.StartFight(heroSpecs, monsterSpecs, Seed);
             if (!duel.IsStarted)
                 return;
+            duel.SetLocalTeam(Team.Heroes);
             duel.StartBattle();
 
-            var battle = new PveBattleViewModel(duel, () => navigation.GoHome(), skillCatalog, iconCatalog, spineCatalog);
+            var battle = new DuelBattleViewModel(
+                duel,
+                new MonsterBrainRivalLink(),
+                () => navigation.GoHome(),
+                skillCatalog,
+                iconCatalog,
+                spineCatalog);
             navigation.NavigateTo(battle);
         }
 

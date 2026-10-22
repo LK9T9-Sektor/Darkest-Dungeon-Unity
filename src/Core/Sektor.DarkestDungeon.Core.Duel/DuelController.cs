@@ -156,6 +156,13 @@ namespace Sektor.DarkestDungeon.Core.Duel
             Phase = DuelPhase.NotStarted;
         }
 
+        /// <summary>Selects which team accepts local input; used by single-player PvE where heroes are local.</summary>
+        /// <param name="team">The locally controlled team.</param>
+        public void SetLocalTeam(Team team)
+        {
+            IsHost = team == Team.Heroes;
+        }
+
         /// <summary>Starts the battle: rolls surprise, computes the first round order and begins the first turn.</summary>
         public void StartBattle()
         {

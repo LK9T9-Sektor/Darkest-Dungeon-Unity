@@ -777,7 +777,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 character.CurrentCombatSkills ?? Enumerable.Empty<CombatSkill>(),
                 (int)character.GetPairedAttribute(AttributeType.HitPoints).CurrentValue,
                 (int)character.GetPairedAttribute(AttributeType.HitPoints).ModifiedValue,
-                (int)character.Stress.CurrentValue,
+                character.Stress != null ? (int)character.Stress.CurrentValue : 0,
                 (int)character.Speed,
                 (int)character.MinDamage,
                 (int)character.MaxDamage,
@@ -1048,7 +1048,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 IsOnDeathsDoor = character.AtDeathsDoor,
                 HpCurrent = (int)hp.CurrentValue,
                 HpMax = (int)hp.ModifiedValue,
-                Stress = (int)character.Stress.CurrentValue,
+                Stress = character.Stress != null ? (int)character.Stress.CurrentValue : 0,
                 MaxStress = 100,
                 ContentDirectory = BattleUnitInfoViewModel.ResolveIdleContentDirectory(spineCatalog, character.Class),
                 Skeleton = character.Class,
@@ -1058,14 +1058,14 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 Crit = (int)(character.Crit * 100),
                 Dodge = (int)character.Dodge,
                 Protection = (int)character.Protection,
-                ResistStun = (int)(character.GetSingleAttribute(AttributeType.Stun).ModifiedValue * 100),
-                ResistBlight = (int)(character.GetSingleAttribute(AttributeType.Poison).ModifiedValue * 100),
-                ResistBleed = (int)(character.GetSingleAttribute(AttributeType.Bleed).ModifiedValue * 100),
-                ResistDebuff = (int)(character.GetSingleAttribute(AttributeType.Debuff).ModifiedValue * 100),
-                ResistMove = (int)(character.GetSingleAttribute(AttributeType.Move).ModifiedValue * 100),
-                ResistDisease = (int)(character.GetSingleAttribute(AttributeType.Disease).ModifiedValue * 100),
-                ResistDeathBlow = (int)(character.GetSingleAttribute(AttributeType.DeathBlow).ModifiedValue * 100),
-                ResistTrap = (int)(character.GetSingleAttribute(AttributeType.Trap).ModifiedValue * 100),
+                ResistStun = (int)ResistPercent(character, AttributeType.Stun),
+                ResistBlight = (int)ResistPercent(character, AttributeType.Poison),
+                ResistBleed = (int)ResistPercent(character, AttributeType.Bleed),
+                ResistDebuff = (int)ResistPercent(character, AttributeType.Debuff),
+                ResistMove = (int)ResistPercent(character, AttributeType.Move),
+                ResistDisease = (int)ResistPercent(character, AttributeType.Disease),
+                ResistDeathBlow = (int)ResistPercent(character, AttributeType.DeathBlow),
+                ResistTrap = (int)ResistPercent(character, AttributeType.Trap),
                 Debuffs = BuildDebuffs(character),
                 Buffs = BuildBuffs(character),
                 AllSkills = character is Hero hero
@@ -1083,6 +1083,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                     ? new List<string>(heroWithTrinkets.EquippedTrinketIds)
                     : new List<string>(),
             };
+        }
+
+        private static float ResistPercent(ICharacter character, AttributeType type)
+        {
+            var attribute = character.GetSingleAttribute(type);
+            return attribute != null ? attribute.ModifiedValue * 100f : 0f;
         }
 
         private static List<BuffRowViewModel> BuildBuffs(ICharacter character)
