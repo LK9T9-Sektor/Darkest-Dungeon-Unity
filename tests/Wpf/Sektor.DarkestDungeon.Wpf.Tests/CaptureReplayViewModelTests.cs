@@ -169,6 +169,27 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
             Assert.That(pacer.LastDelay, Is.GreaterThan(TimeSpan.FromSeconds(1)));
         }
 
+        /// <summary>Pausing stops the pending event, and resuming schedules it again.</summary>
+        [Test]
+        public void Pause_StopsAndResumesEventPacing()
+        {
+            var pacer = new RecordingReplayPacer();
+            CaptureReplayViewModel viewModel = CreateViewModel(out _, new FakeCaptureAnimationCatalog(), pacer);
+            int before = viewModel.CurrentEventNumber;
+
+            viewModel.TogglePauseCommand.Execute(null);
+
+            Assert.That(viewModel.IsPaused, Is.True);
+            Assert.That(pacer.RunNext(), Is.False);
+            Assert.That(viewModel.CurrentEventNumber, Is.EqualTo(before));
+
+            viewModel.TogglePauseCommand.Execute(null);
+
+            Assert.That(viewModel.IsPaused, Is.False);
+            Assert.That(pacer.RunNext(), Is.True);
+            Assert.That(viewModel.CurrentEventNumber, Is.GreaterThan(before));
+        }
+
         /// <summary>An animation without linked content falls back to the idle set instead of failing.</summary>
         [Test]
         public void UnknownAnimation_FallsBackToIdle()

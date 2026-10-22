@@ -46,6 +46,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private IReadOnlyList<GameEvent> events = Array.Empty<GameEvent>();
         private int currentIndex;
         private long currentAttackSequence;
+        private bool _pendingFinishAttack;
 
         /// <summary>Gets or sets the scene name of the capture.</summary>
         [ObservableProperty]
@@ -90,7 +91,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets or sets a value indicating whether the replay is running.</summary>
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(ReplayCommand))]
+        [NotifyCanExecuteChangedFor(nameof(TogglePauseCommand))]
         private bool _isPlaying;
+
+        /// <summary>Gets or sets a value indicating whether the running replay is paused.</summary>
+        [ObservableProperty]
+        private bool _isPaused;
 
         /// <summary>Gets or sets a value indicating whether the replay reached the last event.</summary>
         [ObservableProperty]
@@ -141,6 +147,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Gets the command restarting the replay from the first event.</summary>
         public IRelayCommand ReplayCommand { get; }
+
+        /// <summary>Gets the command pausing or resuming the running replay.</summary>
+        public IRelayCommand TogglePauseCommand { get; }
 
         /// <summary>Gets the command returning to the main menu.</summary>
         public IRelayCommand BackCommand { get; }
@@ -211,6 +220,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             };
 
             ReplayCommand = new RelayCommand(StartReplay, () => capture != null && !IsPlaying);
+            TogglePauseCommand = new RelayCommand(TogglePause, () => IsPlaying);
             BackCommand = new RelayCommand(GoBack);
             AnimationCompletedCommand = new RelayCommand<string?>(OnAnimationCompleted);
 
@@ -258,6 +268,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             pacer.Cancel();
             attackClock.Reset();
             IsAwaitingAnimation = false;
+            IsPaused = false;
+            _pendingFinishAttack = false;
             ResetState();
 
             currentIndex = 0;
@@ -268,6 +280,54 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             replayClock.Restart();
             logger.Log($"capture replay: started events={TotalEvents}");
             Advance();
+        }
+
+        private void TogglePause()
+        {
+            if (!IsPlaying)
+                return;
+
+            if (IsPaused)
+                ResumeReplay();
+            else
+                PauseReplay();
+        }
+
+        private void PauseReplay()
+        {
+            IsPaused = true;
+
+            // Keep the fallback timer alive while an attack has no linked spine content;
+            // otherwise resuming would wait for a completion callback that no longer exists.
+            if (!IsAwaitingAnimation)
+                pacer.Cancel();
+
+            StatusText = $"Пауза — событие {CurrentEventNumber} из {TotalEvents}";
+            logger.Log("capture replay: paused");
+        }
+
+        private void ResumeReplay()
+        {
+            IsPaused = false;
+            StatusText = $"Событие {CurrentEventNumber} из {TotalEvents}";
+            logger.Log("capture replay: resumed");
+
+            if (_pendingFinishAttack)
+            {
+                FinishAttack();
+                return;
+            }
+
+            if (IsAwaitingAnimation)
+                return;
+
+            if (currentIndex < events.Count)
+            {
+                pacer.Schedule(EventPacing, Advance);
+                return;
+            }
+
+            Finish();
         }
 
         private void ResetState()
@@ -343,8 +403,10 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         {
             pacer.Cancel();
             IsPlaying = false;
+            IsPaused = false;
             IsFinished = true;
             IsAwaitingAnimation = false;
+            _pendingFinishAttack = false;
             StatusText = $"Готово: {TotalEvents} событий";
             logger.Log($"capture replay: finished events={TotalEvents} elapsedMs={replayClock.Elapsed.TotalMilliseconds:0}");
         }
@@ -546,6 +608,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
             currentAttackSequence = attack.Sequence;
             attackClock.Restart();
+            _pendingFinishAttack = false;
             IsAwaitingAnimation = true;
             logger.Log(
                 $"capture replay: attack seq={attack.Sequence} attacker={attack.AttackerId} target={attack.TargetId} " +
@@ -566,10 +629,20 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             TimeSpan remaining = MinimumAttackDuration - elapsed;
             logger.Log($"capture replay: animation completed seq={currentAttackSequence} elapsedMs={elapsed.TotalMilliseconds:0}");
 
-            if (remaining > TimeSpan.Zero)
+            logger.Log(
+                $"capture replay: attack hold seq={currentAttackSequence} waitMs={Math.Max(0, remaining.TotalMilliseconds):0}");
+            QueueFinishAttack(remaining);
+        }
+
+        private void QueueFinishAttack(TimeSpan delay)
+        {
+            _pendingFinishAttack = true;
+            if (IsPaused)
+                return;
+
+            if (delay > TimeSpan.Zero)
             {
-                logger.Log($"capture replay: attack hold seq={currentAttackSequence} waitMs={remaining.TotalMilliseconds:0}");
-                pacer.Schedule(remaining, FinishAttack);
+                pacer.Schedule(delay, FinishAttack);
                 return;
             }
 
@@ -578,6 +651,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         private void FinishAttack()
         {
+            _pendingFinishAttack = false;
             ClearHighlights();
             foreach (CaptureUnitViewModel unit in units.Values)
                 unit.EndAttack();
@@ -597,7 +671,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         private void GoBack()
         {
             pacer.Cancel();
+            IsPaused = false;
             IsAwaitingAnimation = false;
+            _pendingFinishAttack = false;
             navigation.GoHome();
         }
 
