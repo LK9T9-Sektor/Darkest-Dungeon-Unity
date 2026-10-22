@@ -6,22 +6,18 @@ using Sektor.DarkestDungeon.Wpf.Navigation;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
-    /// <summary>Main menu: choose versus AI, PvE or multiplayer duel.</summary>
+    /// <summary>Main menu: choose a duel against the AI or a multiplayer duel.</summary>
     public partial class MainMenuViewModel : ObservableObject
     {
         private readonly INavigationService navigation;
+        private readonly Func<object> createDuelLobby;
         private readonly Func<object> createMultiplayerLobby;
-        private readonly Func<object> createSinglePlayerLobby;
-        private readonly Func<object> createPveLobby;
         private readonly Func<object> createSpineDemo;
         private readonly Func<object> createSpineBattle;
         private readonly Func<object> createEstateReplay;
 
-        /// <summary>Gets the command opening the single player lobby.</summary>
-        public IRelayCommand VsAiCommand { get; }
-
-        /// <summary>Gets the command opening the PvE lobby (heroes vs monsters).</summary>
-        public IRelayCommand PveCommand { get; }
+        /// <summary>Gets the command opening the single-player duel lobby.</summary>
+        public IRelayCommand DuelCommand { get; }
 
         /// <summary>Gets the command opening the multiplayer lobby.</summary>
         public IRelayCommand MultiplayerCommand { get; }
@@ -40,30 +36,26 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Initializes a new instance of the <see cref="MainMenuViewModel"/> class.</summary>
         /// <param name="navigation">The navigation service.</param>
+        /// <param name="createDuelLobby">Creates the single-player duel lobby screen.</param>
         /// <param name="createMultiplayerLobby">Creates the multiplayer lobby screen.</param>
-        /// <param name="createSinglePlayerLobby">Creates the single player lobby screen.</param>
-        /// <param name="createPveLobby">Creates the PvE lobby screen.</param>
         /// <param name="createSpineDemo">Creates the Spine animation test screen.</param>
         /// <param name="createSpineBattle">Creates the visual 1x1 spine arena screen.</param>
         /// <param name="createEstateReplay">Creates the estate capture replay screen.</param>
         public MainMenuViewModel(
             INavigationService navigation,
+            Func<object> createDuelLobby,
             Func<object> createMultiplayerLobby,
-            Func<object> createSinglePlayerLobby,
-            Func<object> createPveLobby,
             Func<object> createSpineDemo,
             Func<object> createSpineBattle,
             Func<object> createEstateReplay)
         {
             this.navigation = navigation;
+            this.createDuelLobby = createDuelLobby;
             this.createMultiplayerLobby = createMultiplayerLobby;
-            this.createSinglePlayerLobby = createSinglePlayerLobby;
-            this.createPveLobby = createPveLobby;
             this.createSpineDemo = createSpineDemo;
             this.createSpineBattle = createSpineBattle;
             this.createEstateReplay = createEstateReplay;
-            VsAiCommand = new RelayCommand(OpenVsAi);
-            PveCommand = new RelayCommand(OpenPve);
+            DuelCommand = new RelayCommand(OpenDuel);
             MultiplayerCommand = new RelayCommand(OpenMultiplayer);
             SpineTestCommand = new RelayCommand(OpenSpineDemo);
             SpineBattleCommand = new RelayCommand(OpenSpineBattle);
@@ -71,14 +63,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             CloseCommand = new RelayCommand(Close);
         }
 
-        private void OpenVsAi()
+        private void OpenDuel()
         {
-            navigation.NavigateTo(createSinglePlayerLobby());
-        }
-
-        private void OpenPve()
-        {
-            navigation.NavigateTo(createPveLobby());
+            navigation.NavigateTo(createDuelLobby());
         }
 
         private void OpenMultiplayer()

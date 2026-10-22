@@ -6,8 +6,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
     /// <summary>
     /// The battle-screen surface the <see cref="Views.DuelBattleView"/> code-behind reads: the acting
-    /// side, the selected/rival skill badge and the arrow targets. Implemented by the duel view model
-    /// and the PvE view model so the same view renders both modes.
+    /// side, the selected/rival skill badge and the arrow targets. Implemented by the shared duel view
+    /// model used by VS AI and multiplayer.
     /// </summary>
     public interface IDuelBattleViewData
     {

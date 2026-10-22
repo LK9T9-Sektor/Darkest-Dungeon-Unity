@@ -11,17 +11,11 @@
         <DataTemplate DataType="{x:Type vm:MainMenuViewModel}">
             <views:MainMenuView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:MultiplayerLobbyViewModel}">
+            <views:MultiplayerLobbyView />
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:DuelLobbyViewModel}">
             <views:DuelLobbyView />
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:SinglePlayerLobbyViewModel}">
-            <views:SinglePlayerLobbyView />
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:PveLobbyViewModel}">
-            <views:PveLobbyView />
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:PveBattleViewModel}">
-            <views:DuelBattleView />
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:DuelBattleViewModel}">
             <views:DuelBattleView />

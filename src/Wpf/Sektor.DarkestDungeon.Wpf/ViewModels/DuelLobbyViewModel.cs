@@ -2,74 +2,88 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 using Sektor.DarkestDungeon.Core.Common;
 using Sektor.DarkestDungeon.Core.Duel;
-using Sektor.DarkestDungeon.Lan.Contracts.Transport;
+using Sektor.DarkestDungeon.Core.Duel.Fight;
 using Sektor.DarkestDungeon.Wpf.Combat;
 using Sektor.DarkestDungeon.Wpf.Data;
 using Sektor.DarkestDungeon.Wpf.Navigation;
-using Sektor.DarkestDungeon.Wpf.Networking;
 
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
-    /// <summary>Multiplayer duel lobby: hero selection, host/join, party exchange and duel start.</summary>
-    public partial class DuelLobbyViewModel : ObservableObject, IPumpable, IDisposable
+    /// <summary>Single-player duel lobby: build both mixed parties (player and AI) and fight against the AI.</summary>
+    public partial class DuelLobbyViewModel : ObservableObject
     {
+        private const string PortraitOutfit = "A";
+
         private static readonly Random Rng = new Random();
 
-        private readonly DuelSessionManager session;
         private readonly INavigationService navigation;
         private readonly IReadOnlyList<string> availableClasses;
         private readonly ILogger logger;
         private readonly IHeroSkillCatalog skillCatalog;
         private readonly IHeroIconCatalog iconCatalog;
         private readonly ISpineDemoCatalog? spineCatalog;
-        private DateTime? waitingSince;
-        private bool started;
-        private bool disposed;
 
-        /// <summary>Gets the four hero slots.</summary>
+        /// <summary>Gets the four hero slots of the player's party.</summary>
         public ObservableCollection<HeroSlotViewModel> Slots { get; } = new ObservableCollection<HeroSlotViewModel>();
 
-        /// <summary>Gets or sets the connection status text.</summary>
-        [ObservableProperty]
-        private string _status = "Pick heroes, then Host or Join.";
+        /// <summary>Gets the four hero slots of the AI party (editable like the player's).</summary>
+        public ObservableCollection<HeroSlotViewModel> AiSlots { get; } = new ObservableCollection<HeroSlotViewModel>();
 
-        /// <summary>Gets or sets the session id input/display.</summary>
-        [ObservableProperty]
-        private string _sessionIdText = string.Empty;
+        /// <summary>Gets the hero rows shown on the Heroes tab of the selection table.</summary>
+        public IReadOnlyList<UnitSelectionRowViewModel> HeroRows { get; }
 
-        /// <summary>Gets or sets the elapsed waiting time for the rival (mm:ss).</summary>
-        [ObservableProperty]
-        private string _waitingTime = string.Empty;
+        /// <summary>Gets the monster rows shown on the Monsters tab of the selection table.</summary>
+        public IReadOnlyList<UnitSelectionRowViewModel> MonsterRows { get; }
 
-        /// <summary>Pumps the transport callbacks (called by a UI timer).</summary>
-        public void Pump()
+        /// <summary>Gets the command that assigns a double-clicked table row to the selected slot.</summary>
+        public IRelayCommand<UnitSelectionRowViewModel> ActivateRowCommand { get; }
+
+        /// <summary>Gets or sets the currently selected slot, on either side.</summary>
+        public HeroSlotViewModel? SelectedSlot
         {
-            if (disposed)
-                return;
-            session.Pump();
-            UpdateWaitingTime();
+            get { return _selectedSlot; }
+            private set
+            {
+                if (ReferenceEquals(_selectedSlot, value))
+                    return;
+
+                if (_selectedSlot != null)
+                    _selectedSlot.IsSelected = false;
+
+                _selectedSlot = value;
+
+                if (_selectedSlot != null)
+                    _selectedSlot.IsSelected = true;
+
+                OnPropertyChanged();
+                SelectionStatus = value == null
+                    ? "Select a slot, then double-click a table row."
+                    : "Slot " + value.Position + " selected. Double-click a table row to assign.";
+            }
         }
 
-        /// <summary>Gets the command that hosts a new duel room.</summary>
-        public IRelayCommand HostCommand { get; }
+        /// <summary>Gets or sets the table hint/status line.</summary>
+        [ObservableProperty]
+        private string _selectionStatus = "Select a slot, then double-click a table row.";
 
-        /// <summary>Gets the command that joins an existing room.</summary>
-        public IRelayCommand JoinCommand { get; }
+        private HeroSlotViewModel? _selectedSlot;
 
-        /// <summary>Gets the command that copies the session id.</summary>
-        public IRelayCommand CopyIdCommand { get; }
+        /// <summary>Gets the command that rerolls the AI party with random distinct classes.</summary>
+        public IRelayCommand RandomizeRivalCommand { get; }
 
-        /// <summary>Gets the command that disconnects and returns to the main menu.</summary>
-        public IRelayCommand LeaveCommand { get; }
+        /// <summary>Gets the command that starts the local duel.</summary>
+        public IRelayCommand StartCommand { get; }
+
+        /// <summary>Gets the command returning to the main menu.</summary>
+        public IRelayCommand BackCommand { get; }
 
         /// <summary>Initializes a new instance of the <see cref="DuelLobbyViewModel"/> class.</summary>
         /// <param name="navigation">The navigation service.</param>
-        /// <param name="transport">The duel transport.</param>
         /// <param name="availableClasses">The selectable hero class ids.</param>
         /// <param name="logger">The structural logger.</param>
         /// <param name="skillCatalog">The catalog of hero skill icons for the battle tray.</param>
@@ -77,7 +91,6 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <param name="spineCatalog">The Spine content catalog for the hero editor Idle animation.</param>
         public DuelLobbyViewModel(
             INavigationService navigation,
-            ITransport transport,
             IReadOnlyList<string> availableClasses,
             ILogger logger,
             IHeroSkillCatalog skillCatalog,
@@ -90,146 +103,123 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             this.skillCatalog = skillCatalog;
             this.iconCatalog = iconCatalog;
             this.spineCatalog = spineCatalog;
-            session = new DuelSessionManager(transport);
-            for (int i = 0; i < 4; i++)
-                Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses, iconCatalog, skillCatalog, i + 1, spineCatalog));
+            BuildSlots(Slots, 1);
+            BuildSlots(AiSlots, 101);
+            HeroRows = BuildHeroRows();
+            MonsterRows = BuildMonsterRows();
+
+            RandomizeRivalCommand = new RelayCommand(RandomizeRival);
+            StartCommand = new RelayCommand(Start);
+            BackCommand = new RelayCommand(Back);
+            ActivateRowCommand = new RelayCommand<UnitSelectionRowViewModel>(ActivateRow);
             AssignDistinct(Slots);
-
-            session.SessionReady += OnSessionReady;
-            session.RivalPartyReceived += OnRivalPartyReceived;
-            session.RivalLoaded += OnRivalLoaded;
-            session.Disconnected += OnDisconnected;
-
-            HostCommand = new RelayCommand(Host);
-            JoinCommand = new RelayCommand(Join);
-            CopyIdCommand = new RelayCommand(CopyId);
-            LeaveCommand = new RelayCommand(Leave);
+            RandomizeRival();
+            SelectedSlot = Slots[0];
         }
 
-        private void Host()
+        private void RandomizeRival()
         {
-            var result = session.Start();
-            if (!result.IsSuccess)
+            AssignDistinct(AiSlots);
+        }
+
+        private void BuildSlots(ObservableCollection<HeroSlotViewModel> slots, int seedBase)
+        {
+            for (int i = 0; i < 4; i++)
             {
-                Status = "Steam init failed: " + result.ErrorMessage;
+                slots.Add(new HeroSlotViewModel(
+                    seedBase + i * 10,
+                    availableClasses,
+                    iconCatalog,
+                    skillCatalog,
+                    i + 1,
+                    spineCatalog,
+                    SelectSlot));
+            }
+        }
+
+        private void SelectSlot(HeroSlotViewModel slot)
+        {
+            SelectedSlot = slot;
+        }
+
+        private IReadOnlyList<UnitSelectionRowViewModel> BuildHeroRows()
+        {
+            var rows = new List<UnitSelectionRowViewModel>();
+            foreach (string classId in availableClasses)
+            {
+                string id = classId;
+                rows.Add(new UnitSelectionRowViewModel(
+                    iconCatalog.GetPortrait(id, PortraitOutfit),
+                    Ui.DisplayNames.Class(id),
+                    1,
+                    slot => slot.AssignClass(id)));
+            }
+
+            return rows;
+        }
+
+        private IReadOnlyList<UnitSelectionRowViewModel> BuildMonsterRows()
+        {
+            var rows = new List<UnitSelectionRowViewModel>();
+            foreach (string monsterId in DuelContent.MonsterCatalog.Ids)
+            {
+                if (!DuelContent.MonsterCatalog.TryGet(monsterId, out var monster))
+                    continue;
+
+                string id = monsterId;
+                rows.Add(new UnitSelectionRowViewModel(
+                    null,
+                    Ui.DisplayNames.Title(id),
+                    monster.Size,
+                    slot => slot.AssignMonster(id)));
+            }
+
+            return rows;
+        }
+
+        private void ActivateRow(UnitSelectionRowViewModel? row)
+        {
+            if (row == null)
+                return;
+
+            if (!row.IsSelectable)
+            {
+                SelectionStatus = "Only one-slot units are available for now.";
                 return;
             }
-            session.HostSession("duel-" + Guid.NewGuid().ToString("N").Substring(0, 8));
-        }
 
-        private void Join()
-        {
-            if (string.IsNullOrWhiteSpace(SessionIdText))
+            if (SelectedSlot == null)
             {
-                Status = "Enter a session id first.";
+                SelectionStatus = "Select a slot first.";
                 return;
             }
-            var result = session.Start();
-            if (!result.IsSuccess)
-            {
-                Status = "Steam init failed: " + result.ErrorMessage;
-                return;
-            }
-            var join = session.JoinSession(SessionIdText.Trim());
-            if (!join.IsSuccess)
-                Status = "Join failed: " + join.ErrorMessage;
+
+            row.AssignTo(SelectedSlot);
+            SelectionStatus = "Assigned " + row.DisplayName + ".";
         }
 
-        private void CopyId()
+        private void Start()
         {
-            if (SessionIdText.Length > 0)
-                Clipboard.SetText(SessionIdText);
-        }
-
-        private void Leave()
-        {
-            Dispose();
-            navigation.GoHome();
-        }
-
-        private void OnSessionReady()
-        {
-            Status = session.IsHost ? "Room created. Waiting for a rival..." : "Joined. Waiting for the host...";
-            SessionIdText = session.SessionId;
-            waitingSince = DateTime.UtcNow;
-            WaitingTime = "Waiting 00:00";
-            SendPartyConfig();
-        }
-
-        private void OnRivalPartyReceived(DuelPartyConfig rivalConfig)
-        {
-            Status = "Rival party received (" + rivalConfig.ClassIds.Count + " heroes).";
-            session.SendLoaded();
-        }
-
-        private void OnRivalLoaded()
-        {
-            TryStartDuel();
-        }
-
-        private void OnDisconnected()
-        {
-            waitingSince = null;
-            WaitingTime = string.Empty;
-        }
-
-        private void SendPartyConfig()
-        {
-            session.SendPartyConfig(BuildConfig());
-        }
-
-        private void TryStartDuel()
-        {
-            if (started || !session.IsReady || session.RivalParty == null)
-                return;
-            started = true;
-            waitingSince = null;
-            WaitingTime = string.Empty;
-
-            string[] orderedIds = session.LocalPlayerId == string.Empty
-                ? new[] { "local", "rival" }
-                : new[] { session.LocalPlayerId, session.RivalPlayerId };
-            int sessionSeed = DuelSeed.ComputeSessionSeed(orderedIds);
-
+            int sessionSeed = Environment.TickCount;
             var duel = new DuelController(new DuelContent(), logger);
-            if (session.IsHost)
-                duel.StartDuel(ToPicks(BuildConfig()), ToPicks(session.RivalParty), sessionSeed, isHost: true);
-            else
-                duel.StartDuel(ToPicks(session.RivalParty), ToPicks(BuildConfig()), sessionSeed, isHost: false);
-
+            duel.StartFight(ToSpecs(Slots), ToSpecs(AiSlots), sessionSeed);
+            if (!duel.IsStarted)
+                return;
+            duel.SetLocalTeam(Team.Heroes);
             duel.StartBattle();
 
-            var link = new NetworkRivalLink(session);
+            var link = new MonsterBrainRivalLink();
             var battle = new DuelBattleViewModel(duel, link, () =>
             {
-                Dispose();
+                link.Dispose();
                 navigation.GoHome();
             }, skillCatalog, iconCatalog, spineCatalog);
-            Status = "Duel started. Round 1.";
             navigation.NavigateTo(battle);
         }
 
-        private DuelPartyConfig BuildConfig()
+        private void Back()
         {
-            var classIds = Slots.Select(s => s.ClassId).ToList();
-            var seeds = Slots.Select(s => s.Seed).ToList();
-            var skillIds = Slots.Select(s => s.SelectedSkillIds).ToList();
-            var quirkIds = Slots.Select(s => s.SelectedQuirkIds).ToList();
-            var trinketIds = Slots.Select(s => s.SelectedTrinketIds).ToList();
-            return new DuelPartyConfig(classIds, seeds, skillIds, quirkIds, trinketIds);
-        }
-
-        private static DuelHeroPick[] ToPicks(DuelPartyConfig config)
-        {
-            var picks = new List<DuelHeroPick>();
-            for (int i = 0; i < config.ClassIds.Count; i++)
-                picks.Add(new DuelHeroPick(
-                    config.ClassIds[i],
-                    config.Seeds[i],
-                    i < config.SelectedSkillIds.Count ? config.SelectedSkillIds[i] : null,
-                    i < config.QuirkIds.Count ? config.QuirkIds[i] : null,
-                    i < config.TrinketIds.Count ? config.TrinketIds[i] : null));
-            return picks.ToArray();
+            navigation.GoHome();
         }
 
         private void AssignDistinct(IEnumerable<HeroSlotViewModel> slots)
@@ -240,21 +230,26 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 slot.AssignClass(shuffled[index++ % shuffled.Count]);
         }
 
-        private void UpdateWaitingTime()
+        private static List<FightUnitSpec> ToSpecs(IEnumerable<HeroSlotViewModel> slots)
         {
-            if (waitingSince == null)
-                return;
-            var elapsed = DateTime.UtcNow - waitingSince.Value;
-            WaitingTime = "Waiting " + ((int)elapsed.TotalMinutes).ToString("00") + ":" + elapsed.Seconds.ToString("00");
-        }
+            var specs = new List<FightUnitSpec>();
+            foreach (var slot in slots)
+            {
+                if (slot.IsMonster)
+                {
+                    specs.Add(new MonsterFightUnitSpec(slot.MonsterId));
+                    continue;
+                }
 
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            if (disposed)
-                return;
-            disposed = true;
-            session.Dispose();
+                specs.Add(new HeroFightUnitSpec(
+                    slot.ClassId,
+                    slot.Seed,
+                    slot.SelectedSkillIds,
+                    slot.SelectedQuirkIds,
+                    slot.SelectedTrinketIds));
+            }
+
+            return specs;
         }
     }
 }

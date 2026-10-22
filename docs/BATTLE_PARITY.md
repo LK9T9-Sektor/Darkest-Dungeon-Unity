@@ -174,8 +174,8 @@ WPF-дуэль использует другую (lockstep) модель — с�
 > 15. ✅ **Размер юнита (size 1–4)** — ранги назначаются кумулятивно по `Size`
 >     (`FormationParty.AddUnit/RemoveUnit/RecalculateRanks`, `TurnMover`, `SurpriseResolver`,
 >     `DuelBattleEvents.MoveUnit`), как в Unity (`summonRank += monster.Size`); таргетинг/запуск уже
->     учитывали size. WPF: `DuelUnitViewModel.Size`, карточка `185 × size`, PvE-режим `StartFight`
->     (`PveBattleViewModel`). Спека — `mechanics/combat/16_formation_size.md`.
+>     учитывали size. WPF: `DuelUnitViewModel.Size`, карточка `185 × size`, общий боевой VM на
+>     `StartFight` (VS AI / монстры). Спека — `mechanics/combat/16_formation_size.md`.
 
 Остаётся отдельной задачей (кампанийные механики, больше объём):
 

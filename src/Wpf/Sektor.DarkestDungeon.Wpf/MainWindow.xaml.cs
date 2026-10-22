@@ -33,9 +33,8 @@ namespace Sektor.DarkestDungeon.Wpf
             var spineCatalog = new SpineDemoCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "Spine"));
             var menu = new MainMenuViewModel(
                 shell,
-                () => new DuelLobbyViewModel(shell, DuelTransportFactory.CreateSteamTransport(), DuelClasses.AllClassIds, logger, skillCatalog, iconCatalog, spineCatalog),
-                () => new SinglePlayerLobbyViewModel(shell, DuelClasses.AllClassIds, logger, skillCatalog, iconCatalog, spineCatalog),
-                () => new PveLobbyViewModel(shell, DuelClasses.AllClassIds, logger, skillCatalog, iconCatalog, spineCatalog),
+                () => new DuelLobbyViewModel(shell, DuelClasses.AllClassIds, logger, skillCatalog, iconCatalog, spineCatalog),
+                () => new MultiplayerLobbyViewModel(shell, DuelTransportFactory.CreateSteamTransport(), DuelClasses.AllClassIds, logger, skillCatalog, iconCatalog, spineCatalog),
                 () => new SpineDemoViewModel(
                     shell,
                     new SpineDemoCatalog(Path.Combine(AppContext.BaseDirectory, "Content", "Spine")),

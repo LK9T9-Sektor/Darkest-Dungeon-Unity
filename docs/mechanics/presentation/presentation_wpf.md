@@ -16,12 +16,13 @@ WPF-клиент — тонкий потребитель ядра: экраны 
 (`SkillSquareView`, иконка 72×72, имя и структурированный тултип); клик проигрывает эффект скилла
 один раз и возвращает ранее выбранный набор анимаций. Ниже — селекторы `ANIMATION`/`SPEED`, а
 `Pause`/`Screenshot` со строкой статуса стоят справа в той же нижней строке.
-Лобби VS AI / мультиплеера / PvE: отряд — четыре компактные карточки `HeroPortraitView`
-(портрет 56, имя, стрелки ◀/▶); ПКМ по карточке открывает full-window `UnitInfoOverlayView`
+Лобби VS AI / мультиплеера: отряд — четыре компактные карточки `HeroPortraitView`
+(портрет 56, имя, стрелки ◀/▶ в мультиплеере; в VS AI стрелок нет, класс/монстр выбирается
+таблицей); ПКМ по карточке открывает full-window `UnitInfoOverlayView`
 (хост `LobbyHeroEditorHost`): гильд-баннер `header.png` фоном, шапка позиция/иконка/имя с reroll/
 класс/X (красный), слева статы/оружие/тринкеты, справа `AbilityRowView`, квирки и резисты. Выбранные
-скиллы сразу уходят в `DuelHeroPick`/`HeroFightUnitSpec`. В бою VS AI/PvE тот же оверлей открывается
-по ПКМ по юниту и показывает живые статы; это окно информации, а не редактор загрузки.
+скиллы сразу уходят в `DuelHeroPick`/`HeroFightUnitSpec`. В бою VS AI/мультиплеера тот же оверлей
+открывается по ПКМ по юниту и показывает живые статы; это окно информации, а не редактор загрузки.
 Экран `SpineBattleView` («АРЕНА 1×1» в меню) — чисто визуальная арена: слева Crusader, справа
 Highwayman, кнопка «АТАКА» проигрывает атаку как в Unity — слоями: base-слот принимает ударную
 позу `AttackSword` (заглушка с нулевой длительностью), поверх временно играет оверлей-скилл
@@ -36,11 +37,12 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 
 ## 2. Модель данных
 
-- Экраны: `MainMenuView`, `DuelLobbyView`, `SinglePlayerLobbyView`, `PartySelectionView`,
+- Экраны: `MainMenuView`, `DuelLobbyView`, `MultiplayerLobbyView`, `PartySelectionView`,
   `DuelBattleView`, `RaidHudView`, `ScreenHeaderView`, `SpineDemoView`, `SpineBattleView`,
   `CaptureReplayView`, `EstateReplayView`.
-- ViewModels: `MainMenuViewModel`, `SinglePlayerLobbyViewModel`, `DuelBattleViewModel`,
-  `SpineDemoViewModel`, `SpineBattleViewModel`, `CaptureReplayViewModel`, `EstateReplayViewModel`
+- ViewModels: `MainMenuViewModel`, `DuelLobbyViewModel`, `MultiplayerLobbyViewModel`,
+  `DuelBattleViewModel`, `SpineDemoViewModel`, `SpineBattleViewModel`, `CaptureReplayViewModel`,
+  `EstateReplayViewModel`
   (юниты `CaptureUnitViewModel`, estate-карточки `Estate*ViewModel`, таймлайн
   `CaptureTimelineEntryViewModel`, темп `IReplayPacer` / `DispatcherReplayPacer`), ...
 - Estate-экран (`EstateReplayView`): шапка с заметкой захвата, полоса недели/ресурсов/town event,
@@ -78,7 +80,7 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 - Боевые скиллы героя: `Data/IHeroSkillCatalog` / `Data/HeroSkillCatalog` (`HeroSkillInfo`) —
   соединяет распарсенные `HeroClass.CombatSkills` с `art:`-секцией (`SkillArtInfo`) и иконкой;
   `GetSkills(classId)` — список для демо, `GetSkillIcon(classId, skillId)` — точечный поиск для
-  боевых экранов (дуэль/PvE заполняют `DuelSkillViewModel.Icon`).
+  боевых экранов (дуэль/VS AI заполняют `DuelSkillViewModel.Icon`).
 - `Views/SkillSquareView` — переиспользуемый квадрат скилла (иконка + имя + тултип); DP
   `IconSize` (double, 42) задаёт область иконки, кнопка = `IconSize + 8`, корень = `IconSize + 16`
   (72 → кнопка 80, корень 88). Без `SelectCommand` квадрат только для просмотра.
@@ -140,7 +142,7 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
    игнорируются. ПКМ по компактной карточке поднимает full-window оверлей через `LobbyHeroEditorHost`;
    в нём меняются класс, имя (reroll), активные скиллы, квирки и тринкеты; каждый тринкет рероллится
    своей кнопкой.
-3. Бой VS AI/PvE: `DuelController.StartFight(playerSide, aiSide, seed)` +
+3. Бой VS AI: `DuelController.StartFight(playerSide, aiSide, seed)` +
    `SetLocalTeam(Team.Heroes)` + `StartBattle`; мультиплеер — `StartDuel(hostPicks, clientPicks, seed,
    isHost)`.
 4. Ход: `DuelBattleViewModel` читает `IsLocalTurn`, применяет вводы (`ExecuteLocalSkill`), правая
@@ -279,11 +281,11 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   считаются в координатах Viewbox от реальных позиций карточек.
 - **Size юнитов (1–4)** — ранг назначается кумулятивно по `size` (ядро, `16_formation_size.md`),
   карточка `185 × size` (`DuelUnitViewModel.CardWidth`). Монстры без `Stress`/некоторых резистов:
-  `PveBattleViewModel` защищён null-проверками (`?? 0`).
-- **PvE-режим** — `PveBattleViewModel` (по образцу Unity `CoreBattleDriver`) + `PveLobbyViewModel`:
-  `StartFight` инвертирует local/remote (герои — «remote», ввод через `ApplyRemoteSkill`; монстры —
-  «local», AI через `ExecuteLocalSkill`/`UseMonsterBrain`). `DuelBattleView` переиспользуется через
-  интерфейс `IDuelBattleViewData` (без правки `DuelBattleViewModel`).
+  `DuelBattleViewModel` защищён null-проверками (`?? 0`).
+- **Единое VS AI-лобби** — `DuelLobbyViewModel` + `UnitSelectionTableView`: выбор слота и назначение
+  героя/монстра через вкладки таблицы, обе стороны могут быть смешанными. Бой — общий
+  `DuelBattleViewModel` на `StartFight` + `SetLocalTeam(Team.Heroes)`; правая сторона —
+  `MonsterBrainRivalLink`. Отдельного PvE-экрана и `PveBattleViewModel` больше нет.
 - **Попап «ТВОЙ ХОД»** (`DuelUnitViewModel.TriggerTurnPopup`, `DetectTurnTransition`): при передаче
   хода новому исполнителю `TurnPopupVisible` на 1.2с + золотая вспышка `"Turn"` в
   `DuelUnitCardView.xaml`.

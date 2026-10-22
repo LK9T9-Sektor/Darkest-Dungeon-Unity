@@ -56,7 +56,7 @@ size 3, `ancestor_pod_D`/`ancestor_heart_D` size 4.
 | Проверка | Где | Границы |
 |---|---|---|
 | Занимаемый диапазон рангов | `FormationSet.IsLaunchableFrom/IsTargetableUnit` (`FormationSet.cs:46,55`) | `[rank, rank+size−1]` |
-| Ёмкость формации | `DuelBattleContext` (герои/монстры), WPF-лобби (`PveLobbyViewModel`, таблица VS AI) | `Σ size ≤ 4` |
+| Ёмкость формации | `DuelBattleContext` (герои/монстры), WPF-лобби `DuelLobbyViewModel` | `Σ size ≤ 4` |
 | Карточка по размеру | `DuelUnitViewModel.CardWidth` | `185 × Size` |
 | Кумулятивный ранг | `FormationParty.RecalculateRanks` | первый = 1, далее `+Size` |
 
@@ -69,8 +69,8 @@ size 3, `ancestor_pod_D`/`ancestor_heart_D` size 4.
 - **Стартовый PvE-свип бьётся по одному монстру** (`FightPveSweepTests`) — он не ловит перекрытие
   рангов; покрытие — `FormationSizeRankTests` (size-2 + size-1 → 1,3).
 - **Монстры без `Stress`/некоторых резистов**: `GetPairedAttribute(Stress)` и
-  `GetSingleAttribute(Disease/DeathBlow/Trap)` могут вернуть null — WPF-виды (`PveBattleViewModel`
-  и общий `DuelBattleViewModel`) защищены (`?? 0`).
+  `GetSingleAttribute(Disease/DeathBlow/Trap)` могут вернуть null — WPF-вид `DuelBattleViewModel`
+  защищён (`?? 0`).
 - **Смешанные стороны**: `StartFight` принимает `FightUnitSpec` любого типа на любой стороне;
   `AddMonster` кладёт монстра в партию по `Team`, а `SurpriseResolver` не разыменовывает
   `BattleModifiers` у юнитов без модификаторов (герой на стороне ИИ). Это позволяет собирать
@@ -95,9 +95,9 @@ size 3, `ancestor_pod_D`/`ancestor_heart_D` size 4.
   `Character/MonsterClassFileParser.cs`, `Mechanics/Battle/FormationSet.cs`.
 - `src/Core/Sektor.DarkestDungeon.Core.Duel/Mechanics/TurnMover.cs`, `SurpriseResolver.cs`,
   `DuelBattleEvents.cs`.
-- `src/Wpf/Sektor.DarkestDungeon.Wpf/ViewModels/DuelUnitViewModel.cs`, `PveBattleViewModel.cs`,
-  `DuelBattleViewModel.cs`, `SinglePlayerLobbyViewModel.cs`, `Views/DuelUnitCardView.xaml`,
+- `src/Wpf/Sektor.DarkestDungeon.Wpf/ViewModels/DuelUnitViewModel.cs`,
+  `DuelBattleViewModel.cs`, `DuelLobbyViewModel.cs`, `Views/DuelUnitCardView.xaml`,
   `Views/UnitSelectionTableView.xaml`.
 - `tests/Core/Sektor.DarkestDungeon.Core.Combat.Tests/FormationSizeRankTests.cs`,
-  `tests/Wpf/Sektor.DarkestDungeon.Wpf.Tests/PveBattleTests.cs`,
+  `tests/Wpf/Sektor.DarkestDungeon.Wpf.Tests/MonsterPartyBattleTests.cs`,
   `tests/Wpf/Sektor.DarkestDungeon.Wpf.Tests/MixedPartyBattleTests.cs`.
