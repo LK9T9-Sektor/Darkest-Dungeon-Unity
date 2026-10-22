@@ -37,13 +37,14 @@ namespace Sektor.DarkestDungeon.Core.Duel.Mechanics
         {
             bool monsterSideModded = monsterParty.Units.Any(unit => unit.Character.BattleModifiers != null);
 
-            if (monsterSideModded && monsterParty.Units.Any(unit => unit.Character.BattleModifiers.AlwaysBeSurprised))
+            if (monsterSideModded && monsterParty.Units.Any(unit =>
+                unit.Character.BattleModifiers != null && unit.Character.BattleModifiers.AlwaysBeSurprised))
             {
                 SurpriseMonsters();
                 return;
             }
 
-            if (!monsterSideModded || monsterParty.Units.Any(unit => unit.Character.BattleModifiers.CanBeSurprised))
+            if (!monsterSideModded || monsterParty.Units.Any(CanBeSurprised))
             {
                 float monstersSurprised = BattleConstants.BaseSurpriseChance + TorchSurpriseBonus(torchAmount, true);
                 foreach (var hero in heroParty.Units)
@@ -61,13 +62,14 @@ namespace Sektor.DarkestDungeon.Core.Duel.Mechanics
                 }
             }
 
-            if (monsterSideModded && monsterParty.Units.Any(unit => unit.Character.BattleModifiers.AlwaysSurprise))
+            if (monsterSideModded && monsterParty.Units.Any(unit =>
+                unit.Character.BattleModifiers != null && unit.Character.BattleModifiers.AlwaysSurprise))
             {
                 SurpriseHeroes();
                 return;
             }
 
-            if (!monsterSideModded || monsterParty.Units.Any(unit => unit.Character.BattleModifiers.CanSurprise))
+            if (!monsterSideModded || monsterParty.Units.Any(CanSurprise))
             {
                 float heroesSurprised = BattleConstants.BaseSurpriseChance + TorchSurpriseBonus(torchAmount, false);
                 foreach (var hero in heroParty.Units)
@@ -81,6 +83,16 @@ namespace Sektor.DarkestDungeon.Core.Duel.Mechanics
                 if (RandomSolver.CheckSuccess(heroesSurprised))
                     SurpriseHeroes();
             }
+        }
+
+        private static bool CanBeSurprised(ICombatUnit unit)
+        {
+            return unit.Character.BattleModifiers == null || unit.Character.BattleModifiers.CanBeSurprised;
+        }
+
+        private static bool CanSurprise(ICombatUnit unit)
+        {
+            return unit.Character.BattleModifiers == null || unit.Character.BattleModifiers.CanSurprise;
         }
 
         private void SurpriseMonsters()

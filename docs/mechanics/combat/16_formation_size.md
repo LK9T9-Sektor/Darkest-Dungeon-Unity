@@ -27,8 +27,10 @@ size 3, `ancestor_pod_D`/`ancestor_heart_D` size 4.
 
 ## 4. Порядок срабатывания (трассировка)
 
-1. **Добавление юнита** — `DuelController.AddMonster` (`DuelController.cs:210`) →
-   `MonsterParty.AddUnit` (`FormationParty.cs`): ранг = `last.Rank + last.Size` (или 1, если пусто).
+1. **Добавление юнита** — `DuelController.AddMonster` (`DuelController.cs:217`) добавляет юнит
+   в партию по `Team`: `Heroes` → `HeroParty`, `Monsters` → `MonsterParty`. Внутри партии
+   `FormationParty.AddUnit` (`FormationParty.cs`): ранг = `last.Rank + last.Size` (или 1, если пусто).
+   Это позволяет смешивать героев и монстров в одной стороне (`StartFight`).
 2. **Удаление / смерть** — `DuelController.CheckDeaths` → `RemoveDeadNonMonsters`
    (`DuelController.cs:617`) → `FormationParty.RemoveUnit` → `RecalculateRanks` (выжившие сдвигаются
    вперёд, ранги снова кумулятивные). Герои (size 1) — ранги 1..4 не меняются.
@@ -54,7 +56,7 @@ size 3, `ancestor_pod_D`/`ancestor_heart_D` size 4.
 | Проверка | Где | Границы |
 |---|---|---|
 | Занимаемый диапазон рангов | `FormationSet.IsLaunchableFrom/IsTargetableUnit` (`FormationSet.cs:46,55`) | `[rank, rank+size−1]` |
-| Ёмкость формации | `DuelBattleContext` (герои/монстры), WPF-лобби `PveLobbyViewModel` | `Σ size ≤ 4` |
+| Ёмкость формации | `DuelBattleContext` (герои/монстры), WPF-лобби (`PveLobbyViewModel`, таблица VS AI) | `Σ size ≤ 4` |
 | Карточка по размеру | `DuelUnitViewModel.CardWidth` | `185 × Size` |
 | Кумулятивный ранг | `FormationParty.RecalculateRanks` | первый = 1, далее `+Size` |
 
@@ -67,10 +69,15 @@ size 3, `ancestor_pod_D`/`ancestor_heart_D` size 4.
 - **Стартовый PvE-свип бьётся по одному монстру** (`FightPveSweepTests`) — он не ловит перекрытие
   рангов; покрытие — `FormationSizeRankTests` (size-2 + size-1 → 1,3).
 - **Монстры без `Stress`/некоторых резистов**: `GetPairedAttribute(Stress)` и
-  `GetSingleAttribute(Disease/DeathBlow/Trap)` могут вернуть null — WPF-вид (`PveBattleViewModel`)
-  защищён (`?? 0`), `DuelBattleViewModel` для героев не затронут.
-- **В `StartFight` герои — «remote»** (ввод через `ApplyRemoteSkill`), монстры — «local» (AI через
-  `ExecuteLocalSkill`); см. `presentation_unity_battle_view.md` §7 и `PveBattleViewModel`.
+  `GetSingleAttribute(Disease/DeathBlow/Trap)` могут вернуть null — WPF-виды (`PveBattleViewModel`
+  и общий `DuelBattleViewModel`) защищены (`?? 0`).
+- **Смешанные стороны**: `StartFight` принимает `FightUnitSpec` любого типа на любой стороне;
+  `AddMonster` кладёт монстра в партию по `Team`, а `SurpriseResolver` не разыменовывает
+  `BattleModifiers` у юнитов без модификаторов (герой на стороне ИИ). Это позволяет собирать
+  отряды «герой + монстр» и в VS AI-лобби.
+- **Локальная сторона**: `StartFight` по умолчанию ставит `IsHost=false`; WPF-лобби после старта
+  вызывает `DuelController.SetLocalTeam(Team.Heroes)`, чтобы игрок управлял левой стороной.
+  Правая сторона ведётся `MonsterBrainRivalLink`: монстр — кампанийный брейн, герой — `FallbackDuelAi`.
 - Легаси Unity не правится; `AvailableFreeSpace`/`AvailableSummonSpace` в ядре остаются стабами
   (`GetMonsterSize` → 1, `AvailableSummonSpace` → 0) — не влияют на рендер/ранги.
 
@@ -89,6 +96,8 @@ size 3, `ancestor_pod_D`/`ancestor_heart_D` size 4.
 - `src/Core/Sektor.DarkestDungeon.Core.Duel/Mechanics/TurnMover.cs`, `SurpriseResolver.cs`,
   `DuelBattleEvents.cs`.
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/ViewModels/DuelUnitViewModel.cs`, `PveBattleViewModel.cs`,
-  `Views/DuelUnitCardView.xaml`.
+  `DuelBattleViewModel.cs`, `SinglePlayerLobbyViewModel.cs`, `Views/DuelUnitCardView.xaml`,
+  `Views/UnitSelectionTableView.xaml`.
 - `tests/Core/Sektor.DarkestDungeon.Core.Combat.Tests/FormationSizeRankTests.cs`,
-  `tests/Wpf/Sektor.DarkestDungeon.Wpf.Tests/PveBattleTests.cs`.
+  `tests/Wpf/Sektor.DarkestDungeon.Wpf.Tests/PveBattleTests.cs`,
+  `tests/Wpf/Sektor.DarkestDungeon.Wpf.Tests/MixedPartyBattleTests.cs`.

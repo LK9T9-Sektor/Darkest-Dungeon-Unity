@@ -36,7 +36,7 @@
 
 ## 7. Взаимодействия
 
-- WPF-клиент: `AiRivalLink`/`NetworkRivalLink` (тонкие обёртки над `DuelController`).
+- WPF-клиент: `MonsterBrainRivalLink`/`NetworkRivalLink` (тонкие обёртки над `DuelController`).
 - Сид сессии из id игроков (`duel_03_seed.md`, `NETWORK.md` §6).
 
 ## 8. Файлы-источники

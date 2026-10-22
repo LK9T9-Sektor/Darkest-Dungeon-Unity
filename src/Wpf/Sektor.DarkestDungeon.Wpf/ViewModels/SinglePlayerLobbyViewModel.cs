@@ -4,8 +4,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Sektor.DarkestDungeon.Core.Combat.Raid.Battle;
 using Sektor.DarkestDungeon.Core.Common;
 using Sektor.DarkestDungeon.Core.Duel;
+using Sektor.DarkestDungeon.Core.Duel.Fight;
 using Sektor.DarkestDungeon.Wpf.Combat;
 using Sektor.DarkestDungeon.Wpf.Data;
 using Sektor.DarkestDungeon.Wpf.Navigation;
@@ -15,6 +17,8 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
     /// <summary>Single player lobby: build both parties (player and AI) and fight a duel against the AI.</summary>
     public partial class SinglePlayerLobbyViewModel : ObservableObject
     {
+        private const string PortraitOutfit = "A";
+
         private static readonly Random Rng = new Random();
 
         private readonly INavigationService navigation;
@@ -29,6 +33,45 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Gets the four hero slots of the AI party (editable like the player's).</summary>
         public ObservableCollection<HeroSlotViewModel> AiSlots { get; } = new ObservableCollection<HeroSlotViewModel>();
+
+        /// <summary>Gets the hero rows shown on the Heroes tab of the selection table.</summary>
+        public IReadOnlyList<UnitSelectionRowViewModel> HeroRows { get; }
+
+        /// <summary>Gets the monster rows shown on the Monsters tab of the selection table.</summary>
+        public IReadOnlyList<UnitSelectionRowViewModel> MonsterRows { get; }
+
+        /// <summary>Gets the command that assigns a double-clicked table row to the selected slot.</summary>
+        public IRelayCommand<UnitSelectionRowViewModel> ActivateRowCommand { get; }
+
+        /// <summary>Gets or sets the currently selected slot, on either side.</summary>
+        public HeroSlotViewModel? SelectedSlot
+        {
+            get { return _selectedSlot; }
+            private set
+            {
+                if (ReferenceEquals(_selectedSlot, value))
+                    return;
+
+                if (_selectedSlot != null)
+                    _selectedSlot.IsSelected = false;
+
+                _selectedSlot = value;
+
+                if (_selectedSlot != null)
+                    _selectedSlot.IsSelected = true;
+
+                OnPropertyChanged();
+                SelectionStatus = value == null
+                    ? "Select a slot, then double-click a table row."
+                    : "Slot " + value.Position + " selected. Double-click a table row to assign.";
+            }
+        }
+
+        /// <summary>Gets or sets the table hint/status line.</summary>
+        [ObservableProperty]
+        private string _selectionStatus = "Select a slot, then double-click a table row.";
+
+        private HeroSlotViewModel? _selectedSlot;
 
         /// <summary>Gets the command that rerolls the AI party with random distinct classes.</summary>
         public IRelayCommand RandomizeRivalCommand { get; }
@@ -60,16 +103,18 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             this.skillCatalog = skillCatalog;
             this.iconCatalog = iconCatalog;
             this.spineCatalog = spineCatalog;
-            for (int i = 0; i < 4; i++)
-                Slots.Add(new HeroSlotViewModel(i * 10 + 1, availableClasses, iconCatalog, skillCatalog, i + 1, spineCatalog));
-            for (int i = 0; i < 4; i++)
-                AiSlots.Add(new HeroSlotViewModel(i * 10 + 101, availableClasses, iconCatalog, skillCatalog, i + 1, spineCatalog));
+            BuildSlots(Slots, 1);
+            BuildSlots(AiSlots, 101);
+            HeroRows = BuildHeroRows();
+            MonsterRows = BuildMonsterRows();
 
             RandomizeRivalCommand = new RelayCommand(RandomizeRival);
             StartCommand = new RelayCommand(Start);
             BackCommand = new RelayCommand(Back);
+            ActivateRowCommand = new RelayCommand<UnitSelectionRowViewModel>(ActivateRow);
             AssignDistinct(Slots);
             RandomizeRival();
+            SelectedSlot = Slots[0];
         }
 
         private void RandomizeRival()
@@ -77,16 +122,93 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             AssignDistinct(AiSlots);
         }
 
+        private void BuildSlots(ObservableCollection<HeroSlotViewModel> slots, int seedBase)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                slots.Add(new HeroSlotViewModel(
+                    seedBase + i * 10,
+                    availableClasses,
+                    iconCatalog,
+                    skillCatalog,
+                    i + 1,
+                    spineCatalog,
+                    SelectSlot));
+            }
+        }
+
+        private void SelectSlot(HeroSlotViewModel slot)
+        {
+            SelectedSlot = slot;
+        }
+
+        private IReadOnlyList<UnitSelectionRowViewModel> BuildHeroRows()
+        {
+            var rows = new List<UnitSelectionRowViewModel>();
+            foreach (string classId in availableClasses)
+            {
+                string id = classId;
+                rows.Add(new UnitSelectionRowViewModel(
+                    iconCatalog.GetPortrait(id, PortraitOutfit),
+                    Ui.DisplayNames.Class(id),
+                    1,
+                    slot => slot.AssignClass(id)));
+            }
+
+            return rows;
+        }
+
+        private IReadOnlyList<UnitSelectionRowViewModel> BuildMonsterRows()
+        {
+            var rows = new List<UnitSelectionRowViewModel>();
+            foreach (string monsterId in DuelContent.MonsterCatalog.Ids)
+            {
+                if (!DuelContent.MonsterCatalog.TryGet(monsterId, out var monster))
+                    continue;
+
+                string id = monsterId;
+                rows.Add(new UnitSelectionRowViewModel(
+                    null,
+                    Ui.DisplayNames.Title(id),
+                    monster.Size,
+                    slot => slot.AssignMonster(id)));
+            }
+
+            return rows;
+        }
+
+        private void ActivateRow(UnitSelectionRowViewModel? row)
+        {
+            if (row == null)
+                return;
+
+            if (!row.IsSelectable)
+            {
+                SelectionStatus = "Only one-slot units are available for now.";
+                return;
+            }
+
+            if (SelectedSlot == null)
+            {
+                SelectionStatus = "Select a slot first.";
+                return;
+            }
+
+            row.AssignTo(SelectedSlot);
+            SelectionStatus = "Assigned " + row.DisplayName + ".";
+        }
+
         private void Start()
         {
             int sessionSeed = Environment.TickCount;
             var duel = new DuelController(new DuelContent(), logger);
-            duel.StartDuel(ToPicks(Slots), ToPicks(AiSlots), sessionSeed, isHost: true);
+            duel.StartFight(ToSpecs(Slots), ToSpecs(AiSlots), sessionSeed);
             if (!duel.IsStarted)
                 return;
+            duel.SetLocalTeam(Team.Heroes);
             duel.StartBattle();
 
-            var link = new AiRivalLink();
+            var link = new MonsterBrainRivalLink();
             var battle = new DuelBattleViewModel(duel, link, () =>
             {
                 link.Dispose();
@@ -108,9 +230,26 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 slot.AssignClass(shuffled[index++ % shuffled.Count]);
         }
 
-        private static DuelHeroPick[] ToPicks(IEnumerable<HeroSlotViewModel> slots)
+        private static List<FightUnitSpec> ToSpecs(IEnumerable<HeroSlotViewModel> slots)
         {
-            return slots.Select(slot => new DuelHeroPick(slot.ClassId, slot.Seed, slot.SelectedSkillIds, slot.SelectedQuirkIds, slot.SelectedTrinketIds)).ToArray();
+            var specs = new List<FightUnitSpec>();
+            foreach (var slot in slots)
+            {
+                if (slot.IsMonster)
+                {
+                    specs.Add(new MonsterFightUnitSpec(slot.MonsterId));
+                    continue;
+                }
+
+                specs.Add(new HeroFightUnitSpec(
+                    slot.ClassId,
+                    slot.Seed,
+                    slot.SelectedSkillIds,
+                    slot.SelectedQuirkIds,
+                    slot.SelectedTrinketIds));
+            }
+
+            return specs;
         }
     }
 }

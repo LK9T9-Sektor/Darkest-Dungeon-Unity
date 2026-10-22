@@ -226,7 +226,10 @@ namespace Sektor.DarkestDungeon.Core.Duel
 
             var unit = new FormationUnit(monster, team);
             unit.PrepareForBattle(combatId++);
-            MonsterParty.AddUnit(unit);
+            if (team == Team.Heroes)
+                HeroParty.AddUnit(unit);
+            else
+                MonsterParty.AddUnit(unit);
         }
 
         private void InitializeMechanics()

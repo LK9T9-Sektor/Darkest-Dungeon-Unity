@@ -62,7 +62,7 @@
   дают `error CS1703` (дубли `unity-4.8-api\Facades`) — удалить все DLL, кроме `Sektor.*` (см. §15). Доставка идёт автоматически: `-UnityEditorPath` → `UNITY_EDITOR_PATH` → `editors.json` Unity Hub
   → типовые каталоги установки; собранные DLL и `steam_appid.txt` остаются gitignored.
 - **Дуэль (WPF) вынесена в ядро**: `src\Core\Sektor.DarkestDungeon.Core.Duel` (`DuelController`, `DuelPhase`,
-  `DuelSeed`, `DuelPayload`, `IDuelContent`, `DuelAi`) — WPF-клиент стал тонким (Фазы A/B). Unity-мультиплеерный
+  `DuelSeed`, `DuelPayload`, `IDuelContent`, `FallbackDuelAi`) — WPF-клиент стал тонким (Фазы A/B). Unity-мультиплеерный
   PvP (та же дуэль) по-прежнему в презентации — не разнесён (см. §5 и `DUEL_ARCHITECTURE.md`).
 
 ## 8. Культуро-зависимый парсинг чисел

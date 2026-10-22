@@ -100,7 +100,7 @@ target_selection_desires: [
 
 ## 3. Зеркало в дуэли (Core.Duel — «поверх»)
 
-Соперник в vs-AI ходит как монстр DD: `DuelAi` строит «default» брейн и гоняет DD-цикл.
+Соперник в vs-AI ходит как монстр DD: `FallbackDuelAi` строит «default» брейн и гоняет DD-цикл.
 
 - `DuelSkillSelection` — аналог `random_skill`, но по `CurrentCombatSkills` (выбранные скиллы
   героя); базовый `SelectSkill` (RandomSolver + цели из внедрённого брейна).
@@ -109,9 +109,9 @@ target_selection_desires: [
 - `DuelTargetSelectionRandom` / `DuelTargetSelectionMarked` / `DuelTargetSelectionHealth` —
   аналоги DD (random-враг, marked-фильтр, HP-сортировка с `is_greater_comparison` +
   enemy/friendly; обязательный ключ `specific_combat_skill_id=""`, как в JSON).
-- `DuelAi.ChooseAction(duel)` — DD-цикл: `RandomSolver.ChooseByRandom(SkillDesireSet)` →
+- `FallbackDuelAi.ChooseAction(duel)` — DD-цикл: `RandomSolver.ChooseByRandom(SkillDesireSet)` →
   `SelectSkill` → кулдаун (`SkillCooldown.Copy` в `CombatInfo.SkillCooldowns`) → payload
-  `DuelPayload.Skill(skillId, targetId)` или `pass|0`.
+  `DuelPayload.Skill(skillId, targetId)`; если скилл не выбран — легальный move, иначе `pass|0`.
 - Брейн «default»: heal 100/<0.5 + random 1; цели random 2/enemy + marked 1/enemy +
   health 100/friendly. Детерминирован (RandomSolver + сид сессии) — реплеи сходятся.
 

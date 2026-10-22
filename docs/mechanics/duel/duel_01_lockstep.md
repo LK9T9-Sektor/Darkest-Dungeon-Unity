@@ -71,7 +71,7 @@
 
 - Вводы — `DuelPayload` (`duel_02_payload.md`); сид — `duel_03_seed.md`.
 - Боевые механики — `combat/*`.
-- AI — `DuelAi` (`duel_04_ai.md`); автобой — `FightSession` (`duel_05_fight.md`).
+- AI — `FallbackDuelAi` (`duel_04_ai.md`); автобой — `FightSession` (`duel_05_fight.md`).
 
 ## 9. Файлы-источники
 

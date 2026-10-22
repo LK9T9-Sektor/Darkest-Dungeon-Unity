@@ -31,7 +31,7 @@
   `Data/Heroes/Info`, базовый ранг; полный ростер 15 классов потребляется WPF).
 - `src\Core\Duel\` — **оркестрация дуэли (PvP 1v1, локстап), вынесено (Фаза A/B)**: `DuelController`,
   `DuelPhase`, `DuelSeed`, `DuelPayload`, `IDuelContent`, адаптеры `DuelBattleContext`/`DuelBattleEvents`,
-  ИИ `DuelAi`. Ре-имплементация мультиплеерного PvP-боя Unity (`RaidSceneMultiplayerManager`/
+  ИИ `FallbackDuelAi`. Ре-имплементация мультиплеерного PvP-боя Unity (`RaidSceneMultiplayerManager`/
   `MultiplayerSync`), который в Unity не разнесён. WPF-клиент — тонкий потребитель; cutover Unity —
   Фаза 6. См. `DUEL_ARCHITECTURE.md`. Тесты — `tests\Core\Sektor.DarkestDungeon.Core.Duel.Tests`.
 - `src\Core\Content\` — персонажно-боевой контент: `Character\` (`Quirk`, `BuffContent`,

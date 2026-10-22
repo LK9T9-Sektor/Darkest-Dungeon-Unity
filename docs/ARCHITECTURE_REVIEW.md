@@ -150,7 +150,7 @@ call-site'ы без проверки падают NRE. **Рекомендаци�
 
 ### 2.10 AI дуэли: жёсткий дефолтный брейн
 
-`DuelAi.BuildDefaultBrain` (`DuelAi.cs:54`) хардкодит брейн для PvP; `IDuelContent.GetMonsterBrain`
+`FallbackDuelAi.BuildDefaultBrain` (`FallbackDuelAi.cs:54`) хардкодит брейн для PvP; `IDuelContent.GetMonsterBrain`
 (`IDuelContent.cs:34`) используется только Fight-путём (`DuelController.cs:201`). Кампанийные мозги
 не применяются в дуэли. **Рекомендация:** грузить кампанийный брейн в PvP (наши желания уже
 зеркалят DD — `AI_BEHAVIOR.md`) или документировать намерение.

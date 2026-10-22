@@ -5,13 +5,13 @@
 ## 1. Назначение и когда работает
 
 Автоматический раннер боя (Тест-бой, стенд): строит `DuelController`, стартует бой и водит юнитов
-автономно (герои — через `DuelAi` или ручные вводы, монстры — через кампанийные мозги
+автономно (герои — через `FallbackDuelAi` или ручные вводы, монстры — через кампанийные мозги
 `UseMonsterBrain`) до конца. Используется `TextFightContent` как `IDuelContent`.
 
 ## 2. Модель данных
 
 - `FightSession` (`Core.Duel/Fight/FightSession.cs:15`) — `Duel` (`DuelController`), `seed`,
-  `rivalAi` (`DuelAi`), `IsStarted`/`IsFinished`/`IsWaitingForPlayerAction`.
+  `rivalAi` (`FallbackDuelAi`), `IsStarted`/`IsFinished`/`IsWaitingForPlayerAction`.
 - `FightUnitSpec`/`HeroFightUnitSpec`/`MonsterFightUnitSpec` — спецификации юнитов сторон.
 - `FightPlayerAction` — ручной ввод (`SkillId`, `TargetCombatId`).
 
@@ -48,13 +48,16 @@
 
 - **`IsWaitingForPlayerAction` гейтит ручной ввод** — ввод принимается только для живого героя
   host-стороны в фазе `WaitingForHostAction`.
-- Авто-герои ходят через `DuelAi` (default brain), не через кампанийные мозги.
+- Авто-герои ходят через `FallbackDuelAi` (default brain), не через кампанийные мозги.
 - Монстры используют `UseMonsterBrain` (кампанийные брейны из `JsonAI.json`) — это ключевое отличие
   от дуэли (там обе стороны герои).
+- `StartFight` допускает смешанные стороны (`HeroFightUnitSpec` + `MonsterFightUnitSpec`); по
+  умолчанию `IsHost=false`, поэтому WPF-лобби вызывает `SetLocalTeam(Team.Heroes)` перед
+  `StartBattle`. `FightSession` этот вызов не делает и водит обе стороны сам.
 
 ## 7. Взаимодействия
 
-- `IDuelContent`/`TextFightContent` (`duel_06_content.md`), `DuelAi` (`duel_04_ai.md`).
+- `IDuelContent`/`TextFightContent` (`duel_06_content.md`), `FallbackDuelAi` (`duel_04_ai.md`).
 - Боевые механики — `combat/*`.
 - Unity-стенд — `unity\Assets\Scripts\UI\Testing\FightContentLoader.cs`/`FightScreen.cs`.
 

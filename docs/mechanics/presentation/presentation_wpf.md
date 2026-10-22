@@ -58,7 +58,7 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 - Spine-демо: рендер-контрол `SpineHeroControl` (`SKElement`) поверх библиотек
   `Sektor.Spine` (рантайм 2.1, netstandard2.0) и `Sektor.Spine.Skia`
   (загрузчик, плеер, Skia-рендер).
-- Обёртки ИИ/сети: `AiRivalLink`, `NetworkRivalLink`, `IDuelRivalLink`.
+- Обёртки ИИ/сети: `MonsterBrainRivalLink`, `NetworkRivalLink`, `IDuelRivalLink`.
 - `Data/DuelContent` — реализация `IDuelContent` поверх каталогов.
 - `Data/SpineDemoCatalog` (реализация `ISpineDemoCatalog`) — герои/анимации/пути контента
   демо-экрана; `SpineDemoViewModel` получает каталог через конструктор.
@@ -84,6 +84,11 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   (72 → кнопка 80, корень 88). Без `SelectCommand` квадрат только для просмотра.
 - `Views/AbilityRowView` — общий ряд квадратов скиллов (`ItemsSource`, `SelectCommand`, `IconSize`,
   `ShowNames`): на SPINE TEST показывает превью всех скиллов, в оверлее лобби — выбор активных.
+- `Views/UnitSelectionTableView` — таблица выбора юнита для лобби: колонки `Slots`/`Icon`/`Class`,
+  две вкладки задаёт экран. Строка на 1 слот кликабельна (двойной клик), строки на 2+ слота
+  показываются серыми и не назначаются. `HeroSlotViewModel` хранит либо героя (`ClassId`), либо
+  монстра (`MonsterId`), умеет `AssignClass`/`AssignMonster`, а клик по слоту выставляет
+  `IsSelected`; `HeroSlotsPanel.ShowClassArrows` скрывает стрелки в VS AI-лобби.
 - `Views/LobbyHeroEditorHost` — full-window host модального редактора героя; лежит в корневом
   `Grid` экрана лобби поверх всех рядов (в VS AI — один хост на две панели отряда). Открывается
   через `Open(slot)` из события `PartySelectionView.SlotEditRequested`.
@@ -121,19 +126,26 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   `Level`/`BaseInfo`/`EffectRows`); `CanSelectSkills` берётся из `HeroClass.CanSelectCombatSkills`,
   `MaxActiveSkills` — из `NumberOfSelectedCombatSkills`. При лимите 4 невыбранные скиллы получают
   `IsUsable=false` (серые); у Abomination все 7 выбраны, выбор заблокирован (`SkillsLocked=true`),
-  отдельная подпись при этом не показывается.
+  отдельная подпись при этом не показывается. `MonsterId`/`IsMonster`/`DisplayName`/`UnitClassName`/
+  `UnitPortrait` позволяют тому же слоту показывать монстра; `SelectCommand` выделяет слот в лобби.
 
 ## 3. Порядок срабатывания (трассировка)
 
 1. Запуск → `MainWindow` (адаптивная раскладка, `*`-колонки) → меню.
-2. Лобби: выбор классов/квирков/скиллов (`DuelHeroPick`), «Start Battle». В оверлее скиллы —
-   `AbilityRowView`; `LobbySkillViewModel.IsUsable` true у выбранных и у свободных слотов, false при
-   лимите; Abomination (`CanSelectCombatSkills=false`) — все выбраны, клики игнорируются. ПКМ по
-   компактной карточке поднимает full-window оверлей через `LobbyHeroEditorHost`; в нём меняются
-   класс, имя (reroll), активные скиллы, квирки и тринкеты; каждый тринкет рероллится своей кнопкой.
-3. Бой: `DuelController.StartDuel(hostPicks, clientPicks, seed, isHost)` + `StartBattle`.
-4. Ход: `DuelBattleViewModel` читает `IsLocalTurn`, применяет вводы (`ExecuteLocalSkill`), ИИ —
-   `AiRivalLink` → `DuelAi.ChooseAction` → `ApplyRemoteSkill`; мультиплеер — `NetworkRivalLink`.
+2. Лобби VS AI: клик по слоту выделяет его, двойной клик по строке таблицы (`Heroes`/`Monsters`)
+   назначает героя или монстра; выборы/квирки/скиллы героя задаются в оверлее (ПКМ). «Start Battle»
+   собирает `FightUnitSpec` по типу каждого слота, поэтому обе стороны могут быть смешанными.
+   В оверлее скиллы — `AbilityRowView`; `LobbySkillViewModel.IsUsable` true у выбранных и у свободных
+   слотов, false при лимите; Abomination (`CanSelectCombatSkills=false`) — все выбраны, клики
+   игнорируются. ПКМ по компактной карточке поднимает full-window оверлей через `LobbyHeroEditorHost`;
+   в нём меняются класс, имя (reroll), активные скиллы, квирки и тринкеты; каждый тринкет рероллится
+   своей кнопкой.
+3. Бой VS AI/PvE: `DuelController.StartFight(playerSide, aiSide, seed)` +
+   `SetLocalTeam(Team.Heroes)` + `StartBattle`; мультиплеер — `StartDuel(hostPicks, clientPicks, seed,
+   isHost)`.
+4. Ход: `DuelBattleViewModel` читает `IsLocalTurn`, применяет вводы (`ExecuteLocalSkill`), правая
+   сторона — `MonsterBrainRivalLink` (монстр → кампанийный брейн, герой → `FallbackDuelAi`) →
+   `ApplyRemoteSkill`; мультиплеер — `NetworkRivalLink`.
 5. Отображение: снапшоты состояния (HP/стресс/ранги), лог (`DuelBattleEvents.Log`), попапы.
 6. Spine-демо: меню → «SPINE TEST» → `SpineDemoView`; `SpineHeroControl` на `Loaded`/
    смене `ContentDirectory` находит в `Content\Spine\<Hero>\<Anim>` первый `*.skel*` и `*.atlas*`,
@@ -201,7 +213,7 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 - UI-поток (Dispatcher); `StateChanged` события боя → перерисовка.
 - Spine-демо: собственный цикл `CompositionTarget.Rendering` (подписка на `Loaded`, отписка на
   `Unloaded`), дельта кадра клампится 0.1 c (`MaxFrameSeconds`); пауза — `IsPaused` (без отписки).
-- ИИ-ход с таймером (100мс, `AiRivalLink`: один тик, `lastActedCombatId`-гвардия — действие
+- ИИ-ход с таймером (100мс, `MonsterBrainRivalLink`: один тик, `lastActedCombatId`-гвардия — действие
   соперника шлётся один раз за ход, дальше паком занимается `DuelBattleViewModel`).
 - **Пак превью** (`DuelBattleViewModel.PaceState` + 50мс `DispatcherTimer`): при смене исполнителя
   хода — бит 0.5с + попап «ТВОЙ ХОД»; для действия соперника (ИИ и сеть одинаково) — превью 1с,
@@ -466,7 +478,7 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 
 ## 7. Взаимодействия
 
-- `duel/*` (DuelController, DuelAi), `common_random.md` (детерминизм), `clients_reader.md`
+- `duel/*` (DuelController, FallbackDuelAi), `common_random.md` (детерминизм), `clients_reader.md`
   (контент).
 - `docs/SPEC_GAME_EVENTS_SCHEMA.md` — контракт событий `1.0.0`/`1.1.0` и правила чтения; эталон
   `docs/spec_game_events/examples/`; `docs/audio/00_index.md` — каталог FMOD и запись `AudioPlayed`.
@@ -476,7 +488,7 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 ## 8. Файлы-источники
 
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/*`, `ViewModels/*`, `Ui/TargetArrowMath.cs`,
-  `Data/DuelContent.cs`, `Combat/AiRivalLink.cs`, `Networking/NetworkRivalLink.cs`
+  `Data/DuelContent.cs`, `Combat/MonsterBrainRivalLink.cs`, `Networking/NetworkRivalLink.cs`
 - `src/Spine/Sektor.Spine/` (рантайм spine-csharp 2.1), `src/Spine/Sektor.Spine.Skia/` (loader/player/Skia-рендер)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/SpineHeroControl.cs`, `Views/SpineDemoView.xaml(.cs)`, `ViewModels/SpineDemoViewModel.cs`
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/SpineBattleView.xaml(.cs)`, `ViewModels/SpineBattleViewModel.cs` (арена 1×1)

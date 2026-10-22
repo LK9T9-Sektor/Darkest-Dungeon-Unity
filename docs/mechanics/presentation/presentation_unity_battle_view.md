@@ -45,7 +45,7 @@
    `CoreBattleDriver.PlayerAct(skillId, targetId)`. Роутинг по `Duel.IsLocalTurn`:
    - local → `ExecuteLocalSkill/Pass/Move`;
    - remote → `ApplyRemoteSkill(DuelPayload.*)` (`StartFight` инвертирует стороны: герои — «remote»).
-5. AI: `DecideAiPayload` — монстр с брейн → `Solver.UseMonsterBrain`; герой → `DuelAi.ChooseAction`;
+5. AI: `DecideAiPayload` — монстр с брейн → `Solver.UseMonsterBrain`; герой → `FallbackDuelAi.ChooseAction`;
    применяется тем же роутингом.
 6. После каждого действия `CompleteAction()`: рендер `Solver.SkillResult` в попапы + `RefreshView()`
    (формации, раунд, лог `Events.Log` по watermark).
@@ -91,7 +91,7 @@
 ## 8. Взаимодействия
 
 - Ядро: `DuelController`, `DuelBattleEvents`, `Solver.SkillResult`, `FormationDisplayOrder`,
-  `HeroFightUnitSpec`/`MonsterFightUnitSpec`/`DuelHeroPick`, `DuelAi`, `IBattleContext` (см. `combat/*`,
+  `HeroFightUnitSpec`/`MonsterFightUnitSpec`/`DuelHeroPick`, `FallbackDuelAi`, `IBattleContext` (см. `combat/*`,
   `duel/*`).
 - Контент: `FightContentLoader` (`TextFightContent`).
 - Инструменты: `tools\unity-generate-battle-test-scene.ps1` (пересборка сцены),

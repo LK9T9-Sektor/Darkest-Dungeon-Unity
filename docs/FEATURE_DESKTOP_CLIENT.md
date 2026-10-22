@@ -20,8 +20,8 @@
   10 квадратами. Наведение — тултип, правый клик — лист статов со всеми скиллами и резистами.
 - **Дуэль** — оркестрация в чистом ядре `src\Core\Sektor.DarkestDungeon.Core.Duel\`
   (`DuelController` — детерминированный локстап поверх `src\Core\Combat`; `DuelPhase`, `DuelSeed`,
-  wire-протокол `DuelPayload`, `IDuelContent`, ИИ `DuelAi`). WPF-клиент — тонкий потребитель:
-  `DuelContent` (реализация `IDuelContent`), адаптеры линков (`AiRivalLink`, `NetworkRivalLink`),
+  wire-протокол `DuelPayload`, `IDuelContent`, ИИ `FallbackDuelAi`). WPF-клиент — тонкий потребитель:
+  `DuelContent` (реализация `IDuelContent`), адаптеры линков (`MonsterBrainRivalLink`, `NetworkRivalLink`),
   сессия/транспорт и ViewModels. Происхождение и критика — `DUEL_ARCHITECTURE.md`.
   Это ре-имплементация мультиплеерного PvP-боя Unity (партия соперника = сторона монстров,
   `RaidSceneMultiplayerManager`/`MultiplayerSync`), которая в Unity не разнесена по слоям.

@@ -49,15 +49,16 @@
   (адаптер `IBattleEvents` + debug-лог).
 - `DuelPayload` — wire-протокол (`skillId|targetId`, `move|rank`, `pass|0`).
 - `IDuelContent` — порт контента (герой/квирк/бафф); ядро не грузит файлы.
-- `DuelAi` + `DuelSkillSelection`/`DuelSkillSelectionHeal`/`DuelTargetSelection{Random,Marked,Health}` —
-  ИИ соперника на core-brain, зеркалит DD (см. `AI_BEHAVIOR.md`).
+- `FallbackDuelAi` + `DuelSkillSelection`/`DuelSkillSelectionHeal`/`DuelTargetSelection{Random,Marked,Health}` —
+  ИИ соперника на core-brain, зеркалит DD (см. `AI_BEHAVIOR.md`). Приоритет: скилл → move → pass.
 - netstandard2.0, C# 7.3, без движковых ссылок; доставляется пост-билдом в
   `Assets\Plugins\Internal` обоих деревьев (для будущего cutover Unity).
 
 ### WPF-клиент (`src\Wpf\...`)
 
 - `DuelContent` — реализация `IDuelContent` поверх `DuelClasses`/`QuirkCatalog`/`BuffCatalog`.
-- `AiRivalLink` — **тонкая** обёртка: таймер + `DuelAi` + `RivalActionReceived`.
+- `MonsterBrainRivalLink` — **тонкая** обёртка: таймер + кампанийный брейн (`UseMonsterBrain`)
+  или `FallbackDuelAi` + `RivalActionReceived`.
 - `NetworkRivalLink`, `DuelSessionManager`, `DuelPartyConfig`, транспорты — сеть/сессия.
 - ViewModels/Views — биндинги и отрисовка.
 
@@ -77,7 +78,7 @@ Unity пока не потребляет (cutover — в роадмапе).
 3. **Логика в презентации**: до Фазы A вся дуэльная оркестрация жила в `src\Wpf`
    (`DuelController` 413 строк и др.). Теперь вынесено; в Unity осталось.
 4. **ИИ**: раньше случайные ходы (`AiRivalLink.BuildRandomAction` на `System.Random`).
-   После B — через `DuelAi`/`MonsterBrain` с целью «минимальный HP». Полный потенциал
+   После B — через `FallbackDuelAi`/`MonsterBrain` с целью «минимальный HP». Полный потенциал
    core-desires (приоритеты, коулдауны, роли) ещё не использован (см. роадмап).
 5. **Wire-протокол в двух местах**: до A строки `pass`/`move`/`skill|target` были в WPF VM
    и в Unity RPC-коде. Теперь константы в `DuelPayload` (ядро), Unity всё ещё свои.
@@ -90,7 +91,7 @@ Unity пока не потребляет (cutover — в роадмапе).
 ## 5. Роадмап
 
 - [x] **A** — оркестрация в `Core.Duel`; WPF тоньше; тесты в `tests\Core\...Core.Duel.Tests`.
-- [x] **B** — ИИ соперника через `MonsterBrain`/desires: `DuelAi` зеркалит DD-«default» брейн
+- [x] **B** — ИИ соперника через `MonsterBrain`/desires: `FallbackDuelAi` зеркалит DD-«default» брейн
   (хил раненого союзника <50%, random/marked атаки, кулдауны) — «поверх», без правок оригинала.
   Детали и данные DD — в `AI_BEHAVIOR.md`.
 - [ ] **C** — этот документ + обновление карты (`INDEX`/`ARCHITECTURE`/`KNOWN_ISSUES`/...).

@@ -36,6 +36,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(PartySelectionView),
             new PropertyMetadata(false));
 
+        /// <summary>Identifies the <see cref="ShowClassArrows"/> dependency property.</summary>
+        public static readonly DependencyProperty ShowClassArrowsProperty = DependencyProperty.Register(
+            nameof(ShowClassArrows),
+            typeof(bool),
+            typeof(PartySelectionView),
+            new PropertyMetadata(true));
+
         /// <summary>Raised when a hero slot requests the loadout editor.</summary>
         public event EventHandler<HeroSlotEditRequestedEventArgs>? SlotEditRequested;
 
@@ -65,6 +72,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             get { return (bool)GetValue(IsMirroredProperty); }
             set { SetValue(IsMirroredProperty, value); }
+        }
+
+        /// <summary>Gets or sets a value indicating whether the class-cycling arrows are shown.</summary>
+        public bool ShowClassArrows
+        {
+            get { return (bool)GetValue(ShowClassArrowsProperty); }
+            set { SetValue(ShowClassArrowsProperty, value); }
         }
 
         /// <summary>Initializes a new instance of the <see cref="PartySelectionView"/> class.</summary>

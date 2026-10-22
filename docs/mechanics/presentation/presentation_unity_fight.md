@@ -33,7 +33,7 @@
 | Условие | Где | Границы |
 |---|---|---|
 | Режим «Игра» | `FightSession.IsWaitingForPlayerAction` | ручной ввод |
-| Режим AUTO | `Tick(null)` | авто-герои через `DuelAi` |
+| Режим AUTO | `Tick(null)` | авто-герои через `FallbackDuelAi` |
 
 ## 6. Нюансы и подводные камни
 

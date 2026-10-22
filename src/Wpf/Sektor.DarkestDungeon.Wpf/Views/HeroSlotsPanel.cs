@@ -35,6 +35,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(HeroSlotsPanel),
             new PropertyMetadata(false));
 
+        /// <summary>Identifies the <see cref="ShowClassArrows"/> dependency property.</summary>
+        public static readonly DependencyProperty ShowClassArrowsProperty = DependencyProperty.Register(
+            nameof(ShowClassArrows),
+            typeof(bool),
+            typeof(HeroSlotsPanel),
+            new PropertyMetadata(true));
+
         /// <summary>Raised when the user right-clicks a hero slot.</summary>
         public event EventHandler<HeroSlotEditRequestedEventArgs>? SlotEditRequested;
 
@@ -63,6 +70,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             get { return (bool)GetValue(IsMirroredProperty); }
             set { SetValue(IsMirroredProperty, value); }
+        }
+
+        /// <summary>Gets or sets a value indicating whether the class-cycling arrows are shown.</summary>
+        public bool ShowClassArrows
+        {
+            get { return (bool)GetValue(ShowClassArrowsProperty); }
+            set { SetValue(ShowClassArrowsProperty, value); }
         }
 
         private static void OnSlotsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -99,10 +113,26 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             SlotsItems.ItemsSource = view;
         }
 
+        private void OnSlotClick(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is FrameworkElement element && element.DataContext is HeroSlotViewModel slot)
+            {
+                if (slot.SelectCommand != null)
+                    slot.SelectCommand.Execute(null);
+                e.Handled = true;
+            }
+        }
+
         private void OnSlotRightClick(object sender, MouseButtonEventArgs e)
         {
             if (sender is FrameworkElement element && element.DataContext is HeroSlotViewModel slot)
             {
+                if (slot.IsMonster)
+                {
+                    e.Handled = true;
+                    return;
+                }
+
                 SlotEditRequested?.Invoke(this, new HeroSlotEditRequestedEventArgs(slot));
                 e.Handled = true;
             }

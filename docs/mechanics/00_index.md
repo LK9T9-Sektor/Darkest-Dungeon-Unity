@@ -34,7 +34,7 @@
 
 | Домен | Содержание | Файл/папка | Статус |
 |---|---|---|---|
-| Duel | lockstep, `DuelSeed`/`DuelPayload`, `DuelPhase`, `DuelAi`, `FightSession` | `duel/` | реализовано |
+| Duel | lockstep, `DuelSeed`/`DuelPayload`, `DuelPhase`, `FallbackDuelAi`, `FightSession` | `duel/` | реализовано |
 | Content | квирки, бафф-контент, trinket/camping-каталоги | `content/` | данные |
 | Common | `Result`, `RandomSolver`/`IRng`, токен-парсер, feature-flag | `common/` | реализовано |
 | Clients | `GameDataReader` (Newtonsoft-фасад) | `clients/` | реализовано |

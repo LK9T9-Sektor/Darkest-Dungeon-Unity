@@ -10,6 +10,7 @@
             <views:HeroSlotsPanel Slots="{Binding Slots, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   IsReversedSlots="{Binding IsReversedSlots, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   IsMirrored="{Binding IsMirrored, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  ShowClassArrows="{Binding ShowClassArrows, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   SlotEditRequested="OnSlotEditRequested" />
         </StackPanel>
     </Border>

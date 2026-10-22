@@ -95,6 +95,14 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private bool _isEmpty = true;
 
+        /// <summary>Gets or sets a value indicating whether this slot is selected in the lobby.</summary>
+        [ObservableProperty]
+        private bool _isSelected;
+
+        /// <summary>Gets or sets the selected monster id; empty when the slot holds a hero.</summary>
+        [ObservableProperty]
+        private string _monsterId = string.Empty;
+
         /// <summary>Gets or sets the maximum number of active combat skills.</summary>
         [ObservableProperty]
         private int _maxActiveSkills = 4;
@@ -234,13 +242,15 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <param name="skillCatalog">The catalog of combat skill icons and art, or null when icons are not available.</param>
         /// <param name="position">The 1-based formation position of this slot.</param>
         /// <param name="spineCatalog">The Spine content catalog, or null when the Idle animation is not available.</param>
+        /// <param name="select">The optional callback invoked when the slot is selected.</param>
         public HeroSlotViewModel(
             int seed,
             IReadOnlyList<string> availableClasses,
             IHeroIconCatalog? iconCatalog = null,
             IHeroSkillCatalog? skillCatalog = null,
             int position = 0,
-            ISpineDemoCatalog? spineCatalog = null)
+            ISpineDemoCatalog? spineCatalog = null,
+            Action<HeroSlotViewModel>? select = null)
         {
             this.availableClasses = availableClasses;
             this.iconCatalog = iconCatalog;
@@ -249,6 +259,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             Seed = seed;
             Position = position;
             _classId = this.availableClasses[0];
+            SelectCommand = select == null ? null : new RelayCommand(() => select(this));
             PrevClassCommand = new RelayCommand(PrevClass);
             NextClassCommand = new RelayCommand(NextClass);
             RerollNameCommand = new RelayCommand(RerollName);
@@ -265,19 +276,59 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets the display name of the selected class.</summary>
         public string ClassName { get { return Ui.DisplayNames.Class(ClassId); } }
 
+        /// <summary>Gets a value indicating whether the slot currently holds a monster.</summary>
+        public bool IsMonster { get { return MonsterId.Length > 0; } }
+
+        /// <summary>Gets the slot caption: the hero name or the monster display name.</summary>
+        public string DisplayName
+        {
+            get { return IsMonster ? Ui.DisplayNames.Title(MonsterId) : HeroName; }
+        }
+
+        /// <summary>Gets the slot subtitle: the hero class or "Monster".</summary>
+        public string UnitClassName
+        {
+            get { return IsMonster ? "Monster" : ClassName; }
+        }
+
+        /// <summary>Gets the slot portrait; monsters have no portrait yet.</summary>
+        public ImageSource? UnitPortrait
+        {
+            get { return IsMonster ? null : Portrait; }
+        }
+
+        /// <summary>Gets the command that selects this slot in the lobby, or null when the slot is not selectable.</summary>
+        public IRelayCommand? SelectCommand { get; }
+
         /// <summary>Assigns a specific class and reloads its skills and quirks.</summary>
         /// <param name="classId">The class id to assign.</param>
         public void AssignClass(string classId)
         {
+            MonsterId = string.Empty;
             ClassId = classId;
             IsEmpty = false;
             LoadClass();
+        }
+
+        /// <summary>Assigns a monster to this slot.</summary>
+        /// <param name="monsterId">The monster string id.</param>
+        public void AssignMonster(string monsterId)
+        {
+            MonsterId = monsterId ?? string.Empty;
+            IsEmpty = MonsterId.Length == 0;
+            if (IsMonster)
+            {
+                Portrait = null;
+                Header = null;
+                IdleContentDirectory = string.Empty;
+            }
         }
 
         private void PrevClass()
         {
             int index = IndexOf(ClassId);
             ClassId = availableClasses[(index - 1 + availableClasses.Count) % availableClasses.Count];
+            MonsterId = string.Empty;
             IsEmpty = false;
             LoadClass();
         }
@@ -286,6 +337,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         {
             int index = IndexOf(ClassId);
             ClassId = availableClasses[(index + 1) % availableClasses.Count];
+            MonsterId = string.Empty;
             IsEmpty = false;
             LoadClass();
         }
@@ -322,6 +374,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         partial void OnHeroNameChanged(string value)
         {
             Stats.HeroName = value;
+            OnPropertyChanged(nameof(DisplayName));
         }
 
         partial void OnIsEditingNameChanged(bool value)
@@ -604,6 +657,20 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         partial void OnClassIdChanged(string value)
         {
             OnPropertyChanged(nameof(ClassName));
+            OnPropertyChanged(nameof(UnitClassName));
+        }
+
+        partial void OnMonsterIdChanged(string value)
+        {
+            OnPropertyChanged(nameof(IsMonster));
+            OnPropertyChanged(nameof(DisplayName));
+            OnPropertyChanged(nameof(UnitClassName));
+            OnPropertyChanged(nameof(UnitPortrait));
+        }
+
+        partial void OnPortraitChanged(ImageSource? value)
+        {
+            OnPropertyChanged(nameof(UnitPortrait));
         }
     }
 }
