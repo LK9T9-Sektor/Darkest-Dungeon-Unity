@@ -32,7 +32,9 @@
     верхний `TorchView` пока остаётся.
 - [x] 3. `BuffTableOverlayView`: вынести inline-таблицу из `DuelBattleView`, добавить
   портрет, позицию, имя и класс через существующие контролы без стрелок.
-- [ ] 4. `BattleUnitCardView` (Size = 1): новая карточка, первым делом в Capture Replay.
+- [x] 4. `BattleUnitCardView` (Size = 1): новая карточка, первым делом в Capture Replay.
+  - `[i]` в replay пока неактивна: у `CaptureUnitViewModel` нет таблицы `BuffRowViewModel`;
+    подключить при встраивании карточки в бой.
 - [ ] 5. `BattleTargetOverlay`: вынести `TargetLayer` из `DuelBattleView` без изменения
   поведения; эталон — VS AI. Исправить иконку AI-превью у правой команды.
 - [ ] 6. `BattleView`: новый экран для VS AI/PvE на новых контролах; затем Capture Replay.

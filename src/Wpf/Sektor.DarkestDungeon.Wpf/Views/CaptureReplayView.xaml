@@ -4,102 +4,21 @@
              xmlns:vm="clr-namespace:Sektor.DarkestDungeon.Wpf.ViewModels"
              xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views">
     <UserControl.Resources>
-        <!-- One combatant in the formation: idle spine clip or a monster card, with attack/target frames. -->
+        <!-- Shared combatant card: position, attack/target state, Spine art, HP and stress. -->
         <DataTemplate x:Key="UnitTemplate" DataType="{x:Type vm:CaptureUnitViewModel}">
-            <Border Margin="6" Padding="8" CornerRadius="8" BorderThickness="2">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Background" Value="#241A12" />
-                        <Setter Property="BorderBrush" Value="#3A2E22" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsEnemy}" Value="True">
-                                <Setter Property="Background" Value="#2E1714" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsAttacker}" Value="True">
-                                <Setter Property="BorderBrush" Value="#E8D9B0" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsTarget}" Value="True">
-                                <Setter Property="BorderBrush" Value="#B05050" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsDead}" Value="True">
-                                <Setter Property="Opacity" Value="0.45" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <Grid Grid.Row="0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <Border CornerRadius="3" Padding="4,1" Background="#3A2E22" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding FormationLabel}" Foreground="#C8C0B0"
-                                       FontSize="10" FontWeight="Bold" />
-                        </Border>
-                        <TextBlock Grid.Column="1" Text="{Binding Name}" Foreground="#E8D9B0" FontSize="14"
-                                   FontWeight="Bold" TextTrimming="CharacterEllipsis" Margin="6,0" />
-                        <TextBlock Grid.Column="2" Text="{Binding HpText}" Foreground="#C8C0B0"
-                                   FontSize="12" Margin="8,0,0,0" />
-                    </Grid>
-
-                    <Grid Grid.Row="1" Margin="0,6,0,0">
-                        <views:SpineHeroControl ContentDirectory="{Binding ContentDirectory}"
-                                                Loop="{Binding Loop}"
-                                                AnimationCompletedCommand="{Binding DataContext.AnimationCompletedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                Visibility="{Binding HasSpineContent, Converter={StaticResource BoolToVisibility}}" />
-                        <Border Visibility="{Binding IsCard, Converter={StaticResource BoolToVisibility}}"
-                                BorderBrush="#4A3A2E" BorderThickness="1" CornerRadius="6"
-                                Background="#1A120C">
-                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                <TextBlock Text="{Binding Skeleton}" Foreground="#8A7A5A" FontSize="11"
-                                           HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                                <TextBlock Text="карточка" Foreground="#6A5A4A" FontSize="10"
-                                           HorizontalAlignment="Center" Margin="0,4,0,0" />
-                            </StackPanel>
-                        </Border>
-
-                        <Border HorizontalAlignment="Left" VerticalAlignment="Top" CornerRadius="3"
-                                Padding="5,1" Background="#E8D9B0"
-                                Visibility="{Binding IsAttacker, Converter={StaticResource BoolToVisibility}}">
-                            <TextBlock Text="АТАКА" Foreground="#14100C" FontSize="10" FontWeight="Bold" />
-                        </Border>
-                        <Border HorizontalAlignment="Right" VerticalAlignment="Top" CornerRadius="3"
-                                Padding="5,1" Background="#B05050"
-                                Visibility="{Binding IsTarget, Converter={StaticResource BoolToVisibility}}">
-                            <TextBlock Text="ЦЕЛЬ" Foreground="#FFFFFF" FontSize="10" FontWeight="Bold" />
-                        </Border>
-                    </Grid>
-
-                    <StackPanel Grid.Row="2" Margin="0,6,0,0">
-                        <Grid Visibility="{Binding HasStress, Converter={StaticResource BoolToVisibility}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="СТРЕСС" Style="{StaticResource PanelCaption}" FontSize="9"
-                                       VerticalAlignment="Center" />
-                            <ProgressBar Grid.Column="1" Minimum="0" Maximum="{Binding MaxStress}"
-                                         Value="{Binding Stress}" Height="6" Margin="6,0"
-                                         Background="#2A1C14" Foreground="#B05050" />
-                            <TextBlock Grid.Column="2" Text="{Binding StressText}" Foreground="#C8C0B0"
-                                       FontSize="10" VerticalAlignment="Center" />
-                        </Grid>
-                        <TextBlock Text="{Binding ConditionText}" Foreground="#D8A050" FontSize="10"
-                                   FontWeight="Bold" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
-                        <TextBlock Text="{Binding StatusText}" Foreground="#8A7A5A" FontSize="10"
-                                   TextTrimming="CharacterEllipsis" />
-                    </StackPanel>
-                </Grid>
-            </Border>
+            <views:BattleUnitCardView Rank="{Binding Rank}"
+                                      Hp="{Binding Hp}"
+                                      MaxHp="{Binding MaxHp}"
+                                      Stress="{Binding Stress}"
+                                      MaxStress="{Binding MaxStress}"
+                                      ContentDirectory="{Binding ContentDirectory}"
+                                      Loop="{Binding Loop}"
+                                      Skeleton="{Binding Skeleton}"
+                                      IsEnemy="{Binding IsEnemy}"
+                                      IsAttacker="{Binding IsAttacker}"
+                                      IsTarget="{Binding IsTarget}"
+                                      IsDead="{Binding IsDead}"
+                                      AnimationCompletedCommand="{Binding DataContext.AnimationCompletedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
         </DataTemplate>
     </UserControl.Resources>
 
