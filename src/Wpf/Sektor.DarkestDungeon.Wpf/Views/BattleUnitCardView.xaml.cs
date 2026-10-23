@@ -11,6 +11,7 @@ namespace Sektor.DarkestDungeon.Wpf.Views
     {
         private const int HpSegmentCount = 12;
         private const int StressSegmentCount = 10;
+        private const string DefaultActivityLabel = "АТАКА";
 
         /// <summary>Identifies the <see cref="Rank"/> dependency property.</summary>
         public static readonly DependencyProperty RankProperty = DependencyProperty.Register(
@@ -120,6 +121,24 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(ICommand),
             typeof(BattleUnitCardView),
             new PropertyMetadata(null));
+
+        /// <summary>Identifies the <see cref="ActivityLabel"/> dependency property.</summary>
+        public static readonly DependencyProperty ActivityLabelProperty = DependencyProperty.Register(
+            nameof(ActivityLabel),
+            typeof(string),
+            typeof(BattleUnitCardView),
+            new PropertyMetadata(string.Empty, OnActivityLabelChanged));
+
+        /// <summary>Identifies the read-only <see cref="ActivityText"/> dependency property.</summary>
+        private static readonly DependencyPropertyKey ActivityTextPropertyKey =
+            DependencyProperty.RegisterReadOnly(
+                nameof(ActivityText),
+                typeof(string),
+                typeof(BattleUnitCardView),
+                new PropertyMetadata(DefaultActivityLabel));
+
+        /// <summary>Identifies the read-only <see cref="ActivityText"/> dependency property.</summary>
+        public static readonly DependencyProperty ActivityTextProperty = ActivityTextPropertyKey.DependencyProperty;
 
         /// <summary>Identifies the <see cref="AnimationCompletedCommand"/> dependency property.</summary>
         public static readonly DependencyProperty AnimationCompletedCommandProperty = DependencyProperty.Register(
@@ -252,6 +271,19 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             set { SetValue(AnimationCompletedCommandProperty, value); }
         }
 
+        /// <summary>Gets or sets the activity badge text; an empty value keeps the default label.</summary>
+        public string ActivityLabel
+        {
+            get { return (string)GetValue(ActivityLabelProperty); }
+            set { SetValue(ActivityLabelProperty, value); }
+        }
+
+        /// <summary>Gets the badge text actually rendered (the default label when no activity is set).</summary>
+        public string ActivityText
+        {
+            get { return (string)GetValue(ActivityTextProperty); }
+        }
+
         private void OnInfoRightClick(object sender, MouseButtonEventArgs e)
         {
             if (InfoCommand == null)
@@ -263,6 +295,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
                 InfoCommand.Execute(parameter);
                 e.Handled = true;
             }
+        }
+
+        private static void OnActivityLabelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = (BattleUnitCardView)d;
+            string label = e.NewValue as string ?? string.Empty;
+            control.SetValue(ActivityTextPropertyKey, label.Length == 0 ? DefaultActivityLabel : label);
         }
 
         private static void OnBarValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

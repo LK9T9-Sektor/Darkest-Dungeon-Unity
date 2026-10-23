@@ -26,6 +26,7 @@
                                           IsAttacker="{Binding IsAttacker}"
                                           IsTarget="{Binding IsTarget}"
                                           IsDead="{Binding IsDead}"
+                                          ActivityLabel="{Binding ActivityLabel}"
                                           InfoCommand="{Binding InfoCommand, RelativeSource={RelativeSource AncestorType=views:BattleFieldView}}"
                                           AnimationCompletedCommand="{Binding AnimationCompletedCommand, RelativeSource={RelativeSource AncestorType=views:BattleFieldView}}" />
             </Button>

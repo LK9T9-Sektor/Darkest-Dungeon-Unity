@@ -285,6 +285,12 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   свои. Юнит отдаёт карточке контракт `IBattleFieldUnit` (`DuelUnitViewModel`, `CaptureUnitViewModel`),
   экран — коллекции `LeftUnits`/`RightUnits` и команды (`SelectCommand`, `StatsCommand`, `InfoCommand`);
   у replay команды не заданы, поэтому клики и наведение ничего не делают.
+- **Стрелка атаки в replay** — `BattleArrowView` лежит в `BattleFieldView.Overlay` у
+  `CaptureReplayView`; `CaptureReplayViewModel` кидает `AttackStarted`/`AttackFinished` вокруг
+  `AttackExecuted`. Линия идёт от верха карточки атакующего вверх, над карточками, и вниз на цель
+  (остриё вниз), поэтому не пересекает соседей; геометрия пересчитывается на `LayoutUpdated`.
+  Бейдж атакующего показывает `ActivityLabel` — id скилла из захвата; пустое значение оставляет
+  «АТАКА» (`BattleUnitCardView`).
 - **Size юнитов (1–4)** — ранг назначается кумулятивно по `size` (ядро, `16_formation_size.md`),
   карточка `185 × size` (`DuelUnitViewModel.CardWidth`). Монстры без `Stress`/некоторых резистов:
   `DuelBattleViewModel` защищён null-проверками (`?? 0`).

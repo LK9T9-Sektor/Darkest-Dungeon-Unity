@@ -160,6 +160,12 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// </summary>
         public IRelayCommand<string?> AnimationCompletedCommand { get; }
 
+        /// <summary>Raised when an attack starts replaying; carries the attacker and the target.</summary>
+        public event EventHandler<CaptureAttackEventArgs>? AttackStarted;
+
+        /// <summary>Raised when the replay leaves the attack visuals (badges, arrow).</summary>
+        public event EventHandler? AttackFinished;
+
         /// <summary>Initializes a new instance of the <see cref="CaptureReplayViewModel"/> class.</summary>
         /// <param name="navigation">The navigation service.</param>
         /// <param name="reader">The JSONL capture reader.</param>
@@ -599,6 +605,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 attacker.IsAttacker = true;
             if (target != null)
                 target.IsTarget = true;
+            if (attacker != null)
+                attacker.ActivityLabel = attack.SkillName;
+            AttackStarted?.Invoke(this, new CaptureAttackEventArgs(attacker, target));
 
             string? attackerContent = attacker == null
                 ? null
@@ -656,6 +665,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             foreach (CaptureUnitViewModel unit in units.Values)
                 unit.EndAttack();
 
+            AttackFinished?.Invoke(this, EventArgs.Empty);
             Advance();
         }
 
@@ -665,6 +675,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             {
                 unit.IsAttacker = false;
                 unit.IsTarget = false;
+                unit.ActivityLabel = string.Empty;
             }
         }
 
@@ -674,6 +685,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             IsPaused = false;
             IsAwaitingAnimation = false;
             _pendingFinishAttack = false;
+            AttackFinished?.Invoke(this, EventArgs.Empty);
             navigation.GoHome();
         }
 

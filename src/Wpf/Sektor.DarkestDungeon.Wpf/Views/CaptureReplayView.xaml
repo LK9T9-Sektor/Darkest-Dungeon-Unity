@@ -25,10 +25,14 @@
                                   Gold="{Binding Gold}" />
 
         <!-- Shared battle field: the same stage and cards as the live battle -->
-        <views:BattleFieldView Grid.Row="2"
+        <views:BattleFieldView x:Name="BattleFieldControl" Grid.Row="2"
                                LeftUnits="{Binding PartyFormation}"
                                RightUnits="{Binding Enemies}"
-                               AnimationCompletedCommand="{Binding AnimationCompletedCommand}" />
+                               AnimationCompletedCommand="{Binding AnimationCompletedCommand}">
+            <views:BattleFieldView.Overlay>
+                <views:BattleArrowView />
+            </views:BattleFieldView.Overlay>
+        </views:BattleFieldView>
 
         <!-- Bottom bar: buttons left, status center, event log right -->
         <Grid Grid.Row="3" Margin="48,12,48,24">

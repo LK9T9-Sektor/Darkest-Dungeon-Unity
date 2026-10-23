@@ -35,30 +35,30 @@ namespace Sektor.DarkestDungeon.Wpf.Views
                 viewModel.CloseStatsCommand.Execute(null);
         }
 
-        private BattleTargetOverlay TargetOverlay
+        private BattleTargetOverlay? TargetOverlay
         {
-            get { return (BattleTargetOverlay)BattleFieldControl.Overlay; }
+            get { return BattleFieldControl.Overlay as BattleTargetOverlay; }
         }
 
         internal void ShowArrowFor(DuelUnitViewModel target)
         {
-            TargetOverlay.ShowArrowFor(target);
+            TargetOverlay?.ShowArrowFor(target);
         }
 
         internal void ClearArrow()
         {
-            TargetOverlay.ClearArrow();
+            TargetOverlay?.ClearArrow();
         }
 
         private void OnFieldUnitHovered(object? sender, BattleFieldUnitEventArgs e)
         {
             if (e.Unit is DuelUnitViewModel target)
-                TargetOverlay.ShowArrowFor(target);
+                TargetOverlay?.ShowArrowFor(target);
         }
 
         private void OnFieldHoverCleared(object? sender, EventArgs e)
         {
-            TargetOverlay.ClearArrow();
+            TargetOverlay?.ClearArrow();
         }
     }
 }

@@ -202,6 +202,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets a value indicating whether the unit is the acting unit.</summary>
         public bool IsAttacker { get { return IsCurrent; } }
 
+        /// <summary>Gets the activity badge text; a live battle keeps the default label.</summary>
+        public string ActivityLabel { get { return string.Empty; } }
+
         /// <summary>Gets or sets the total number of actions per round (1 unless an ability grants more).</summary>
         [ObservableProperty]
         private int _actionsTotal = 1;

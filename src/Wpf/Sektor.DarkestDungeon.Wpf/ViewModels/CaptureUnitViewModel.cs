@@ -104,6 +104,11 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         [ObservableProperty]
         private bool _isTarget;
 
+        /// <summary>Gets or sets the activity badge text (the skill id while an attack is replayed;
+        /// empty keeps the default label).</summary>
+        [ObservableProperty]
+        private string _activityLabel = string.Empty;
+
         /// <summary>Gets a value indicating whether the unit has spine content to render.</summary>
         public bool HasSpineContent => !string.IsNullOrEmpty(ContentDirectory);
 
