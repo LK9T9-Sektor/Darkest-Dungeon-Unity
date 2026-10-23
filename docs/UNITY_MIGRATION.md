@@ -95,7 +95,17 @@ Path 'traits[0].reaction_act_outs[0].chance'
   провиженинга Unity 2017.4 — они дублируют `Editor\Data\UnityReferenceAssemblies\unity-4.8-api\Facades`
   Unity 7. Удалены; в папке обязаны оставаться только `Sektor.*` DLL/PDB (см. `COMPABILITY.md` §4).
 - Инструменты: `tools\unity-compile-check.ps1`, `unity-build-game.ps1`, `unity-provision-plugins.ps1`,
-  `unity-generate-battle-test-scene.ps1` → редактор 7000.0.0a10 (коммит `93802d1`).
+  `unity-generate-battle-test-scene.ps1`, `unity-reserialize.ps1`, `unity-asset-diff.ps1` → редактор
+  7000.0.0a10 (коммит `93802d1`).
+- **Пересериализация ассетов (2026-10-23):** Unity 7 переписывает ассет старого формата при каждом
+  открытии, поэтому в диффах появлялся случайный шум. Один проход зафиксирован:
+  `tools\unity-reserialize.ps1` + `BatchReserialize.Run` (`Assets\Editor\BatchReserialize.cs`)
+  перезаписали 275 префабов и 16 материалов (`Assets\Resources`, `Assets\Prefabs`, `Assets\Materials`);
+  вендорные папки (`Plugins`, `Photon*`, `Spine`, `MobileDependencyResolver`) не тронуты. Префабы
+  пишутся через `PrefabUtility.LoadPrefabContents`/`SaveAsPrefabAsset` — `AssetDatabase.ForceReserializeAssets`
+  их текстовое представление не меняет. fileID объектов сохранены, все 7 сцен открываются без
+  потерянных prefab-инстансов; проверка расхождений — `tools\unity-asset-diff.ps1` (сравнивает blob
+  из `HEAD` с рабочей копией и печатает только изменения данных, а не формата).
 - **Render Pipeline Converter не запускался** (отложено решением пользователя): материалы на built-in
   Standard-шейдере (`CoridorWall*.mat`, `Text-Title-Standard.mat` и др.) не конвертированы — под URP
   ожидаемо рисуются некорректно; визуально не проверялись. После прогона — отдельный коммит, см.
