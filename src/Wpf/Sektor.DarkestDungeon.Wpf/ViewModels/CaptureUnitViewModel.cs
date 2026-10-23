@@ -7,8 +7,10 @@ using Sektor.DarkestDungeon.Core.GameEvents;
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
     /// <summary>One combatant of the replayed capture, placed in the formation view.</summary>
-    public partial class CaptureUnitViewModel : ObservableObject
+    public partial class CaptureUnitViewModel : ObservableObject, IBattleFieldUnit
     {
+        private const int CardWidthPerRank = 185;
+
         private readonly IReadOnlyList<CombatantStatusState> statuses;
         private readonly IReadOnlyList<CombatantBuffState> buffs;
         private readonly bool capturedIsDead;
@@ -132,6 +134,9 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Gets the rank/size badge shown above the unit.</summary>
         public string FormationLabel => Size > 1 ? $"R{Rank} · x{Size}" : $"R{Rank}";
+
+        /// <summary>Gets the card width in pixels scaled by the occupied ranks.</summary>
+        public double CardWidth => CardWidthPerRank * Size;
 
         /// <summary>Gets the affliction/death's-door condition shown below the unit.</summary>
         public string ConditionText

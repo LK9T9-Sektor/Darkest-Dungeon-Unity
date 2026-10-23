@@ -41,8 +41,9 @@ size 3, `ancestor_pod_D`/`ancestor_heart_D` size 4.
 5. **Pull/Push** — `DuelBattleEvents.MoveUnit` (`DuelBattleEvents.cs:175`) после
    `RemoveAt/Insert` вызывает `RecalculateRanks()`.
 6. **Отображение** — `FormationDisplayOrder.OrderLeftToRight` сортирует по `Rank`
-   (`Raid/Party/FormationDisplayOrder.cs:46`); WPF `DuelUnitViewModel.Size`/`CardWidth = 185 × Size`
-   (`Wpf/ViewModels/DuelUnitViewModel.cs`), карточка `DuelUnitCardView.xaml` биндит ширину.
+   (`Raid/Party/FormationDisplayOrder.cs:46`); WPF `CardWidth = 185 × Size` отдаётся через
+   `IBattleFieldUnit.CardWidth` (`DuelUnitViewModel`, `CaptureUnitViewModel`), ширину биндит
+   общее поле `BattleFieldView`.
 
 ## 5. Очередь и обновления
 
@@ -96,8 +97,8 @@ size 3, `ancestor_pod_D`/`ancestor_heart_D` size 4.
 - `src/Core/Sektor.DarkestDungeon.Core.Duel/Mechanics/TurnMover.cs`, `SurpriseResolver.cs`,
   `DuelBattleEvents.cs`.
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/ViewModels/DuelUnitViewModel.cs`,
-  `DuelBattleViewModel.cs`, `DuelLobbyViewModel.cs`, `Views/DuelUnitCardView.xaml`,
-  `Views/UnitSelectionTableView.xaml`.
+  `DuelBattleViewModel.cs`, `DuelLobbyViewModel.cs`, `Views/BattleFieldView.xaml`,
+  `Views/BattleUnitCardView.xaml`, `Views/UnitSelectionTableView.xaml`.
 - `tests/Core/Sektor.DarkestDungeon.Core.Combat.Tests/FormationSizeRankTests.cs`,
   `tests/Wpf/Sektor.DarkestDungeon.Wpf.Tests/MonsterPartyBattleTests.cs`,
   `tests/Wpf/Sektor.DarkestDungeon.Wpf.Tests/MixedPartyBattleTests.cs`.

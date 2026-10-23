@@ -273,12 +273,18 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   скилл → `AiSkillPreview` (бейдж) + стрелка к цели; `move|rank` → `IsMovePreview=true` +
   ⇄-линия `DrawMoveArrow` к карточке нового ранга. Рисуется только когда `!IsLocalTurn`
   (`RedrawAiArrow`, реагирует на `IsMovePreview` в `DuelBattleView.cs`).
-- **Поле привязано к половинам** — `DuelBattleView.xaml`: две `MinWidth=820`-колонки (4 карты × 201px
-  + маржи) с фиксированным зазором 120 между ними; герои `HorizontalAlignment="Right"`, монстры
-  `Left` — фронт (ранг 1) всегда у центра. Смерть не схлопывает `Auto`-колонку и не перецентрирует
-  сетку: выжившие на своей половине рефлоу к центру (ядро `RemoveUnit` пересчитывает ранги),
-  команды не дрейфуют. `TargetLayer` Canvas перекрывает все 3 колонки (`ColumnSpan=3`), стрелки
-  считаются в координатах Viewbox от реальных позиций карточек.
+- **Поле привязано к половинам** — общий `BattleFieldView` (`Views/BattleFieldView.xaml`): две
+  `MinWidth=820`-колонки (4 карты × 201px + маржи) с фиксированным зазором 120 между ними; герои
+  `HorizontalAlignment="Right"`, монстры `Left` — фронт (ранг 1) всегда у центра. Смерть не
+  схлопывает `Auto`-колонку и не перецентрирует сетку: выжившие на своей половине рефлоу к центру
+  (ядро `RemoveUnit` пересчитывает ранги), команды не дрейфуют. Слой `BattleTargetOverlay` передаётся
+  экраном в `BattleFieldView.Overlay` и растянут на все 3 колонки, стрелки считаются в координатах
+  Viewbox от реальных позиций карточек (`CardsRoot = StageRoot`).
+- **Два экрана на одном поле** — живой бой (`DuelBattleView`) и replay (`CaptureReplayView`) используют
+  один `BattleFieldView`: карточки, раскладка и hover-хуки общие, нижние панели и верхний chrome —
+  свои. Юнит отдаёт карточке контракт `IBattleFieldUnit` (`DuelUnitViewModel`, `CaptureUnitViewModel`),
+  экран — коллекции `LeftUnits`/`RightUnits` и команды (`SelectCommand`, `StatsCommand`, `InfoCommand`);
+  у replay команды не заданы, поэтому клики и наведение ничего не делают.
 - **Size юнитов (1–4)** — ранг назначается кумулятивно по `size` (ядро, `16_formation_size.md`),
   карточка `185 × size` (`DuelUnitViewModel.CardWidth`). Монстры без `Stress`/некоторых резистов:
   `DuelBattleViewModel` защищён null-проверками (`?? 0`).
@@ -286,15 +292,14 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   героя/монстра через вкладки таблицы, обе стороны могут быть смешанными. Бой — общий
   `DuelBattleViewModel` на `StartFight` + `SetLocalTeam(Team.Heroes)`; правая сторона —
   `MonsterBrainRivalLink`. Отдельного PvE-экрана и `PveBattleViewModel` больше нет.
-- **Попап «ТВОЙ ХОД»** (`DuelUnitViewModel.TriggerTurnPopup`, `DetectTurnTransition`): при передаче
-  хода новому исполнителю `TurnPopupVisible` на 1.2с + золотая вспышка `"Turn"` в
-  `DuelUnitCardView.xaml`.
+- **Попап «ТВОЙ ХОД»** — `DuelUnitViewModel.TriggerTurnPopup` (`DetectTurnTransition`) выставляет
+  `TurnPopupVisible`/`CardFlash` на 1.2 с; общая карточка `BattleUnitCardView` эти флаги не рисует
+  (анимации оставались в удалённой `DuelUnitCardView`).
 - **Баффы/дебаффы на карточках** — `DuelUnitViewModel.StatusEffects` заполняется из
   `Character.BuffInfos` (`DuelBattleViewModel.BuildStatusEffects`): id + остаток раундов.
-- **Death's door мигает красным** — `DuelUnitViewModel.IsOnDeathsDoor` (из `character.AtDeathsDoor`,
-  `DuelBattleViewModel.ToUnit`); карточка (`DuelUnitCardView.xaml`) при `True` проигрывает
-  `ColorAnimation`-пульс (#33E83333 ↔ прозрачный, 0.75s AutoReverse) — паритет Unity
-  `FormationUnit.Update` (R=1, G/B 1↔0.4, цикл ~1.5s). При хeлье `AtDeathsDoor → false` пульс гаснет.
+- **Death's Door** — `DuelUnitViewModel.IsOnDeathsDoor` (из `character.AtDeathsDoor`,
+  `DuelBattleViewModel.ToUnit`) не даёт выставить `IsDead`; карточка `BattleUnitCardView` рисует
+  мёртвое состояние по `IsDead`. Красный пульс оставался в удалённой `DuelUnitCardView`.
 - **Spine-рантайм — вынесенные исходники, доставка в Unity DLL** — `src\Spine\Sektor.Spine`
   (netstandard2.0, `namespace Spine`) собирается из своих сорсов `src\Spine\Sektor.Spine\Source\**\*.cs`
   (переехали из `unity\Assets\Spine\SpineSharp\Source`); post-build копирует `Sektor.Spine.dll`/`.pdb`
@@ -316,12 +321,12 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   тинт = `skeleton × slot × attachment` (формула Unity `SkeletonRenderer`).
   Шейдер атласа — `SKShader.CreateBitmap(..., Clamp)`; UV — в пикселях текстуры; мапа блендов DD:
   `normal→SrcOver`, `additive→Plus`, `multiply→Modulate`, `screen→Screen`.
-- **Клики — через Microsoft.Xaml.Behaviors, не code-behind** — SCREENSHOT: `EventTrigger EventName="Click"`
-  → `Behaviors\SaveScreenshotAction` (DP `SavedCommand` получает путь PNG или null, статус — VM);
-  info-кнопка карточки (`DuelUnitCardView.xaml`): `MarkEventHandledAction` гасит `Click`, чтобы он
-  не дошёл до кнопки-слота (эквивалент прежнего `e.Handled = true`). Команды без capture-логики —
-  `InvokeCommandAction` (прецедент — right-click на слоте в `DuelBattleView.xaml`). Mouse-события
-  (стрелки/бейдж) и `Loaded`/`LayoutUpdated` остаются в code-behind: это view-геометрия, а не команды.
+- **Клики и hover — в code-behind** — info-кнопка карточки (`BattleUnitCardView.xaml.cs`,
+  `OnInfoRightClick`) и правый клик по слоту (`BattleFieldView.xaml.cs`, `OnSlotRightButtonDown`)
+  сами вызывают команду и ставят `e.Handled`, чтобы событие не дошло до кнопки-слота. Команды слоту
+  задаёт экран (`SelectCommand`/`StatsCommand`/`InfoCommand`); у replay они пустые, поэтому клики и
+  наведение ничего не делают. Стрелки/бейдж, hover карточек и `Loaded`/`LayoutUpdated` — тоже
+  view-геометрия в code-behind.
 - **Скриншот окна** — `WindowScreenshot.Capture` (`RenderTargetBitmap` + `PngBitmapEncoder`, учёт DPI)
   пишет PNG (без системного заголовка) в `screenshots/` внутри каталога сборки
   (`AppContext.BaseDirectory`), имя `screenshot-<yyyy-MM-dd_HH-mm-ss-fff>.png`. Префикс имени — отдельная
@@ -526,6 +531,6 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/HeroIconsContent.props` + `tools/hero-icons-content.ps1`
   (генератор линков: 75 портретов/баннеров + 105 иконок способностей = 180 записей)
 - `docs/mechanics/presentation/spine_transparency_vertex_colors.md` (разбор дефекта vertex colors)
-- `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/DuelUnitCardView.xaml` (death's door pulse, «ТВОЙ ХОД»)
+- `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/BattleUnitCardView.xaml` (общая карточка боя и replay)
 - `src/Wpf/Sektor.DarkestDungeon.Wpf/Views/DuelBattleView.cs` (превью), `DuelBattleViewModel.cs` (пак)
 - `docs/FEATURE_DESKTOP_CLIENT.md`

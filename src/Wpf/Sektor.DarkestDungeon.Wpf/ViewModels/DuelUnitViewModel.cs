@@ -8,7 +8,7 @@ using Sektor.DarkestDungeon.Core.Combat.Mechanics.Skills;
 namespace Sektor.DarkestDungeon.Wpf.ViewModels
 {
     /// <summary>A unit card in the live duel battle view.</summary>
-    public partial class DuelUnitViewModel : ObservableObject
+    public partial class DuelUnitViewModel : ObservableObject, IBattleFieldUnit
     {
         /// <summary>Gets the combat id.</summary>
         public int CombatId { get; }
@@ -193,6 +193,15 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
         /// <summary>Gets a value indicating whether the unit is dead (outside Death's Door).</summary>
         public bool IsDead { get { return HpCurrent <= 0 && !IsOnDeathsDoor; } }
 
+        /// <summary>Gets the current hit points as rendered by the shared battle field.</summary>
+        public int Hp { get { return HpCurrent; } }
+
+        /// <summary>Gets the maximum hit points as rendered by the shared battle field.</summary>
+        public int MaxHp { get { return HpMax; } }
+
+        /// <summary>Gets a value indicating whether the unit is the acting unit.</summary>
+        public bool IsAttacker { get { return IsCurrent; } }
+
         /// <summary>Gets or sets the total number of actions per round (1 unless an ability grants more).</summary>
         [ObservableProperty]
         private int _actionsTotal = 1;
@@ -262,6 +271,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         partial void OnHpCurrentChanged(int value)
         {
+            OnPropertyChanged(nameof(Hp));
             OnPropertyChanged(nameof(HpRatio));
             OnPropertyChanged(nameof(IsDead));
             UpdateBars();
@@ -274,8 +284,14 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         partial void OnHpMaxChanged(int value)
         {
+            OnPropertyChanged(nameof(MaxHp));
             OnPropertyChanged(nameof(HpRatio));
             UpdateBars();
+        }
+
+        partial void OnIsCurrentChanged(bool value)
+        {
+            OnPropertyChanged(nameof(IsAttacker));
         }
 
         partial void OnStressChanged(int value)

@@ -3,49 +3,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:views="clr-namespace:Sektor.DarkestDungeon.Wpf.Views"
-             xmlns:ui="clr-namespace:Sektor.DarkestDungeon.Wpf.Ui"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors">
-    <views:PumpableScreenBase.Resources>
-        <!-- Clickable duel slot: left-click targets, hover/right-click show info -->
-        <DataTemplate x:Key="DuelSlotTemplate">
-            <ContentControl Content="{Binding}">
-                <ContentControl.Template>
-                    <ControlTemplate TargetType="ContentControl">
-                        <Button Background="Transparent" BorderThickness="0" Padding="0"
-                                Command="{Binding DataContext.TargetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                CommandParameter="{Binding}"
-                                MouseEnter="OnUnitMouseEnter" MouseLeave="OnUnitMouseLeave"
-                                MouseRightButtonDown="OnUnitMouseRightButtonDown">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseRightButtonDown">
-                                    <i:InvokeCommandAction Command="{Binding DataContext.OpenStatsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                           CommandParameter="{Binding}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                            <views:BattleUnitCardView Width="{Binding CardWidth}" Height="330"
-                                                       Rank="{Binding Rank}"
-                                                       Hp="{Binding HpCurrent}"
-                                                       MaxHp="{Binding HpMax}"
-                                                       Stress="{Binding Stress}"
-                                                       MaxStress="{Binding MaxStress}"
-                                                       ContentDirectory="{Binding ContentDirectory}"
-                                                       Loop="{Binding Loop}"
-                                                       Skeleton="{Binding Skeleton}"
-                                                       IsEnemy="{Binding IsEnemy}"
-                                                       IsMirrored="{Binding IsEnemy}"
-                                                       IsAttacker="{Binding IsCurrent}"
-                                                       IsTarget="{Binding IsTarget}"
-                                                       IsDead="{Binding IsDead}"
-                                                       InfoCommand="{Binding DataContext.ToggleBuffTableCommand, RelativeSource={RelativeSource AncestorType=views:DuelBattleView}}" />
-                        </Button>
-                    </ControlTemplate>
-                </ContentControl.Template>
-            </ContentControl>
-        </DataTemplate>
-
-        <!-- Hover target layer styles are defined inline on the elements themselves (no shared
-             rectangle strip; the arrow is a badge + line + arrowhead positioned by math). -->
-    </views:PumpableScreenBase.Resources>
+             xmlns:ui="clr-namespace:Sektor.DarkestDungeon.Wpf.Ui">
 
     <Grid Background="#100C08">
         <Grid.RowDefinitions>
@@ -76,65 +34,24 @@
                                  HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="8,8,8,0" />
         </Grid>
 
-        <!-- CENTER AREA: battle field with the cards pinned to the bottom, round overlay, events -->
+        <!-- CENTER AREA: the shared battle field (cards + target overlay) and the events layer -->
         <Grid Grid.Row="1">
-            <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="24,16,24,12"
-                    Background="{StaticResource FieldBackground}" BorderBrush="{StaticResource FieldBorder}"
-                    BorderThickness="2" CornerRadius="12" />
-
-            <!-- Battle stage: unit cards keep their natural proportions (no flattening) and hug the
-                 bottom edge with a small offset -->
-            <Viewbox Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Bottom"
-                     Margin="24,0,24,12" ClipToBounds="True">
-                <Grid x:Name="BattleField">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="54" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MinWidth="820" />
-                        <ColumnDefinition Width="120" />
-                        <ColumnDefinition MinWidth="820" />
-                    </Grid.ColumnDefinitions>
-
-                    <ItemsControl Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Heroes}"
-                                  HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="8,0,8,0">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource DuelSlotTemplate}"
-                                                Margin="8,0" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <ItemsControl Grid.Row="1" Grid.Column="2" ItemsSource="{Binding Monsters}"
-                                  HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="8,0,8,0">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource DuelSlotTemplate}"
-                                                Margin="8,0" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <!-- Target layer: the selected-skill badge floats above the acting card; the hover line
-                         runs from the badge (or the actor card top in move mode) to the hovered target
-                         card and ends in an arrowhead. All drawing lives in BattleTargetOverlay. -->
-                    <views:BattleTargetOverlay x:Name="TargetOverlay"
-                                               Grid.RowSpan="2" Grid.ColumnSpan="3" Panel.ZIndex="10"
-                                               CardsRoot="{Binding ElementName=BattleField}" />
-                </Grid>
-            </Viewbox>
+            <views:BattleFieldView x:Name="BattleFieldControl"
+                                   LeftUnits="{Binding Heroes}"
+                                   RightUnits="{Binding Monsters}"
+                                   SelectCommand="{Binding TargetCommand}"
+                                   StatsCommand="{Binding OpenStatsCommand}"
+                                   InfoCommand="{Binding ToggleBuffTableCommand}"
+                                   UnitHovered="OnFieldUnitHovered"
+                                   HoverCleared="OnFieldHoverCleared">
+                <!-- Target layer: the selected-skill badge floats above the acting card; the hover line
+                     runs from the badge (or the actor card top in move mode) to the hovered target
+                     card and ends in an arrowhead. All drawing lives in BattleTargetOverlay. -->
+                <views:BattleFieldView.Overlay>
+                    <views:BattleTargetOverlay
+                        CardsRoot="{Binding StageRoot, RelativeSource={RelativeSource AncestorType=views:BattleFieldView}}" />
+                </views:BattleFieldView.Overlay>
+            </views:BattleFieldView>
 
             <views:EventsLayerView DataContext="{Binding Events}"
                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
