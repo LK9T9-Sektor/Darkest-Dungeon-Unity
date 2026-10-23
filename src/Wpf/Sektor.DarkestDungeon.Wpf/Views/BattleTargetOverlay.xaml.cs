@@ -15,10 +15,22 @@ namespace Sektor.DarkestDungeon.Wpf.Views
     /// <summary>Selected-skill badge, hover arrows and rival preview arrows over the battle cards.</summary>
     public partial class BattleTargetOverlay : UserControl
     {
-        private const double BadgeWidth = 50;
-        private const double BadgeHeight = 50;
+        private const double BadgeFallbackWidth = 58;
+        private const double BadgeFallbackHeight = 72;
         private const double BadgeGap = 6;
-        private const double BadgeLift = 0;
+        private const double BadgeLift = 8;
+
+        /// <summary>Gets the badge width; the panel widens when the skill name is shown.</summary>
+        private double BadgeWidth
+        {
+            get { return SkillBadge.ActualWidth > 0 ? SkillBadge.ActualWidth : BadgeFallbackWidth; }
+        }
+
+        /// <summary>Gets the badge height (icon square plus the name line).</summary>
+        private double BadgeHeight
+        {
+            get { return SkillBadge.ActualHeight > 0 ? SkillBadge.ActualHeight : BadgeFallbackHeight; }
+        }
         private const double ArrowHeadLength = 14;
         private const double ArrowHeadSpread = 7;
         private const int MaxSkillArrows = 4;

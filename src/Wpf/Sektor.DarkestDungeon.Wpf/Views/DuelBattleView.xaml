@@ -42,6 +42,8 @@
                                    SelectCommand="{Binding TargetCommand}"
                                    StatsCommand="{Binding OpenStatsCommand}"
                                    InfoCommand="{Binding ToggleBuffTableCommand}"
+                                   ActivityLabel="{Binding ActiveSkillLabel}"
+                                   ActivityTone="{Binding ActiveSkillTone}"
                                    UnitHovered="OnFieldUnitHovered"
                                    HoverCleared="OnFieldHoverCleared">
                 <!-- Target layer: the selected-skill badge floats above the acting card; the hover line

@@ -3,6 +3,9 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+
+using Sektor.DarkestDungeon.Wpf.Ui;
 
 namespace Sektor.DarkestDungeon.Wpf.Views
 {
@@ -128,6 +131,24 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(string),
             typeof(BattleUnitCardView),
             new PropertyMetadata(string.Empty, OnActivityLabelChanged));
+
+        /// <summary>Identifies the <see cref="ActivityTone"/> dependency property.</summary>
+        public static readonly DependencyProperty ActivityToneProperty = DependencyProperty.Register(
+            nameof(ActivityTone),
+            typeof(SkillTone),
+            typeof(BattleUnitCardView),
+            new PropertyMetadata(SkillTone.Attack, OnActivityToneChanged));
+
+        /// <summary>Identifies the read-only <see cref="ActivityBrush"/> dependency property.</summary>
+        private static readonly DependencyPropertyKey ActivityBrushPropertyKey =
+            DependencyProperty.RegisterReadOnly(
+                nameof(ActivityBrush),
+                typeof(Brush),
+                typeof(BattleUnitCardView),
+                new PropertyMetadata(SkillToneClassifier.ArrowBrush(SkillTone.Attack)));
+
+        /// <summary>Identifies the read-only <see cref="ActivityBrush"/> dependency property.</summary>
+        public static readonly DependencyProperty ActivityBrushProperty = ActivityBrushPropertyKey.DependencyProperty;
 
         /// <summary>Identifies the read-only <see cref="ActivityText"/> dependency property.</summary>
         private static readonly DependencyPropertyKey ActivityTextPropertyKey =
@@ -284,6 +305,19 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             get { return (string)GetValue(ActivityTextProperty); }
         }
 
+        /// <summary>Gets or sets the tone that colors the activity badges (attack/heal/buff).</summary>
+        public SkillTone ActivityTone
+        {
+            get { return (SkillTone)GetValue(ActivityToneProperty); }
+            set { SetValue(ActivityToneProperty, value); }
+        }
+
+        /// <summary>Gets the badge fill brush derived from the activity tone.</summary>
+        public Brush ActivityBrush
+        {
+            get { return (Brush)GetValue(ActivityBrushProperty); }
+        }
+
         private void OnInfoRightClick(object sender, MouseButtonEventArgs e)
         {
             if (InfoCommand == null)
@@ -302,6 +336,12 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             var control = (BattleUnitCardView)d;
             string label = e.NewValue as string ?? string.Empty;
             control.SetValue(ActivityTextPropertyKey, label.Length == 0 ? DefaultActivityLabel : label);
+        }
+
+        private static void OnActivityToneChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = (BattleUnitCardView)d;
+            control.SetValue(ActivityBrushPropertyKey, SkillToneClassifier.ArrowBrush((SkillTone)e.NewValue));
         }
 
         private static void OnBarValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

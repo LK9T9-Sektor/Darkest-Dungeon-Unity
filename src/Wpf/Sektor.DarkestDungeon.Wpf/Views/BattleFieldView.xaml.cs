@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
+using Sektor.DarkestDungeon.Wpf.Ui;
 using Sektor.DarkestDungeon.Wpf.ViewModels;
 
 namespace Sektor.DarkestDungeon.Wpf.Views
@@ -63,6 +64,20 @@ namespace Sektor.DarkestDungeon.Wpf.Views
             typeof(object),
             typeof(BattleFieldView),
             new PropertyMetadata(null));
+
+        /// <summary>Identifies the <see cref="ActivityLabel"/> dependency property.</summary>
+        public static readonly DependencyProperty ActivityLabelProperty = DependencyProperty.Register(
+            nameof(ActivityLabel),
+            typeof(string),
+            typeof(BattleFieldView),
+            new PropertyMetadata(string.Empty));
+
+        /// <summary>Identifies the <see cref="ActivityTone"/> dependency property.</summary>
+        public static readonly DependencyProperty ActivityToneProperty = DependencyProperty.Register(
+            nameof(ActivityTone),
+            typeof(SkillTone),
+            typeof(BattleFieldView),
+            new PropertyMetadata(SkillTone.Attack));
 
         /// <summary>Initializes a new instance of the <see cref="BattleFieldView"/> class.</summary>
         public BattleFieldView()
@@ -129,6 +144,20 @@ namespace Sektor.DarkestDungeon.Wpf.Views
         {
             get { return GetValue(OverlayProperty); }
             set { SetValue(OverlayProperty, value); }
+        }
+
+        /// <summary>Gets or sets the label shown on the acting card badge (the skill name).</summary>
+        public string ActivityLabel
+        {
+            get { return (string)GetValue(ActivityLabelProperty); }
+            set { SetValue(ActivityLabelProperty, value); }
+        }
+
+        /// <summary>Gets or sets the tone that colors the acting and target badges.</summary>
+        public SkillTone ActivityTone
+        {
+            get { return (SkillTone)GetValue(ActivityToneProperty); }
+            set { SetValue(ActivityToneProperty, value); }
         }
 
         private void OnSlotMouseEnter(object sender, MouseEventArgs e)

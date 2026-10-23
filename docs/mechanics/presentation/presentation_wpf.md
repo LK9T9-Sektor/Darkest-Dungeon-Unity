@@ -263,16 +263,21 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
 - **Валидация целей**: `DuelBattleViewModel.SelectTarget` исполняет скилл только по подсвеченной
   цели (`unit.IsTarget`) / смежному рангу (move); само ядро дополнительно отклоняет невалидную цель
   в `ExecuteLocalSkill` (`DuelController.cs:311`).
-- **Стрелка цели** — `DuelBattleView.xaml.cs` + `Ui/TargetArrowMath.cs`: при выбранной способности
-  над карточкой действующего юнита висит бейдж (имя скилла); на ховере валидной цели из центра
-  бейджа в центр карточки-цели строится прямая `Line` + треугольник-стрелка (`TargetArrowMath.ArrowHead`,
-  чистая математика; позиции через `TransformToVisual(TargetLayer)` в координаты Viewbox-сцены).
-  Бейдж позиционируется на `LayoutUpdated`, пока скилл выбран; move-режим — линия без бейджа.
+- **Бейдж скилла и стрелки цели** — `BattleTargetOverlay` (экран передаёт его в
+  `BattleFieldView.Overlay`): над действующей карточкой `SkillSquareView` с иконкой и именем скилла.
+  Размеры бейджа берутся из `ActualWidth/ActualHeight` (имя добавляет строку под иконкой), стрелки
+  выходят из края бейджа и красятся тоном скилла (`SkillToneClassifier`); позиция пересчитывается
+  на `LayoutUpdated`, `BadgeLift` поднимает бейдж над карточкой. Для скиллов без иконки (монстры)
+  `SkillSquareView` рисует заливку `ToneBrush` с инициалами (`DuelSkillViewModel.Initials`).
+- **Тон действия на карточках** — `BattleFieldView.ActivityLabel`/`ActivityTone` (действие одно на
+  ход) красят бейджи `АТАКА`/`ЦЕЛЬ` карточки: attack — красный, buff — синий, heal — зелёный; на
+  атакующем пишется имя скилла, на цели — «ЦЕЛЬ». Источник — `DuelBattleViewModel.ActiveSkillLabel`/
+  `ActiveSkillTone` (выбранный скилл или AI-превью).
 - **Превью хода соперника** (`DuelBattleViewModel.StartRivalReveal`): по wire-строке соперника
   (ИИ/сеть) показывается, что тот собирается сделать, и `1с` держится перед применением:
-  скилл → `AiSkillPreview` (бейдж) + стрелка к цели; `move|rank` → `IsMovePreview=true` +
-  ⇄-линия `DrawMoveArrow` к карточке нового ранга. Рисуется только когда `!IsLocalTurn`
-  (`RedrawAiArrow`, реагирует на `IsMovePreview` в `DuelBattleView.cs`).
+  скилл → `AiSkillPreview` (бейдж с иконкой; для монстров — фолбэк по тону) + стрелка к цели;
+  `move|rank` → `IsMovePreview=true` + ⇄-линия `DrawMoveArrow` к карточке нового ранга. Рисуется
+  только когда `!IsLocalTurn` (`RedrawAiArrow`, реагирует на `IsMovePreview` в `DuelBattleView.cs`).
 - **Поле привязано к половинам** — общий `BattleFieldView` (`Views/BattleFieldView.xaml`): две
   `MinWidth=820`-колонки (4 карты × 201px + маржи) с фиксированным зазором 120 между ними; герои
   `HorizontalAlignment="Right"`, монстры `Left` — фронт (ранг 1) всегда у центра. Смерть не
@@ -289,8 +294,8 @@ Highwayman, кнопка «АТАКА» проигрывает атаку как
   `CaptureReplayView`; `CaptureReplayViewModel` кидает `AttackStarted`/`AttackFinished` вокруг
   `AttackExecuted`. Линия идёт от верха карточки атакующего вверх, над карточками, и вниз на цель
   (остриё вниз), поэтому не пересекает соседей; геометрия пересчитывается на `LayoutUpdated`.
-  Бейдж атакующего показывает `ActivityLabel` — id скилла из захвата; пустое значение оставляет
-  «АТАКА» (`BattleUnitCardView`).
+  Бейдж атакующего и стрелка берут `ActivityLabel` из события (`AttackExecuted.SkillName` — id
+  скилла); тона в захвате нет, поэтому replay красит действие как attack (красный).
 - **Size юнитов (1–4)** — ранг назначается кумулятивно по `size` (ядро, `16_formation_size.md`),
   карточка `185 × size` (`DuelUnitViewModel.CardWidth`). Монстры без `Stress`/некоторых резистов:
   `DuelBattleViewModel` защищён null-проверками (`?? 0`).

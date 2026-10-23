@@ -44,8 +44,5 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Gets a value indicating whether the unit is dead.</summary>
         bool IsDead { get; }
-
-        /// <summary>Gets the activity text shown on the card badge (empty keeps the default label).</summary>
-        string ActivityLabel { get; }
     }
 }

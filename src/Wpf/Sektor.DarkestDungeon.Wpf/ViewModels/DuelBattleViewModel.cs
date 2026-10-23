@@ -229,6 +229,44 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             }
         }
 
+        /// <summary>Gets the skill the current side is about to use (local selection or rival preview).</summary>
+        public DuelSkillViewModel? ActiveSkill
+        {
+            get { return IsLocalTurn ? selectedSkill : AiSkillPreview; }
+        }
+
+        /// <summary>Gets the label shown on the acting card badge (the skill name while a skill is chosen).</summary>
+        public string ActiveSkillLabel
+        {
+            get
+            {
+                var skill = ActiveSkill;
+                return skill == null ? string.Empty : skill.DisplayNameUpper;
+            }
+        }
+
+        /// <summary>Gets the tone that colors the acting and target badges.</summary>
+        public Ui.SkillTone ActiveSkillTone
+        {
+            get
+            {
+                var skill = ActiveSkill;
+                return skill == null ? Ui.SkillTone.Attack : skill.Tone;
+            }
+        }
+
+        private void RaiseActiveSkill()
+        {
+            OnPropertyChanged(nameof(ActiveSkill));
+            OnPropertyChanged(nameof(ActiveSkillLabel));
+            OnPropertyChanged(nameof(ActiveSkillTone));
+        }
+
+        partial void OnAiSkillPreviewChanged(DuelSkillViewModel? value)
+        {
+            RaiseActiveSkill();
+        }
+
         /// <summary>Gets a value indicating whether the selected skill targets multiple units at once (AOE / party).</summary>
         public bool SelectedSkillIsMultiTarget
         {
@@ -331,6 +369,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             RefreshActor();
             ApplyPopups();
             AiSkillPreview = null;
+            RaiseActiveSkill();
             AiTargetPreview = null;
             IsMovePreview = false;
             DetectTurnTransition();
@@ -548,6 +587,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             AiSkillPreview = new DuelSkillViewModel(skill.Id, Ui.DisplayNames.Title(skill.Id), Ui.SkillToneClassifier.Classify(skill))
             {
                 Level = skill.Level,
+                Icon = skillCatalog?.GetSkillIcon(unit.Character.Class, skill.Id),
                 BaseInfo = Ui.SkillDetails.BuildBaseInfo(skill),
                 EffectRows = Ui.SkillDetails.BuildEffectRows(skill),
                 Details = Ui.SkillDetails.Build(skill),
@@ -721,6 +761,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             selectedSkill = null;
             selectedSkillId = null;
             OnPropertyChanged(nameof(SelectedSkill));
+            RaiseActiveSkill();
 
             if (controller.CurrentUnit == null)
                 return;
@@ -838,6 +879,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             selectedSkill = skill;
             selectedSkillId = skill.Id;
             OnPropertyChanged(nameof(SelectedSkill));
+            RaiseActiveSkill();
 
             ClearTargets();
             var unit = controller.CurrentUnit;
@@ -901,6 +943,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             selectedSkillId = null;
             isMoveMode = true;
             OnPropertyChanged(nameof(SelectedSkill));
+            RaiseActiveSkill();
             foreach (var existing in Skills)
                 existing.IsSelected = false;
             ClearTargets();

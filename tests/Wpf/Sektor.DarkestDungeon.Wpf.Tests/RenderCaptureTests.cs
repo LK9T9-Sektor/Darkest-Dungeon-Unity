@@ -649,7 +649,14 @@ namespace Sektor.DarkestDungeon.Wpf.Tests
                         "The floating badge is a pure indicator (icon-only, non-clickable).");
                     Assert.That(FindVisualChildren<TextBlock>(badge).Any(tb =>
                             tb.Visibility == Visibility.Visible && tb.Text == view.SelectedSkill?.DisplayNameUpper),
-                        Is.False, "The compact badge shows no in-square text (name lives in the tooltip).");
+                        Is.True, "The badge shows the skill name under the icon.");
+
+                    var bitmap = new RenderTargetBitmap(WindowWidth, WindowHeight, 96, 96, PixelFormats.Pbgra32);
+                    bitmap.Render(duelView);
+                    var encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                    using (var stream = File.Create(Path.Combine(Path.GetTempPath(), "duel-badge.png")))
+                        encoder.Save(stream);
                 }
                 catch (Exception e)
                 {

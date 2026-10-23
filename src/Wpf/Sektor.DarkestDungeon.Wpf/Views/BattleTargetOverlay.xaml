@@ -6,7 +6,7 @@
              VerticalContentAlignment="Stretch">
     <Canvas x:Name="TargetLayer" ClipToBounds="False"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <views:SkillSquareView x:Name="SkillBadge" ShowName="False"
+        <views:SkillSquareView x:Name="SkillBadge" ShowName="True"
                                Visibility="Collapsed" />
 
         <!-- Move swap arrow: a straight line between the two card centers with an

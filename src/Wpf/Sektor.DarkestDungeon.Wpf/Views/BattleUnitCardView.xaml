@@ -42,11 +42,12 @@
                            VerticalAlignment="Center" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal"
                             HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Border CornerRadius="3" Padding="5,1" Background="#E8D9B0" Margin="0,0,4,0"
+                    <Border CornerRadius="3" Padding="5,1" Background="{Binding ActivityBrush, ElementName=Root}" Margin="0,0,4,0"
                             Visibility="{Binding IsAttacker, ElementName=Root, Converter={StaticResource BoolToVisibility}}">
-                        <TextBlock Text="{Binding ActivityText, ElementName=Root}" Foreground="#14100C" FontSize="10" FontWeight="Bold" />
+                        <TextBlock Text="{Binding ActivityText, ElementName=Root}" Foreground="#FFFFFF" FontSize="10" FontWeight="Bold"
+                                   MaxWidth="120" TextTrimming="CharacterEllipsis" />
                     </Border>
-                    <Border CornerRadius="3" Padding="5,1" Background="#B05050"
+                    <Border CornerRadius="3" Padding="5,1" Background="{Binding ActivityBrush, ElementName=Root}"
                             Visibility="{Binding IsTarget, ElementName=Root, Converter={StaticResource BoolToVisibility}}">
                         <TextBlock Text="ЦЕЛЬ" Foreground="#FFFFFF" FontSize="10" FontWeight="Bold" />
                     </Border>

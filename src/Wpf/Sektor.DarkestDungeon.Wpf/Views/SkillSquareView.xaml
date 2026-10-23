@@ -21,6 +21,21 @@
             <Grid>
                 <Image Source="{Binding Icon}" Stretch="UniformToFill"
                        RenderOptions.BitmapScalingMode="HighQuality" />
+                <!-- Fallback for skills without a bundled icon (monster skills): tone fill + initials. -->
+                <Border Background="{Binding ToneBrush}">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Icon}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock Text="{Binding Initials}" Foreground="#FFFFFF" FontWeight="Bold"
+                               FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
                 <Rectangle Fill="#B0606060"
                            Visibility="{Binding IsMasked, Converter={StaticResource BoolToVisibility}}" />
             </Grid>

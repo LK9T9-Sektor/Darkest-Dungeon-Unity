@@ -26,7 +26,8 @@
                                           IsAttacker="{Binding IsAttacker}"
                                           IsTarget="{Binding IsTarget}"
                                           IsDead="{Binding IsDead}"
-                                          ActivityLabel="{Binding ActivityLabel}"
+                                          ActivityLabel="{Binding ActivityLabel, RelativeSource={RelativeSource AncestorType=views:BattleFieldView}}"
+                                          ActivityTone="{Binding ActivityTone, RelativeSource={RelativeSource AncestorType=views:BattleFieldView}}"
                                           InfoCommand="{Binding InfoCommand, RelativeSource={RelativeSource AncestorType=views:BattleFieldView}}"
                                           AnimationCompletedCommand="{Binding AnimationCompletedCommand, RelativeSource={RelativeSource AncestorType=views:BattleFieldView}}" />
             </Button>
@@ -44,7 +45,7 @@
                  Margin="24,0,24,12" ClipToBounds="True">
             <Grid x:Name="Stage">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="54" />
+                    <RowDefinition Height="92" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>

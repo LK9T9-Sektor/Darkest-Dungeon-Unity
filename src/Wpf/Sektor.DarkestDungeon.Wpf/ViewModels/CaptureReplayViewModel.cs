@@ -605,9 +605,7 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
                 attacker.IsAttacker = true;
             if (target != null)
                 target.IsTarget = true;
-            if (attacker != null)
-                attacker.ActivityLabel = attack.SkillName;
-            AttackStarted?.Invoke(this, new CaptureAttackEventArgs(attacker, target));
+            AttackStarted?.Invoke(this, new CaptureAttackEventArgs(attacker, target, attack.SkillName));
 
             string? attackerContent = attacker == null
                 ? null
@@ -675,7 +673,6 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
             {
                 unit.IsAttacker = false;
                 unit.IsTarget = false;
-                unit.ActivityLabel = string.Empty;
             }
         }
 

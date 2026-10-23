@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -28,6 +29,25 @@ namespace Sektor.DarkestDungeon.Wpf.ViewModels
 
         /// <summary>Gets the uppercase display name shown below the skill button.</summary>
         public string DisplayNameUpper { get { return DisplayName.ToUpperInvariant(); } }
+
+        /// <summary>Gets the tone brush used when the skill has no icon (badge fill / arrow color).</summary>
+        public Brush ToneBrush { get { return SkillToneClassifier.ArrowBrush(Tone); } }
+
+        /// <summary>Gets the one- or two-letter fallback shown when the skill has no icon.</summary>
+        public string Initials
+        {
+            get
+            {
+                string[] words = DisplayName.Split(new[] { ' ', '_' }, StringSplitOptions.RemoveEmptyEntries);
+                if (words.Length == 0)
+                    return "?";
+
+                if (words.Length == 1)
+                    return words[0].Length > 1 ? words[0].Substring(0, 2).ToUpperInvariant() : words[0].ToUpperInvariant();
+
+                return (words[0].Substring(0, 1) + words[1].Substring(0, 1)).ToUpperInvariant();
+            }
+        }
 
         /// <summary>Gets or sets the icon image (null until one is provided).</summary>
         [ObservableProperty]

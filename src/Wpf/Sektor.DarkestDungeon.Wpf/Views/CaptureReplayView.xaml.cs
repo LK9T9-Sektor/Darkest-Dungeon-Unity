@@ -61,11 +61,13 @@ namespace Sektor.DarkestDungeon.Wpf.Views
 
         private void OnAttackStarted(object? sender, CaptureAttackEventArgs e)
         {
+            BattleFieldControl.ActivityLabel = e.SkillName ?? string.Empty;
             AttackArrow?.Show(e.Attacker, e.Target);
         }
 
         private void OnAttackFinished(object? sender, EventArgs e)
         {
+            BattleFieldControl.ActivityLabel = string.Empty;
             AttackArrow?.Hide();
         }
 
